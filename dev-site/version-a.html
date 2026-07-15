@@ -347,8 +347,15 @@
     .hp-btn-ondark:focus-visible{ outline: 3px solid var(--accent-dark); outline-offset: 2px; }
 
     /* ── HERO ── */
-    .hp-hero{ background: var(--white); }
-    .hp-hero-in{ max-width: var(--site); margin: 0 auto; padding: var(--space-9) 24px var(--space-8); }
+    .hp-hero{ background: var(--white); position: relative; overflow: hidden; }
+    /* photo bleeds in from the right edge; a white→transparent wash keeps the
+       left copy over solid white while the right half carries the image */
+    .hp-hero-bg{ position: absolute; top: 0; right: 0; bottom: 0; width: 58%; pointer-events: none; }
+    .hp-hero-bg img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hp-hero-bg::after{ content: ""; position: absolute; inset: 0;
+      background: linear-gradient(to right, #fff 0%, rgba(255,255,255,.9) 15%, rgba(255,255,255,.62) 45%, rgba(255,255,255,.42) 75%, rgba(255,255,255,.36) 100%); }
+    .hp-hero-in{ position: relative; z-index: 1; max-width: var(--site); margin: 0 auto; padding: var(--space-9) 24px var(--space-8); }
+    .hp-hero-copy{ max-width: 560px; }
     .hp-hero-h{
       font-family: var(--font-serif); font-weight: 500; font-size: 62px; line-height: 1.04;
       letter-spacing: -.015em; color: var(--ink, #0A0F1A); margin: var(--space-4) 0 0; max-width: 16ch;
@@ -358,7 +365,7 @@
     .hp-hero-actions{ margin-top: var(--space-6); }
     /* inline stat strip */
     .hp-statstrip{
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5);
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); max-width: 660px;
       margin: var(--space-8) 0 0; padding-top: var(--space-6); border-top: 1px solid var(--gray-200);
     }
     .hp-stat dt{ font-family: var(--font-serif); font-weight: 600; font-size: 40px; line-height: 1;
@@ -471,6 +478,10 @@
 
     /* ── responsive ── */
     @media (max-width: 1040px){
+      /* below tablet the photo drops away and the hero returns to full-width white */
+      .hp-hero-bg{ display: none; }
+      .hp-hero-copy{ max-width: none; }
+      .hp-statstrip{ max-width: none; }
       .hp-hero-h{ font-size: 48px; }
       .hp-tech-grid{ grid-template-columns: 1fr; }
       .hp-paths-grid{ grid-template-columns: 1fr 1fr; }
@@ -554,18 +565,24 @@
 
     <!-- ── HERO — clean editorial, serif headline, single CTA, inline stat strip ── -->
     <section class="hp-hero reveal" aria-labelledby="hp-hero-h">
+      <div class="hp-hero-bg" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1759174469221-71382a2b5bce?auto=format&fit=crop&w=1600&q=80"
+             alt="" onerror="this.style.display='none'" />
+      </div>
       <div class="hp-hero-in">
-        <span class="hp-eyebrow">Integrated Land Solutions</span>
-        <h1 id="hp-hero-h" class="hp-hero-h">Clarity for every<br />land decision.</h1>
-        <p class="hp-hero-sub">
-          Seven disciplines under one roof — brokerage, management, appraisal, and capital —
-          backed by proprietary data and 170+ land professionals across the country.
-        </p>
-        <div class="hp-hero-actions">
-          <a class="hp-btn hp-btn-primary" href="#">Search For Land
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
-          </a>
-        </div>
+        <div class="hp-hero-copy">
+          <span class="hp-eyebrow">Integrated Land Solutions</span>
+          <h1 id="hp-hero-h" class="hp-hero-h">Clarity for every<br />land decision.</h1>
+          <p class="hp-hero-sub">
+            Seven disciplines under one roof — brokerage, management, appraisal, and capital —
+            backed by proprietary data and 170+ land professionals across the country.
+          </p>
+          <div class="hp-hero-actions">
+            <a class="hp-btn hp-btn-primary" href="#">Search For Land
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+            </a>
+          </div>
+        </div><!-- /.hp-hero-copy -->
         <dl class="hp-statstrip">
           <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Transactions</dd></div>
           <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Valuations</dd></div>
