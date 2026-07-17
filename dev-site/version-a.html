@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Peoples Company — Version A</title>
+  <title>Peoples Company · Version A</title>
   <meta name="description" content="Full header + footer build-out using header style Option F (Editorial Spread)." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
@@ -44,10 +44,10 @@
     .pcf-util .sep{ opacity: .35; font-weight: 300; }
 
     /* main nav row */
-    .pcf-row{ display: flex; align-items: center; gap: 92px; padding: 0 24px 0 36px; height: 76px; }
+    .pcf-row{ display: flex; align-items: center; gap: 40px; padding: 0 24px 0 36px; height: 76px; }
     .pcf-menus{
-      list-style: none; margin: 0; padding: 0;
-      flex: 1; display: flex; align-items: center; justify-content: space-between;
+      list-style: none; margin: 0 auto 0 0; padding: 0; /* header placement option: LEFT-aligned menus */
+      flex: 0 1 auto; display: flex; align-items: center; justify-content: flex-start; gap: 34px;
       font-family: var(--font-serif); font-size: 18px; font-weight: 600;
     }
     .pcf-menus > li{ position: static; } /* static so the mega-menu can span the full header width */
@@ -109,13 +109,17 @@
     }
 
     .pcf-searchwrap{ position: relative; flex: none; }
+    /* no persistent circle — just the ink magnifier; hover/focus fills an accent circle, icon white */
     .pcf-search{
-      width: 40px; height: 40px; border-radius: var(--radius-pill); border: 1px solid #DCE1E6;
+      width: 40px; height: 40px; border-radius: 50%; border: 0;
       display: inline-flex; align-items: center; justify-content: center; color: var(--gray-900);
       flex: none; cursor: pointer; background: transparent;
+      transition: background-color .15s ease, color .15s ease;
     }
-    .pcf-search:hover{ border-color: var(--gray-900); }
-    .pcf-search[aria-expanded="true"]{ background: var(--gray-100); border-color: var(--gray-900); }
+    .pcf-search:hover,
+    .pcf-search:focus-visible,
+    .pcf-search[aria-expanded="true"]{ background: var(--accent-light); color: #fff; }
+    .pcf-search:focus-visible{ outline: 3px solid var(--accent-dark); outline-offset: 2px; }
 
     /* search popover — opens below the magnifier, right-aligned */
     .pcf-searchpanel{
@@ -139,11 +143,11 @@
     .pcf-searchform input::placeholder{ color: var(--gray-500); }
     .pcf-searchgo{
       width: 40px; height: 40px; flex: none; border: 0; border-radius: var(--radius-pill);
-      background: var(--black); color: var(--white); cursor: pointer;
+      background: var(--accent-light); color: var(--white); cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
       transition: background-color .15s ease;
     }
-    .pcf-searchgo:hover{ background: #00000A; }
+    .pcf-searchgo:hover{ background: var(--accent-light); filter: brightness(.9); }
     @media (prefers-reduced-motion: reduce){
       .pcf-searchpanel{ transition: visibility 0s .001s; transform: none; }
       .pcf-searchpanel.open{ transition: none; }
@@ -211,24 +215,27 @@
     .pff-grid{
       display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7);
     }
-    .pff-logo{ width: 260px; max-width: 100%; height: auto; margin-top: -14px; margin-bottom: var(--space-4); }
+    .pff-logo{ width: 260px; max-width: 100%; height: auto; margin-top: -14px; margin-bottom: var(--space-5); padding-bottom: var(--space-2); }
     /* align the brand text/CTA with the "PEOPLES" wordmark (past the diamond mark) */
     .pff-brand h3, .pff-brand .pff-contact, .pff-brand .pff-cta{ padding-left: 49px; }
 
-    /* newsletter subscribe form (email + submit) — centered in the bottom bar, between the member badge and legal */
-    .pff-subscribe{ display: flex; flex-direction: column; align-items: center; gap: 8px; margin-left: auto; }
+    /* newsletter subscribe — sleeker rounded block, sits under "Find an Office" in the brand column */
+    .pff-subscribe{ display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+      padding-left: 49px; margin-top: var(--space-5); max-width: 340px; }
     .pff-subscribe .subh{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
       letter-spacing: .1em; text-transform: uppercase; color: #fff; }
-    .pff-subform{ display: flex; }
+    .pff-subform{ display: flex; align-items: center; gap: 8px; width: 100%;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.22);
+      border-radius: var(--radius-pill); padding: 4px 4px 4px 16px; }
     .pff-subform input{
-      width: 190px; border: 0; outline: 0; background: #5C636B; color: #fff;
-      font-family: var(--font-sans); font-size: 14px; padding: 8px 12px;
+      flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff;
+      font-family: var(--font-sans); font-size: 14px; padding: 8px 0;
     }
-    .pff-subform input::placeholder{ color: rgba(255,255,255,.75); }
+    .pff-subform input::placeholder{ color: rgba(255,255,255,.6); }
     .pff-subform button{
-      flex: none; border: 0; cursor: pointer; background: var(--blue); color: #06222F;
-      font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .06em;
-      text-transform: uppercase; padding: 8px 16px; transition: background-color .15s ease;
+      flex: none; border: 0; cursor: pointer; background: var(--accent-dark); color: #06222F;
+      font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .04em;
+      padding: 9px 18px; border-radius: var(--radius-pill); transition: background-color .15s ease;
     }
     .pff-subform button:hover{ background: #33c3f4; }
     .pff-tagline{ font-family: var(--font-serif); font-size: 18px; line-height: 1.45;
@@ -247,9 +254,10 @@
       text-transform: uppercase; color: #fff; margin: 0 0 var(--space-4);
     }
     .pff-brand h3{ margin-bottom: var(--space-2); }
-    .pff-col ul{ list-style: none; margin: 0; padding: 0; }
-    .pff-col li{ margin-bottom: var(--space-3); }
-    .pff-col a{ font-size: 14px; }
+    .pff-col ul{ list-style: none; margin: 0; padding: 0; overflow: visible; }
+    .pff-col li{ margin-bottom: var(--space-3); line-height: 1.4; overflow: visible; }
+    .pff-col li:first-child{ margin-top: 2px; }
+    .pff-col a{ font-size: 14px; display: inline-block; }
 
     /* bottom bar: social · IAA member · legal */
     .pff-bottom{ border-top: 1px solid rgba(255,255,255,.14); }
@@ -396,7 +404,7 @@
     .hp-acc-item{ border-bottom: 1px solid var(--gray-200); }
     .hp-acc-item > summary{
       list-style: none; cursor: pointer; display: flex; align-items: center; gap: var(--space-4);
-      padding: 22px 4px; font-family: var(--font-serif); font-size: 26px; font-weight: 500;
+      padding: 13px 4px; font-family: var(--font-serif); font-size: 22px; font-weight: 500;
       color: var(--ink, #0A0F1A); transition: color .12s ease;
     }
     .hp-acc-item > summary::-webkit-details-marker{ display: none; }
@@ -411,10 +419,15 @@
     .hp-acc-ic::before{ width: 16px; height: 2px; }
     .hp-acc-ic::after{ width: 2px; height: 16px; transition: transform .18s ease, opacity .18s ease; }
     .hp-acc-item[open] .hp-acc-ic::after{ transform: translate(-50%,-50%) scaleY(0); opacity: 0; }
-    .hp-acc-body{ padding: 0 4px 26px 52px; max-width: 72ch; }
-    .hp-acc-body p{ font-family: var(--font-sans); font-size: 16px; line-height: 1.65; color: var(--gray-600); margin: 0 0 var(--space-3); }
+    .hp-acc-body{ padding: 0 4px 16px 52px; max-width: 72ch; }
+    .hp-acc-body p{ font-family: var(--font-sans); font-size: 15px; line-height: 1.55; color: var(--gray-600); margin: 0 0 10px; }
     .hp-acc-link{ font-family: var(--font-sans); font-size: 14px; font-weight: 700; color: var(--accent-light); text-decoration: none; }
     .hp-acc-link:hover{ text-decoration: underline; text-underline-offset: 3px; }
+    /* "Explore all services" pointer at the end of the accordion */
+    .hp-acc-all{ display: inline-flex; align-items: center; gap: 8px; margin-top: var(--space-5);
+      font-family: var(--font-sans); font-size: 15px; font-weight: 700; letter-spacing: .01em;
+      color: var(--accent-light); text-decoration: none; }
+    .hp-acc-all:hover{ text-decoration: underline; text-underline-offset: 3px; }
     @media (prefers-reduced-motion: reduce){ .hp-acc-ic::after{ transition: none; } }
 
     /* ── PROPRIETARY TECHNOLOGY — dark panel ── */
@@ -428,10 +441,11 @@
       display: flex; gap: 12px; align-items: flex-start; }
     .hp-tech-feat li::before{ content:""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-dark);
       margin-top: 8px; flex: none; }
+    /* horizontal / landscape media slot (16:9), not a tall vertical block */
     .hp-tech-media{ position: relative; margin: 0; border-radius: var(--radius-md); overflow: hidden;
-      min-height: 360px; border: 1px solid rgba(0,174,239,.28);
+      aspect-ratio: 16 / 9; width: 100%; border: 1px solid rgba(0,174,239,.28);
       background: linear-gradient(135deg, #0A0F1A 0%, #0e3350 55%, var(--accent-light) 120%); }
-    .hp-tech-media img{ width: 100%; height: 100%; min-height: 360px; object-fit: cover; display: block; }
+    .hp-tech-media img{ width: 100%; height: 100%; object-fit: cover; display: block; }
     .hp-tech-cap{ position: absolute; left: 14px; bottom: 14px; z-index: 2;
       background: rgba(10,15,26,.82); border: 1px solid rgba(0,174,239,.4); border-radius: var(--radius-sm);
       padding: 8px 14px; font-family: var(--font-sans); font-size: 12px; color: #CDEBF9; letter-spacing: .02em; }
@@ -467,14 +481,20 @@
     .hp-ins-meta{ margin-top: auto; font-family: var(--font-sans); font-size: 12px; font-weight: 600;
       color: var(--gray-500); letter-spacing: .02em; }
 
-    /* ── GET IN TOUCH ── */
+    /* ── GET IN TOUCH / CONNECT — 1/3 photo + 2/3 copy band ── */
     .hp-touch{ background: var(--accent-light); color: #fff; }
-    .hp-touch-in{ padding-top: var(--space-9); padding-bottom: var(--space-9); text-align: center; }
+    .hp-touch-in{ padding-top: var(--space-9); padding-bottom: var(--space-9);
+      display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-8); align-items: center; }
+    .hp-touch-media{ position: relative; margin: 0; border-radius: var(--radius-md); overflow: hidden;
+      min-height: 280px; align-self: stretch;
+      background: linear-gradient(135deg, #0e3350 0%, var(--accent-light) 70%, var(--accent-dark) 130%); }
+    .hp-touch-media img{ width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; inset: 0; }
+    .hp-touch-copy{ min-width: 0; }
     .hp-touch-in .hp-eyebrow{ color: #CDEBF9; }
     .hp-touch-in .hp-eyebrow::before{ background: #CDEBF9; }
+    .hp-touch-in .hp-h2{ text-wrap: balance; }
     .hp-touch-p{ font-family: var(--font-sans); font-size: 17px; line-height: 1.6; color: rgba(255,255,255,.9);
-      max-width: 52ch; margin: var(--space-4) auto var(--space-6); }
-    .hp-touch-in .hp-h2{ margin-left: auto; margin-right: auto; }
+      max-width: 52ch; margin: var(--space-4) 0 var(--space-6); text-wrap: pretty; }
 
     /* ── responsive ── */
     @media (max-width: 1040px){
@@ -489,6 +509,8 @@
       .hp-ins-grid{ grid-template-columns: 1fr 1fr; }
       .hp-ins-lead{ grid-row: auto; grid-column: 1 / -1; }
       .hp-ins-lead .hp-ins-ph{ height: 240px; }
+      .hp-touch-in{ grid-template-columns: 1fr; }
+      .hp-touch-media{ min-height: 220px; }
     }
     @media (max-width: 680px){
       .hp-hero-in{ padding-top: var(--space-7); }
@@ -516,7 +538,7 @@
       <div class="pcf-brandrow">
         <div class="pcf-brandcell">
           <a href="./version-a.html" aria-label="Peoples Company home">
-            <img class="pcf-logo" src="shared/logos/peoples-company-logo.png" alt="Peoples Company — Integrated Land Solutions" />
+            <img class="pcf-logo" src="shared/logos/peoples-company-logo.png" alt="Peoples Company, Integrated Land Solutions" />
           </a>
         </div>
         <div class="pcf-stack">
@@ -566,15 +588,16 @@
     <!-- ── HERO — clean editorial, serif headline, single CTA, inline stat strip ── -->
     <section class="hp-hero reveal" aria-labelledby="hp-hero-h">
       <div class="hp-hero-bg" aria-hidden="true">
-        <img src="https://images.unsplash.com/photo-1759174469221-71382a2b5bce?auto=format&fit=crop&w=1600&q=80"
-             alt="" onerror="this.style.display='none'" />
+        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80"
+             alt=""
+             onerror="this.onerror=null;this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#0e3350 0%,#0077A8 100%)';" />
       </div>
       <div class="hp-hero-in">
         <div class="hp-hero-copy">
           <span class="hp-eyebrow">Integrated Land Solutions</span>
           <h1 id="hp-hero-h" class="hp-hero-h">Clarity for every<br />land decision.</h1>
           <p class="hp-hero-sub">
-            Seven disciplines under one roof — brokerage, management, appraisal, and capital —
+            Seven services under one roof: brokerage, management, appraisal, and capital,
             backed by proprietary data and 170+ land professionals across the country.
           </p>
           <div class="hp-hero-actions">
@@ -585,8 +608,8 @@
         </div><!-- /.hp-hero-copy -->
         <dl class="hp-statstrip">
           <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Transactions</dd></div>
-          <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Valuations</dd></div>
           <div class="hp-stat"><dt>$4B+</dt><dd>Assets Under Management</dd></div>
+          <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Valuations</dd></div>
           <div class="hp-stat"><dt>170+</dt><dd>Land Professionals</dd></div>
         </dl>
       </div>
@@ -598,7 +621,7 @@
         <div class="hp-sec-head">
           <span class="hp-eyebrow">Who We Serve</span>
           <h2 id="hp-paths-h" class="hp-h2">Start where you stand.</h2>
-          <p class="hp-lede">Tailored guidance for every relationship to the land — pick the path that fits.</p>
+          <p class="hp-lede">Tailored guidance for every relationship to the land. Pick the path that fits.</p>
         </div>
         <div class="hp-paths-grid">
           <a class="hp-path" href="#">
@@ -630,7 +653,7 @@
       <div class="hp-sec-in">
         <div class="hp-sec-head">
           <span class="hp-eyebrow">What We Do</span>
-          <h2 id="hp-svc-h" class="hp-h2">Seven disciplines. One integrated platform.</h2>
+          <h2 id="hp-svc-h" class="hp-h2">Seven services. One integrated platform.</h2>
           <p class="hp-lede">A comprehensive suite supporting the entire lifecycle of agricultural real estate.</p>
         </div>
         <div class="hp-acc">
@@ -640,11 +663,11 @@
           </details>
           <details class="hp-acc-item">
             <summary><span class="hp-acc-n">02</span><span class="hp-acc-name">Land Management</span><span class="hp-acc-ic" aria-hidden="true"></span></summary>
-            <div class="hp-acc-body"><p>Full-service stewardship that protects and grows your asset — operator selection, lease negotiation, and ongoing oversight backed by data.</p><a class="hp-acc-link" href="#">Learn more &rarr;</a></div>
+            <div class="hp-acc-body"><p>Full-service stewardship that protects and grows your asset: operator selection, lease negotiation, and ongoing oversight backed by data.</p><a class="hp-acc-link" href="#">Learn more &rarr;</a></div>
           </details>
           <details class="hp-acc-item">
             <summary><span class="hp-acc-n">03</span><span class="hp-acc-name">Agricultural Appraisal</span><span class="hp-acc-ic" aria-hidden="true"></span></summary>
-            <div class="hp-acc-body"><p>Certified, data-driven valuations powered by comparable-sales modeling — for estates, financing, transactions, and institutional portfolio reporting.</p><a class="hp-acc-link" href="#">Learn more &rarr;</a></div>
+            <div class="hp-acc-body"><p>Certified, data-driven valuations powered by comparable-sales modeling, for estates, financing, transactions, and institutional portfolio reporting.</p><a class="hp-acc-link" href="#">Learn more &rarr;</a></div>
           </details>
           <details class="hp-acc-item">
             <summary><span class="hp-acc-n">04</span><span class="hp-acc-name">Capital Markets</span><span class="hp-acc-ic" aria-hidden="true"></span></summary>
@@ -663,22 +686,23 @@
             <div class="hp-acc-body"><p>Tailored federal crop insurance programs and risk-management products that protect operations and yield against the unexpected.</p><a class="hp-acc-link" href="#">Learn more &rarr;</a></div>
           </details>
         </div>
+        <a class="hp-acc-all" href="#">Explore all services &rarr;</a>
       </div>
     </section>
 
-    <!-- ── PROPRIETARY TECHNOLOGY — left copy + Request a Demo, right media slot ── -->
+    <!-- ── PROPRIETARY TECHNOLOGY — left copy + Open Interactive Map, right media slot ── -->
     <section class="hp-tech reveal" aria-labelledby="hp-tech-h">
       <div class="hp-sec-in hp-tech-grid">
         <div class="hp-tech-copy">
           <span class="hp-eyebrow hp-eyebrow-dark">Proprietary Technology</span>
-          <h2 id="hp-tech-h" class="hp-h2 hp-h2-light">The data layer behind every decision.</h2>
-          <p class="hp-tech-p">Parcel-level soil and productivity scoring, automated valuation modeling, and a verified comparable-sales database — the proprietary intelligence powering our brokerage, appraisal, and capital work.</p>
+          <h2 id="hp-tech-h" class="hp-h2 hp-h2-light">The FarmWorth&trade; Advantage.</h2>
+          <p class="hp-tech-p">FarmWorth is our proprietary data layer: parcel-level soil and productivity scoring, automated valuation modeling, and a verified comparable-sales database, the intelligence powering our brokerage, appraisal, and capital work.</p>
           <ul class="hp-tech-feat">
             <li>Soil &amp; productivity scoring across every county</li>
             <li>Automated valuation on verified comparable sales</li>
             <li>Public and proprietary data layers in a single view</li>
           </ul>
-          <a class="hp-btn hp-btn-primary" href="#">Request a Demo</a>
+          <a class="hp-btn hp-btn-primary" href="#">Open Interactive Map</a>
         </div>
         <figure class="hp-tech-media">
           <img src="https://images.unsplash.com/photo-1757170889478-e6768a4e36c1?auto=format&fit=crop&w=1600&q=80"
@@ -710,7 +734,7 @@
             <div class="hp-ins-body">
               <span class="hp-ins-tag hp-ins-tag-research">Industry Research</span>
               <h3 class="hp-ins-title">Farmland Fundamentals: Understanding the Asset Class</h3>
-              <p class="hp-ins-excerpt">A primer on why farmland behaves differently from other real assets — returns, risk, and the case for allocation.</p>
+              <p class="hp-ins-excerpt">A primer on why farmland behaves differently from other real assets: returns, risk, and the case for allocation.</p>
               <span class="hp-ins-meta">Research Paper &middot; PDF</span>
             </div>
           </a>
@@ -754,13 +778,20 @@
       </div>
     </section>
 
-    <!-- ── GET IN TOUCH — minimal contact ── -->
+    <!-- ── GET IN TOUCH / CONNECT — 1/3 photo + 2/3 copy band ── -->
     <section class="hp-touch reveal" aria-labelledby="hp-touch-h">
       <div class="hp-sec-in hp-touch-in">
-        <span class="hp-eyebrow hp-eyebrow-dark">Get in Touch</span>
-        <h2 id="hp-touch-h" class="hp-h2 hp-h2-light">Start a conversation with a land professional.</h2>
-        <p class="hp-touch-p">Whether you're selling, managing, or investing in farmland, our regional experts are ready to help.</p>
-        <a class="hp-btn hp-btn-ondark" href="#">Contact Us</a>
+        <figure class="hp-touch-media">
+          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80"
+               alt="Land professional meeting with a client"
+               onerror="this.onerror=null;this.style.display='none';" />
+        </figure>
+        <div class="hp-touch-copy">
+          <span class="hp-eyebrow hp-eyebrow-dark">Connect</span>
+          <h2 id="hp-touch-h" class="hp-h2 hp-h2-light">Get connected with a land&nbsp;professional.</h2>
+          <p class="hp-touch-p">Whether you are selling, investing, or managing farmland, our local team members are ready to serve.</p>
+          <a class="hp-btn hp-btn-ondark" href="#">Find a Land Professional</a>
+        </div>
       </div>
     </section>
 
@@ -782,17 +813,24 @@
           <div class="pff-cta">
             <a class="btn btn-ghost" href="#">Find an Office</a>
           </div>
+          <div class="pff-subscribe">
+            <span class="subh">Subscribe To Our Newsletter</span>
+            <form class="pff-subform" action="#" onsubmit="return false;">
+              <input type="email" placeholder="Email Address" aria-label="Email address" required />
+              <button type="submit">Subscribe</button>
+            </form>
+          </div>
         </div>
 
         <nav class="pff-col" aria-label="Real Estate">
           <h3>Real Estate</h3>
           <ul>
-            <li><a href="#">Farmland</a></li>
-            <li><a href="#">Development Land</a></li>
-            <li><a href="#">Commercial</a></li>
-            <li><a href="#">Residential</a></li>
+            <li><a href="#">Traditional Search</a></li>
+            <li><a href="#">AI Search</a></li>
+            <li><a href="#">Interactive Map</a></li>
             <li><a href="#">Auctions</a></li>
-            <li><a href="#">Sold Properties</a></li>
+            <li><a href="#">Prior Transactions</a></li>
+            <li><a href="#">Find An Agent</a></li>
           </ul>
         </nav>
 
@@ -801,7 +839,6 @@
           <ul>
             <li><a href="#">Overview</a></li>
             <li><a href="#">Regions</a></li>
-            <li><a href="#">Sustainability</a></li>
             <li><a href="#">Industry Collaboration</a></li>
             <li><a href="#">Our Team</a></li>
             <li><a href="#">Offices</a></li>
@@ -814,10 +851,10 @@
           <h3>What We Do</h3>
           <ul>
             <li><a href="#">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="#">Agricultural Appraisal</a></li>
             <li><a href="#">Land Management</a></li>
             <li><a href="#">Energy Management</a></li>
             <li><a href="#">Crop Insurance</a></li>
-            <li><a href="#">Agricultural Appraisal</a></li>
             <li><a href="#">Capital Markets</a></li>
             <li><a href="#">Corporate Services</a></li>
           </ul>
@@ -826,13 +863,12 @@
         <nav class="pff-col" aria-label="Insights &amp; News">
           <h3>Insights &amp; News</h3>
           <ul>
-            <li><a href="#">Data &amp; Tools</a></li>
-            <li><a href="#">National Land Values</a></li>
             <li><a href="#">Industry Research</a></li>
+            <li><a href="#">National Land Values</a></li>
+            <li><a href="#">Case Studies</a></li>
             <li><a href="#">Newsletters</a></li>
             <li><a href="#">Blog</a></li>
             <li><a href="#">In the News</a></li>
-            <li><a href="#">Press Releases</a></li>
             <li><a href="#">Industry Recognition</a></li>
           </ul>
         </nav>
@@ -854,14 +890,6 @@
           <span class="mtxt"><small>PROUD MEMBER OF THE</small><b>INTERNATIONAL AG ALLIANCE</b></span>
         </span>
 
-        <div class="pff-subscribe">
-          <span class="subh">Subscribe To Our Newsletter</span>
-          <form class="pff-subform" action="#" onsubmit="return false;">
-            <input type="email" placeholder="Email Address" aria-label="Email address" required />
-            <button type="submit">Subscribe</button>
-          </form>
-        </div>
-
         <span class="pff-legal">
           <span class="copy">© 2026 Peoples Company</span>
           <span class="legal-links">
@@ -879,38 +907,34 @@
     (function(){
       var NAV = [
         { label: "Real Estate", cols: [
-          { h: "For Sale", items: ["Farmland","Development Land","Commercial","Residential"] },
+          { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
           { h: "Auctions", items: ["Upcoming Auctions","Prior Auctions","Auction Results"] },
-          { h: "Sold Properties", items: [] },
-          { note: "Listings are out of scope — links are placeholders." }
+          { h: "Prior Transactions", items: [] },
+          { note: "Listings are out of scope, so links are placeholders." }
         ]},
         { label: "The Company", cols: [
-          { svc: [
-            { name: "Overview" }, { name: "Regions" }, { name: "Sustainability" },
-            { name: "Industry Collaboration" }
-          ]},
-          { svc: [
-            { name: "Our Team" }, { name: "Offices" }, { name: "Culture" }, { name: "Careers" }
-          ]}
+          { h: "The Company", items: ["Overview","Regions","Offices","Sustainability","Land Investment Expo"] },
+          { items: ["Our Team","Culture","Careers","Industry Collaboration","International Ag Alliance"] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] }
         ]},
         { label: "What We Do", cols: [
           { svc: [
-            { name: "Land Brokerage & Auctions", items: ["Marketing Approach","Sale Methods","Auction Platform","Find an Agent"] }
+            { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] },
+            { name: "Agricultural Appraisal", items: ["Order An Appraisal"] }
           ]},
           { svc: [
-            { name: "Land Management", items: ["Management Approach","Consulting","Operators","Request an Assessment"] },
+            { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] },
             { name: "Energy Management" },
             { name: "Crop Insurance" }
           ]},
           { svc: [
-            { name: "Agricultural Appraisal", items: ["Order an Appraisal"] },
             { name: "Capital Markets" },
             { name: "Corporate Services" }
           ]}
         ]},
         { label: "Insights & News", cols: [
-          { h: "Insights", items: ["Data & Tools","National Land Values","Industry Research","Newsletters","Blog"] },
-          { h: "News", items: ["In the News","Press Releases","Industry Recognition","View All"] }
+          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
         ]}
       ];
       function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) — dev-site system -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link href="./shared/main.css?v=20260601" rel="stylesheet" />
+  <title>Listing #19282 — 136.57 acres, Wayne County IA (Design G) | Peoples Company</title>
+  <meta name="description" content="Listing detail — Design G (Map Hero, Zillow / National-Land style). Wayne County, IA farmland auction: interactive-map hero, per-tract units, sticky facts + agents, downloads, terms." />
+
+  <style>
+    /* =============================================================================
+       LISTING DETAIL — Design G ("Map Hero — Zillow / National-Land style")
+       A full-width INTERACTIVE-MAP hero carries the key facts + a View Photos tile
+       (opens the shared lightbox) + Click to Bid Online. A jump-nav row sits under
+       the hero. Split body: LEFT = scrolling content (Overview, stacked per-tract
+       units each with its own gallery + clean downloads list, Video, General
+       Downloads, Terms fine print); RIGHT = a STICKY panel (auction facts + Bid +
+       both agents + shared Payment Calculator) pinned while scrolling. Bottom =
+       shared Similar-properties module. Built to the dev-site version-page style
+       (EB Garamond + Inter, main.css tokens). Header + footer are BLOCK
+       PLACEHOLDERS. Single-accent PC-BLUE, no red, colorblind-safe. Page-local CSS
+       only. Design classes prefixed dg-; shared components keep xlb-/xmc-/xsp-.
+       ============================================================================= */
+    :root{ --site: 1400px; --dg-blue:#0077A8; --dg-cyan:#00AEEF; --dg-ink:#0A0F1A; --dg-dark:#0E2A3A; }
+
+    *{ box-sizing: border-box; }
+    body{ margin: 0; background: var(--white); color: var(--color-text, #111827);
+      font-family: var(--font-sans); line-height: 1.5; }
+
+    /* ── BLOCK PLACEHOLDERS (header / footer) ───────────────────────────────── */
+    .dg-ph{ background: var(--gray-100); border: 2px dashed #C7D0D8; color: var(--gray-500);
+      font-family: var(--font-sans); font-weight: 700; font-size: 12px; letter-spacing: .14em;
+      text-transform: uppercase; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 0 24px; }
+    .dg-ph-header{ height: 112px; }
+    .dg-ph-footer{ height: 240px; margin-top: var(--space-9); }
+
+    .dg-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 24px; }
+
+    /* ── HERO: full-width interactive-map placeholder ───────────────────────── */
+    .dg-hero{ position: relative; }
+    .dg-map{ position: relative; height: 520px; overflow: hidden;
+      /* subtle "map-ish" styling: soft blue tint + faint grid + road-ish strokes */
+      background:
+        linear-gradient(135deg, #EAF3F8 0%, #DCEBF3 55%, #CFE3EE 100%);
+      border-bottom: 1px solid var(--gray-200); }
+    /* faint map grid + a couple of "route" lines drawn in CSS so it reads as a map */
+    .dg-map::before{ content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,119,168,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,119,168,.06) 1px, transparent 1px);
+      background-size: 46px 46px, 46px 46px; }
+    .dg-map::after{ content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(115deg, transparent 0 41%, rgba(255,255,255,.65) 41% 42.4%, transparent 42.4%),
+        linear-gradient(24deg, transparent 0 63%, rgba(255,255,255,.7) 63% 64.6%, transparent 64.6%),
+        radial-gradient(circle at 30% 62%, rgba(0,119,168,.14) 0 90px, transparent 92px);
+      pointer-events: none; }
+    .dg-map-label{ position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+      display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.9);
+      border: 1px solid var(--gray-200); color: var(--gray-600); font-family: var(--font-sans);
+      font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: 8px 16px; border-radius: var(--radius-pill); z-index: 2; }
+    .dg-map-label svg{ width: 15px; height: 15px; }
+    /* a map pin marker sitting over the "farm" */
+    .dg-pin{ position: absolute; left: 30%; top: 62%; transform: translate(-50%, -100%); z-index: 2;
+      color: var(--dg-blue); filter: drop-shadow(0 4px 6px rgba(10,15,26,.3)); }
+    .dg-pin svg{ width: 40px; height: 40px; }
+
+    /* facts overlaid on the hero (bottom-left card) */
+    .dg-hero-facts{ position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+      background: linear-gradient(to top, rgba(10,15,26,.82) 0%, rgba(10,15,26,.5) 55%, transparent 100%);
+      padding: var(--space-8) 24px var(--space-6); }
+    .dg-hero-facts .dg-wrap{ display: flex; flex-wrap: wrap; align-items: flex-end;
+      justify-content: space-between; gap: var(--space-5); }
+    .dg-hero-status{ display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-sans);
+      font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #CDEBF9; }
+    .dg-hero-status::before{ content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--dg-cyan); }
+    .dg-hero h1{ font-family: var(--font-serif); font-weight: 500; font-size: 40px; line-height: 1.06;
+      color: #fff; margin: var(--space-2) 0 var(--space-3); }
+    .dg-hero-loc{ font-family: var(--font-sans); font-size: 14px; color: rgba(255,255,255,.85); margin: 0; }
+    .dg-hero-keys{ list-style: none; margin: var(--space-4) 0 0; padding: 0; display: flex;
+      flex-wrap: wrap; gap: var(--space-6); }
+    .dg-hero-keys li{ display: flex; flex-direction: column; }
+    .dg-hero-keys .n{ font-family: var(--font-serif); font-size: 26px; font-weight: 600; color: #fff; line-height: 1; }
+    .dg-hero-keys .l{ font-family: var(--font-sans); font-size: 12px; letter-spacing: .05em;
+      text-transform: uppercase; color: rgba(255,255,255,.7); margin-top: 5px; }
+
+    /* hero action buttons (View Photos + Bid) */
+    .dg-hero-actions{ display: flex; flex-direction: column; gap: var(--space-3); align-items: stretch; min-width: 220px; }
+    .dg-photos-tile{ display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.5); color: #fff;
+      font-family: var(--font-sans); font-weight: 700; font-size: 15px; padding: 13px 22px;
+      border-radius: var(--radius-pill); cursor: pointer; backdrop-filter: blur(2px);
+      transition: background-color .15s ease, border-color .15s ease; }
+    .dg-photos-tile svg{ width: 18px; height: 18px; }
+    .dg-photos-tile:hover, .dg-photos-tile:focus-visible{ background: rgba(255,255,255,.26); border-color: #fff; }
+    .dg-photos-tile:focus-visible{ outline: 3px solid #fff; outline-offset: 2px; }
+    .dg-photos-tile .dg-count{ font-weight: 500; color: rgba(255,255,255,.8); }
+    .dg-bid{ display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 22px; border-radius: var(--radius-pill); background: var(--dg-cyan); color: var(--dg-ink);
+      font-family: var(--font-sans); font-weight: 700; font-size: 15px; text-decoration: none;
+      border: 2px solid var(--dg-cyan); transition: background-color .15s ease, border-color .15s ease; }
+    .dg-bid:hover, .dg-bid:focus-visible{ background: #7fd8f5; border-color: #7fd8f5; }
+    .dg-bid:focus-visible{ outline: 3px solid #fff; outline-offset: 2px; }
+
+    /* ── JUMP NAV ───────────────────────────────────────────────────────────── */
+    .dg-jump-wrap{ position: sticky; top: 0; z-index: 20; background: var(--white);
+      border-bottom: 1px solid var(--gray-200); box-shadow: 0 1px 0 rgba(10,15,26,.02); }
+    .dg-jump{ max-width: var(--site); margin: 0 auto; padding: 0 24px; display: flex; flex-wrap: wrap; gap: 2px; }
+    .dg-jump a{ display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-sans);
+      font-size: 13px; font-weight: 600; color: var(--gray-600); text-decoration: none;
+      padding: 14px 15px; border-bottom: 3px solid transparent; }
+    .dg-jump a svg{ width: 15px; height: 15px; color: var(--dg-blue); }
+    .dg-jump a:hover{ color: var(--dg-blue); border-bottom-color: var(--gray-200); }
+    .dg-jump a:focus-visible{ outline: 2px solid var(--dg-blue); outline-offset: -2px; }
+
+    /* ── SPLIT BODY ─────────────────────────────────────────────────────────── */
+    .dg-body{ max-width: var(--site); margin: 0 auto; padding: var(--space-8) 24px 0;
+      display: grid; grid-template-columns: minmax(0,1fr) 360px; gap: var(--space-8); align-items: start; }
+
+    .dg-section{ margin-bottom: var(--space-9); scroll-margin-top: 70px; }
+    .dg-section h2{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; line-height: 1.1;
+      color: var(--dg-ink); margin: 0 0 var(--space-4); }
+    .dg-eyebrow{ font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--dg-blue); margin: 0 0 var(--space-2); }
+    .dg-copy{ font-family: var(--font-sans); font-size: 16px; line-height: 1.65; color: var(--gray-600);
+      margin: 0 0 var(--space-4); max-width: 72ch; }
+
+    /* Overview fact table */
+    .dg-table{ width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 15px;
+      margin-top: var(--space-5); }
+    .dg-table th, .dg-table td{ text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--gray-200);
+      vertical-align: top; }
+    .dg-table th{ width: 180px; color: var(--gray-500); font-weight: 600; }
+    .dg-table td{ color: var(--dg-ink); }
+
+    /* Per-tract stacked unit */
+    .dg-tract{ border: 1px solid var(--gray-200); border-radius: var(--radius-lg); overflow: hidden;
+      background: var(--white); margin-bottom: var(--space-7); }
+    .dg-tract-head{ display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+      gap: var(--space-3); background: var(--gray-100); border-bottom: 1px solid var(--gray-200);
+      border-left: 4px solid var(--dg-blue); padding: var(--space-5); }
+    .dg-tract-head h3{ font-family: var(--font-serif); font-weight: 600; font-size: 24px; color: var(--dg-ink); margin: 0; }
+    .dg-tract-acres{ font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--dg-blue); }
+    .dg-tract-body{ padding: var(--space-5); }
+    .dg-tract-stats{ list-style: none; margin: 0 0 var(--space-5); padding: 0; display: grid;
+      grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+    .dg-tract-stats li{ background: var(--gray-100); border-radius: var(--radius-sm); padding: var(--space-3); }
+    .dg-tract-stats .n{ display: block; font-family: var(--font-serif); font-size: 22px; font-weight: 600;
+      color: var(--dg-ink); line-height: 1; }
+    .dg-tract-stats .l{ display: block; font-family: var(--font-sans); font-size: 11px; color: var(--gray-500);
+      margin-top: 5px; text-transform: uppercase; letter-spacing: .05em; }
+    .dg-tract-body p{ font-family: var(--font-sans); font-size: 15px; line-height: 1.65; color: var(--gray-600); margin: 0 0 var(--space-3); }
+
+    /* per-tract photo gallery */
+    .dg-gallery{ display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2);
+      margin: var(--space-4) 0 var(--space-5); }
+    .dg-photo{ aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; cursor: pointer;
+      background: linear-gradient(135deg, var(--dg-blue), var(--dg-cyan)); border: 0; padding: 0; position: relative; }
+    .dg-photo img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+    .dg-photo:focus-visible{ outline: 3px solid var(--dg-blue); outline-offset: 2px; }
+
+    /* per-tract downloads — clean list, NO icons */
+    .dg-dl-title{ font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gray-500); margin: var(--space-5) 0 var(--space-2); }
+    .dg-dl{ list-style: none; margin: 0; padding: 0; }
+    .dg-dl li{ border-bottom: 1px solid var(--gray-200); }
+    .dg-dl li:first-child{ border-top: 1px solid var(--gray-200); }
+    .dg-dl a{ display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+      font-family: var(--font-sans); font-size: 15px; color: var(--dg-ink); text-decoration: none;
+      padding: 11px 2px; }
+    .dg-dl a::after{ content: "\2193"; color: var(--dg-blue); font-weight: 700; opacity: .55; }
+    .dg-dl a:hover{ color: var(--dg-blue); }
+    .dg-dl a:hover::after{ opacity: 1; }
+    .dg-dl a:focus-visible{ outline: 2px solid var(--dg-blue); outline-offset: 2px; }
+
+    /* Video */
+    .dg-video{ position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-md); overflow: hidden;
+      background: #000; border: 1px solid var(--gray-200); }
+    .dg-video iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    /* Terms — fine print */
+    #dg-terms .dg-copy{ font-size: 13px; line-height: 1.6; color: var(--gray-500); margin-bottom: var(--space-3); max-width: 88ch; }
+    #dg-terms .dg-copy a{ color: var(--dg-blue); }
+
+    /* ── STICKY RIGHT PANEL ─────────────────────────────────────────────────── */
+    .dg-rail{ position: sticky; top: 62px; display: flex; flex-direction: column; gap: var(--space-5); }
+    .dg-card{ border: 1px solid var(--gray-200); border-radius: var(--radius-lg); background: var(--white); overflow: hidden; }
+    .dg-card-buy{ background: var(--dg-dark); color: #fff; border-color: var(--dg-dark); padding: var(--space-6); }
+    .dg-card-buy .dg-status{ display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-sans);
+      font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #CDEBF9; }
+    .dg-card-buy .dg-status::before{ content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--dg-cyan); }
+    .dg-facts{ list-style: none; margin: var(--space-4) 0 var(--space-5); padding: var(--space-4) 0;
+      border-top: 1px solid rgba(255,255,255,.15); border-bottom: 1px solid rgba(255,255,255,.15);
+      display: flex; flex-direction: column; gap: var(--space-3); }
+    .dg-facts li{ display: flex; justify-content: space-between; gap: var(--space-4); font-family: var(--font-sans); font-size: 14px; }
+    .dg-facts .k{ color: rgba(255,255,255,.7); }
+    .dg-facts .v{ font-weight: 600; text-align: right; }
+    .dg-rail-bid{ display: flex; width: 100%; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 24px; border-radius: var(--radius-pill); background: var(--dg-cyan); color: var(--dg-ink);
+      font-family: var(--font-sans); font-weight: 700; font-size: 16px; text-decoration: none;
+      border: 2px solid var(--dg-cyan); transition: background-color .15s ease, border-color .15s ease; }
+    .dg-rail-bid:hover, .dg-rail-bid:focus-visible{ background: #7fd8f5; border-color: #7fd8f5; }
+    .dg-rail-bid:focus-visible{ outline: 3px solid #fff; outline-offset: 2px; }
+    .dg-buy-note{ font-family: var(--font-sans); font-size: 12px; color: rgba(255,255,255,.65); text-align: center; margin: var(--space-3) 0 0; }
+
+    /* Agents in rail */
+    .dg-card-agents{ padding: var(--space-5); }
+    .dg-card-agents h3.dg-rail-h{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--dg-blue); margin: 0 0 var(--space-4); }
+    .dg-agent{ display: flex; gap: var(--space-3); padding: var(--space-4) 0; border-top: 1px solid var(--gray-200); }
+    .dg-agent:first-of-type{ border-top: 0; padding-top: 0; }
+    .dg-agent img{ width: 60px; height: 60px; border-radius: 50%; object-fit: cover; flex: none; background: var(--gray-100); }
+    .dg-agent-role{ font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--dg-blue); margin: 0 0 1px; }
+    .dg-agent h4{ font-family: var(--font-serif); font-size: 18px; font-weight: 600; margin: 0 0 4px; color: var(--dg-ink); }
+    .dg-agent p{ font-family: var(--font-sans); font-size: 13px; line-height: 1.5; color: var(--gray-600); margin: 0; }
+    .dg-agent a{ color: var(--dg-blue); text-decoration: none; }
+    .dg-agent a:hover{ text-decoration: underline; }
+
+    /* ── Payment calculator (shared xmc-, themed here) ──────────────────────── */
+    .dg-card-calc{ padding: var(--space-5); }
+    .dg-card-calc h3.dg-rail-h{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--dg-blue); margin: 0 0 4px; }
+    .dg-calc-note{ font-family: var(--font-sans); font-size: 12px; color: var(--gray-500); margin: 0 0 var(--space-4); }
+    .xmc-field{ margin-bottom: var(--space-3); }
+    .xmc-field label{ display: block; font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      color: var(--gray-600); margin-bottom: 4px; }
+    .xmc-field input{ width: 100%; font-family: var(--font-sans); font-size: 15px; padding: 9px 11px;
+      border: 1px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--dg-ink); background: var(--white); }
+    .xmc-field input:focus-visible{ outline: 2px solid var(--dg-blue); outline-offset: 1px; border-color: var(--dg-blue); }
+    .xmc-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+    .xmc-result{ margin-top: var(--space-4); padding: var(--space-4); background: #E8F1F6; border-radius: var(--radius-md);
+      display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+    .xmc-result .xmc-lab{ font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--gray-600);
+      text-transform: uppercase; letter-spacing: .05em; }
+    .xmc-out{ font-family: var(--font-serif); font-size: 26px; font-weight: 600; color: var(--dg-blue); }
+
+    /* ── SIMILAR PROPERTIES (shared xsp-) ───────────────────────────────────── */
+    .dg-similar{ border-top: 1px solid var(--gray-200); background: var(--gray-100);
+      margin-top: var(--space-9); padding: var(--space-8) 0; }
+    .xsp-head{ font-family: var(--font-serif); font-weight: 500; font-size: 28px; color: var(--dg-ink); margin: 0 0 4px; }
+    .xsp-note{ font-family: var(--font-sans); font-size: 13px; color: var(--gray-500); margin: 0 0 var(--space-5); }
+    .xsp-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+    .xsp-card{ background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg);
+      overflow: hidden; display: flex; flex-direction: column; }
+    .xsp-img{ aspect-ratio: 16 / 10; background: linear-gradient(135deg, var(--dg-blue), var(--dg-cyan)); }
+    .xsp-img img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+    .xsp-card-body{ padding: var(--space-5); }
+    .xsp-acres{ font-family: var(--font-serif); font-size: 22px; font-weight: 600; color: var(--dg-ink); margin: 0 0 2px; }
+    .xsp-loc{ font-family: var(--font-sans); font-size: 14px; color: var(--gray-600); margin: 0 0 var(--space-2); }
+    .xsp-type{ display: inline-block; font-family: var(--font-sans); font-size: 11px; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase; color: var(--dg-blue); background: #E8F1F6;
+      padding: 4px 10px; border-radius: var(--radius-pill); margin-bottom: var(--space-4); }
+    .xsp-link{ display: inline-block; font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      color: var(--dg-blue); text-decoration: none; }
+    .xsp-link:hover{ text-decoration: underline; }
+
+    /* ── Shared LIGHTBOX ────────────────────────────────────────────────────── */
+    .xlb[hidden]{display:none;}
+    .xlb{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(8,12,20,.92);padding:24px;}
+    .xlb-img{max-width:88vw;max-height:82vh;object-fit:contain;border-radius:8px;display:block;margin:0 auto;}
+    .xlb-cap{color:#e6ebf0;font-family:var(--font-sans);font-size:13px;text-align:center;margin-top:10px;}
+    .xlb-x,.xlb-prev,.xlb-next{position:absolute;background:rgba(255,255,255,.12);color:#fff;border:0;cursor:pointer;border-radius:999px;width:48px;height:48px;font-size:24px;line-height:1;}
+    .xlb-x{top:20px;right:20px;}
+    .xlb-prev{left:20px;top:50%;transform:translateY(-50%);}
+    .xlb-next{right:20px;top:50%;transform:translateY(-50%);}
+    .xlb-x:focus-visible,.xlb-prev:focus-visible,.xlb-next:focus-visible{outline:3px solid #fff;outline-offset:2px;}
+    .xlb-count{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:#cfd6de;font-family:var(--font-sans);font-size:13px;}
+
+    /* ── Scroll-reveal (dev-site must-have) — reduced-motion safe ────────────── */
+    .reveal{ opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in{ opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce){ .reveal{ opacity: 1; transform: none; transition: none; } }
+
+    /* ── Responsive ─────────────────────────────────────────────────────────── */
+    @media (max-width: 1040px){
+      .dg-body{ grid-template-columns: 1fr; }
+      .dg-rail{ position: static; }
+      .xsp-grid{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 760px){
+      .dg-map{ height: 420px; }
+      .dg-hero h1{ font-size: 30px; }
+      .dg-gallery{ grid-template-columns: repeat(3, 1fr); }
+      .dg-tract-stats{ grid-template-columns: 1fr 1fr; }
+      .xsp-grid{ grid-template-columns: 1fr; }
+      .dg-hero-facts .dg-wrap{ flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ================= HEADER — BLOCK PLACEHOLDER ================= -->
+  <div class="dg-ph dg-ph-header">Header — shared redesign nav (placeholder)</div>
+
+  <!-- ================= MAIN CONTENT AREA — BUILT OUT ================= -->
+  <main>
+    <!-- HERO: full-width interactive-map placeholder with overlaid facts + actions -->
+    <section class="dg-hero" id="dg-map">
+      <div class="dg-map" role="img" aria-label="Interactive map placeholder showing the farm location in Wayne County, Iowa">
+        <span class="dg-map-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="1 6 8 3 16 6 23 3 23 18 16 21 8 18 1 21"/><line x1="8" y1="3" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="21"/></svg>
+          Interactive map placeholder
+        </span>
+        <span class="dg-pin" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+        </span>
+      </div>
+
+      <div class="dg-hero-facts">
+        <div class="dg-wrap">
+          <div>
+            <span class="dg-hero-status">Upcoming Auction</span>
+            <h1>136.57 Acres, Wayne County, IA</h1>
+            <p class="dg-hero-loc">County Hwy S56 &amp; Raccoon Road, Promise City, IA 52583 · Listing #19282</p>
+            <ul class="dg-hero-keys">
+              <li><span class="n">136.57</span><span class="l">Acres M/L</span></li>
+              <li><span class="n">2</span><span class="l">Tracts</span></li>
+              <li><span class="n">Jul 15</span><span class="l">Auction · 10 AM</span></li>
+              <li><span class="n">36.9&ndash;57.3</span><span class="l">CSR2 range</span></li>
+            </ul>
+          </div>
+          <div class="dg-hero-actions">
+            <button class="dg-photos-tile" type="button" id="dg-view-photos">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              View Photos <span class="dg-count" id="dg-photo-count"></span>
+            </button>
+            <a href="https://peoplescompany.bidwrangler.com/" target="_blank" rel="noopener" class="dg-bid">Click to Bid Online</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- JUMP NAV -->
+    <div class="dg-jump-wrap">
+      <nav class="dg-jump" aria-label="Jump to section">
+        <a href="#dg-overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>Overview</a>
+        <a href="#dg-tract-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Tract 1</a>
+        <a href="#dg-tract-2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Tract 2</a>
+        <a href="#dg-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>Video</a>
+        <a href="#dg-downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Downloads</a>
+        <a href="#dg-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Terms</a>
+      </nav>
+    </div>
+
+    <!-- SPLIT BODY -->
+    <div class="dg-body">
+      <!-- LEFT: scrolling content -->
+      <div class="dg-main">
+        <!-- OVERVIEW -->
+        <section class="dg-section reveal" id="dg-overview">
+          <p class="dg-eyebrow">Property Overview</p>
+          <h2>Two-tract Wayne County land auction</h2>
+          <p class="dg-copy">Peoples Company agents, Jared Chambers &amp; Mike Nelson, are both honored to be representing The Dobberthein Family with the auction of their family farm consisting of 136.57 surveyed acres located between Promise City, Iowa, and Confidence, Iowa.</p>
+          <p class="dg-copy">Two tracts ranging in size from 55.51 surveyed acres to 81.06 surveyed acres will be offered, presenting an ideal opportunity for you to assemble good farmland, recreational land with locations overlooking exceptional views to build your dream home on, and be secluded from any immediate neighbors.</p>
+          <p class="dg-copy">The way this farm is subdivided offers something for all types of buyers. This is a rare opportunity to purchase good Wayne County, Iowa farmland that best fits your needs and at your price. The farm is leased for the current 2026 farming season with beans planted. The successful Buyer(s) will receive the second half of the 2026 cash rent at closing, with full farming rights available to the new Buyer(s) beginning March 1, 2027.</p>
+          <p class="dg-copy">These two tracts will be offered via a live Public Auction on Wednesday, July 15, 2026, beginning at 10:00 AM at the Promise City Community Center. The land will be offered as two individual tracts using the "Buyer's Choice" auction method on a price-per-acre basis, and the high bidder can take, in any order, any or both tracts for their high bid. This auction can also be viewed through the Peoples Company mobile bidding app, and online bidding will be available.</p>
+          <table class="dg-table">
+            <tr><th>Listing</th><td>#19282</td></tr>
+            <tr><th>Acres</th><td>136.57 Acres M/L (surveyed)</td></tr>
+            <tr><th>Address</th><td>County Highway S56 &amp; Raccoon Road, Promise City, IA 52583</td></tr>
+            <tr><th>MLS Number</th><td>742149</td></tr>
+            <tr><th>Net Taxes</th><td>$1,868.00 (Tract 1 $1,101.00 · Tract 2 $767.00)</td></tr>
+            <tr><th>Possession</th><td>Full farming rights beginning March 1, 2027</td></tr>
+            <tr><th>Parcels</th><td>040R26100003, 040R26300001, 040R26300002, 040R26300004, 040R35100002</td></tr>
+          </table>
+        </section>
+
+        <!-- TRACT 1 -->
+        <section class="dg-section reveal" id="dg-tract-1">
+          <article class="dg-tract">
+            <div class="dg-tract-head">
+              <h3>Tract 1</h3>
+              <span class="dg-tract-acres">81.06 Acres M/L</span>
+            </div>
+            <div class="dg-tract-body">
+              <ul class="dg-tract-stats">
+                <li><span class="n">70.23</span><span class="l">FSA Tillable ac</span></li>
+                <li><span class="n">36.9</span><span class="l">Avg CSR2</span></li>
+                <li><span class="n">86%+</span><span class="l">In production</span></li>
+                <li><span class="n">&frac12; ac</span><span class="l">Pond</span></li>
+              </ul>
+              <p>Tract 1 will be offered as 81.06 surveyed acres, which includes 70.23 FSA tillable acres that are planted to beans in 2026. The tillable soils carry an average CSR2 rating of 36.9, with over 86% of this tract currently in crop production. This highly tillable tract also has convenient highway access, making this a strong addition for farmers or agricultural investors seeking productive acres.</p>
+              <p>Beyond its agricultural strengths, the property includes a half-acre pond and also borders state owned public hunting land, offering extensive opportunities for turkey and deer hunting along with additional fishing and outdoor recreation. These features create a versatile farm that supports both income production and recreational use.</p>
+              <p><strong>Parcels:</strong> 040R26100003, 040R26300002, and part of 040R26300001 · <strong>Net taxes:</strong> $1,101.00</p>
+
+              <div class="dg-gallery" id="dg-gallery-1"><!-- Tract 1 photos injected by JS --></div>
+
+              <p class="dg-dl-title">Tract 1 Documents</p>
+              <ul class="dg-dl">
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Map.pdf" target="_blank" rel="noopener">FSA Aerial Map</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Total-Soils.pdf" target="_blank" rel="noopener">Total Soils Map</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Tillable-Soils.pdf" target="_blank" rel="noopener">Tillable Soils Map</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Field-Map-Whole-Farm.pdf" target="_blank" rel="noopener">FSA Field Map 1</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Field-Map-East-13.83-acres.pdf" target="_blank" rel="noopener">FSA Field Map 2</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-2608NorthSurvey.pdf" target="_blank" rel="noopener">T1 Survey</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Land-Disclosure-T1.pdf" target="_blank" rel="noopener">T1 Sellers Land Disclosure</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Plat-Map.pdf" target="_blank" rel="noopener">Plat Map</a></li>
+              </ul>
+            </div>
+          </article>
+        </section>
+
+        <!-- TRACT 2 -->
+        <section class="dg-section reveal" id="dg-tract-2">
+          <article class="dg-tract">
+            <div class="dg-tract-head">
+              <h3>Tract 2</h3>
+              <span class="dg-tract-acres">55.51 Acres M/L</span>
+            </div>
+            <div class="dg-tract-body">
+              <ul class="dg-tract-stats">
+                <li><span class="n">10.08</span><span class="l">FSA Tillable ac</span></li>
+                <li><span class="n">57.3</span><span class="l">CSR2 (tillable)</span></li>
+                <li><span class="n">30&times;62</span><span class="l">Steel building</span></li>
+                <li><span class="n">1</span><span class="l">Pond + live creek</span></li>
+              </ul>
+              <p>Tract 2 will be offered as 55.51 surveyed acres. This exceptional tract, with easy highway access, provides numerous secluded and scenic locations ideal for building your dream home or a hunting cabin. A 30' x 62' steel building with an attached 30' x 40' addition sits on the property, offering multiple options for you to store your machinery, equipment, and recreational items. The building includes a 30' x 30' heated workshop with a concrete floor and electric service provided by Alliant Energy. A well is already in place supplying water to the tract, and Rathbun Rural Water Association also has rural water available at County Highway S56.</p>
+              <p>This tract offers outstanding turkey and deer hunting along with endless recreational opportunities. The property features one pond, a live creek, and excellent hunting access from two sides. The timbered acres include many large, mature cottonwood, oak, and walnut trees.</p>
+              <p>Additionally, the tract contains 10.08 FSA tillable acres that are planted to beans in 2026 that carry an average CSR2 rating of 57.3 on the tillable soils. The current tenant also rents the hay acres and the two metal grain bins located on this tract. This is a fantastic tract offering convenient pavement access, private building sites along with extensive recreational opportunities.</p>
+              <p><strong>Parcels:</strong> 040R35100002, 040R26300004, and part of 040R26300001 · <strong>Net taxes:</strong> $767.00</p>
+
+              <div class="dg-gallery" id="dg-gallery-2"><!-- Tract 2 photos injected by JS --></div>
+
+              <p class="dg-dl-title">Tract 2 Documents</p>
+              <ul class="dg-dl">
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Map.pdf" target="_blank" rel="noopener">FSA Aerial Map</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Total-Soils-Map.pdf" target="_blank" rel="noopener">Total Soils Map</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Tillable-Soils-Map.pdf" target="_blank" rel="noopener">Tillable Soils Map</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Field-Map-Whole-Farm.pdf" target="_blank" rel="noopener">FSA Field Map</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-2608SouthSurvey.pdf" target="_blank" rel="noopener">T2 Survey</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Land-Disclosure-T2.pdf" target="_blank" rel="noopener">T2 Sellers Land Disclosure</a></li>
+                <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Plat.pdf" target="_blank" rel="noopener">Plat Map</a></li>
+              </ul>
+            </div>
+          </article>
+        </section>
+
+        <!-- VIDEO -->
+        <section class="dg-section reveal" id="dg-video">
+          <p class="dg-eyebrow">Property Video</p>
+          <h2>Aerial &amp; ground tour</h2>
+          <div class="dg-video">
+            <iframe src="https://www.youtube.com/embed/BWOnAtdCcu8?si=ecuyCj8YN8XOvg0q" title="Listing #19282 — Wayne County, IA property video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          </div>
+        </section>
+
+        <!-- GENERAL DOWNLOADS -->
+        <section class="dg-section reveal" id="dg-downloads">
+          <p class="dg-eyebrow">Documents</p>
+          <h2>General downloads</h2>
+          <p class="dg-copy">Property-wide documents. Per-tract maps, surveys and disclosures live within each tract unit above.</p>
+          <ul class="dg-dl">
+            <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19282_19282%20Wayne%20Co,%20IA%20Brochure%20(Pages).pdf" target="_blank" rel="noopener">Marketing Brochure</a></li>
+          </ul>
+        </section>
+
+        <!-- TERMS -->
+        <section class="dg-section reveal" id="dg-terms">
+          <p class="dg-eyebrow">Fine Print</p>
+          <h2>Terms &amp; conditions</h2>
+          <p class="dg-copy"><strong>Auction Method:</strong> Tracts 1 and 2 will be sold on a price per acre basis and will be offered through the marketing method of "Buyer's Choice", where the high bidder can take, in any order, any or all tracts for their high bid. "Buyer's Choice" auctioning will continue until both tracts have been purchased. These two tracts will not be offered in their entirety at the conclusion of the auction. Tract 1: 81.06 Surveyed Acres M/L. Tract 2: 55.51 Surveyed Acres M/L.</p>
+          <p class="dg-copy"><strong>Bidder Registration:</strong> All prospective bidders must register with Peoples Company and receive a bidder number in order to bid at the auction. Online and phone bidders must register with the Auctioneer at least 24 hours prior to the start of the auction. Peoples Company and its representatives are agents of the Seller. Winning bidder(s) acknowledge they are representing themselves in completing the auction sales transaction.</p>
+          <p class="dg-copy"><strong>Online Bidding:</strong> Register to bid at <a href="https://peoplescompany.bidwrangler.com/" target="_blank" rel="noopener">peoplescompany.bidwrangler.com</a>. Potential bidders may have access to the live auction by utilizing Peoples Company's online auction platform via the Internet. By using Peoples Company's online auction platform, bidders acknowledge that the Internet is known to be unpredictable in performance and may, from time to time, impede access, become inoperative, or provide a slow connection to the online auction platform. Bidders agree that Peoples Company nor its affiliates, members, officers, shareholders, agents, or contractors are, in any way, responsible for any interference or connectivity issues the bidder may experience when utilizing the online auction platform.</p>
+          <p class="dg-copy"><strong>Farm Program Information:</strong> Farm Program Information is provided by the Wayne County Farm Service Agency. The figures stated in the marketing materials are the best estimates of the Seller and Peoples Company; however, Farm Program Information, base acres, total crop acres, conservation plan, etc. are subject to change when the farm is reconstituted by the Wayne County FSA and NRCS offices.</p>
+          <p class="dg-copy"><strong>Conservation Plan:</strong> An updated Preliminary Conservation Plan has been created by the Wayne County NRCS office. The successful Buyer(s) will need to finalize this plan with the NRCS office after closing. The Preliminary Conservation Plan shows most of the tillable acres of this entire farm to enter into a corn – soybean rotation. The far east 13.83 FSA tillable acres of Tract 1 (Farm 2179 Tract 1674) will be required to enter into a bean-corn-bean-oats-hay (4 year) rotation. Please reference the Preliminary Conservation Plans for more information.</p>
+          <p class="dg-copy"><strong>Earnest Money Payment:</strong> A 10% earnest money payment is required on the day of the auction. The earnest money payment may be paid in the form of a certified check or wire transfer. All funds will be held in the Meyer &amp; Lain Trust Account.</p>
+          <p class="dg-copy"><strong>Closing:</strong> Closing will occur on or around Tuesday, September 1, 2026. The balance of the purchase price will be payable at closing in the form of a certified check or wire transfer. Concerning the timing of the Sellers and successful Buyer(s) in fulfilling the obligations outlined in the Real Estate Sale and Purchase Agreement, time is of the essence. Closing will be under the direction of the Meyer &amp; Lain Law Firm.</p>
+          <p class="dg-copy"><strong>Possession:</strong> Possession of the land will be given at closing, subject to the current Tenant's rights. The successful Buyer of Tract 2 will be granted full possession of the shed at the time of closing.</p>
+          <p class="dg-copy"><strong>Farm Lease:</strong> Both tracts are leased for the 2026 farming season, which consists of the tillable acres, the hay ground acres and the use of the grain bins. Both tracts will have open leases for the 2027 farming season. Full possession of the tracts will be given on March 1, 2027. Buyer(s) will receive the 2nd half of the cash rent as a credit at the time of closing. These amounts are Tract 1 $6,750.00 and Tract 2 will be $750.00.</p>
+          <p class="dg-copy"><strong>Driveway Entrances:</strong> Tract 1 has two driveway entrances off County Highway S56 with one of them needing repairs to make it more accessible. Tract 2 has two driveway entrances off County Highway S56 with one of them needing repairs to make that entrance accessible. Tract 2 also has a driveway entrance off Raccoon Road to the south. It will be the new owner(s) responsibility and cost to install or repair and driveway entrances per the Wayne County Engineer's Offices' plans and specifications. All costs associated with the installation of any new driveway entrances or repairs/widening of existing entrances, if needed, will be at the sole expense of the new Buyer(s) of each tract. The Sellers will not install any new driveway entrances or repair/widen any of the existing driveway entrances.</p>
+          <p class="dg-copy"><strong>Water Service:</strong> There is a well located on Tract 2 with water hydrants located on the property. Rathbun Rural Water Association also has rural water service available along the West side of County Highway S56.</p>
+          <p class="dg-copy"><strong>Contract &amp; Title:</strong> Immediately upon the conclusion of the auction, the high bidder(s) will enter into a Real Estate Sales Contract and deposit with Meyer &amp; Lain Trust Account the required earnest money payment. The Seller will provide a current abstract at their expense. Transfer of Title on the land will be by a Court Officer's Deed and subject to court approval.</p>
+          <p class="dg-copy"><strong>Financing:</strong> The buyer's obligation to purchase the Real Estate is unconditional and is not contingent upon the Buyer obtaining financing. All financial arrangements are to be made prior to bidding at the auction. By the mere act of bidding, the bidder makes the representation and warrants that the bidder has the present ability to pay the bid price and will fulfill the contract.</p>
+          <p class="dg-copy"><strong>Property Taxes:</strong> All real estate taxes will be prorated between the Seller and Buyer to the date of closing. Taxes for Tract 1 and Tract 2 are estimated. Final tax figures will be calculated by the Wayne County Assessor.</p>
+          <p class="dg-copy"><strong>Fences:</strong> Existing fences, if any, are in as-is condition and will not be updated or replaced by the Sellers. Not all tract and boundary lines are fenced and if needed, will be the responsibility of the Buyer at closing. All current and any future fences and fence lines shall be governed by the Wayne County and State of Iowa fence line rules and regulations. Existing fence lines may not fall directly on the legal boundary. There is no fence separating Tract 1 and Tract 2.</p>
+          <p class="dg-copy"><strong>Site Cleanup:</strong> If a site clean-up is required on any of the Tracts, it will be the new Buyer's responsibility and at the Buyer's expense.</p>
+          <p class="dg-copy"><strong>Survey Information:</strong> Both Tracts have been surveyed to determine the property boundaries and the actual gross acres being sold. If any of the tracts sell to different Buyers, then the Sellers will pay for the surveyor to put minimal stakes in at the tract splits to identify new boundaries. Any additional staking will be at the expense of the new Buyer(s) of each tract.</p>
+          <p class="dg-copy"><strong>Mineral Rights:</strong> A mineral title opinion will not be obtained or provided, and there will be no guarantee as to the ownership of the mineral interests on all tracts. The Sellers will convey 100% of whatever mineral rights are owned by the Sellers without warranty.</p>
+          <p class="dg-copy"><strong>Other:</strong> This sale is subject to all easements, covenants, leases, and restrictions of record. All property is being sold on an "As is – Where is" basis with no warranties or guarantees, expressed or implied, made by the Auctioneer, Peoples Company, or the Seller. Peoples Company and its representatives are agents of the Seller. The winning bidder acknowledges that they are representing themselves in completing the auction sales transaction. Any announcements made on auction day by the Auctioneer or Listing Agents will take precedence over all previous marketing material or oral statements. Bidding increments are at the sole discretion of the Auctioneer. No absentee or phone bids will be accepted at the auction without prior approval of the Auctioneer. The Seller reserves the right to accept or reject any or all bids. All decisions of the Auctioneer are final.</p>
+          <p class="dg-copy"><strong>Disclaimer:</strong> All field boundaries are presumed to be accurate according to the best available information and knowledge of the Seller and Peoples Company. Overall tract acres, tillable acres, etc. may vary from figures stated within the marketing material. Buyer should perform his/her investigation of the property before bidding at the auction. The brief legal descriptions in the marketing material should not be used in legal documents. Full legal descriptions will be taken from the abstract.</p>
+          <p class="dg-copy"><strong>Closing conducted by:</strong> Jenna K. Lain, Attorney at Law · Meyer &amp; Lain · 214 S. Franklin, Corydon, Iowa 50060.</p>
+        </section>
+      </div>
+
+      <!-- RIGHT: sticky panel -->
+      <aside class="dg-rail" aria-label="Auction summary and contacts">
+        <!-- Auction facts + Bid -->
+        <div class="dg-card dg-card-buy reveal">
+          <span class="dg-status">Upcoming Auction</span>
+          <ul class="dg-facts">
+            <li><span class="k">Total acres</span><span class="v">136.57 M/L</span></li>
+            <li><span class="k">Tracts</span><span class="v">2</span></li>
+            <li><span class="k">Auction date</span><span class="v">Jul 15, 2026</span></li>
+            <li><span class="k">Time</span><span class="v">10:00 AM</span></li>
+            <li><span class="k">Venue</span><span class="v">Promise City Community Center</span></li>
+            <li><span class="k">Method</span><span class="v">Buyer's Choice · per acre</span></li>
+          </ul>
+          <a href="https://peoplescompany.bidwrangler.com/" target="_blank" rel="noopener" class="dg-rail-bid">Click to Bid Online</a>
+          <p class="dg-buy-note">Land Auction · bidding via BidWrangler</p>
+        </div>
+
+        <!-- Agents -->
+        <div class="dg-card dg-card-agents reveal">
+          <h3 class="dg-rail-h">Contact the Land Agents</h3>
+          <div class="dg-agent">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/iwGX3X9aGpGJf3cvayrFjLbV0IWEoyqngqAnd39o.jpg" alt="Jared Chambers, CAI" loading="lazy"
+                 onerror="this.style.background='linear-gradient(135deg,#0077A8,#00AEEF)';this.removeAttribute('src');" />
+            <div>
+              <p class="dg-agent-role">Land Agent &amp; Auctioneer</p>
+              <h4>Jared Chambers, CAI</h4>
+              <p>Office <a href="tel:855-800-5263">855.800.LAND</a><br />Mobile <a href="tel:641-414-0234">641.414.0234</a><br /><a href="mailto:Jared@PeoplesCompany.com">Jared@PeoplesCompany.com</a></p>
+            </div>
+          </div>
+          <div class="dg-agent">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/SlHFW7naGg8WxHUB9WvWxwiDWApj6DTl2SHTw5aC.jpg" alt="Mike Nelson" loading="lazy"
+                 onerror="this.style.background='linear-gradient(135deg,#0077A8,#00AEEF)';this.removeAttribute('src');" />
+            <div>
+              <p class="dg-agent-role">Land Agent</p>
+              <h4>Mike Nelson</h4>
+              <p>Office <a href="tel:855-800-5263">855.800.LAND</a><br />Mobile <a href="tel:641-223-2300">641.223.2300</a><br /><a href="mailto:MikeNelson@PeoplesCompany.com">MikeNelson@PeoplesCompany.com</a></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment calculator (shared) -->
+        <div class="dg-card dg-card-calc reveal">
+          <h3 class="dg-rail-h">Payment Calculator</h3>
+          <p class="dg-calc-note">Estimate only.</p>
+          <form id="xmc" onsubmit="return false">
+            <div class="xmc-field">
+              <label for="xmc-price">Purchase price ($)</label>
+              <input id="xmc-price" name="price" type="number" min="0" step="1000" value="1500000" />
+            </div>
+            <div class="xmc-grid">
+              <div class="xmc-field">
+                <label for="xmc-dp">Down payment (%)</label>
+                <input id="xmc-dp" name="dp" type="number" min="0" max="100" step="1" value="30" />
+              </div>
+              <div class="xmc-field">
+                <label for="xmc-rate">Interest rate (%)</label>
+                <input id="xmc-rate" name="rate" type="number" min="0" step="0.1" value="7.0" />
+              </div>
+            </div>
+            <div class="xmc-field">
+              <label for="xmc-yrs">Term (years)</label>
+              <input id="xmc-yrs" name="yrs" type="number" min="1" step="1" value="20" />
+            </div>
+            <div class="xmc-result">
+              <span class="xmc-lab">Est. monthly P&amp;I</span>
+              <span class="xmc-out">—</span>
+            </div>
+          </form>
+        </div>
+      </aside>
+    </div>
+
+    <!-- SIMILAR PROPERTIES (shared sample module) -->
+    <section class="dg-similar reveal">
+      <div class="dg-wrap">
+        <h2 class="xsp-head">Similar properties</h2>
+        <p class="xsp-note">Sample listings · layout placeholder</p>
+        <div class="xsp-grid">
+          <article class="xsp-card">
+            <div class="xsp-img">
+              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/photos/19282_1-Drone-N.jpg" alt="Lucas County cropland aerial" loading="lazy" onerror="this.parentNode.style.background='linear-gradient(135deg,#0077A8,#00AEEF)';this.remove();" />
+            </div>
+            <div class="xsp-card-body">
+              <p class="xsp-acres">152&plusmn; acres</p>
+              <p class="xsp-loc">Lucas County, IA</p>
+              <span class="xsp-type">Cropland</span><br />
+              <a href="#" class="xsp-link">View listing →</a>
+            </div>
+          </article>
+          <article class="xsp-card">
+            <div class="xsp-img">
+              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/photos/19282_2-Drone-NW.jpg" alt="Appanoose County recreational land aerial" loading="lazy" onerror="this.parentNode.style.background='linear-gradient(135deg,#0077A8,#00AEEF)';this.remove();" />
+            </div>
+            <div class="xsp-card-body">
+              <p class="xsp-acres">78&plusmn; acres</p>
+              <p class="xsp-loc">Appanoose County, IA</p>
+              <span class="xsp-type">Recreational</span><br />
+              <a href="#" class="xsp-link">View listing →</a>
+            </div>
+          </article>
+          <article class="xsp-card">
+            <div class="xsp-img">
+              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/photos/19282_1-DJI_0132EDIT.JPG" alt="Wayne County mixed-use land aerial" loading="lazy" onerror="this.parentNode.style.background='linear-gradient(135deg,#0077A8,#00AEEF)';this.remove();" />
+            </div>
+            <div class="xsp-card-body">
+              <p class="xsp-acres">240&plusmn; acres</p>
+              <p class="xsp-loc">Wayne County, IA</p>
+              <span class="xsp-type">Mixed use</span><br />
+              <a href="#" class="xsp-link">View listing →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER — BLOCK PLACEHOLDER ================= -->
+  <div class="dg-ph dg-ph-footer">Footer — shared redesign footer (placeholder)</div>
+
+  <!-- ================= SHARED LIGHTBOX ================= -->
+  <div class="xlb" id="xlb" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="xlb-x" type="button" aria-label="Close">&#10005;</button>
+    <button class="xlb-prev" type="button" aria-label="Previous photo">&#8249;</button>
+    <figure class="xlb-fig"><img class="xlb-img" alt="" /><figcaption class="xlb-cap"></figcaption></figure>
+    <button class="xlb-next" type="button" aria-label="Next photo">&#8250;</button>
+    <div class="xlb-count"></div>
+  </div>
+
+  <script>
+    (function(){
+      var BASE = "https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/photos/";
+      /* Per-tract photo sets (feed the shared lightbox) */
+      var TRACT1 = [
+        { f:"19282_1-Drone-NW.jpg",     c:"Tract 1 — aerial from the northwest" },
+        { f:"19282_1-Drone-N.jpg",      c:"Tract 1 — aerial from the north" },
+        { f:"19282_1-Drone-NE.jpg",     c:"Tract 1 — aerial from the northeast" },
+        { f:"19282_1-Drone-SE.jpg",     c:"Tract 1 — aerial from the southeast" },
+        { f:"19282_1-Drone-S.jpg",      c:"Tract 1 — aerial from the south" },
+        { f:"19282_1-Drone-SW.jpg",     c:"Tract 1 — aerial from the southwest" },
+        { f:"19282_1-DJI_0132EDIT.JPG", c:"Tract 1 — cropland aerial" },
+        { f:"19282_1-DJI_0130.JPG",     c:"Tract 1 — cropland aerial" },
+        { f:"19282_1-DJI_0134.JPG",     c:"Tract 1 — pond and timber edge" },
+        { f:"19282_1-DJI_0137.JPG",     c:"Tract 1 — bordering public hunting land" }
+      ];
+      var TRACT2 = [
+        { f:"19282_2-Drone-NW.jpg",  c:"Tract 2 — aerial from the northwest" },
+        { f:"19282_2-Drone-N.jpg",   c:"Tract 2 — aerial from the north" },
+        { f:"19282_2-Drone-NE.jpg",  c:"Tract 2 — aerial from the northeast" },
+        { f:"19282_2-Drone-SE.jpg",  c:"Tract 2 — aerial from the southeast" },
+        { f:"19282_2-Drone-S.jpg",   c:"Tract 2 — aerial from the south" },
+        { f:"19282_2-DJI_0011.JPG",  c:"Tract 2 — building site aerial" },
+        { f:"19282_2-DJI_0051.JPG",  c:"Tract 2 — steel building & workshop" },
+        { f:"19282_2-DJI_0057.JPG",  c:"Tract 2 — timber and live creek" },
+        { f:"19282_2-IMG_9425.JPG",  c:"Tract 2 — steel building" },
+        { f:"19282_2-DJI_0072.JPG",  c:"Tract 2 — pond and pasture" }
+      ];
+
+      /* Build a per-tract gallery of lightbox-opening buttons */
+      function buildGallery(mountId, set){
+        var mount = document.getElementById(mountId);
+        if(!mount) return;
+        set.forEach(function(p){
+          var url = BASE + p.f;
+          var btn = document.createElement('button');
+          btn.className = 'dg-photo xlb-open';
+          btn.type = 'button';
+          btn.setAttribute('data-full', url);
+          btn.setAttribute('data-cap', p.c);
+          btn.setAttribute('aria-label', 'Open photo: ' + p.c);
+          var img = document.createElement('img');
+          img.src = url; img.alt = p.c; img.loading = 'lazy';
+          img.onerror = function(){ btn.style.display = 'none'; };
+          btn.appendChild(img);
+          mount.appendChild(btn);
+        });
+      }
+      buildGallery('dg-gallery-1', TRACT1);
+      buildGallery('dg-gallery-2', TRACT2);
+
+      /* Photo count in the hero "View Photos" tile */
+      var total = TRACT1.length + TRACT2.length;
+      var cntEl = document.getElementById('dg-photo-count');
+      if(cntEl){ cntEl.textContent = '(' + total + ')'; }
+
+      /* ── Shared LIGHTBOX ──────────────────────────────────────────────────── */
+      var items = [].slice.call(document.querySelectorAll('.xlb-open'));
+      var box = document.getElementById('xlb');
+      if(items.length && box){
+        var img = box.querySelector('.xlb-img'), cap = box.querySelector('.xlb-cap'), cnt = box.querySelector('.xlb-count');
+        var i = 0, last = null;
+        function show(n){ i=(n+items.length)%items.length; var el=items[i]; img.src=el.getAttribute('data-full'); img.alt=el.getAttribute('data-cap')||''; cap.textContent=el.getAttribute('data-cap')||''; cnt.textContent=(i+1)+' / '+items.length; }
+        function open(n,trig){ last=trig||null; show(n); box.hidden=false; document.body.style.overflow='hidden'; box.querySelector('.xlb-x').focus(); document.addEventListener('keydown',key); }
+        function close(){ box.hidden=true; document.body.style.overflow=''; document.removeEventListener('keydown',key); if(last)last.focus(); }
+        function key(e){ if(e.key==='Escape')close(); else if(e.key==='ArrowRight')show(i+1); else if(e.key==='ArrowLeft')show(i-1); }
+        items.forEach(function(el,n){ el.addEventListener('click',function(){open(n,el);}); el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();open(n,el);} }); });
+        box.querySelector('.xlb-x').addEventListener('click',close);
+        box.querySelector('.xlb-prev').addEventListener('click',function(){show(i-1);});
+        box.querySelector('.xlb-next').addEventListener('click',function(){show(i+1);});
+        box.addEventListener('click',function(e){ if(e.target===box)close(); });
+
+        /* Hero "View Photos" tile opens the lightbox at the first photo */
+        var vp = document.getElementById('dg-view-photos');
+        if(vp){ vp.addEventListener('click', function(){ open(0, vp); }); }
+      }
+
+      /* ── Shared payment calculator ────────────────────────────────────────── */
+      (function(){
+        var f = document.getElementById('xmc'); if(!f) return;
+        function calc(){
+          var price=+f.querySelector('[name=price]').value||0, dp=+f.querySelector('[name=dp]').value||0,
+              rate=+f.querySelector('[name=rate]').value||0, yrs=+f.querySelector('[name=yrs]').value||0;
+          var P=price*(1-dp/100), r=rate/100/12, n=yrs*12, m;
+          m=(r===0)?(n?P/n:0):P*r/(1-Math.pow(1+r,-n));
+          f.querySelector('.xmc-out').textContent = (isFinite(m)&&m>0)? ('$'+Math.round(m).toLocaleString()+'/mo') : '—';
+        }
+        f.addEventListener('input',calc); calc();
+      })();
+
+      /* ── Scroll-reveal — reduced-motion safe ──────────────────────────────── */
+      var rev = document.querySelectorAll('.reveal');
+      if(!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        rev.forEach(function(el){ el.classList.add('in'); });
+      } else {
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+        }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+        rev.forEach(function(el){ io.observe(el); });
+      }
+    })();
+  </script>
+</body>
+</html>
