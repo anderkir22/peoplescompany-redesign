@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insights &amp; Research — section design options</title>
+  <meta name="description" content="Standalone mockup: the Insights & Research homepage section in several layout directions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --serif:"EB Garamond",Georgia,serif; --sans:"Inter",system-ui,sans-serif;
+      --ink:#0F1B2A; --muted:#5A6675; --faint:#8A94A2;
+      --line:#E3E8EE; --line-2:#EEF2F6; --card:#FFFFFF; --page:#EEF1F4; --panel:#F7F9FB;
+      --blue:#0077A8; --blue-br:#00AEEF; --blue-tint:#E7F2F8;
+      --r:14px; --r-sm:10px;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:var(--page); color:var(--ink); font-family:var(--sans); line-height:1.6; }
+    img{ display:block; max-width:100%; }
+    a{ color:inherit; }
+
+    /* page chrome */
+    .pg{ max-width:1320px; margin:0 auto; padding:48px 32px 90px; }
+    .pg-h{ font-family:var(--serif); font-weight:500; font-size:40px; line-height:1.1; margin:0 0 10px; letter-spacing:-.01em; }
+    .pg-sub{ font-size:15.5px; color:var(--muted); max-width:80ch; margin:0 0 6px; }
+    .pg-model{ margin:16px 0 0; padding:14px 18px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-sm); font-size:13.5px; color:var(--muted); max-width:80ch; }
+    .pg-model b{ color:var(--ink); }
+    .pg-note{ font-size:13px; color:var(--faint); max-width:80ch; margin:12px 0 0; }
+
+    /* option framing */
+    .opt{ margin-top:52px; }
+    .opt-bar{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin:0 0 14px; padding-bottom:12px; border-bottom:2px solid var(--ink); }
+    .opt-n{ font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#fff; background:var(--blue); padding:5px 10px; border-radius:999px; }
+    .opt-name{ font-family:var(--serif); font-size:24px; font-weight:600; }
+    .opt-desc{ font-size:13.5px; color:var(--muted); }
+    .frame{ background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:38px 34px; }
+    .frame.tinted{ background:var(--panel); }
+
+    /* ── shared section furniture ── */
+    .io-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin:0 0 22px; }
+    .io-eyebrow{ display:inline-flex; align-items:center; gap:9px; font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
+    .io-eyebrow::before{ content:""; width:22px; height:2px; background:var(--blue); }
+    .io-h2{ font-family:var(--serif); font-weight:500; font-size:29px; line-height:1.12; margin:0; letter-spacing:-.01em; }
+    .io-viewmore{ font-size:13.5px; font-weight:700; color:var(--blue); text-decoration:none; white-space:nowrap; }
+    .io-viewmore:hover{ text-decoration:underline; text-underline-offset:3px; }
+    .io-block + .io-block{ margin-top:46px; padding-top:44px; border-top:1px solid var(--line-2); }
+
+    /* image wrapper + graceful fallback (blog = 16:9, insight cover = 850x1100) */
+    .io-ph{ position:relative; overflow:hidden; background:linear-gradient(135deg,#0E3350,#0077A8); }
+    .io-ph img{ width:100%; height:100%; object-fit:cover; }
+    .io-ph.r169{ aspect-ratio:16/9; }
+    .io-ph.rcover{ aspect-ratio:850/1100; }
+    .io-doctag{ position:absolute; left:12px; top:12px; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#0B3B57; background:rgba(255,255,255,.92); padding:4px 9px; border-radius:6px; }
+
+    /* text bits */
+    .io-kicker{ font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); }
+    .io-chip{ display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-tint); border-radius:999px; padding:3px 10px; }
+    .io-date{ font-size:12px; color:var(--faint); }
+    .io-metarow{ display:flex; gap:10px; align-items:center; }
+    .io-title{ font-family:var(--serif); font-weight:500; color:var(--ink); line-height:1.25; margin:0; }
+    .io-teaser{ font-size:13.5px; color:var(--muted); line-height:1.5; margin:0; }
+    .io-link,.io-more{ font-size:12.5px; font-weight:700; color:var(--blue); text-decoration:none; margin-top:2px; }
+    .io-moretag{ font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin:24px 0 4px; }
+
+    /* card base */
+    .io-card{ display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--card);
+      border:1px solid var(--line); border-radius:var(--r); overflow:hidden; transition:box-shadow .18s ease, transform .18s ease; }
+    .io-card:hover{ box-shadow:0 12px 30px rgba(15,27,42,.10); transform:translateY(-3px); }
+    .io-body{ display:flex; flex-direction:column; gap:8px; padding:16px 16px 18px; flex:1; }
+
+    /* clickable headline rows (the "older items" stack) */
+    .io-hlist{ display:flex; flex-direction:column; border-bottom:1px solid var(--line); }
+    .io-hlist2{ display:grid; grid-template-columns:1fr 1fr; column-gap:44px; border-bottom:1px solid var(--line); }
+    .io-hrow{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:12px 0; border-top:1px solid var(--line); text-decoration:none; color:inherit; }
+    .io-hrow .t{ font-family:var(--serif); font-size:16.5px; color:var(--ink); line-height:1.3; }
+    .io-hrow:hover .t{ color:var(--blue); text-decoration:underline; text-underline-offset:3px; }
+    .io-hrow .d{ font-size:12px; color:var(--faint); white-space:nowrap; flex:none; }
+
+    /* ===== Option C — Featured cards + headline columns ===== */
+    .ioC-cover3{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    .ioC-blog3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+
+    /* ===== Option D — Lead (image left) + headline list ===== */
+    .ioD-lead{ display:flex; gap:22px; text-decoration:none; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; margin:0 0 6px; transition:box-shadow .18s ease; }
+    .ioD-lead:hover{ box-shadow:0 12px 30px rgba(15,27,42,.10); }
+    .ioD-lead .io-ph.rcover{ width:210px; flex:none; }
+    .ioD-lead .io-ph.r169{ width:360px; flex:none; }
+    .ioD-lead .b{ display:flex; flex-direction:column; gap:10px; padding:22px 22px 22px 0; flex:1; align-self:center; }
+    .ioD-lead .io-title{ font-size:25px; }
+
+    /* ===== Option E — One featured + long headline ledger ===== */
+    .ioE-row{ display:grid; grid-template-columns:300px 1fr; gap:30px; align-items:start; }
+    .ioE-row .io-card .io-title{ font-size:19px; }
+    .ioE-ledger .io-hrow{ padding:14px 0; }
+    .ioE-ledger .io-hrow .t{ font-size:18px; }
+
+    /* ===== Option F — Tabbed ===== */
+    .ioF-tabs{ display:inline-flex; gap:4px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:4px; margin:0 0 22px; }
+    .ioF-tab{ border:0; background:transparent; cursor:pointer; font-family:var(--sans); font-size:14px; font-weight:600; color:var(--muted); padding:9px 20px; border-radius:999px; }
+    .ioF-tab[aria-selected="true"]{ background:var(--blue); color:#fff; }
+    .ioF-panel[hidden]{ display:none; }
+    .ioF-cover3{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    .ioF-blog3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+
+    /* ===== Option G — Unified feed + filter chips ===== */
+    .ioG-filters{ display:flex; gap:8px; margin:0 0 22px; flex-wrap:wrap; }
+    .ioG-f{ border:1px solid var(--line); background:var(--card); cursor:pointer; font-family:var(--sans); font-size:13px; font-weight:600; color:var(--muted); padding:8px 16px; border-radius:999px; }
+    .ioG-f[aria-pressed="true"]{ background:var(--ink); color:#fff; border-color:var(--ink); }
+    .ioG-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+    .ioG-type{ font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:2px 8px; border-radius:4px; color:#0B3B57; background:#DCEBF5; }
+
+    /* ===== Option A — duplicate of Option B (side-by-side; half-size vertical page + headline beside) ===== */
+    .ioA-grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:0; align-items:start; }
+    .ioA-col.blog{ padding-right:40px; }
+    .ioA-col.insights{ padding-left:40px; border-left:1px solid var(--line); }
+    .ioA-grid .ioD-lead .io-ph.r169{ width:250px; }
+    .ioA-grid .ioD-lead .io-title{ font-size:21px; }
+    .ioA-grid .ioD-lead .b{ padding:18px 18px 18px 0; }
+    .ioA-cap{ font-size:12px; color:var(--faint); margin:9px 0 0; }
+    .ioA-page{ aspect-ratio:850/1100; width:100%; position:relative; display:flex; flex-direction:column;
+      background:#fff; border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden;
+      text-decoration:none; box-shadow:0 12px 30px rgba(15,27,42,.12); }
+    .ioA-page > img, .ioB-page > img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .ioB-col .ioD-lead, .ioB-col .ioB-lead{ margin-bottom:18px; }   /* space the two stacked leads */
+    .ioA-page .pg-band{ height:10px; background:linear-gradient(90deg,var(--blue),var(--blue-br)); flex:none; }
+    .ioA-page .pg-mark{ font-family:var(--sans); font-weight:800; font-size:11px; letter-spacing:.18em; color:var(--blue); margin:24px 28px 0; }
+    .ioA-page .pg-kick{ font-family:var(--sans); font-weight:700; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin:auto 28px 0; }
+    .ioA-page .pg-title{ font-family:var(--serif); font-weight:500; font-size:27px; line-height:1.16; color:var(--ink); margin:10px 28px 0; }
+    .ioA-page .pg-foot{ font-family:var(--sans); font-size:11px; color:var(--faint); margin:16px 28px 26px; padding-top:14px; border-top:1px solid var(--line); }
+    .ioA-lead{ display:flex; gap:18px; align-items:flex-start; margin:0 0 8px; }
+    .ioA-lead .ioA-page{ flex:none; width:210px; box-shadow:0 8px 20px rgba(15,27,42,.12); }
+    .ioA-lead .ioA-page .pg-band{ height:7px; }
+    .ioA-lead .ioA-page .pg-mark{ font-size:9px; margin:15px 15px 0; letter-spacing:.14em; }
+    .ioA-lead .ioA-page .pg-kick{ font-size:9px; margin:auto 15px 0; }
+    .ioA-lead .ioA-page .pg-title{ font-size:15px; margin:6px 15px 0; line-height:1.18; }
+    .ioA-lead .ioA-page .pg-foot{ font-size:8.5px; margin:10px 15px 15px; padding-top:9px; }
+    .ioA-lead .ioA-leadbody{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
+    .ioA-lead .ioA-leadbody .io-title{ font-size:20px; }
+    @media (max-width:520px){ .ioA-lead{ flex-direction:column; } }
+    @media (max-width:900px){
+      .ioA-grid{ grid-template-columns:1fr; }
+      .ioA-col.blog{ padding-right:0; }
+      .ioA-col.insights{ padding-left:0; border-left:0; border-top:1px solid var(--line); padding-top:40px; margin-top:40px; }
+    }
+
+    /* ===== Option B — F, but Insights leads with the FULL 850x1100 cover at column width ===== */
+    .ioB-grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:0; align-items:start; }
+    .ioB-col.blog{ padding-right:40px; }
+    .ioB-col.insights{ padding-left:40px; border-left:1px solid var(--line); }
+    .ioB-grid .ioD-lead .io-ph.r169{ width:250px; }
+    .ioB-grid .ioD-lead .io-title{ font-size:21px; }
+    .ioB-grid .ioD-lead .b{ padding:18px 18px 18px 0; }
+    .ioB-cover{ display:block; width:100%; border:1px solid var(--line); border-radius:var(--r); overflow:hidden; background:#fff; }
+    .ioB-cover .io-ph{ width:100%; }
+    .ioB-cap{ font-size:12px; color:var(--faint); margin:9px 0 0; }
+    .ioB-insbody{ display:flex; flex-direction:column; gap:8px; margin:16px 0 0; }
+    /* document-page cover mock: true 850x1100 vertical page (real cover art drops in here) */
+    .ioB-page{ aspect-ratio:850/1100; width:100%; position:relative; display:flex; flex-direction:column;
+      background:#fff; border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden;
+      text-decoration:none; box-shadow:0 12px 30px rgba(15,27,42,.12); }
+    .ioB-page .pg-band{ height:10px; background:linear-gradient(90deg,var(--blue),var(--blue-br)); flex:none; }
+    .ioB-page .pg-mark{ font-family:var(--sans); font-weight:800; font-size:11px; letter-spacing:.18em; color:var(--blue); margin:24px 28px 0; }
+    .ioB-page .pg-kick{ font-family:var(--sans); font-weight:700; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin:auto 28px 0; }
+    .ioB-page .pg-title{ font-family:var(--serif); font-weight:500; font-size:27px; line-height:1.16; color:var(--ink); margin:10px 28px 0; }
+    .ioB-page .pg-foot{ font-family:var(--sans); font-size:11px; color:var(--faint); margin:16px 28px 26px; padding-top:14px; border-top:1px solid var(--line); }
+    /* half-size page with headline beside it */
+    .ioB-lead{ display:flex; gap:18px; align-items:flex-start; margin:0 0 8px; }
+    .ioB-lead .ioB-page{ flex:none; width:210px; box-shadow:0 8px 20px rgba(15,27,42,.12); }
+    .ioB-lead .ioB-page .pg-band{ height:7px; }
+    .ioB-lead .ioB-page .pg-mark{ font-size:9px; margin:15px 15px 0; letter-spacing:.14em; }
+    .ioB-lead .ioB-page .pg-kick{ font-size:9px; margin:auto 15px 0; }
+    .ioB-lead .ioB-page .pg-title{ font-size:15px; margin:6px 15px 0; line-height:1.18; }
+    .ioB-lead .ioB-page .pg-foot{ font-size:8.5px; margin:10px 15px 15px; padding-top:9px; }
+    .ioB-lead .ioB-leadbody{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
+    .ioB-lead .ioB-leadbody .io-title{ font-size:20px; }
+    @media (max-width:520px){ .ioB-lead{ flex-direction:column; } }
+    @media (max-width:900px){
+      .ioB-grid{ grid-template-columns:1fr; }
+      .ioB-col.blog{ padding-right:0; }
+      .ioB-col.insights{ padding-left:0; border-left:0; border-top:1px solid var(--line); padding-top:40px; margin-top:40px; }
+    }
+
+    @media (max-width:1040px){
+      .ioC-cover3,.ioC-blog3,.ioF-cover3,.ioF-blog3{ grid-template-columns:repeat(2,1fr); }
+      .ioG-grid{ grid-template-columns:repeat(2,1fr); }
+      .io-hlist2{ grid-template-columns:1fr; }
+      .ioE-row{ grid-template-columns:1fr; }
+    }
+    @media (max-width:640px){
+      .pg{ padding:32px 18px 70px; }
+      .ioC-cover3,.ioC-blog3,.ioF-cover3,.ioF-blog3,.ioG-grid{ grid-template-columns:1fr; }
+      .ioD-lead{ flex-direction:column; } .ioD-lead .io-ph.rcover,.ioD-lead .io-ph.r169{ width:100%; }
+      .ioD-lead .b{ padding:0 18px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="pg">
+    <h1 class="pg-h">Insights &amp; Research — section options</h1>
+    <p class="pg-sub">Layout directions for the homepage Insights section. Neutral/blue palette on purpose so the comparison is about
+      <b>layout</b>; the winner gets themed to each version (F black · G navy · H green) afterward.</p>
+    <p class="pg-model"><b>Content model:</b> &nbsp;<b>Blog</b> posts = 16:9 photo + headline + teaser + date. &nbsp;<b>Insights</b> = digital documents,
+      cover imagery 850×1100 (portrait) + headline + optional teaser, often <b>no date</b>. &nbsp;Each type shows the first few items <b>with imagery</b>,
+      then older items as a <b>clickable headline stack</b>.</p>
+    <p class="pg-note">Links are non-functional placeholders. Photos are Unsplash farmland with a gradient fallback if blocked; insight covers stand in for 850×1100 document art.</p>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option A</span><span class="opt-name">Side-by-Side · Vertical Page + Headline</span><span class="opt-desc">Blog left 60% (16:9 lead + headline stack) · Insights right 40% (half-size vertical document page with the headline beside it).</span></div><div class="frame" id="optA"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option B</span><span class="opt-name">Side-by-Side · Full Research Cover</span><span class="opt-desc">Same as A, but the Insights (40%) column leads with the complete 850×1100 document cover, uncropped, at the column's full width. Caption shows the exact rendered size.</span></div><div class="frame" id="optB"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option C</span><span class="opt-name">Featured Cards + Headline Columns</span><span class="opt-desc">Image-rich: a row of featured cards per type, then older items as a 2-column clickable headline list.</span></div><div class="frame" id="optC"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option D</span><span class="opt-name">Lead + Headline List</span><span class="opt-desc">One featured "lead" (image beside text) per type, then the rest as a single stacked headline list. Newspaper feel.</span></div><div class="frame" id="optD"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option E</span><span class="opt-name">Minimal: One Featured + Headline Ledger</span><span class="opt-desc">Headline-forward: just one featured item with imagery, then a long, dense clickable headline ledger.</span></div><div class="frame" id="optE"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option F</span><span class="opt-name">Tabbed</span><span class="opt-desc">One container, toggle between Industry Research and Blog. Featured cards + a short "more" headline stack per tab.</span></div><div class="frame tinted" id="optF"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option G</span><span class="opt-name">Unified Feed + Filters</span><span class="opt-desc">Featured items from both types in one equal-tile grid, with All / Research / Blog filter chips.</span></div><div class="frame" id="optG"></div></section>
+
+  </div>
+
+  <script>
+    var CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
+    function img(id, alt, ratio){
+      return '<span class="io-ph '+ratio+'"><img src="https://images.unsplash.com/photo-'+id+'?auto=format&fit=crop&w=1200&q=80" alt="'+alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>';
+    }
+    /* insight cover: use the real 850x1100 cover art (assets/) when present, else the Unsplash placeholder */
+    function insrc(x){ return x.cover ? x.cover : 'https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80'; }
+    function insPh(x, ratio){ return '<span class="io-ph '+ratio+'"><img src="'+insrc(x)+'" alt="'+x.title+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'; }
+
+    var INSIGHTS = {
+      featured: [
+        { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
+        { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
+        { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
+      ],
+      more: [
+        "The Inflation Hedge: Farmland vs. Traditional Assets",
+        "Water Rights and the Value of Irrigated Ground",
+        "Row Crop vs. Permanent Crop: A Risk Framework",
+        "Carbon, Conservation, and Land Returns",
+        "Timber & Transition Land: An Allocation Primer",
+        "The 2025 National Land Values Report"
+      ]
+    };
+    var BLOG = {
+      featured: [
+        { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
+        { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
+        { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
+      ],
+      more: [
+        { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
+        { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
+        { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
+        { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
+        { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
+        { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
+        { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
+        { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
+      ]
+    };
+
+    function head(eyebrow, h2){
+      return '<div class="io-head"><div><p class="io-eyebrow">'+eyebrow+'</p><h2 class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="#">View more &rarr;</a></div>';
+    }
+    function coverCard(x){
+      return '<a class="io-card" href="#">'+
+        '<span class="io-ph rcover"><img src="'+insrc(x)+'" alt="'+x.title+'" loading="lazy" onerror="this.style.display=\'none\'" /><span class="io-doctag">Report &middot; PDF</span></span>'+
+        '<span class="io-body"><span class="io-kicker">Industry Research</span><h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p><span class="io-link">Read report &rarr;</span></span></a>';
+    }
+    function blogCard(x){
+      return '<a class="io-card" href="#">'+ img(x.id,x.alt,'r169') +
+        '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span>'+
+        '<h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p><span class="io-more">Read more &rarr;</span></span></a>';
+    }
+    function hrow(title, date){
+      return '<a class="io-hrow" href="#"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
+    }
+
+    /* ---------- Option C ---------- */
+    (function(){
+      var rc = INSIGHTS.featured.map(coverCard).join("");
+      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
+      var bc = BLOG.featured.map(blogCard).join("");
+      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+      document.getElementById('optC').innerHTML =
+        '<div class="io-block">'+ head('Industry Research','Research that informs the decision.') +
+          '<div class="ioC-cover3">'+rc+'</div><p class="io-moretag">More research</p><div class="io-hlist2">'+rmore+'</div></div>'+
+        '<div class="io-block">'+ head('Peoples Perspective Blog','From the field.') +
+          '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div></div>';
+    })();
+
+    /* ---------- Option D ---------- */
+    (function(){
+      var ri = INSIGHTS.featured[0];
+      var rlead = '<a class="ioD-lead" href="#">'+ insPh(ri,'rcover') +
+        '<span class="b"><span class="io-kicker">Industry Research</span><h3 class="io-title">'+ri.title+'</h3><p class="io-teaser">'+ri.teaser+'</p><span class="io-link">Read report &rarr;</span></span></a>';
+      var rmore = INSIGHTS.featured.slice(1).map(function(x){ return hrow(x.title,''); }).join("") + INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
+      var bi = BLOG.featured[0];
+      var blead = '<a class="ioD-lead" href="#">'+ img(bi.id,bi.alt,'r169') +
+        '<span class="b"><span class="io-metarow"><span class="io-chip">'+bi.cat+'</span><span class="io-date">'+bi.date+'</span></span><h3 class="io-title">'+bi.title+'</h3><p class="io-teaser">'+bi.teaser+'</p><span class="io-more">Read more &rarr;</span></span></a>';
+      var bmore = BLOG.featured.slice(1).map(function(x){ return hrow(x.title,x.date); }).join("") + BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+      document.getElementById('optD').innerHTML =
+        '<div class="io-block">'+ head('Industry Research','Research that informs the decision.') + rlead + '<p class="io-moretag">More research</p><div class="io-hlist">'+rmore+'</div></div>'+
+        '<div class="io-block">'+ head('Peoples Perspective Blog','From the field.') + blead + '<p class="io-moretag">More from the blog</p><div class="io-hlist">'+bmore+'</div></div>';
+    })();
+
+    /* ---------- Option E ---------- */
+    (function(){
+      var ri = INSIGHTS.featured[0];
+      var rfeat = '<a class="io-card" href="#">'+ insPh(ri,'rcover') + '<span class="io-body"><span class="io-kicker">Industry Research</span><h4 class="io-title">'+ri.title+'</h4><span class="io-link">Read report &rarr;</span></span></a>';
+      var rledger = INSIGHTS.featured.slice(1).map(function(x){ return hrow(x.title,''); }).join("") + INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
+      var bi = BLOG.featured[0];
+      var bfeat = '<a class="io-card" href="#">'+ img(bi.id,bi.alt,'r169') + '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+bi.cat+'</span><span class="io-date">'+bi.date+'</span></span><h4 class="io-title">'+bi.title+'</h4><span class="io-more">Read more &rarr;</span></span></a>';
+      var bledger = BLOG.featured.slice(1).map(function(x){ return hrow(x.title,x.date); }).join("") + BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+      document.getElementById('optE').innerHTML =
+        '<div class="io-block">'+ head('Industry Research','Research that informs the decision.') +'<div class="ioE-row"><div>'+rfeat+'</div><div class="ioE-ledger io-hlist">'+rledger+'</div></div></div>'+
+        '<div class="io-block">'+ head('Peoples Perspective Blog','From the field.') +'<div class="ioE-row"><div>'+bfeat+'</div><div class="ioE-ledger io-hlist">'+bledger+'</div></div></div>';
+    })();
+
+    /* ---------- Option F (tabbed) ---------- */
+    (function(){
+      var rc = INSIGHTS.featured.map(coverCard).join("");
+      var rmore = INSIGHTS.more.slice(0,4).map(function(t){ return hrow(t,''); }).join("");
+      var bc = BLOG.featured.map(blogCard).join("");
+      var bmore = BLOG.more.slice(0,4).map(function(x){ return hrow(x.t,x.d); }).join("");
+      document.getElementById('optF').innerHTML =
+        '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 class="io-h2">Land intelligence, made readable.</h2></div><a class="io-viewmore" href="#">View more &rarr;</a></div>'+
+        '<div class="ioF-tabs" role="tablist">'+
+          '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
+          '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
+        '</div>'+
+        '<div class="ioF-panel" data-panel="0"><div class="ioF-cover3">'+rc+'</div><p class="io-moretag">More research</p><div class="io-hlist2">'+rmore+'</div></div>'+
+        '<div class="ioF-panel" data-panel="1" hidden><div class="ioF-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div></div>';
+      var root = document.getElementById('optF');
+      root.querySelectorAll('.ioF-tab').forEach(function(t){
+        t.addEventListener('click', function(){
+          root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
+          root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
+        });
+      });
+    })();
+
+    /* ---------- Option G (unified feed + filters) ---------- */
+    (function(){
+      var items = INSIGHTS.featured.map(function(x){ return {type:'research', label:'Research', meta:'', title:x.title, id:x.id, alt:x.alt, cover:x.cover, cta:'Read report &rarr;'}; })
+        .concat(BLOG.featured.map(function(x){ return {type:'blog', label:'Blog', meta:x.date, title:x.title, id:x.id, alt:x.alt, cta:'Read more &rarr;'}; }));
+      function card(x){
+        var src = x.cover ? x.cover : 'https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80';
+        return '<a class="io-card" data-type="'+x.type+'" href="#"><span class="io-ph r169"><img src="'+src+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
+          '<span class="io-body"><span class="io-metarow"><span class="ioG-type">'+x.label+'</span>'+(x.meta?'<span class="io-date">'+x.meta+'</span>':'')+'</span>'+
+          '<h4 class="io-title" style="font-size:17px">'+x.title+'</h4><span class="io-more">'+x.cta+'</span></span></a>';
+      }
+      document.getElementById('optG').innerHTML =
+        '<div class="io-head" style="margin-bottom:16px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 class="io-h2">Everything, one clean feed.</h2></div><a class="io-viewmore" href="#">View more &rarr;</a></div>'+
+        '<div class="ioG-filters">'+
+          '<button class="ioG-f" aria-pressed="true" data-f="all">All</button>'+
+          '<button class="ioG-f" aria-pressed="false" data-f="research">Industry Research</button>'+
+          '<button class="ioG-f" aria-pressed="false" data-f="blog">Blog</button>'+
+        '</div><div class="ioG-grid">'+ items.map(card).join("") +'</div>';
+      var root = document.getElementById('optG');
+      root.querySelectorAll('.ioG-f').forEach(function(f){
+        f.addEventListener('click', function(){
+          root.querySelectorAll('.ioG-f').forEach(function(x){ x.setAttribute('aria-pressed', x===f ? 'true':'false'); });
+          var v = f.getAttribute('data-f');
+          root.querySelectorAll('.ioG-grid .io-card').forEach(function(c){
+            c.style.display = (v==='all' || c.getAttribute('data-type')===v) ? '' : 'none';
+          });
+        });
+      });
+    })();
+    /* ---------- Option A (duplicate of Option B) ---------- */
+    (function(){
+      var bi = BLOG.featured[0];
+      var blead = '<a class="ioD-lead" href="#">'+ img(bi.id,bi.alt,'r169') +
+        '<span class="b"><span class="io-metarow"><span class="io-chip">'+bi.cat+'</span><span class="io-date">'+bi.date+'</span></span><h3 class="io-title">'+bi.title+'</h3><p class="io-teaser">'+bi.teaser+'</p><span class="io-more">Read more &rarr;</span></span></a>';
+      var bmore = BLOG.featured.slice(1).map(function(x){ return hrow(x.title,x.date); }).join("") + BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+      var ri = INSIGHTS.featured[0];
+      var cover = '<div class="ioA-lead">'+
+          '<a class="ioA-page" href="#"><img src="'+insrc(ri)+'" alt="'+ri.title+'" loading="lazy" onerror="this.style.display=\'none\'" /></a>'+
+          '<div class="ioA-leadbody"><span class="io-kicker">Industry Research</span><h3 class="io-title">'+ri.title+'</h3><p class="io-teaser">'+ri.teaser+'</p><a class="io-link" href="#">Read report &rarr;</a><p class="ioA-cap" id="ioA-capw">Measuring…</p></div>'+
+        '</div>';
+      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
+      document.getElementById('optA').innerHTML =
+        '<div class="ioA-grid">'+
+          '<div class="ioA-col blog">'+ head('Peoples Perspective Blog','From the field.') + blead + '<p class="io-moretag">More from the blog</p><div class="io-hlist">'+bmore+'</div></div>'+
+          '<div class="ioA-col insights">'+ head('Industry Research','Research that informs the decision.') + cover + '<p class="io-moretag">More research</p><div class="io-hlist">'+rmore+'</div></div>'+
+        '</div>';
+      var coverEl = document.querySelector('#optA .ioA-page');
+      var cap = document.getElementById('ioA-capw');
+      function upd(){ var w = Math.round(coverEl.getBoundingClientRect().width); var h = Math.round(w*1100/850);
+        cap.textContent = 'Actual cover — 850×1100, rendered here at ~'+w+'×'+h+' px.'; }
+      upd(); window.addEventListener('resize', upd);
+    })();
+
+    /* ---------- Option B (side-by-side; two matching leads per column) ---------- */
+    (function(){
+      // blog: first TWO posts share the same lead layout, rest as headline stack
+      function blogLead(x){
+        return '<a class="ioD-lead" href="#">'+ img(x.id,x.alt,'r169') +
+          '<span class="b"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span><h3 class="io-title">'+x.title+'</h3><p class="io-teaser">'+x.teaser+'</p><span class="io-more">Read more &rarr;</span></span></a>';
+      }
+      var bleads = BLOG.featured.slice(0,2).map(blogLead).join("");
+      var bmore = BLOG.featured.slice(2).map(function(x){ return hrow(x.title,x.date); }).join("") + BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+
+      // research: first TWO reports share the same lead layout. Headline text is dropped —
+      // the title already lives on the cover image — so the text column is just teaser + link.
+      function resLead(x, withCap){
+        return '<div class="ioB-lead">'+
+            '<a class="ioB-page" href="#"><img src="'+insrc(x)+'" alt="'+x.title+'" loading="lazy" onerror="this.style.display=\'none\'" /></a>'+
+            '<div class="ioB-leadbody"><span class="io-kicker">Industry Research</span><p class="io-teaser">'+x.teaser+'</p><a class="io-link" href="#">Read report &rarr;</a>'+
+              (withCap ? '<p class="ioB-cap" id="ioB-capw">Measuring…</p>' : '')+'</div>'+
+          '</div>';
+      }
+      var rleads = resLead(INSIGHTS.featured[0], true) + resLead(INSIGHTS.featured[1], false);
+      // headline stack = remaining featured + "more", minus the bottom 3
+      var rItems = INSIGHTS.featured.slice(2).map(function(x){ return x.title; }).concat(INSIGHTS.more);
+      rItems = rItems.slice(0, Math.max(0, rItems.length - 3));
+      var rmore = rItems.map(function(t){ return hrow(t,''); }).join("");
+
+      document.getElementById('optB').innerHTML =
+        '<div class="ioB-grid">'+
+          '<div class="ioB-col blog">'+ head('Peoples Perspective Blog','From the field.') + bleads + '<p class="io-moretag">More from the blog</p><div class="io-hlist">'+bmore+'</div></div>'+
+          '<div class="ioB-col insights">'+ head('Industry Research','Research that informs the decision.') + rleads + '<p class="io-moretag">More research</p><div class="io-hlist">'+rmore+'</div></div>'+
+        '</div>';
+      var coverEl = document.querySelector('#optB .ioB-page');
+      var cap = document.getElementById('ioB-capw');
+      function upd(){ var w = Math.round(coverEl.getBoundingClientRect().width); var h = Math.round(w*1100/850);
+        cap.textContent = 'Actual cover — 850×1100, rendered here at ~'+w+'×'+h+' px.'; }
+      upd(); window.addEventListener('resize', upd);
+    })();
+
+  </script>
+</body>
+</html>
