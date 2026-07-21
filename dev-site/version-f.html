@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Version F</title>
+  <meta name="description" content="Homepage redesign mockup, Version F: solidly black theme (text blue or white), Version G sections and layout, Version A editorial hero." />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link href="shared/main.css?v=20260601" rel="stylesheet" />
+
+  <style>
+    /* This page overrides the shared 1200px container to the concept 1400px width */
+    /* ============================================================
+       VERSION G PALETTE — DEEP NAVY + PC/light blue. Overrides the
+       shared green tokens (--rich-green/--deep-teal/--teal) so ALL
+       inherited header/footer chrome recolors to navy/blue. No green.
+       ============================================================ */
+    :root{
+      --site: 1400px;
+      --accent-light:#0077A8; --accent-dark:#00AEEF; --accent-bright:#0077A8;
+      --navy:#0E3350; --navy-900:#0A182B; --lightblue:#CDEBF9; --tint:#EAF2F8;
+      /* remap the shared green aliases onto navy/blue */
+      --rich-green:#0077A8; --teal:#0077A8; --deep-teal:#00567C;
+    }
+    body{ color: var(--color-text); }
+    .site-inner{ max-width: var(--site); margin: 0 auto; }
+
+    /* ============================================================
+       HEADER — Option F "Editorial Spread" (serif nav, lighter
+       Expo/Login + | separator, big logo across two rows, gradient
+       utility bar, squared bottom corners, 60px logo→Real / 92px News→⌕)
+       ============================================================ */
+    .pcf{ background: var(--white); border-bottom: 1px solid var(--color-border);
+      position: sticky; top: 0; z-index: 40; }
+    .pcf-inner{ max-width: var(--site); margin: 0 auto; }
+    .pcf-brandrow{ display: flex; align-items: stretch; }
+    .pcf-brandcell{ display: flex; align-items: center; padding: 0 24px; flex: none; }
+    .pcf-logo{ height: 80px; width: auto; }
+    .pcf-stack{ flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* utility strip — white→shade gradient, Expo + Login (lighter) top-right */
+    .pcf-util{
+      display: flex; align-items: center; gap: 18px; height: 40px; padding: 0 24px;
+      font-size: 13px; color: var(--gray-600);
+      background: linear-gradient(90deg, #fff 0%, #fff 22%, #EAF2F8 100%);
+    }
+    .pcf-util .sp{ flex: 1; }
+    .pcf-util a{ color: var(--gray-900); text-decoration: none; font-weight: 400; white-space: nowrap; }
+    .pcf-util a:hover{ color: var(--rich-green); }
+    .pcf-util .sep{ opacity: .35; font-weight: 300; }
+
+    /* main nav row */
+    .pcf-row{ display: flex; align-items: center; gap: 40px; padding: 0 24px 0 36px; height: 76px; }
+    .pcf-menus{
+      list-style: none; margin: 0; padding: 0; /* header placement option: EVENLY SPREAD menus (match version-C) */
+      flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      font-family: var(--font-serif); font-size: 18px; font-weight: 600;
+    }
+    .pcf-menus > li{ position: static; } /* static so the mega-menu can span the full header width */
+    .pcf-menus > li > a{
+      color: var(--gray-900); text-decoration: none; white-space: nowrap;
+      position: relative; padding: 8px 0; display: inline-block;
+    }
+    .pcf-menus > li > a::after{
+      content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 3px;
+      background: var(--rich-green); border-radius: 2px; transform: scaleX(0); transform-origin: left;
+      transition: transform .18s ease;
+    }
+    .pcf-menus > li:hover > a::after,
+    .pcf-menus > li:focus-within > a::after{ transform: scaleX(1); }
+
+    /* mega-menu pop-down — built exactly like concept-34's .sh-mega */
+    .pcf-mega{
+      position: absolute; left: 0; right: 0; top: 100%;
+      background: #fff; border-top: 3px solid var(--rich-green);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: 0 14px 28px rgba(17,24,39,.10);
+      opacity: 0; visibility: hidden; transform: translateY(-6px);
+      transition: opacity .14s ease, transform .14s ease, visibility .14s;
+      z-index: 39;
+    }
+    .pcf-menus > li:hover .pcf-mega,
+    .pcf-menus > li:focus-within .pcf-mega{ opacity: 1; visibility: visible; transform: translateY(0); }
+    /* invisible bridge so the pointer can travel from the label down into the panel */
+    .pcf-mega::before{ content: ""; position: absolute; left: 0; right: 0; top: -26px; height: 26px; }
+    .pcf-mega-in{
+      max-width: var(--site); margin: 0 auto; padding: var(--space-6) 24px;
+      display: grid; gap: var(--space-7); grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+    .pcf-col h4{
+      font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gray-900);
+      margin: 0 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--gray-200);
+    }
+    .pcf-col ul{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    /* leaf links (items + sub-links) — synced across all 4 menus, smaller than the 12px headings */
+    .pcf-col a{
+      font-family: var(--font-sans); font-size: 11px; color: var(--gray-500); text-decoration: none;
+      display: inline-block; transition: color .12s ease;
+    }
+    .pcf-col a:hover, .pcf-col a:focus{ color: var(--rich-green); text-decoration: underline; text-underline-offset: 3px; }
+    .pcf-col .soft{ color: var(--gray-500); font-size: 12px; margin: 0; }
+    /* What We Do — stacked service blocks: heading-style link + optional sub-links */
+    .pcf-svcblock{ margin-bottom: 22px; }
+    .pcf-svcblock:last-child{ margin-bottom: 0; }
+    .pcf-col .pcf-svc a{
+      font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gray-900); text-decoration: none; display: inline-block;
+    }
+    .pcf-col .pcf-svc a:hover{ color: var(--rich-green); }
+    .pcf-sublist{ list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+    @media (prefers-reduced-motion: reduce){
+      .pcf-mega{ transition: none; transform: none; }
+      .pcf-menus > li > a::after{ transition: none; }
+    }
+
+    .pcf-searchwrap{ position: relative; flex: none; }
+    .pcf-search{
+      width: 40px; height: 40px; border-radius: 50%; border: 0;
+      display: inline-flex; align-items: center; justify-content: center; color: var(--gray-900);
+      flex: none; cursor: pointer; background: transparent;
+      transition: background-color .15s ease, color .15s ease;
+    }
+    .pcf-search:hover, .pcf-search:focus-visible,
+    .pcf-search[aria-expanded="true"]{ background: var(--accent-light); color: #fff; border-radius: 50%; }
+    .pcf-search:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+
+    /* search popover — opens below the magnifier, right-aligned */
+    .pcf-searchpanel{
+      /* top flush with the header's bottom rule: 18px gap below the centered 40px icon in the 76px row */
+      position: absolute; top: calc(100% + 18px); right: 0; z-index: 50;
+      background: var(--white); border: 1px solid var(--color-border);
+      border-radius: 0; box-shadow: 0 12px 32px rgba(16,59,56,.16);
+      padding: 6px;
+      opacity: 0; transform: translateY(-8px); visibility: hidden; pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease, visibility 0s .18s;
+    }
+    .pcf-searchpanel.open{
+      opacity: 1; transform: none; visibility: visible; pointer-events: auto;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .pcf-searchform{ display: flex; align-items: center; gap: 6px; }
+    .pcf-searchform input{
+      border: 0; outline: 0; background: transparent; color: var(--gray-900);
+      font-family: var(--font-sans); font-size: 15px; padding: 9px 14px; width: 300px;
+    }
+    .pcf-searchform input::placeholder{ color: var(--gray-500); }
+    .pcf-searchgo{
+      width: 40px; height: 40px; flex: none; border: 0; border-radius: var(--radius-pill);
+      background: var(--accent-light); color: var(--white); cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background-color .15s ease;
+    }
+    .pcf-searchgo:hover{ background: var(--accent-light); filter: brightness(.9); }
+    @media (prefers-reduced-motion: reduce){
+      .pcf-searchpanel{ transition: visibility 0s .001s; transform: none; }
+      .pcf-searchpanel.open{ transition: none; }
+    }
+
+    /* ============================================================
+       FIND PROPERTIES pull-down tab (Option 01 "Rounded Green",
+       breathing) → slides down the Integrated Map layer
+       ============================================================ */
+    :root{ --navH: 132px; } /* measured from the header by JS */
+    .md-tabwrap{ position: sticky; top: var(--navH); z-index: 39; height: 0; text-align: center; pointer-events: none; }
+    .md-tab{
+      pointer-events: auto; position: relative; cursor: pointer; border: 0; box-sizing: border-box;
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      font-family: var(--font-sans); font-weight: 600; font-size: 15px; color: #fff;
+      background: var(--rich-green); height: 46px; width: 340px; padding: 0 26px;
+      border-radius: 0 0 14px 14px; box-shadow: 0 6px 16px rgba(0,0,0,.18);
+      animation: md-flex 2s ease-in-out infinite;
+    }
+    .md-tab:hover{ background: var(--deep-teal); }
+    .md-tab:focus-visible{ outline: 3px solid var(--accent-light); outline-offset: 2px; }
+    .md-tab .md-chev{ display: inline-block; transition: transform .2s ease; }
+    .md-tab[aria-expanded="true"] .md-chev{ transform: rotate(180deg); }
+    .md-tab[aria-expanded="true"]{ animation: none; height: 46px; }
+    @keyframes md-flex{ 0%,100%{ height: 46px; } 50%{ height: 56px; } }
+
+    .md-backdrop{ position: fixed; inset: var(--navH) 0 0 0; z-index: 30; background: rgba(10,24,43,.55);
+      opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
+    .md-backdrop.is-open{ opacity: 1; visibility: visible; }
+    .md-layer{ position: fixed; top: var(--navH); left: 0; right: 0; margin-inline: auto;
+      max-width: var(--site, 1400px); height: calc(100vh - var(--navH)); z-index: 31; background: #fff;
+      box-shadow: 0 18px 40px rgba(0,0,0,.25); transform: translateY(-100%);
+      transition: transform .38s cubic-bezier(.16,.84,.44,1); overflow-y: auto; overscroll-behavior: contain; }
+    .md-layer.is-open{ transform: translateY(0); }
+    .md-layer-bar{ position: sticky; top: 0; z-index: 2; display: flex; justify-content: flex-end;
+      align-items: center; padding: 14px 40px; background: #fff; }
+    .md-close{ display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+      font-size: 18px; line-height: 1; color: var(--gray-900); background: #fff;
+      border: 1px solid var(--gray-200); border-radius: 50%; width: 40px; height: 40px; }
+    .md-close:hover{ border-color: var(--gray-900); }
+    .md-close:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+    .md-layer-body{ display: flex; align-items: center; justify-content: center;
+      min-height: calc(100vh - var(--navH) - 68px); }
+    .md-placeholder{ font-family: var(--font-serif); font-size: 40px; color: var(--gray-500); margin: 0; }
+    /* map placeholder image — crop-to-fill the layer window (real interactive map drops in later) */
+    .md-mapimg{ display: block; width: 100%; height: calc(100vh - var(--navH) - 68px);
+      object-fit: cover; object-position: center; }
+    @media (prefers-reduced-motion: reduce){
+      .md-tab{ animation: none !important; height: 46px !important; }
+      .md-tab .md-chev{ transition: none; }
+      .md-layer, .md-backdrop{ transition: none; }
+    }
+
+    /* ============================================================
+       BODY placeholder rule removed — homepage built below.
+       ============================================================ */
+
+    /* ============================================================
+       FOOTER — houses everything pulled from the header
+       (phone, socials, IAA badge) + nav columns in nav order
+       ============================================================ */
+    .pff{ background: #000; color: rgba(255,255,255,.78); }
+    .pff a{ color: rgba(255,255,255,.78); text-decoration: none; transition: color .15s ease; }
+    .pff a:hover{ color: var(--accent-dark); }
+    .pff-inner{ max-width: var(--site); margin: 0 auto; padding: 0 var(--space-6); }
+
+    /* top: brand + contact + CTAs | four nav columns */
+    .pff-main{ padding: var(--space-8) 0 var(--space-7); }
+    .pff-grid{
+      display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7);
+    }
+    .pff-logo{ width: 260px; max-width: 100%; height: auto; margin-top: -14px; margin-bottom: var(--space-5); padding-bottom: var(--space-2); }
+    /* align the brand text/CTA with the "PEOPLES" wordmark (past the diamond mark) */
+    .pff-brand h3, .pff-brand .pff-contact, .pff-brand .pff-cta{ padding-left: 49px; }
+
+    /* newsletter — sleeker rounded block under the Find an Office button in the brand column */
+    .pff-news{ margin-top: var(--space-5); max-width: 320px; }
+    .pff-brand .pff-news{ padding-left: 49px; }
+    .pff-news .subh{ display: block; font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; color: #fff; margin-bottom: 10px; }
+    .pff-news-form{ display: flex; gap: 8px; }
+    .pff-news-form input{
+      flex: 1; min-width: 0; border: 1px solid rgba(255,255,255,.28); outline: 0;
+      background: rgba(255,255,255,.06); color: #fff; border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-size: 14px; padding: 10px 16px; transition: border-color .15s ease;
+    }
+    .pff-news-form input::placeholder{ color: rgba(255,255,255,.6); }
+    .pff-news-form input:focus{ border-color: var(--accent-dark); }
+    .pff-news-form button{
+      flex: none; border: 0; cursor: pointer; background: var(--accent-light); color: #fff;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .04em;
+      padding: 10px 20px; transition: background-color .15s ease;
+    }
+    .pff-news-form button:hover{ background: #00567C; }
+    .pff-tagline{ font-family: var(--font-serif); font-size: 18px; line-height: 1.45;
+      color: #fff; max-width: 34ch; margin: 0 0 var(--space-5); }
+    .pff-contact{ font-size: 14px; line-height: 1.9; margin-bottom: var(--space-5); }
+    .pff-contact b{ color: #fff; font-weight: 500; }
+    .pff-cta{ display: flex; gap: var(--space-3); flex-wrap: wrap; }
+    .pff-cta .btn{ padding: 12px 22px; font-size: 15px; }
+    .btn-onblue{ background: var(--accent-light); color: #fff; border-color: var(--accent-light); }
+    .btn-onblue:hover{ background: #00567C; }
+    .btn-ghost{ background: transparent; color: #fff; border-color: rgba(255,255,255,.45); }
+    .btn-ghost:hover{ border-color: #fff; }
+
+    .pff-col h3{
+      font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: #fff; margin: 0 0 var(--space-4);
+    }
+    .pff-brand h3{ margin-bottom: var(--space-2); }
+    .pff-col ul{ list-style: none; margin: 0; padding: 2px 0 0; overflow: visible; }
+    .pff-col li{ margin-bottom: var(--space-3); line-height: 1.35; }
+    .pff-col li:first-child{ margin-top: 2px; }
+    .pff-col a{ font-size: 14px; }
+    /* footer alignment option: CENTERED text in each of the four nav columns */
+    nav.pff-col, nav.pff-col h3{ text-align: center; }
+
+    /* bottom bar: social · legal */
+    .pff-bottom{ border-top: 1px solid rgba(255,255,255,.14); }
+    .pff-bottom-inner{
+      max-width: var(--site); margin: 0 auto; padding: var(--space-5) var(--space-6);
+      display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap;
+    }
+    .pff-social{ display: inline-flex; align-items: center; gap: 16px; }
+    .pff-social a{ display: inline-flex; color: rgba(255,255,255,.85); }
+    .pff-social a:hover{ color: var(--accent-dark); }
+    .pff-social svg{ width: 18px; height: 18px; display: block; }
+
+    .pff-member{ display: inline-flex; align-items: center; gap: 10px; color: #fff; }
+    .pff-member .emb{ flex: none; }
+    .pff-member .mtxt{ display: flex; flex-direction: column; line-height: 1.1; }
+    .pff-member .mtxt small{ font-size: 8.5px; letter-spacing: .14em; font-weight: 600; opacity: .8; }
+    .pff-member .mtxt b{ font-size: 12px; letter-spacing: .04em; font-weight: 800; white-space: nowrap; }
+
+    .pff-legal{ margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 12.5px; }
+    .pff-legal .copy{ color: rgba(255,255,255,.55); }
+    .pff-legal .legal-links{ display: flex; gap: 20px; }
+    .pff-legal a{ color: rgba(255,255,255,.7); }
+    .pff-legal a:hover{ color: var(--accent-dark); }
+
+    /* ============================================================
+       Scroll-reveal (a must-have) — reduced-motion safe
+       ============================================================ */
+    .reveal{ opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in{ opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce){
+      .reveal{ opacity: 1; transform: none; transition: none; }
+      .pcf-menus a::after{ transition: none; }
+    }
+
+    /* ============================================================
+       Responsive
+       ============================================================ */
+    @media (max-width: 1040px){
+      .pff-grid{ grid-template-columns: 1fr 1fr 1fr; }
+      .pff-brand{ grid-column: 1 / -1; }
+    }
+    @media (max-width: 880px){
+      .pcf-logo{ height: 60px; }
+      .pcf-menus{ font-size: 16px; }
+      .pcf-row{ gap: 32px; }
+    }
+    @media (max-width: 720px){
+      .pcf-menus{ display: none; }
+      .pff-grid{ grid-template-columns: 1fr 1fr; }
+      .pff-legal{ margin-left: 0; text-align: left; }
+    }
+
+    /* ============================================================
+       HOMEPAGE BODY — Version G "Guided Journey", recolored to
+       DEEP NAVY + PC blue. Serif + sans mix celebrated.
+       All new classes prefixed hp-. Accents:
+         --accent-light #0077A8 on light bg · --accent-dark #00AEEF on dark bg
+       Palette tokens are defined once in the top :root above.
+       ============================================================ */
+
+    .hp-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 40px; }
+    .hp-sec{ padding: var(--space-9) 0; }
+
+    .hp-eyebrow{ display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-sans);
+      font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent-light); margin: 0 0 var(--space-3); }
+    .hp-eyebrow::before{ content: ""; width: 26px; height: 2px; background: var(--accent-light); display: block; }
+    .hp-eyebrow.on-dark{ color: var(--accent-dark); }
+    .hp-eyebrow.on-dark::before{ background: var(--accent-dark); }
+
+    .hp-h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; line-height: 1.12;
+      color: var(--gray-900); margin: 0; max-width: 22ch; }
+    /* keep the What We Do heading on one line (lift the shared cap here only) */
+    .hp-svc-head .hp-h2{ max-width: none; }
+    .hp-lede{ font-family: var(--font-sans); font-size: 17px; line-height: 1.65; color: var(--gray-600);
+      max-width: 58ch; margin: var(--space-3) 0 0; }
+
+    /* buttons */
+    .hp-btn{ display: inline-flex; align-items: center; gap: 9px; border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-weight: 600; font-size: 15px; text-decoration: none;
+      padding: 13px 28px; border: 2px solid transparent; cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, color .15s ease; }
+    .hp-btn-solid{ background: var(--accent-light); color: #fff; border-color: var(--accent-light); }
+    .hp-btn-solid:hover, .hp-btn-solid:focus-visible{ background: #00567C; border-color: #00567C; }
+    .hp-btn-solid:focus-visible{ outline: 3px solid var(--accent-light); outline-offset: 3px; }
+    .hp-btn-outline-d{ background: transparent; color: #fff; border-color: rgba(255,255,255,.5); }
+    .hp-btn-outline-d:hover, .hp-btn-outline-d:focus-visible{ border-color: #fff; }
+    .hp-btn-outline-d:focus-visible{ outline: 2px solid var(--accent-dark); outline-offset: 3px; }
+
+    /* ── HERO — Version A editorial style (photo bleeds from the right), on black ── */
+    .hp-hero{ background:#000000; position: relative; overflow: hidden; }
+    .hp-hero-bg{ position: absolute; top:0; right:0; bottom:0; left:auto; width:58%; z-index:0; pointer-events:none; }
+    .hp-hero-bg img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .hp-hero-bg::after{ content:""; position:absolute; inset:0;
+      background: linear-gradient(to right,#000000 0%, rgba(0,0,0,.92) 15%, rgba(0,0,0,.62) 45%, rgba(0,0,0,.42) 75%, rgba(0,0,0,.36) 100%); }
+    .hp-hero-in{ position: relative; z-index: 1; max-width: var(--site); margin: 0 auto; padding: var(--space-9) 40px var(--space-8); }
+    .hp-hero-copy{ max-width: 560px; }
+    .hp-hero-h{ font-family: var(--font-serif); font-weight: 500; font-size: 62px; line-height: 1.04;
+      letter-spacing: -.015em; color:#fff; margin: var(--space-4) 0 0; max-width: 16ch; }
+    .hp-hero-sub{ font-family: var(--font-sans); font-size: 19px; line-height: 1.6; color: var(--gray-600);
+      max-width: 56ch; margin: var(--space-5) 0 0; }
+    .hp-hero-actions{ margin-top: var(--space-6); }
+    .hp-statstrip{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-5); max-width: 660px;
+      margin: var(--space-8) 0 0; padding-top: var(--space-6); border-top: 1px solid rgba(255,255,255,.18); }
+    .hp-stat dt{ font-family: var(--font-serif); font-weight: 600; font-size: 40px; line-height: 1;
+      color: var(--accent-dark); letter-spacing: -.02em; }
+    .hp-stat dd{ margin: 8px 0 0; font-family: var(--font-sans); font-size: 13px; color: var(--gray-600);
+      text-transform: uppercase; letter-spacing: .06em; line-height: 1.35; }
+    @media (max-width: 1040px){
+      .hp-hero-bg{ display:none; }
+      .hp-hero-copy{ max-width:none; }
+      .hp-hero-h{ font-size:48px; }
+      .hp-statstrip{ max-width:none; grid-template-columns:1fr 1fr; gap: var(--space-6); }
+    }
+    @media (max-width: 680px){
+      .hp-hero-h{ font-size:38px; }
+      .hp-statstrip{ grid-template-columns:1fr; }
+    }
+
+    /* ── WHAT WE DO (light gray, tile boxes) ── */
+    .hp-svc{ background: var(--gray-100); }
+    .hp-svc-head{ display: flex; justify-content: space-between; align-items: flex-end;
+      gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-7); }
+    .hp-svc-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
+    /* tidy cards: small left-aligned icon, no top band, shadow lift on hover (no colored outline) */
+    .hp-tile{ background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-md);
+      padding: var(--space-5); display: flex; flex-direction: column; gap: 8px; flex: 1; text-decoration: none;
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .hp-tile:hover, .hp-tile:focus-visible{ box-shadow: 0 12px 30px rgba(0,0,0,.12);
+      transform: translateY(-3px); outline: none; }
+    .hp-tile:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+    /* solid accent chip holding the official white-fill PC service glyphs */
+    .hp-tile-ico{ width: 46px; height: 46px; border-radius: 12px; background: var(--accent-light);
+      display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .hp-tile-ico svg{ width: 23px; height: 23px; fill: none; stroke: var(--accent-light);
+      stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    /* all 7 glyphs normalized to the SAME 27px box, contain-fit + centered → identical margins */
+    .hp-tile-ico .hp-svcimg{ width: 27px; height: 27px; display: block; object-fit: contain; }
+    .hp-tile-ico svg.hp-gavel{ width: 27px; height: 27px; fill: #fff; stroke: none; } /* brokerage: circle dropped, viewBox tightened to glyph */
+    .hp-tile h3{ font-family: var(--font-serif); font-weight: 500; font-size: 19px;
+      color: var(--gray-900); margin: 0; line-height: 1.2; }
+    .hp-tile p{ font-family: var(--font-sans); font-size: 13px; color: var(--gray-600);
+      margin: 0; line-height: 1.55; }
+    .hp-tile .go{ margin-top: auto; padding-top: 6px; font-family: var(--font-sans);
+      font-size: 13px; font-weight: 600; color: var(--accent-light); }
+    /* 8th tile — accent-filled "Explore All Services" CTA (4+4 balance) */
+    .hp-tile.cta{ background: var(--accent-light); border-color: var(--accent-light); justify-content: center; }
+    .hp-tile.cta .hp-tile-ico{ background: rgba(255,255,255,.16); }
+    .hp-tile.cta .hp-tile-ico svg{ stroke: #fff; }
+    .hp-tile.cta h3{ color: #fff; }
+    .hp-tile.cta p{ color: rgba(255,255,255,.9); }
+    .hp-tile.cta .go{ color: #fff; }
+
+    /* ── FARMWORTH (solid deep navy band, horizontal media slot) ── */
+    .hp-fw{ background: var(--navy); color: #fff; }
+    .hp-fw .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
+    .hp-fw h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; color: #fff;
+      margin: var(--space-3) 0; line-height: 1.1; }
+    .hp-fw h2 span{ font-style: italic; color: var(--accent-dark); }
+    .hp-fw p{ font-family: var(--font-sans); font-size: 16px; color: #CDE3F1; line-height: 1.65;
+      margin: 0 0 var(--space-5); max-width: 46ch; }
+    .hp-fw-feat{ list-style: none; margin: 0 0 var(--space-6); padding: 0; display: grid; gap: 10px; }
+    .hp-fw-feat li{ font-family: var(--font-sans); font-size: 14px; color: #DCE9F4;
+      display: flex; gap: 10px; align-items: flex-start; }
+    .hp-fw-feat li::before{ content: "◆"; color: var(--accent-dark); font-size: 9px; margin-top: 5px; flex: none; }
+    .hp-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
+      aspect-ratio: 16 / 10; min-height: 280px;
+      border: 1px solid rgba(255,255,255,.16); background: var(--navy-900); }
+    .hp-media img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .hp-media-cap{ position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 16px;
+      background: linear-gradient(0deg, rgba(10,24,43,.88), rgba(10,24,43,0));
+      font-family: var(--font-sans); font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: #fff; }
+
+    /* ── START WHERE YOU STAND (light, 4-path router) ── */
+    .hp-paths-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
+    .hp-path{ display: flex; flex-direction: column; overflow: hidden;
+      background: #fff; border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md); text-decoration: none;
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .hp-path:hover, .hp-path:focus-visible{ box-shadow: 0 12px 30px rgba(0,0,0,.12); transform: translateY(-3px); outline: none; }
+    .hp-path:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+    .hp-path-ph{ position: relative; height: 132px; overflow: hidden;
+      background: linear-gradient(135deg,#0A182B 0%,#0E3350 100%); }
+    .hp-path-ph img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      object-position: center; transition: transform .4s ease; }
+    .hp-path:hover .hp-path-ph img{ transform: scale(1.05); }
+    .hp-path-body{ display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); flex: 1; }
+    .hp-path .tag{ font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--accent-light); }
+    .hp-path h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; color: var(--gray-900); margin: 0; line-height: 1.2; }
+    .hp-path p{ font-family: var(--font-sans); font-size: 13.5px; color: var(--gray-600); margin: 0; line-height: 1.5; }
+    .hp-path .arrow{ margin-top: auto; padding-top: var(--space-3); color: var(--accent-light); font-size: 18px; font-weight: 700; }
+
+    /* ── INSIGHTS & RESEARCH (light, varied tile sizes) ── */
+    .hp-ins-head{ display: flex; justify-content: space-between; align-items: flex-end;
+      gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-7); }
+    /* keep the Insights heading on one line (lift the shared 22ch cap here only) */
+    .hp-ins-head .hp-h2{ max-width: none; }
+    .hp-viewmore{ font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      color: var(--accent-light); text-decoration: none; white-space: nowrap; }
+    .hp-viewmore:hover, .hp-viewmore:focus-visible{ text-decoration: underline; text-underline-offset: 3px; }
+    .hp-ins-grid{ display: grid; grid-template-columns: 1.45fr 1fr 1fr; grid-auto-rows: 1fr; gap: var(--space-4); }
+    .hp-ins{ border: 1px solid var(--gray-200); border-radius: var(--radius-md); overflow: hidden;
+      text-decoration: none; color: inherit; display: flex; flex-direction: column;
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .hp-ins:hover, .hp-ins:focus-visible{ box-shadow: 0 10px 26px rgba(0,0,0,.10); transform: translateY(-3px); outline: none; }
+    .hp-ins:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+    .hp-ins .ph{ position: relative; overflow: hidden; height: 180px;
+      background: linear-gradient(135deg,#0A182B 0%,#0E3350 100%); }
+    .hp-ins .ph img{ width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transition: transform .4s ease; }
+    .hp-ins:hover .ph img{ transform: scale(1.04); }
+    .hp-ins.lead{ grid-row: span 2; }
+    .hp-ins.lead .ph{ height: 300px; }
+    .hp-ins.wide{ grid-column: span 2; }
+    .hp-ins .body{ padding: var(--space-4); display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .hp-ins .tagrow{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .hp-ins .tag{ font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--accent-light); }
+    .hp-ins .date{ font-family: var(--font-sans); font-size: 12px; color: var(--gray-500); }
+    .hp-ins h3{ font-family: var(--font-serif); font-weight: 500; font-size: 20px; color: var(--gray-900); margin: 0; line-height: 1.25; }
+    .hp-ins.lead h3{ font-size: 27px; }
+    .hp-ins.wide h3{ font-size: 23px; }
+    .hp-ins .read{ font-family: var(--font-sans); font-size: 12px; color: var(--gray-500);
+      display: inline-flex; align-items: center; gap: 6px; }
+    .hp-ins .read svg{ width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .hp-ins .more{ margin-top: auto; font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--accent-light); }
+
+    /* ── LAND INVESTMENT EXPO (NEW section, solid deep navy band) ── */
+    .hp-expo{ background: var(--navy-900); color: #fff; }
+    .hp-expo .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
+    .hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; color: #fff;
+      margin: var(--space-3) 0 var(--space-3); line-height: 1.1; max-width: 18ch; }
+    .hp-expo p{ font-family: var(--font-sans); font-size: 16px; color: #CDE3F1; line-height: 1.65;
+      margin: 0 0 var(--space-5); max-width: 48ch; }
+    .hp-expo-meta{ display: flex; gap: var(--space-6); margin: 0 0 var(--space-6); flex-wrap: wrap; }
+    .hp-expo-meta .m{ font-family: var(--font-sans); }
+    .hp-expo-meta .m b{ display: block; font-family: var(--font-serif); font-size: 22px; color: #fff; line-height: 1; }
+    .hp-expo-meta .m span{ font-size: 12.5px; color: var(--accent-dark); letter-spacing: .03em; }
+    .hp-expo-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
+      aspect-ratio: 4 / 3; min-height: 300px; border: 1px solid rgba(255,255,255,.16); background: var(--navy); }
+    .hp-expo-media img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .hp-expo-media .badge{ position: absolute; left: 16px; top: 16px; z-index: 1;
+      font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: #04222F; background: var(--accent-dark); padding: 6px 12px; border-radius: var(--radius-pill); }
+
+    /* ── NATIONAL FOOTPRINT + CONNECT (combined, tint band) ── */
+    .hp-reach{ background: var(--tint); }
+    .hp-reach .hp-wrap{ display: grid; grid-template-columns: 1fr 1.55fr; gap: var(--space-8); align-items: center; }
+    .hp-reach-copy h2{ font-family: var(--font-serif); font-weight: 500; font-size: 40px; color: var(--gray-900);
+      margin: var(--space-3) 0; line-height: 1.12; text-wrap: balance; max-width: 16ch; }
+    .hp-reach-copy p{ font-family: var(--font-sans); font-size: 16px; color: var(--gray-600); line-height: 1.65;
+      margin: 0 0 var(--space-6); max-width: 42ch; text-wrap: pretty; }
+    /* map — all-blue image, NO outline, NO labels-below; stands on its own */
+    .hp-map{ border: 0; border-radius: 0; overflow: hidden; background: transparent; }
+    .hp-map-img{ display: block; width: 100%; height: auto; }
+    .hp-map.hp-map-fallback{ min-height: 340px; border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #CDEBF9, #0077A8); }
+
+    /* ── Homepage responsive ── */
+    @media (max-width: 1100px){
+      .hp-svc-grid{ grid-template-columns: repeat(2,1fr); }
+      .hp-paths-grid{ grid-template-columns: repeat(2,1fr); }
+      .hp-fw .hp-wrap, .hp-expo .hp-wrap, .hp-reach .hp-wrap{ grid-template-columns: 1fr; }
+      .hp-ins-grid{ grid-template-columns: repeat(2,1fr); }
+      .hp-ins.lead{ grid-row: auto; }
+      .hp-ins.lead .ph{ height: 200px; }
+      .hp-ins.wide{ grid-column: auto; }
+      .hp-hero h1{ font-size: 46px; }
+      .hp-h2, .hp-fw h2, .hp-expo h2, .hp-reach-copy h2{ font-size: 34px; }
+    }
+    @media (max-width: 680px){
+      .hp-wrap{ padding: 0 20px; }
+      .hp-sec{ padding: var(--space-8) 0; }
+      .hp-svc-grid, .hp-paths-grid, .hp-ins-grid{ grid-template-columns: 1fr; }
+      .hp-hero h1{ font-size: 34px; }
+      .hp-hero p{ font-size: 17px; }
+      .hp-stats{ gap: var(--space-5); }
+      .hp-stat .n{ font-size: 32px; }
+    }
+
+    /* ============================================================
+       PALETTE STANDARDIZATION — single NAVY/BLUE accent across the
+       whole page (recolor inherited header + footer chrome)
+       ============================================================ */
+    .pcf-menus > li > a::after{ background: var(--accent-light); }
+    .pcf-mega{ border-top-color: var(--accent-light); }
+    .pcf-col a:hover, .pcf-col a:focus, .pcf-col .pcf-svc a:hover, .pcf-col .pcf-sublist a:hover, .pcf-util a:hover{ color: var(--accent-light); }
+    .md-tab{ background: var(--accent-light); } .md-tab:hover{ background:#00567C; }
+    .pff a:hover, .pff-social a:hover, .pff-legal a:hover{ color: var(--accent-dark); }
+    .pff-subform button{ background: var(--accent-light); color:#fff; } .pff-subform button:hover{ background:#00567C; }
+    .btn-onblue{ background: var(--accent-light); color:#fff; border-color: var(--accent-light); } .btn-onblue:hover{ background:#00567C; }
+    /* utility-bar gradient tint → pale blue; focus outlines → blue */
+    .pcf-util{ background: linear-gradient(90deg, #fff 0%, #fff 22%, #EAF2F8 100%); }
+    .md-tab:focus-visible, .md-close:focus-visible{ outline-color: var(--accent-light); }
+    /* nav spacing matches version-C (evenly spread, 24px gap) */
+    .pcf-menus{ gap: 24px; }
+
+    /* ============================================================
+       COMPANY MEGA-MENU BADGES — three matching badge items shown
+       ONLY on the right side of "The Company" panel.
+       ============================================================ */
+    .pcf-badges{ display: flex; flex-direction: column; gap: 14px; align-self: start; }
+    .pcf-badge{ display: flex; align-items: center; gap: 12px; text-decoration: none;
+      padding: 10px 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md);
+      background: #fff; transition: border-color .14s ease, box-shadow .14s ease; }
+    .pcf-badge:hover, .pcf-badge:focus-visible{ border-color: var(--accent-light);
+      box-shadow: 0 6px 16px rgba(14,51,80,.10); outline: none; }
+    .pcf-badge-mark{ flex: none; width: 46px; height: 46px; border-radius: 8px; background: var(--tint);
+      display: inline-flex; align-items: center; justify-content: center; color: var(--accent-light); }
+    .pcf-badge-mark svg{ width: 30px; height: 30px; }
+    /* rectangular labeled placeholder mark (American Farmland Owner) */
+    .pcf-badge-rect{ flex: none; width: 46px; height: 46px; border-radius: 8px;
+      background: var(--navy); color: #fff; display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--font-serif); font-weight: 600; font-size: 15px; letter-spacing: .02em; }
+    .pcf-badge-tx b{ display: block; font-family: var(--font-sans); font-size: 12.5px; font-weight: 700;
+      color: var(--gray-900); line-height: 1.2; }
+    .pcf-badge-tx span{ font-family: var(--font-sans); font-size: 10.5px; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--gray-500); }
+
+    /* ============================================================
+       FOOTER CONNECT BAND (version-C treatment) — logo left,
+       newsletter line center, dark subscribe pill right.
+       ============================================================ */
+    .pff-connect{ display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7);
+      align-items: center; margin-bottom: var(--space-7); }
+    .pff-connect-logo{ grid-column: 1; grid-row: 1; display: inline-block; }
+    .pff-connect-logo img{ width: 232px; max-width: 100%; height: auto; display: block; }
+    .pff-connect-line{ grid-column: 2 / -1; grid-row: 1; text-align: left; margin: 0; padding-left: 20px; font-family: var(--font-sans);
+      font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #fff; }
+    .pff-subform{ grid-column: 2 / -1; grid-row: 1; justify-self: end;
+      display: flex; align-items: stretch; width: 420px; max-width: 100%;
+      background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.16);
+      border-radius: var(--radius-pill); padding: 0; overflow: hidden; }
+    .pff-subform:focus-within{ border-color: var(--accent-dark); }
+    .pff-subform input{ flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff;
+      font-family: var(--font-sans); font-size: 14px; font-weight: 700; padding: 12px 16px 12px 22px; }
+    .pff-subform input::placeholder{ color: rgba(255,255,255,.6); font-weight: 700; }
+    .pff-subform button{ flex: none; align-self: stretch; display: flex; align-items: center; justify-content: center;
+      border: 0; cursor: pointer; background: var(--accent-light); color: #fff; border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .04em;
+      padding: 0 26px; transition: background-color .15s ease; }
+    .pff-subform button:hover{ background: #00567C; }
+    /* footer nav columns LEFT-justified */
+    nav.pff-col, nav.pff-col h3{ text-align: left; }
+    /* brand column now aligns flush left (logo moved up into the connect band) */
+    .pff-brand h3, .pff-brand .pff-contact, .pff-brand .pff-cta{ padding-left: 0; }
+    @media (max-width: 1040px){
+      .pff-connect{ display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+      .pff-connect-line{ text-align: left; }
+      .pff-subform{ width: 100%; }
+    }
+
+    /* ============================================================
+       VERSION F — BLACK THEME (over Version G structure/layout)
+       Solidly black surfaces; text white or blue. Two blues by role:
+         --accent-light #00AEEF  BRIGHT → accent TEXT/links/eyebrows/
+             stat numbers/borders on black (8:1+).
+         --accent-fill  #0077A8  DEEP  → solid fills carrying WHITE
+             text (buttons, icon chips, active tab, tags) — 5:1.
+       (bright blue can't hold white text at AA; deep blue can't be
+       read as text on black — hence the split.)  No red. No green.
+       Nav layout (centered menus) + footer layout inherited from G.
+       ============================================================ */
+    :root{
+      --color-surface:#000000; --color-bg:#000000; --white:#000000;
+      --gray-100:#000000; --gray-200:#2A2E34; --gray-500:#8B929A;
+      --gray-600:#C2C8CE; --gray-900:#FFFFFF;
+      --color-text:#FFFFFF; --color-text-muted:#C2C8CE; --color-border:#2A2E34;
+      --ink:#FFFFFF;
+      /* ONE surface black everywhere (hero, all bands, footer); cards use the lifted tone below */
+      --navy:#000000;       /* FarmWorth band */
+      --navy-900:#000000;   /* Expo band */
+      --tint:#000000;       /* National Footprint band */
+      --lightblue:#0E2A38;
+      --accent-light:#00AEEF; --accent-dark:#00AEEF; --accent-bright:#00AEEF;
+      --accent-fill:#0077A8;
+    }
+    body{ background:#000000; color:#fff; }
+
+    /* header + mega + search */
+    .pcf-util{ background: #000000; color: var(--gray-600); }
+    .pcf-util a{ color:#fff; }
+    .pcf-mega{ background:#000000; }
+    .pcf-badge{ background:#000000; }
+    .pcf-search:hover, .pcf-search:focus-visible, .pcf-search[aria-expanded="true"]{ background: var(--accent-fill); color:#fff; }
+    .pcf-searchgo{ background: var(--accent-fill); }
+
+    /* cards on flat black — defined by a slightly brighter hairline border (no between-section lines) */
+    .hp-tile, .hp-path, .hp-ins{ background:#000000; border-color:#3D444C; }
+
+    /* solid fills that carry WHITE text → deep blue (bright blue fails white text at AA) */
+    .hp-btn-solid{ background: var(--accent-fill); border-color: var(--accent-fill); }
+    .hp-tile-ico{ background: var(--accent-fill); }
+    .hp-tile.cta{ background: var(--accent-fill); border-color: var(--accent-fill); }
+    .md-tab{ background: var(--accent-fill); }
+    .pff-news-form button, .pff-subform button{ background: var(--accent-fill); color:#fff; }
+    .btn-onblue{ background: var(--accent-fill); border-color: var(--accent-fill); }
+
+    /* Find-Properties map layer → dark */
+    .md-layer, .md-layer-bar{ background:#000000; }
+    .md-close{ background:#000000; color:#fff; border-color:var(--gray-200); }
+    .md-close:hover{ border-color:#fff; }
+
+    /* separators: none between nav↔hero; keep one between last section↔footer;
+       none between footer↔bottom social bar */
+    .pcf{ border-bottom: 0; }
+    .pff{ border-top: 1px solid #3D444C; }
+    .pff-bottom{ border-top: 0; }
+  </style>
+</head>
+
+<body>
+  <!-- ================= HEADER (Option F) ================= -->
+  <header class="pcf">
+    <div class="pcf-inner">
+      <div class="pcf-brandrow">
+        <div class="pcf-brandcell">
+          <a href="./version-f.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="shared/logos/pc_logo_white.webp" alt="Peoples Company, Integrated Land Solutions" />
+          </a>
+        </div>
+        <div class="pcf-stack">
+          <div class="pcf-util">
+            <span class="sp"></span>
+            <a href="#">Land Investment Expo</a>
+            <span class="sep">|</span>
+            <a href="#">Login</a>
+          </div>
+          <nav class="pcf-row" aria-label="Primary">
+            <ul class="pcf-menus" id="pcfMenus"></ul>
+            <div class="pcf-searchwrap">
+              <button class="pcf-search" id="searchToggle" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+              </button>
+              <div class="pcf-searchpanel" id="searchPanel">
+                <form class="pcf-searchform" role="search" action="#" onsubmit="return false;">
+                  <input type="search" id="searchInput" placeholder="Search Peoples Company…" aria-label="Search the site" />
+                  <button type="submit" class="pcf-searchgo" aria-label="Submit search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ FIND PROPERTIES pull-down tab → Integrated Map layer ============ -->
+  <div class="md-tabwrap">
+    <button class="md-tab" type="button" aria-expanded="false" aria-controls="md-layer">Interactive Map <span class="md-chev" aria-hidden="true">▾</span></button>
+  </div>
+  <div class="md-backdrop" hidden></div>
+  <div class="md-layer" id="md-layer" role="region" aria-label="Integrated map" aria-hidden="true" hidden>
+    <div class="md-layer-bar"><button class="md-close" type="button" aria-label="Close">✕</button></div>
+    <div class="md-layer-body">
+      <img class="md-mapimg" src="./assets/find-properties-map.png" alt="Interactive FarmWorth map (placeholder)"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<p class=\'md-placeholder\'>Interactive FarmWorth Map</p>');this.onerror=null;" />
+    </div>
+  </div>
+
+  <!-- ================= PAGE CONTENT — Homepage (Guided Journey) ================= -->
+  <main class="hp">
+
+    <!-- ── HERO — Version A editorial style: photo bleeds from the right, copy on black ── -->
+    <section class="hp-hero reveal" aria-labelledby="hp-hero-h">
+      <div class="hp-hero-bg" id="hpHeroBg" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80"
+             alt=""
+             onerror="this.onerror=null;this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#0A182B 0%,#0077A8 100%)';" />
+      </div>
+      <div class="hp-hero-in">
+        <div class="hp-hero-copy">
+          <span class="hp-eyebrow">Integrated Land Solutions</span>
+          <h1 id="hp-hero-h" class="hp-hero-h">Clarity for every<br />land decision.</h1>
+          <p class="hp-hero-sub">
+            Seven services. One integrated platform: local expertise backed by national reach and proprietary land data.
+          </p>
+        </div><!-- /.hp-hero-copy -->
+        <dl class="hp-statstrip">
+          <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Transactions</dd></div>
+          <div class="hp-stat"><dt>$4B+</dt><dd>Assets Under Management</dd></div>
+          <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Valuations</dd></div>
+          <div class="hp-stat"><dt>170+</dt><dd>Land Professionals</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ── WHAT WE DO — seven service tiles ── -->
+    <section class="hp-sec hp-svc reveal" aria-labelledby="hp-svc-h">
+      <div class="hp-wrap">
+        <div class="hp-svc-head">
+          <div>
+            <p class="hp-eyebrow">What We Do</p>
+            <h2 class="hp-h2" id="hp-svc-h">Seven services. One integrated platform.</h2>
+          </div>
+        </div>
+        <div class="hp-svc-grid">
+          <a class="hp-tile" href="#">
+            <span class="hp-tile-ico" aria-hidden="true">
+              <svg class="hp-gavel" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg>
+            </span>
+            <h3>Land Brokerage &amp; Auctions</h3>
+            <p>Listings and competitive auctions backed by a national buyer network.</p>
+            <span class="go">Learn more &rarr;</span>
+          </a>
+          <a class="hp-tile" href="#">
+            <span class="hp-tile-ico" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_land_management.svg" />
+            </span>
+            <h3>Land Management</h3>
+            <p>Full-service stewardship, operator oversight, and leases.</p>
+            <span class="go">Learn more &rarr;</span>
+          </a>
+          <a class="hp-tile" href="#">
+            <span class="hp-tile-ico" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_agricultural_appraisal.svg" />
+            </span>
+            <h3>Agricultural Appraisal</h3>
+            <p>Certified, data-driven land valuation for any transaction.</p>
+            <span class="go">Learn more &rarr;</span>
+          </a>
+          <a class="hp-tile" href="#">
+            <span class="hp-tile-ico" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_capital_markets.svg" />
+            </span>
+            <h3>Capital Markets</h3>
+            <p>Connecting institutional capital with agricultural real estate.</p>
+            <span class="go">Learn more &rarr;</span>
+          </a>
+          <a class="hp-tile" href="#">
+            <span class="hp-tile-ico" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_energy_management.svg" />
+            </span>
+            <h3>Energy Management</h3>
+            <p>Solar, wind, and energy lease strategy for landowners.</p>
+            <span class="go">Learn more &rarr;</span>
+          </a>
+          <a class="hp-tile" href="#">
+            <span class="hp-tile-ico" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_crop_insurance.svg" />
+            </span>
+            <h3>Crop Insurance</h3>
+            <p>Tailored coverage protecting farm operations and yield.</p>
+            <span class="go">Learn more &rarr;</span>
+          </a>
+          <a class="hp-tile" href="#">
+            <span class="hp-tile-ico" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_corporate_services.svg" />
+            </span>
+            <h3>Corporate Services</h3>
+            <p>Institutional programs for ag lenders and large portfolios.</p>
+            <span class="go">Learn more &rarr;</span>
+          </a>
+          <a class="hp-tile cta" href="#">
+            <span class="hp-tile-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17.5h7"/><path d="m18 14 3.5 3.5L18 21"/></svg>
+            </span>
+            <h3>Explore All Services</h3>
+            <p>See how all seven services work together across the land lifecycle.</p>
+            <span class="go">View all services &rarr;</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── WHO WE SERVE — 4-audience router ── -->
+    <section class="hp-sec reveal" aria-labelledby="hp-paths-h">
+      <div class="hp-wrap">
+        <div class="hp-svc-head">
+          <div>
+            <p class="hp-eyebrow">Who We Serve</p>
+            <h2 class="hp-h2" id="hp-paths-h">Start where you stand.</h2>
+          </div>
+        </div>
+        <div class="hp-paths-grid">
+          <a class="hp-path" href="#">
+            <span class="hp-path-ph" aria-hidden="true"><img
+              src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"
+              alt="" onerror="this.style.display='none'" /></span>
+            <span class="hp-path-body">
+              <span class="tag">Landowners</span>
+              <h3>Sell or manage your land</h3>
+              <p>Maximize the value of your agricultural asset with a local advisor.</p>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </span>
+          </a>
+          <a class="hp-path" href="#">
+            <span class="hp-path-ph" aria-hidden="true"><img
+              src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80"
+              alt="" onerror="this.style.display='none'" /></span>
+            <span class="hp-path-body">
+              <span class="tag">Investors</span>
+              <h3>Access farmland markets</h3>
+              <p>Direct land investment strategy backed by data and national scale.</p>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </span>
+          </a>
+          <a class="hp-path" href="#">
+            <span class="hp-path-ph" aria-hidden="true"><img
+              src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80"
+              alt="" onerror="this.style.display='none'" /></span>
+            <span class="hp-path-body">
+              <span class="tag">Farm Operators</span>
+              <h3>Management &amp; crop insurance</h3>
+              <p>Leases, stewardship, and coverage for the people who farm.</p>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </span>
+          </a>
+          <a class="hp-path" href="#">
+            <span class="hp-path-ph" aria-hidden="true"><img
+              src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
+              alt="" onerror="this.style.display='none'" /></span>
+            <span class="hp-path-body">
+              <span class="tag">Family Offices</span>
+              <h3>Portfolio advisory</h3>
+              <p>Long-horizon capital strategies built around farmland assets.</p>
+              <span class="arrow" aria-hidden="true">&rarr;</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FARMWORTH — solid deep navy band, horizontal media slot ── -->
+    <section class="hp-sec hp-fw reveal" aria-labelledby="hp-fw-h">
+      <div class="hp-wrap">
+        <div>
+          <p class="hp-eyebrow on-dark">Proprietary Technology</p>
+          <h2 id="hp-fw-h">The FarmWorth<span>&trade;</span> Advantage</h2>
+          <p>Soil capability analysis, automated appraisal modeling, and a comparable-sales database: the data layer behind every Peoples Company decision.</p>
+          <ul class="hp-fw-feat">
+            <li>Parcel-level soil &amp; productivity scoring</li>
+            <li>Automated valuation modeling on comparable sales</li>
+            <li>Public and proprietary data layers in one unified view</li>
+          </ul>
+          <a class="hp-btn hp-btn-solid" href="#">Open Interactive Map</a>
+        </div>
+        <div class="hp-media">
+          <img src="https://images.unsplash.com/photo-1757170889478-e6768a4e36c1?auto=format&fit=crop&w=1600&q=80"
+               alt="Aerial view of farmland parcels standing in for the FarmWorth data map"
+               onerror="this.style.display='none'" />
+          <span class="hp-media-cap">Video / map / demo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── LAND INVESTMENT EXPO — NEW promoted section ── -->
+    <section class="hp-sec hp-expo reveal" aria-labelledby="hp-expo-h">
+      <div class="hp-wrap">
+        <div>
+          <p class="hp-eyebrow on-dark">Land Investment Expo</p>
+          <h2 id="hp-expo-h">The largest land investment event in the nation.</h2>
+          <p>For the 20th year, Peoples Company convenes farmers, investors, landowners, policymakers, and industry leaders for a full day of market outlooks, big-name keynotes, breakout sessions, and an exhibitor hall. Attend in person or online, with an optional Farmland Masterclass the day before.</p>
+          <div class="hp-expo-meta">
+            <div class="m"><b>1,800+</b><span>Participants worldwide</span></div>
+            <div class="m"><b>20th</b><span>Annual event, since 2008</span></div>
+            <div class="m"><b>Jan 12, 2027</b><span>Des Moines, IA</span></div>
+          </div>
+          <a class="hp-btn hp-btn-solid" href="#">Explore the Expo</a>
+        </div>
+        <div class="hp-expo-media">
+          <span class="badge">Land Investment Expo</span>
+          <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80"
+               alt="Conference audience at a land investment event"
+               onerror="this.style.display='none'" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── NATIONAL FOOTPRINT + CONNECT (combined) ── -->
+    <section class="hp-sec hp-reach reveal" id="offices" aria-labelledby="hp-reach-h">
+      <div class="hp-wrap">
+        <div class="hp-reach-copy">
+          <p class="hp-eyebrow">Connect</p>
+          <h2 id="hp-reach-h">Get connected with a land&nbsp;professional.</h2>
+          <p>Whether you are selling, investing, or managing farmland, our local team members are ready to serve. With regional offices spanning the agricultural heartland, a Peoples&nbsp;Company advisor is never far from your land.</p>
+          <a class="hp-btn hp-btn-solid" href="#">Find a Land&nbsp;Professional</a>
+        </div>
+        <div class="hp-map">
+          <img class="hp-map-img"
+               src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/maps/peoples-company-regional-map-6-30-26.jpg/9761b73340f147c2df67f872b8c1a626.webp"
+               alt="Peoples Company U.S. regional footprint map, regions shaded in blue tints with office locations marked."
+               loading="lazy"
+               onerror="this.style.display='none'; if(this.parentNode){ this.parentNode.classList.add('hp-map-fallback'); }" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── INSIGHTS & RESEARCH — varied tile sizes ── -->
+    <section class="hp-sec hp-svc reveal" aria-labelledby="hp-ins-h">
+      <div class="hp-wrap">
+        <div class="hp-ins-head">
+          <div>
+            <p class="hp-eyebrow">Insights &amp; Research</p>
+            <h2 class="hp-h2" id="hp-ins-h">Land intelligence, made readable.</h2>
+          </div>
+          <a class="hp-viewmore" href="#">View more &rarr;</a>
+        </div>
+        <div class="hp-ins-grid">
+          <a class="hp-ins lead" href="#">
+            <span class="ph"><img src="https://images.unsplash.com/photo-1759174469221-71382a2b5bce?auto=format&fit=crop&w=1600&q=80"
+              alt="Golden wheat field at sunset" onerror="this.style.display='none'" /></span>
+            <span class="body">
+              <span class="tagrow"><span class="tag">Industry Research</span><span class="date">May 2026</span></span>
+              <h3>Understanding Midwest Farmland Trends in 2026</h3>
+              <span class="read"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>6 min read</span>
+              <span class="more">Read report &rarr;</span>
+            </span>
+          </a>
+          <a class="hp-ins" href="#">
+            <span class="ph"><img src="https://images.unsplash.com/photo-1757170889478-e6768a4e36c1?auto=format&fit=crop&w=1600&q=80"
+              alt="Aerial field strips" onerror="this.style.display='none'" /></span>
+            <span class="body">
+              <span class="tagrow"><span class="tag">Blog &middot; Energy</span><span class="date">Apr 2026</span></span>
+              <h3>Solar &amp; Wind Leases: What to Ask</h3>
+              <span class="read"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>4 min read</span>
+              <span class="more">Read more &rarr;</span>
+            </span>
+          </a>
+          <a class="hp-ins" href="#">
+            <span class="ph"><img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=1600&q=80"
+              alt="Aerial crop rows at sunset" onerror="this.style.display='none'" /></span>
+            <span class="body">
+              <span class="tagrow"><span class="tag">Industry Research</span><span class="date">2025</span></span>
+              <h3>National Land Values Report</h3>
+              <span class="read"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>PDF download</span>
+              <span class="more">Download &rarr;</span>
+            </span>
+          </a>
+          <a class="hp-ins wide" href="#">
+            <span class="ph"><img src="https://images.unsplash.com/photo-1759174469221-71382a2b5bce?auto=format&fit=crop&w=1600&q=80"
+              alt="Golden farmland landscape" onerror="this.style.display='none'" /></span>
+            <span class="body">
+              <span class="tagrow"><span class="tag">Blog &middot; Capital Markets</span><span class="date">Q1 2026</span></span>
+              <h3>Institutional Capital &amp; the Farmland Opportunity: A Mid-Year Outlook</h3>
+              <span class="read"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>8 min read</span>
+              <span class="more">Read more &rarr;</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="pff">
+    <div class="pff-main">
+      <!-- connect band: white logo left · newsletter line · dark subscribe pill right -->
+      <div class="pff-inner pff-connect">
+        <a class="pff-connect-logo" href="#" aria-label="Peoples Company home">
+          <img src="shared/logos/pc_logo_white.webp" alt="Peoples Company" />
+        </a>
+        <p class="pff-connect-line">Stay Connected and Subscribe to Our Newsletter.</p>
+        <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
+          <input type="email" placeholder="Email Address" aria-label="Email address" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+      <div class="pff-inner pff-grid">
+        <div class="pff-brand pff-col">
+          <h3>Corporate Office</h3>
+          <p class="pff-contact">
+            1108 S. 44th Street, Suite 102<br />
+            Cumming, IA 50061<br />
+            <b><a href="tel:+18558005263">855.800.LAND</a></b><br />
+            <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+          </p>
+          <div class="pff-cta">
+            <a class="btn btn-ghost" href="#">Find an Office</a>
+          </div>
+        </div>
+
+        <nav class="pff-col" aria-label="Real Estate">
+          <h3>Real Estate</h3>
+          <ul>
+            <li><a href="#">Traditional Search</a></li>
+            <li><a href="#">AI Search</a></li>
+            <li><a href="#">Interactive Map</a></li>
+            <li><a href="#">Auctions</a></li>
+            <li><a href="#">Prior Transactions</a></li>
+            <li><a href="#">Find An Agent</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="The Company">
+          <h3>The Company</h3>
+          <ul>
+            <li><a href="#">Overview</a></li>
+            <li><a href="#">Regions</a></li>
+            <li><a href="#">Industry Collaboration</a></li>
+            <li><a href="#">Our Team</a></li>
+            <li><a href="#">Offices</a></li>
+            <li><a href="#">Culture</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="What We Do">
+          <h3>What We Do</h3>
+          <ul>
+            <li><a href="#">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="#">Agricultural Appraisal</a></li>
+            <li><a href="#">Land Management</a></li>
+            <li><a href="#">Energy Management</a></li>
+            <li><a href="#">Crop Insurance</a></li>
+            <li><a href="#">Capital Markets</a></li>
+            <li><a href="#">Corporate Services</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="Insights &amp; News">
+          <h3>Insights &amp; News</h3>
+          <ul>
+            <li><a href="#">Industry Research</a></li>
+            <li><a href="#">National Land Values</a></li>
+            <li><a href="#">Case Studies</a></li>
+            <li><a href="#">Newsletters</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">In the News</a></li>
+            <li><a href="#">Industry Recognition</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="pff-bottom">
+      <div class="pff-bottom-inner">
+        <span class="pff-social">
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="#" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </span>
+
+        <span class="pff-legal">
+          <span class="copy">© 2026 Peoples Company</span>
+          <span class="legal-links">
+            <a href="#">Privacy Notice</a>
+            <a href="#">Disclaimer</a>
+            <a href="#">Equal Opportunity</a>
+          </span>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mega-menu nav built from the real IA (same structure/behavior as concept-34's shared nav)
+    (function(){
+      var NAV = [
+        { label: "Real Estate", cols: [
+          { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
+          { h: "Auctions", items: ["Upcoming Auctions","Prior Auctions","Auction Results"] },
+          { h: "Prior Transactions", items: [] },
+          { note: "Listings are out of scope, so links are placeholders." }
+        ]},
+        { label: "The Company", cols: [
+          { h: "The Company", items: ["Overview","Regions","Offices","Sustainability","Land Investment Expo"] },
+          { items: ["Our Team","Culture","Careers","Industry Collaboration","High Net Worth Investors","Institutional Investors"] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors"] },
+          { badges: true }
+        ]},
+        { label: "What We Do", cols: [
+          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] }, { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
+          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] }, { name: "Energy Management" }, { name: "Crop Insurance" } ]},
+          { svc: [ { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+        ]},
+        { label: "Insights & News", cols: [
+          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
+        ]}
+      ];
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+      // three matching partner badges — ONLY on The Company panel
+      var IAA_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="30" r="16" fill="none" stroke="currentColor" stroke-width="2"/><ellipse cx="32" cy="30" rx="7" ry="16" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="16" y1="30" x2="48" y2="30" stroke="currentColor" stroke-width="1.4"/><path d="M18 22 Q32 27 46 22" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M18 38 Q32 33 46 38" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+      var EXPO_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M4 15l4-4 3 3 5-6 4 4"/><line x1="4" y1="18.5" x2="20" y2="18.5"/></svg>';
+      function badgesHTML(){
+        return '<div class="pcf-col pcf-badges">'+
+          '<a class="pcf-badge" href="#"><span class="pcf-badge-mark">'+IAA_SVG+'</span>'+
+            '<span class="pcf-badge-tx"><b>International Ag Alliance</b><span>Global Network</span></span></a>'+
+          '<a class="pcf-badge" href="#"><span class="pcf-badge-mark">'+EXPO_SVG+'</span>'+
+            '<span class="pcf-badge-tx"><b>Land Investment Expo</b><span>Annual Event</span></span></a>'+
+          '<a class="pcf-badge" href="#"><span class="pcf-badge-rect">AFO</span>'+
+            '<span class="pcf-badge-tx"><b>American Farmland Owner</b><span>Media Partner</span></span></a>'+
+        '</div>';
+      }
+      function colHTML(c){
+        if(c.badges){ return badgesHTML(); }
+        // a column of heading-style service links, each with optional sub-links (What We Do)
+        if(c.svc){
+          var blocks = c.svc.map(function(s){
+            var sub = (s.items || []).map(function(i){ return '<li><a href="#">'+esc(i)+'</a></li>'; }).join("");
+            return '<div class="pcf-svcblock">'+
+              '<div class="pcf-svc"><a href="#">'+esc(s.name)+'</a></div>'+
+              (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
+            '</div>';
+          }).join("");
+          return '<div class="pcf-col">'+blocks+'</div>';
+        }
+        // a heading with no children is itself a link (e.g. Capital Markets, Regions)
+        if(c.h && (!c.items || !c.items.length) && !c.note){
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="#" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+        }
+        var links = (c.items || []).map(function(i){ return '<li><a href="#">'+esc(i)+'</a></li>'; }).join("");
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>' : '';
+        var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
+        return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
+      }
+      function itemHTML(n){
+        return '<li><a href="#" aria-haspopup="true">'+esc(n.label)+'</a>'+
+          '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
+            '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
+          '</div></li>';
+      }
+      var mount = document.getElementById("pcfMenus");
+      if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+    })();
+
+    // Find Properties pull-down → slide-down Integrated Map layer (map module drops in later)
+    (function(){
+      var tab = document.querySelector(".md-tab"),
+          layer = document.getElementById("md-layer"),
+          backdrop = document.querySelector(".md-backdrop"),
+          closeBtn = document.querySelector(".md-close"),
+          header = document.querySelector("header.pcf");
+      if(!tab || !layer || !backdrop) return;
+      function syncNavH(){ if(header) document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      syncNavH(); window.addEventListener("resize", syncNavH); window.addEventListener("load", syncNavH);
+      var logoImg = header && header.querySelector("img");
+      if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
+      function open(){
+        syncNavH(); backdrop.hidden = false; layer.hidden = false;
+        requestAnimationFrame(function(){ backdrop.classList.add("is-open"); layer.classList.add("is-open"); });
+        tab.setAttribute("aria-expanded", "true"); layer.setAttribute("aria-hidden", "false");
+        closeBtn.focus(); document.addEventListener("keydown", onKey);
+      }
+      function close(){
+        backdrop.classList.remove("is-open"); layer.classList.remove("is-open");
+        tab.setAttribute("aria-expanded", "false"); layer.setAttribute("aria-hidden", "true");
+        document.removeEventListener("keydown", onKey);
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var after = function(){ backdrop.hidden = true; layer.hidden = true; };
+        if(reduce) after();
+        else layer.addEventListener("transitionend", function te(e){ if(e.propertyName === "transform"){ layer.removeEventListener("transitionend", te); after(); } });
+        tab.focus();
+      }
+      tab.addEventListener("click", function(){ if(tab.getAttribute("aria-expanded") === "true") close(); else open(); });
+      closeBtn.addEventListener("click", close); backdrop.addEventListener("click", close);
+    })();
+
+    // Search: magnifier toggles a text field + submit icon below it (non-functional — listings out of scope)
+    (function(){
+      var toggle = document.getElementById("searchToggle");
+      var panel  = document.getElementById("searchPanel");
+      var input  = document.getElementById("searchInput");
+      if(!toggle || !panel) return;
+
+      function open(){
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        if(input){ input.focus(); }
+        document.addEventListener("mousedown", onOutside);
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutside);
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus){ toggle.focus(); }
+      }
+      function onOutside(e){
+        if(!panel.contains(e.target) && !toggle.contains(e.target)){ close(false); }
+      }
+      function onKey(e){
+        if(e.key === "Escape" || e.key === "Esc"){ close(true); }
+      }
+      toggle.addEventListener("click", function(){
+        if(panel.classList.contains("open")){ close(true); } else { open(); }
+      });
+    })();
+
+    // Hero crossfade — cycles crop-type photos; static first frame under reduced motion
+    (function(){
+      var bg = document.getElementById("hpHeroBg");
+      if(!bg) return;
+      var slides = bg.querySelectorAll(".hp-hero-slide");
+      if(slides.length < 2) return;
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce) return; // first slide stays active, others hidden via CSS
+      var i = 0;
+      setInterval(function(){
+        slides[i].classList.remove("is-active");
+        i = (i + 1) % slides.length;
+        slides[i].classList.add("is-active");
+      }, 5000);
+    })();
+
+    // Scroll-reveal (must-have) — reduced-motion safe
+    (function(){
+      var els = document.querySelectorAll(".reveal");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce || !("IntersectionObserver" in window)){
+        els.forEach(function(el){ el.classList.add("in"); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+  </script>
+</body>
+</html>
