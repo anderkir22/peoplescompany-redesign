@@ -11,13 +11,13 @@
 
   <link href="./shared/main.css?v=20260601" rel="stylesheet" />
   <title>Listing #19282 — 136.57 acres, Wayne County IA (Design H) | Peoples Company</title>
-  <meta name="description" content="Listing detail — Design H (Two-Pane Sticky, Kiloterra style). Wayne County, IA farmland auction: media tabs, per-tract content, sticky agent + calculator rail, downloads, terms." />
+  <meta name="description" content="Listing detail — Design H (Two-Pane Sticky, Kiloterra style). Wayne County, IA farmland auction: media tabs, per-tract content, sticky agent rail, downloads, terms." />
 
   <style>
     /* =============================================================================
        LISTING DETAIL — Design H ("Two-Pane Sticky", Kiloterra style)
        Signature: a MEDIA TAB bar on top (Gallery / Video / 360 Tour / Map) + a
-       persistent, sticky agent/calculator RAIL pinned on the right for the whole
+       persistent, sticky agent RAIL pinned on the right for the whole
        scroll. Left pane = scrolling content (Overview, per-tract tabs, documents,
        terms). Built to the dev-site page style (EB Garamond + Inter, main.css
        tokens). Header + footer are BLOCK PLACEHOLDERS. Single-accent RICH GREEN,
@@ -197,20 +197,6 @@
     .dh-agent p{ font-family: var(--font-sans); font-size: 13px; line-height: 1.55; color: var(--gray-600); margin: 0; }
     .dh-agent a{ color: var(--dh-green-dk); }
 
-    /* calculator */
-    .dh-calc-fields{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin: 0 0 var(--space-4); }
-    .dh-calc-fields label{ display: flex; flex-direction: column; gap: 5px; font-family: var(--font-sans);
-      font-size: 12px; font-weight: 600; color: var(--gray-600); }
-    .dh-calc-fields input{ font-family: var(--font-sans); font-size: 14px; padding: 9px 10px;
-      border: 1px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--dh-ink); }
-    .dh-calc-fields input:focus-visible{ outline: 2px solid var(--dh-green); outline-offset: 0; border-color: var(--dh-green); }
-    .dh-calc-out{ background: var(--dh-pine); color: #fff; border-radius: var(--radius-md); padding: var(--space-4);
-      text-align: center; }
-    .dh-calc-out .l{ display: block; font-family: var(--font-sans); font-size: 11px; font-weight: 600;
-      letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.7); }
-    .dh-calc-out .xmc-out{ display: block; font-family: var(--font-serif); font-size: 28px; font-weight: 600; margin-top: 4px; }
-    .dh-calc-note{ font-family: var(--font-sans); font-size: 11px; color: var(--gray-500); margin: var(--space-3) 0 0; text-align: center; }
-
     .dh-rail .dh-bid{ width: 100%; }
 
     /* ── SIMILAR ────────────────────────────────────────────────────────────── */
@@ -263,7 +249,6 @@
       .dh-tgallery{ grid-template-columns: repeat(3, 1fr); }
       .dh-strip{ grid-template-columns: repeat(4, 1fr); }
       .dh-sim-grid{ grid-template-columns: 1fr; }
-      .dh-calc-fields{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -465,7 +450,7 @@
       </div>
 
       <!-- RIGHT: sticky rail -->
-      <aside class="dh-rail" aria-label="Agents, payment estimate & bidding">
+      <aside class="dh-rail" aria-label="Agents & bidding">
         <div class="dh-card reveal">
           <p class="dh-card-h">Contact the Land Agents</p>
           <div class="dh-agent">
@@ -486,23 +471,6 @@
               <p>Office: <a href="tel:855-800-5263">855.800.LAND</a><br />Mobile: <a href="tel:641-223-2300">641.223.2300</a><br /><a href="mailto:MikeNelson@PeoplesCompany.com">MikeNelson@PeoplesCompany.com</a></p>
             </div>
           </div>
-        </div>
-
-        <div class="dh-card reveal">
-          <p class="dh-card-h">Payment Calculator</p>
-          <form id="xmc" onsubmit="return false">
-            <div class="dh-calc-fields">
-              <label>Purchase price ($)<input type="number" name="price" value="1500000" min="0" step="10000" /></label>
-              <label>Down payment (%)<input type="number" name="dp" value="30" min="0" max="100" step="1" /></label>
-              <label>Interest rate (%)<input type="number" name="rate" value="7.0" min="0" step="0.1" /></label>
-              <label>Term (years)<input type="number" name="yrs" value="20" min="1" step="1" /></label>
-            </div>
-            <div class="dh-calc-out">
-              <span class="l">Est. monthly P &amp; I</span>
-              <span class="xmc-out">—</span>
-            </div>
-          </form>
-          <p class="dh-calc-note">Estimate only.</p>
         </div>
 
         <a href="https://peoplescompany.bidwrangler.com/" target="_blank" rel="noopener" class="dh-bid">Click to Bid Online</a>
@@ -688,19 +656,6 @@
       }
       tabGroup('.dh-mtab');
       tabGroup('.dh-ttab');
-
-      /* ── Payment calculator (§3b) ───────────────────────────────────────── */
-      (function(){
-        var f=document.getElementById('xmc');if(!f)return;
-        function calc(){
-          var price=+f.querySelector('[name=price]').value||0,dp=+f.querySelector('[name=dp]').value||0,
-              rate=+f.querySelector('[name=rate]').value||0,yrs=+f.querySelector('[name=yrs]').value||0;
-          var P=price*(1-dp/100),r=rate/100/12,n=yrs*12,m;
-          m=(r===0)?(n?P/n:0):P*r/(1-Math.pow(1+r,-n));
-          f.querySelector('.xmc-out').textContent = (isFinite(m)&&m>0)? ('$'+Math.round(m).toLocaleString()+'/mo') : '—';
-        }
-        f.addEventListener('input',calc);calc();
-      })();
 
       /* ── Scroll-reveal — reduced-motion safe ────────────────────────────── */
       var rev = document.querySelectorAll('.reveal');

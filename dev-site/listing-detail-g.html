@@ -21,11 +21,11 @@
        the hero. Split body: LEFT = scrolling content (Overview, stacked per-tract
        units each with its own gallery + clean downloads list, Video, General
        Downloads, Terms fine print); RIGHT = a STICKY panel (auction facts + Bid +
-       both agents + shared Payment Calculator) pinned while scrolling. Bottom =
+       both agents) pinned while scrolling. Bottom =
        shared Similar-properties module. Built to the dev-site version-page style
        (EB Garamond + Inter, main.css tokens). Header + footer are BLOCK
        PLACEHOLDERS. Single-accent PC-BLUE, no red, colorblind-safe. Page-local CSS
-       only. Design classes prefixed dg-; shared components keep xlb-/xmc-/xsp-.
+       only. Design classes prefixed dg-; shared components keep xlb-/xsp-.
        ============================================================================= */
     :root{ --site: 1400px; --dg-blue:#0077A8; --dg-cyan:#00AEEF; --dg-ink:#0A0F1A; --dg-dark:#0E2A3A; }
 
@@ -225,24 +225,6 @@
     .dg-agent p{ font-family: var(--font-sans); font-size: 13px; line-height: 1.5; color: var(--gray-600); margin: 0; }
     .dg-agent a{ color: var(--dg-blue); text-decoration: none; }
     .dg-agent a:hover{ text-decoration: underline; }
-
-    /* ── Payment calculator (shared xmc-, themed here) ──────────────────────── */
-    .dg-card-calc{ padding: var(--space-5); }
-    .dg-card-calc h3.dg-rail-h{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
-      letter-spacing: .12em; text-transform: uppercase; color: var(--dg-blue); margin: 0 0 4px; }
-    .dg-calc-note{ font-family: var(--font-sans); font-size: 12px; color: var(--gray-500); margin: 0 0 var(--space-4); }
-    .xmc-field{ margin-bottom: var(--space-3); }
-    .xmc-field label{ display: block; font-family: var(--font-sans); font-size: 12px; font-weight: 600;
-      color: var(--gray-600); margin-bottom: 4px; }
-    .xmc-field input{ width: 100%; font-family: var(--font-sans); font-size: 15px; padding: 9px 11px;
-      border: 1px solid var(--gray-200); border-radius: var(--radius-sm); color: var(--dg-ink); background: var(--white); }
-    .xmc-field input:focus-visible{ outline: 2px solid var(--dg-blue); outline-offset: 1px; border-color: var(--dg-blue); }
-    .xmc-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
-    .xmc-result{ margin-top: var(--space-4); padding: var(--space-4); background: #E8F1F6; border-radius: var(--radius-md);
-      display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
-    .xmc-result .xmc-lab{ font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--gray-600);
-      text-transform: uppercase; letter-spacing: .05em; }
-    .xmc-out{ font-family: var(--font-serif); font-size: 26px; font-weight: 600; color: var(--dg-blue); }
 
     /* ── SIMILAR PROPERTIES (shared xsp-) ───────────────────────────────────── */
     .dg-similar{ border-top: 1px solid var(--gray-200); background: var(--gray-100);
@@ -531,36 +513,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Payment calculator (shared) -->
-        <div class="dg-card dg-card-calc reveal">
-          <h3 class="dg-rail-h">Payment Calculator</h3>
-          <p class="dg-calc-note">Estimate only.</p>
-          <form id="xmc" onsubmit="return false">
-            <div class="xmc-field">
-              <label for="xmc-price">Purchase price ($)</label>
-              <input id="xmc-price" name="price" type="number" min="0" step="1000" value="1500000" />
-            </div>
-            <div class="xmc-grid">
-              <div class="xmc-field">
-                <label for="xmc-dp">Down payment (%)</label>
-                <input id="xmc-dp" name="dp" type="number" min="0" max="100" step="1" value="30" />
-              </div>
-              <div class="xmc-field">
-                <label for="xmc-rate">Interest rate (%)</label>
-                <input id="xmc-rate" name="rate" type="number" min="0" step="0.1" value="7.0" />
-              </div>
-            </div>
-            <div class="xmc-field">
-              <label for="xmc-yrs">Term (years)</label>
-              <input id="xmc-yrs" name="yrs" type="number" min="1" step="1" value="20" />
-            </div>
-            <div class="xmc-result">
-              <span class="xmc-lab">Est. monthly P&amp;I</span>
-              <span class="xmc-out">—</span>
-            </div>
-          </form>
-        </div>
       </aside>
     </div>
 
@@ -696,19 +648,6 @@
         var vp = document.getElementById('dg-view-photos');
         if(vp){ vp.addEventListener('click', function(){ open(0, vp); }); }
       }
-
-      /* ── Shared payment calculator ────────────────────────────────────────── */
-      (function(){
-        var f = document.getElementById('xmc'); if(!f) return;
-        function calc(){
-          var price=+f.querySelector('[name=price]').value||0, dp=+f.querySelector('[name=dp]').value||0,
-              rate=+f.querySelector('[name=rate]').value||0, yrs=+f.querySelector('[name=yrs]').value||0;
-          var P=price*(1-dp/100), r=rate/100/12, n=yrs*12, m;
-          m=(r===0)?(n?P/n:0):P*r/(1-Math.pow(1+r,-n));
-          f.querySelector('.xmc-out').textContent = (isFinite(m)&&m>0)? ('$'+Math.round(m).toLocaleString()+'/mo') : '—';
-        }
-        f.addEventListener('input',calc); calc();
-      })();
 
       /* ── Scroll-reveal — reduced-motion safe ──────────────────────────────── */
       var rev = document.querySelectorAll('.reveal');

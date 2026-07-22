@@ -17,7 +17,7 @@
     /* =============================================================================
        LISTING DETAIL — Design B ("Gallery + Buy-box + Tabs")
        Photo gallery hero (thumbnail strip + shared lightbox) beside a STICKY dark
-       navy buy-box (status, auction facts, Bid CTA, BOTH agents, Payment Calculator).
+       navy buy-box (status, auction facts, Bid CTA, BOTH agents).
        Jump-nav row, then horizontal content tabs (Overview · Tracts · Video · Map ·
        Downloads · Terms). The Tracts tab nests per-tract sub-tabs, each with its own
        description + gallery + clean downloads list (no PDF icons). Shared Similar-
@@ -106,22 +106,6 @@
     .db-bb-agent .c{ font-family: var(--font-sans); font-size: 13px; line-height: 1.55; color: rgba(255,255,255,.82); margin: 0; }
     .db-bb-agent .c a{ color: #CDEBF9; text-decoration: none; }
     .db-bb-agent .c a:hover{ text-decoration: underline; }
-
-    /* payment calculator (inside buy-box) */
-    .db-calc{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
-    .db-calc label{ display: flex; flex-direction: column; gap: 4px; font-family: var(--font-sans);
-      font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: rgba(255,255,255,.7); }
-    .db-calc input{ font-family: var(--font-sans); font-size: 14px; font-weight: 600; color: #fff;
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); border-radius: var(--radius-sm);
-      padding: 9px 10px; width: 100%; }
-    .db-calc input:focus-visible{ outline: 2px solid var(--db-cyan); outline-offset: 1px; }
-    .db-calc-out{ grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between;
-      gap: var(--space-3); background: rgba(0,174,239,.12); border: 1px solid rgba(0,174,239,.4);
-      border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); margin-top: 2px; }
-    .db-calc-out .lbl{ font-family: var(--font-sans); font-size: 12px; color: rgba(255,255,255,.75); }
-    .xmc-out{ font-family: var(--font-serif); font-size: 26px; font-weight: 600; color: #fff; }
-    .db-calc-note{ grid-column: 1 / -1; font-family: var(--font-sans); font-size: 11px;
-      color: rgba(255,255,255,.55); margin: 4px 0 0; }
 
     /* ── JUMP-NAV row ───────────────────────────────────────────────────────── */
     .db-jump{ position: sticky; top: 0; z-index: 7; background: var(--white); border-top: 1px solid var(--gray-200);
@@ -349,30 +333,6 @@
               <a href="mailto:MikeNelson@PeoplesCompany.com">MikeNelson@PeoplesCompany.com</a></p>
           </div>
         </div>
-
-        <hr class="db-bb-divider" />
-
-        <!-- Payment calculator (shared xmc-) -->
-        <p class="db-bb-head">Payment Calculator</p>
-        <form id="xmc" class="db-calc" onsubmit="return false">
-          <label>Purchase price
-            <input type="number" name="price" value="1500000" min="0" step="10000" inputmode="numeric" />
-          </label>
-          <label>Down payment %
-            <input type="number" name="dp" value="30" min="0" max="100" step="1" inputmode="numeric" />
-          </label>
-          <label>Interest rate %
-            <input type="number" name="rate" value="7.0" min="0" step="0.1" inputmode="decimal" />
-          </label>
-          <label>Term (years)
-            <input type="number" name="yrs" value="20" min="1" step="1" inputmode="numeric" />
-          </label>
-          <div class="db-calc-out">
-            <span class="lbl">Est. monthly P&amp;I</span>
-            <span class="xmc-out">—</span>
-          </div>
-          <p class="db-calc-note">Estimate only. Not a loan offer.</p>
-        </form>
       </aside>
     </section>
 
@@ -753,21 +713,6 @@
           }
         });
       });
-
-      /* ── Payment calculator (shared §3b) ──────────────────────────────────── */
-      (function(){
-        var f = document.getElementById('xmc'); if(!f) return;
-        function calc(){
-          var price = +f.querySelector('[name=price]').value || 0,
-              dp = +f.querySelector('[name=dp]').value || 0,
-              rate = +f.querySelector('[name=rate]').value || 0,
-              yrs = +f.querySelector('[name=yrs]').value || 0;
-          var P = price * (1 - dp / 100), r = rate / 100 / 12, n = yrs * 12, m;
-          m = (r === 0) ? (n ? P / n : 0) : P * r / (1 - Math.pow(1 + r, -n));
-          f.querySelector('.xmc-out').textContent = (isFinite(m) && m > 0) ? ('$' + Math.round(m).toLocaleString() + '/mo') : '—';
-        }
-        f.addEventListener('input', calc); calc();
-      })();
 
       /* ── Shared lightbox (§3a) — runs after galleries are injected ────────── */
       (function(){

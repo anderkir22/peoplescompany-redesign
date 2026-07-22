@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Peoples Company · Version F</title>
-  <meta name="description" content="Homepage redesign mockup, Version F: solidly black theme (text blue or white), Version G sections and layout, Version A editorial hero." />
+  <title>Peoples Company · Version G</title>
+  <meta name="description" content="Homepage redesign mockup, Version G: deep navy and PC blue palette." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -45,7 +45,7 @@
 
     /* utility strip — white→shade gradient, Expo + Login (lighter) top-right */
     .pcf-util{
-      display: flex; align-items: center; gap: 18px; height: 40px; padding: 0 24px;
+      display: flex; align-items: center; gap: 18px; min-height: 40px; padding: 6px 24px;
       font-size: 13px; color: var(--gray-600);
       background: linear-gradient(90deg, #fff 0%, #fff 22%, #EAF2F8 100%);
     }
@@ -57,8 +57,8 @@
     /* main nav row */
     .pcf-row{ display: flex; align-items: center; gap: 40px; padding: 0 24px 0 36px; height: 76px; }
     .pcf-menus{
-      list-style: none; margin: 0; padding: 0; /* header placement option: EVENLY SPREAD menus (match version-C) */
-      flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      list-style: none; margin: 0; padding: 0; /* header placement option: CENTERED menus */
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 34px;
       font-family: var(--font-serif); font-size: 18px; font-weight: 600;
     }
     .pcf-menus > li{ position: static; } /* static so the mega-menu can span the full header width */
@@ -363,35 +363,32 @@
     .hp-btn-outline-d:hover, .hp-btn-outline-d:focus-visible{ border-color: #fff; }
     .hp-btn-outline-d:focus-visible{ outline: 2px solid var(--accent-dark); outline-offset: 3px; }
 
-    /* ── HERO — Version A editorial style (photo bleeds from the right), on black ── */
-    .hp-hero{ background:#000000; position: relative; overflow: hidden; }
-    .hp-hero-bg{ position: absolute; top:0; right:0; bottom:0; left:auto; width:58%; z-index:0; pointer-events:none; }
-    .hp-hero-bg img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .hp-hero-bg::after{ content:""; position:absolute; inset:0;
-      background: linear-gradient(to right,#000000 0%, rgba(0,0,0,.92) 15%, rgba(0,0,0,.62) 45%, rgba(0,0,0,.42) 75%, rgba(0,0,0,.36) 100%); }
-    .hp-hero-in{ position: relative; z-index: 1; max-width: var(--site); margin: 0 auto; padding: var(--space-9) 40px var(--space-8); }
-    .hp-hero-copy{ max-width: 560px; }
-    .hp-hero-h{ font-family: var(--font-serif); font-weight: 500; font-size: 62px; line-height: 1.04;
-      letter-spacing: -.015em; color:#fff; margin: var(--space-4) 0 0; max-width: 16ch; }
-    .hp-hero-sub{ font-family: var(--font-sans); font-size: 19px; line-height: 1.6; color: var(--gray-600);
-      max-width: 56ch; margin: var(--space-5) 0 0; }
-    .hp-hero-actions{ margin-top: var(--space-6); }
-    .hp-statstrip{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-5); max-width: 660px;
-      margin: var(--space-8) 0 0; padding-top: var(--space-6); border-top: 1px solid rgba(255,255,255,.18); }
-    .hp-stat dt{ font-family: var(--font-serif); font-weight: 600; font-size: 40px; line-height: 1;
-      color: var(--accent-dark); letter-spacing: -.02em; }
-    .hp-stat dd{ margin: 8px 0 0; font-family: var(--font-sans); font-size: 13px; color: var(--gray-600);
-      text-transform: uppercase; letter-spacing: .06em; line-height: 1.35; }
-    @media (max-width: 1040px){
-      .hp-hero-bg{ display:none; }
-      .hp-hero-copy{ max-width:none; }
-      .hp-hero-h{ font-size:48px; }
-      .hp-statstrip{ max-width:none; grid-template-columns:1fr 1fr; gap: var(--space-6); }
+    /* ── HERO (dark, stats inline, crossfading crop-type photos) ── */
+    .hp-hero{ position: relative; overflow: hidden; color: #fff; background: var(--navy-900); }
+    .hp-hero-bg{ position: absolute; inset: 0; z-index: 0; }
+    /* crossfading crop-type slides — reduced-motion falls back to the first static frame */
+    .hp-hero-slide{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      display: block; opacity: 0; transition: opacity 1.4s ease; }
+    .hp-hero-slide.is-active{ opacity: 1; }
+    @media (prefers-reduced-motion: reduce){
+      .hp-hero-slide{ transition: none; }
+      .hp-hero-slide:not(.is-active){ display: none; }
     }
-    @media (max-width: 680px){
-      .hp-hero-h{ font-size:38px; }
-      .hp-statstrip{ grid-template-columns:1fr; }
-    }
+    .hp-hero-bg::after{ content: ""; position: absolute; inset: 0;
+      background: linear-gradient(100deg, rgba(10,24,43,.93) 0%, rgba(10,24,43,.74) 48%, rgba(10,24,43,.40) 100%); }
+    .hp-hero-in{ position: relative; z-index: 1; padding: var(--space-9) 0 var(--space-8); }
+    .hp-hero .hp-eyebrow{ color: var(--accent-dark); }
+    .hp-hero .hp-eyebrow::before{ background: var(--accent-dark); }
+    .hp-hero h1{ font-family: var(--font-serif); font-weight: 500; font-size: 60px; line-height: 1.06;
+      color: #fff; margin: var(--space-3) 0 var(--space-4); max-width: 15ch; }
+    .hp-hero h1 em{ font-style: italic; color: var(--accent-dark); }
+    .hp-hero p{ font-family: var(--font-sans); font-size: 19px; line-height: 1.6; color: #D7E3EF;
+      max-width: 50ch; margin: 0; }
+    .hp-stats{ display: flex; flex-wrap: wrap; gap: var(--space-7); margin-top: var(--space-7);
+      padding-top: var(--space-6); border-top: 1px solid rgba(255,255,255,.18); }
+    .hp-stat .n{ font-family: var(--font-serif); font-size: 38px; line-height: 1; color: #fff; }
+    .hp-stat .l{ font-family: var(--font-sans); font-size: 12.5px; color: var(--accent-dark);
+      margin-top: 8px; letter-spacing: .03em; max-width: 15ch; line-height: 1.4; }
 
     /* ── WHAT WE DO (light gray, tile boxes) ── */
     .hp-svc{ background: var(--gray-100); }
@@ -467,67 +464,105 @@
     .hp-path p{ font-family: var(--font-sans); font-size: 13.5px; color: var(--gray-600); margin: 0; line-height: 1.5; }
     .hp-path .arrow{ margin-top: auto; padding-top: var(--space-3); color: var(--accent-light); font-size: 18px; font-weight: 700; }
 
-    /* ── INSIGHTS & RESEARCH — Option I "Tabbed · C" (from insights-options.html), themed BLACK ── */
+    /* ── INSIGHTS & RESEARCH — Option B (side-by-side, full research cover), themed navy/blue ── */
     .io-scope{
-      --serif:var(--font-serif); --sans:var(--font-sans);
-      --ink:#FFFFFF; --muted:#C2C8CE; --faint:#8B929A;
-      --line:#2A2E34; --line-2:#22262C; --card:#17191D; --panel:#131518;
-      --blue:#00AEEF; --blue-br:#00AEEF; --blue-tint:rgba(0,174,239,.16); --r:14px; --r-sm:10px;
-      font-family: var(--sans); color: var(--ink);
+      --serif: var(--font-serif); --sans: var(--font-sans);
+      --ink:#0F1B2A; --muted:#5A6675; --faint:#8A94A2;
+      --line:#E3E8EE; --line-2:#EEF2F6; --card:#FFFFFF; --panel:#F7F9FB;
+      --blue: var(--accent-light,#0077A8); --blue-br: var(--accent-dark,#00AEEF); --blue-tint:#E7F2F8;
+      --r:14px; --r-sm:10px;
+      color: var(--ink);
     }
-    .io-scope *{ box-sizing: border-box; }
-    .io-scope img{ display:block; max-width:100%; }
-    .io-scope a{ color:inherit; }
+    .io-scope a{ color: inherit; }
+    .io-scope img{ display: block; max-width: 100%; }
+
     /* shared section furniture */
     .io-scope .io-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin:0 0 22px; }
-    .io-scope .io-eyebrow{ display:inline-flex; align-items:center; gap:9px; font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
+    .io-scope .io-eyebrow{ display:inline-flex; align-items:center; gap:9px; font-family:var(--sans); font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
     .io-scope .io-eyebrow::before{ content:""; width:22px; height:2px; background:var(--blue); }
-    .io-scope .io-h2{ font-family:var(--serif); font-weight:500; font-size:29px; line-height:1.12; margin:0; letter-spacing:-.01em; }
-    .io-scope .io-viewmore{ font-size:13.5px; font-weight:700; color:var(--blue); text-decoration:none; white-space:nowrap; }
-    .io-scope .io-viewmore:hover{ text-decoration:underline; text-underline-offset:3px; }
+    .io-scope .io-h2{ font-family:var(--serif); font-weight:500; font-size:29px; line-height:1.12; margin:0; letter-spacing:-.01em; color:var(--ink); }
+    .io-scope .io-viewmore{ font-family:var(--sans); font-size:13.5px; font-weight:700; color:var(--blue); text-decoration:none; white-space:nowrap; }
+    .io-scope .io-viewmore:hover, .io-scope .io-viewmore:focus-visible{ text-decoration:underline; text-underline-offset:3px; }
     .io-scope .io-block + .io-block{ margin-top:46px; padding-top:44px; border-top:1px solid var(--line-2); }
-    /* image wrapper + graceful fallback */
+
     .io-scope .io-ph{ position:relative; overflow:hidden; background:linear-gradient(135deg,#0E3350,#0077A8); }
     .io-scope .io-ph img{ width:100%; height:100%; object-fit:cover; }
     .io-scope .io-ph.r169{ aspect-ratio:16/9; }
     .io-scope .io-ph.rcover{ aspect-ratio:850/1100; }
-    .io-scope .io-doctag{ position:absolute; left:12px; top:12px; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#0B3B57; background:rgba(255,255,255,.92); padding:4px 9px; border-radius:6px; }
-    /* text bits */
-    .io-scope .io-kicker{ font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); }
-    .io-scope .io-chip{ display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-tint); border-radius:999px; padding:3px 10px; }
-    .io-scope .io-date{ font-size:12px; color:var(--faint); }
+    .io-scope .io-doctag{ position:absolute; left:12px; top:12px; font-family:var(--sans); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#0B3B57; background:rgba(255,255,255,.92); padding:4px 9px; border-radius:6px; }
+
+    .io-scope .io-kicker{ font-family:var(--sans); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); }
+    .io-scope .io-chip{ display:inline-block; font-family:var(--sans); font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-tint); border-radius:999px; padding:3px 10px; }
+    .io-scope .io-date{ font-family:var(--sans); font-size:12px; color:var(--faint); }
     .io-scope .io-metarow{ display:flex; gap:10px; align-items:center; }
     .io-scope .io-title{ font-family:var(--serif); font-weight:500; color:var(--ink); line-height:1.25; margin:0; }
-    .io-scope .io-teaser{ font-size:13.5px; color:var(--muted); line-height:1.5; margin:0; }
-    .io-scope .io-link, .io-scope .io-more{ font-size:12.5px; font-weight:700; color:var(--blue); text-decoration:none; margin-top:2px; }
-    .io-scope .io-moretag{ font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin:24px 0 4px; }
-    /* card base */
+    .io-scope .io-teaser{ font-family:var(--sans); font-size:13.5px; color:var(--muted); line-height:1.5; margin:0; }
+    .io-scope .io-link, .io-scope .io-more{ font-family:var(--sans); font-size:12.5px; font-weight:700; color:var(--blue); text-decoration:none; margin-top:2px; }
+    .io-scope .io-moretag{ font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin:24px 0 4px; }
+
     .io-scope .io-card{ display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--card);
       border:1px solid var(--line); border-radius:var(--r); overflow:hidden; transition:box-shadow .18s ease, transform .18s ease; }
-    .io-scope .io-card:hover{ box-shadow:0 14px 34px rgba(0,0,0,.5); transform:translateY(-3px); }
+    .io-scope .io-card:hover, .io-scope .io-card:focus-visible{ box-shadow:0 12px 30px rgba(15,27,42,.10); transform:translateY(-3px); outline:none; }
+    .io-scope .io-card:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
     .io-scope .io-body{ display:flex; flex-direction:column; gap:8px; padding:16px 16px 18px; flex:1; }
-    /* clickable headline rows (the "older items" stack) */
+
     .io-scope .io-hlist{ display:flex; flex-direction:column; border-bottom:1px solid var(--line); }
     .io-scope .io-hlist2{ display:grid; grid-template-columns:1fr 1fr; column-gap:44px; border-bottom:1px solid var(--line); }
     .io-scope .io-hrow{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:12px 0; border-top:1px solid var(--line); text-decoration:none; color:inherit; }
     .io-scope .io-hrow .t{ font-family:var(--serif); font-size:16.5px; color:var(--ink); line-height:1.3; }
-    .io-scope .io-hrow:hover .t{ color:var(--blue); text-decoration:underline; text-underline-offset:3px; }
-    .io-scope .io-hrow .d{ font-size:12px; color:var(--faint); white-space:nowrap; flex:none; }
-    /* Option C tile grids (reused by Option I's tab panels) */
-    .io-scope .ioC-cover3{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
-    .io-scope .ioC-blog3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-    /* Option F/I tabs */
-    .io-scope .ioF-tabs{ display:inline-flex; gap:4px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:4px; margin:0 0 22px; }
-    .io-scope .ioF-tab{ border:0; background:transparent; cursor:pointer; font-family:var(--sans); font-size:14px; font-weight:600; color:var(--muted); padding:9px 20px; border-radius:999px; }
-    /* two-blue rule: solid fill carrying WHITE text must use the deep --accent-fill, not the bright text-blue */
-    .io-scope .ioF-tab[aria-selected="true"]{ background:#0077A8; color:#fff; }
-    .io-scope .ioF-panel[hidden]{ display:none; }
-    @media (max-width:1040px){
-      .io-scope .ioC-cover3, .io-scope .ioC-blog3{ grid-template-columns:repeat(2,1fr); }
-      .io-scope .io-hlist2{ grid-template-columns:1fr; }
+    .io-scope .io-hrow:hover .t, .io-scope .io-hrow:focus-visible .t{ color:var(--blue); text-decoration:underline; text-underline-offset:3px; }
+    .io-scope .io-hrow:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+    .io-scope .io-hrow .d{ font-family:var(--sans); font-size:12px; color:var(--faint); white-space:nowrap; flex:none; }
+
+    /* lead card (image left/beside text) — shared by Option B's blog leads */
+    .io-scope .ioD-lead{ display:flex; gap:22px; text-decoration:none; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; margin:0 0 6px; transition:box-shadow .18s ease; }
+    .io-scope .ioD-lead:hover, .io-scope .ioD-lead:focus-visible{ box-shadow:0 12px 30px rgba(15,27,42,.10); outline:none; }
+    .io-scope .ioD-lead:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+    .io-scope .ioD-lead .io-ph.rcover{ width:210px; flex:none; }
+    .io-scope .ioD-lead .io-ph.r169{ width:360px; flex:none; }
+    .io-scope .ioD-lead .b{ display:flex; flex-direction:column; gap:10px; padding:22px 22px 22px 0; flex:1; align-self:center; }
+    .io-scope .ioD-lead .io-title{ font-size:25px; }
+
+    /* Option B — side-by-side columns; Insights column leads with the full 850x1100 cover */
+    .io-scope .ioB-grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:0; align-items:start; }
+    .io-scope .ioB-col.blog{ padding-right:40px; }
+    .io-scope .ioB-col.insights{ padding-left:40px; border-left:1px solid var(--line); }
+    .io-scope .ioB-grid .ioD-lead .io-ph.r169{ width:250px; }
+    .io-scope .ioB-grid .ioD-lead .io-title{ font-size:21px; }
+    .io-scope .ioB-grid .ioD-lead .b{ padding:18px 18px 18px 0; }
+    .io-scope .ioB-cap{ font-family:var(--sans); font-size:12px; color:var(--faint); margin:9px 0 0; }
+    /* document-page cover mock: true 850x1100 vertical page (real cover art drops in here) */
+    .io-scope .ioB-page{ aspect-ratio:850/1100; width:100%; position:relative; display:flex; flex-direction:column;
+      background:#fff; border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden;
+      text-decoration:none; box-shadow:0 12px 30px rgba(15,27,42,.12); }
+    .io-scope .ioB-page > img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .io-scope .ioB-page:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+    .io-scope .ioB-page .pg-band{ height:10px; background:linear-gradient(90deg,var(--blue),var(--blue-br)); flex:none; }
+    .io-scope .ioB-page .pg-mark{ font-family:var(--sans); font-weight:800; font-size:11px; letter-spacing:.18em; color:var(--blue); margin:24px 28px 0; }
+    .io-scope .ioB-page .pg-kick{ font-family:var(--sans); font-weight:700; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin:auto 28px 0; }
+    .io-scope .ioB-page .pg-title{ font-family:var(--serif); font-weight:500; font-size:27px; line-height:1.16; color:var(--ink); margin:10px 28px 0; }
+    .io-scope .ioB-page .pg-foot{ font-family:var(--sans); font-size:11px; color:var(--faint); margin:16px 28px 26px; padding-top:14px; border-top:1px solid var(--line); }
+    /* half-size page with copy beside it */
+    .io-scope .ioB-lead{ display:flex; gap:18px; align-items:flex-start; margin:0 0 8px; }
+    .io-scope .ioB-lead .ioB-page{ flex:none; width:210px; box-shadow:0 8px 20px rgba(15,27,42,.12); }
+    .io-scope .ioB-lead .ioB-page .pg-band{ height:7px; }
+    .io-scope .ioB-lead .ioB-page .pg-mark{ font-size:9px; margin:15px 15px 0; letter-spacing:.14em; }
+    .io-scope .ioB-lead .ioB-page .pg-kick{ font-size:9px; margin:auto 15px 0; }
+    .io-scope .ioB-lead .ioB-page .pg-title{ font-size:15px; margin:6px 15px 0; line-height:1.18; }
+    .io-scope .ioB-lead .ioB-page .pg-foot{ font-size:8.5px; margin:10px 15px 15px; padding-top:9px; }
+    .io-scope .ioB-lead .ioB-leadbody{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
+    .io-scope .ioB-lead .ioB-leadbody .io-title{ font-size:20px; }
+    .io-scope .ioB-col .ioD-lead, .io-scope .ioB-col .ioB-lead{ margin-bottom:18px; }
+    @media (max-width:520px){ .io-scope .ioB-lead{ flex-direction:column; } }
+    @media (max-width:900px){
+      .io-scope .ioB-grid{ grid-template-columns:1fr; }
+      .io-scope .ioB-col.blog{ padding-right:0; }
+      .io-scope .ioB-col.insights{ padding-left:0; border-left:0; border-top:1px solid var(--line); padding-top:40px; margin-top:40px; }
     }
     @media (max-width:640px){
-      .io-scope .ioC-cover3, .io-scope .ioC-blog3{ grid-template-columns:1fr; }
+      .io-scope .ioD-lead{ flex-direction:column; }
+      .io-scope .ioD-lead .io-ph.rcover, .io-scope .ioD-lead .io-ph.r169{ width:100%; }
+      .io-scope .ioD-lead .b{ padding:0 18px 18px; }
     }
 
     /* ── LAND INVESTMENT EXPO (NEW section, solid deep navy band) ── */
@@ -593,8 +628,8 @@
     /* utility-bar gradient tint → pale blue; focus outlines → blue */
     .pcf-util{ background: linear-gradient(90deg, #fff 0%, #fff 22%, #EAF2F8 100%); }
     .md-tab:focus-visible, .md-close:focus-visible{ outline-color: var(--accent-light); }
-    /* nav spacing matches version-C (evenly spread, 24px gap) */
-    .pcf-menus{ gap: 24px; }
+    /* tighten centered nav spacing a touch */
+    .pcf-menus{ gap: 30px; }
 
     /* ============================================================
        COMPANY MEGA-MENU BADGES — three matching badge items shown
@@ -651,80 +686,14 @@
       .pff-subform{ width: 100%; }
     }
 
-    /* ============================================================
-       VERSION F — BLACK THEME (over Version G structure/layout)
-       Solidly black surfaces; text white or blue. Two blues by role:
-         --accent-light #00AEEF  BRIGHT → accent TEXT/links/eyebrows/
-             stat numbers/borders on black (8:1+).
-         --accent-fill  #0077A8  DEEP  → solid fills carrying WHITE
-             text (buttons, icon chips, active tab, tags) — 5:1.
-       (bright blue can't hold white text at AA; deep blue can't be
-       read as text on black — hence the split.)  No red. No green.
-       Nav layout (centered menus) + footer layout inherited from G.
-       ============================================================ */
-    :root{
-      --color-surface:#000000; --color-bg:#000000; --white:#000000;
-      --gray-100:#000000; --gray-200:#2A2E34; --gray-500:#8B929A;
-      --gray-600:#C2C8CE; --gray-900:#FFFFFF;
-      --color-text:#FFFFFF; --color-text-muted:#C2C8CE; --color-border:#2A2E34;
-      --ink:#FFFFFF;
-      /* ONE surface black everywhere (hero, all bands, footer); cards use the lifted tone below */
-      --navy:#000000;       /* FarmWorth band */
-      --navy-900:#000000;   /* Expo band */
-      --tint:#000000;       /* National Footprint band */
-      --lightblue:#0E2A38;
-      --accent-light:#00AEEF; --accent-dark:#00AEEF; --accent-bright:#00AEEF;
-      --accent-fill:#0077A8;
-    }
-    body{ background:#000000; color:#fff; }
-
-    /* header + mega + search */
-    .pcf-util{ background: #000000; color: var(--gray-600); }
-    .pcf-util a{ color:#fff; }
-    .pcf-mega{ background:#000000; }
-    .pcf-badge{ background:#000000; }
-    .pcf-search:hover, .pcf-search:focus-visible, .pcf-search[aria-expanded="true"]{ background: var(--accent-fill); color:#fff; }
-    .pcf-searchgo{ background: var(--accent-fill); }
-
-    /* cards on flat black — defined by a slightly brighter hairline border (no between-section lines) */
-    .hp-tile, .hp-path{ background:#000000; border-color:#3D444C; }
-
-    /* solid fills that carry WHITE text → deep blue (bright blue fails white text at AA) */
-    .hp-btn-solid{ background: var(--accent-fill); border-color: var(--accent-fill); }
-    .hp-tile-ico{ background: var(--accent-fill); }
-    .hp-tile.cta{ background: var(--accent-fill); border-color: var(--accent-fill); }
-    .md-tab{ background: var(--accent-fill); }
-    .pff-news-form button, .pff-subform button{ background: var(--accent-fill); color:#fff; }
-    .btn-onblue{ background: var(--accent-fill); border-color: var(--accent-fill); }
-
-    /* Find-Properties map layer → dark */
-    .md-layer, .md-layer-bar{ background:#000000; }
-    .md-close{ background:#000000; color:#fff; border-color:var(--gray-200); }
-    .md-close:hover{ border-color:#fff; }
-
-    /* separators: none between nav↔hero; keep one between last section↔footer;
-       none between footer↔bottom social bar */
-    .pcf{ border-bottom: 0; }
-    .pff{ border-top: 1px solid #3D444C; }
-    .pff-bottom{ border-top: 0; }
-
     /* partner logos — both white/cream: BOTH sit in ONE box, themed to the version
-       (F = black) and matching the site's card radius/border. */
+       (G = navy) and matching the site's card radius/border. */
     .pcf-badges{ display:flex; flex-direction:column; align-self:stretch; gap:0;
-      background:#000000; border:1px solid #3D444C; border-radius:var(--radius-md); padding:2px 16px; }
+      background:var(--navy); border:1px solid rgba(255,255,255,.16); border-radius:var(--radius-md); padding:2px 16px; }
     .pcf-badge-logo{ background:transparent; border:0; padding:16px 0; justify-content:flex-start; align-items:center; }
     .pcf-badge-logo:hover{ box-shadow:none; transform:none; }
-    .pcf-badge-logo + .pcf-badge-logo{ border-top:1px solid #22262B; }
+    .pcf-badge-logo + .pcf-badge-logo{ border-top:1px solid rgba(255,255,255,.14); }
     .pcf-badge-logo img{ height:24px; width:auto; max-width:100%; display:block; }
-
-    /* tighter, cohesive spacing between sections (was --space-9 / 96px top+bottom) */
-    .hp-sec{ padding: var(--space-7) 0; }
-    .hp-hero-in{ padding-top: var(--space-8); padding-bottom: var(--space-7); }
-    @media (max-width:680px){ .hp-sec{ padding: var(--space-6) 0; } }
-
-    /* hero emphasis phrase italic + accent (like versions G/H) */
-    .hp-hero-h em{ font-style: italic; color: var(--accent-dark); }
-
   </style>
 </head>
 
@@ -734,8 +703,8 @@
     <div class="pcf-inner">
       <div class="pcf-brandrow">
         <div class="pcf-brandcell">
-          <a href="./version-f.html" aria-label="Peoples Company home">
-            <img class="pcf-logo" src="shared/logos/pc_logo_white.webp" alt="Peoples Company, Integrated Land Solutions" />
+          <a href="./version-g.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="shared/logos/peoples-company-logo.png" alt="Peoples Company, Integrated Land Solutions" />
           </a>
         </div>
         <div class="pcf-stack">
@@ -779,31 +748,33 @@
     </div>
   </div>
 
-
   <!-- ================= PAGE CONTENT — Homepage (Guided Journey) ================= -->
   <main class="hp">
 
-    <!-- ── HERO — Version A editorial style: photo bleeds from the right, copy on black ── -->
+    <!-- ── HERO — crossfading crop-type photo sequence (stands in for future video) ── -->
     <section class="hp-hero reveal" aria-labelledby="hp-hero-h">
       <div class="hp-hero-bg" id="hpHeroBg" aria-hidden="true">
-        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80"
-             alt=""
-             onerror="this.onerror=null;this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#0A182B 0%,#0077A8 100%)';" />
+        <img class="hp-hero-slide is-active" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80"
+             alt="" onerror="this.style.display='none'" />
+        <img class="hp-hero-slide" src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=1600&q=80"
+             alt="" onerror="this.style.display='none'" />
+        <img class="hp-hero-slide" src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=1600&q=80"
+             alt="" onerror="this.style.display='none'" />
+        <img class="hp-hero-slide" src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1600&q=80"
+             alt="" onerror="this.style.display='none'" />
       </div>
       <div class="hp-hero-in">
-        <div class="hp-hero-copy">
-          <span class="hp-eyebrow">Integrated Land Solutions</span>
-          <h1 id="hp-hero-h" class="hp-hero-h">Clarity for every<br /><em>land decision.</em></h1>
-          <p class="hp-hero-sub">
-            Seven services. One integrated platform: local expertise backed by national reach and proprietary land data.
-          </p>
-        </div><!-- /.hp-hero-copy -->
-        <dl class="hp-statstrip">
-          <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Transactions</dd></div>
-          <div class="hp-stat"><dt>$4B+</dt><dd>Assets Under Management</dd></div>
-          <div class="hp-stat"><dt>$1B+</dt><dd>Annual Farmland Valuations</dd></div>
-          <div class="hp-stat"><dt>170+</dt><dd>Land Professionals</dd></div>
-        </dl>
+        <div class="hp-wrap">
+          <p class="hp-eyebrow">Integrated Land Solutions</p>
+          <h1 id="hp-hero-h">Clarity for every <em>land decision.</em></h1>
+          <p>Seven services. One integrated platform, pairing local expertise with national reach and proprietary land data.</p>
+          <dl class="hp-stats" aria-label="Peoples Company by the numbers">
+            <div class="hp-stat"><dt class="n">$1B+</dt><dd class="l">Farmland Transactions</dd></div>
+            <div class="hp-stat"><dt class="n">$4B+</dt><dd class="l">Assets Under Management</dd></div>
+            <div class="hp-stat"><dt class="n">$1B+</dt><dd class="l">Farmland Valuations</dd></div>
+            <div class="hp-stat"><dt class="n">170+</dt><dd class="l">Land Professionals</dd></div>
+          </dl>
+        </div>
       </div>
     </section>
 
@@ -1008,7 +979,7 @@
       </div>
     </section>
 
-    <!-- ── INSIGHTS & RESEARCH — Option I "Tabbed · C" (dev-site/insights-options.html), themed black ── -->
+    <!-- ── INSIGHTS & RESEARCH — Option B (side-by-side, full research cover) ── -->
     <section class="hp-sec hp-svc reveal" aria-label="Insights &amp; Research">
       <div class="hp-wrap">
         <div class="io-scope" id="hpInsights"></div>
@@ -1188,95 +1159,6 @@
       if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
     })();
 
-    // Insights & Research — Option I "Tabbed · C" (ported from dev-site/insights-options.html)
-    (function(){
-      var CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
-      function img(id, alt, ratio){
-        return '<span class="io-ph '+ratio+'"><img src="https://images.unsplash.com/photo-'+id+'?auto=format&fit=crop&w=1200&q=80" alt="'+alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>';
-      }
-      function insrc(x){ return x.cover ? x.cover : 'https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80'; }
-      function insPh(x, ratio){ return '<span class="io-ph '+ratio+'"><img src="'+insrc(x)+'" alt="'+x.title+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'; }
-
-      var INSIGHTS = {
-        featured: [
-          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
-          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
-          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
-        ],
-        more: [
-          "The Inflation Hedge: Farmland vs. Traditional Assets",
-          "Water Rights and the Value of Irrigated Ground",
-          "Row Crop vs. Permanent Crop: A Risk Framework",
-          "Carbon, Conservation, and Land Returns",
-          "Timber & Transition Land: An Allocation Primer",
-          "The 2025 National Land Values Report"
-        ]
-      };
-      var BLOG = {
-        featured: [
-          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
-          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
-          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
-        ],
-        more: [
-          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
-          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
-          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
-          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
-          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
-          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
-          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
-          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
-        ]
-      };
-
-      function head(eyebrow, h2){
-        return '<div class="io-head"><div><p class="io-eyebrow">'+eyebrow+'</p><h2 class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="#">View more &rarr;</a></div>';
-      }
-      function coverCard(x){
-        return '<a class="io-card" href="#">'+
-          '<span class="io-ph rcover"><img src="'+insrc(x)+'" alt="'+x.title+'" loading="lazy" onerror="this.style.display=\'none\'" /><span class="io-doctag">Report &middot; PDF</span></span>'+
-          '<span class="io-body"><span class="io-kicker">Industry Research</span><h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p><span class="io-link">Read report &rarr;</span></span></a>';
-      }
-      function blogCard(x){
-        return '<a class="io-card" href="#">'+ img(x.id,x.alt,'r169') +
-          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span>'+
-          '<h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p><span class="io-more">Read more &rarr;</span></span></a>';
-      }
-      function hrow(title, date){
-        return '<a class="io-hrow" href="#"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
-      }
-
-      // shared tabbed-block builder (Option F/I mechanic)
-      function tabbedBlock(rootId, h2, researchInner, blogInner){
-        var root = document.getElementById(rootId);
-        if(!root) return;
-        root.innerHTML =
-          '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="#">View more &rarr;</a></div>'+
-          '<div class="ioF-tabs" role="tablist">'+
-            '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
-            '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
-          '</div>'+
-          '<div class="ioF-panel" data-panel="0">'+researchInner+'</div>'+
-          '<div class="ioF-panel" data-panel="1" hidden>'+blogInner+'</div>';
-        root.querySelectorAll('.ioF-tab').forEach(function(t){
-          t.addEventListener('click', function(){
-            root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
-            root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
-          });
-        });
-      }
-
-      // Option I — featured cards (Option C tile grid) + full "more" headline stack, per tab
-      var rc = INSIGHTS.featured.map(coverCard).join("");
-      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
-      var bc = BLOG.featured.map(blogCard).join("");
-      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
-      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
-        '<div class="ioC-cover3">'+rc+'</div><p class="io-moretag">More research</p><div class="io-hlist2">'+rmore+'</div>',
-        '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
-    })();
-
     // Find Properties pull-down → slide-down Integrated Map layer (map module drops in later)
     (function(){
       var tab = document.querySelector(".md-tab"),
@@ -1356,6 +1238,97 @@
         i = (i + 1) % slides.length;
         slides[i].classList.add("is-active");
       }, 5000);
+    })();
+
+    // Insights & Research — Option B (side-by-side, full research cover)
+    (function(){
+      function img(id, alt, ratio){
+        return '<span class="io-ph '+ratio+'"><img src="https://images.unsplash.com/photo-'+id+'?auto=format&fit=crop&w=1200&q=80" alt="'+alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>';
+      }
+      /* insight cover: real 850x1100 cover art (assets/) when present, else an Unsplash placeholder */
+      function insrc(x){ return x.cover ? x.cover : 'https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80'; }
+      function insPh(x, ratio){ return '<span class="io-ph '+ratio+'"><img src="'+insrc(x)+'" alt="'+x.title+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'; }
+
+      var INSIGHTS = {
+        featured: [
+          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
+          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
+          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
+        ],
+        more: [
+          "The Inflation Hedge: Farmland vs. Traditional Assets",
+          "Water Rights and the Value of Irrigated Ground",
+          "Row Crop vs. Permanent Crop: A Risk Framework",
+          "Carbon, Conservation, and Land Returns",
+          "Timber & Transition Land: An Allocation Primer",
+          "The 2025 National Land Values Report"
+        ]
+      };
+      var BLOG = {
+        featured: [
+          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
+          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
+          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
+        ],
+        more: [
+          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
+          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
+          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
+          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
+          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
+          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
+          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
+          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
+        ]
+      };
+
+      function head(eyebrow, h2){
+        return '<div class="io-head"><div><p class="io-eyebrow">'+eyebrow+'</p><h2 class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="#">View more &rarr;</a></div>';
+      }
+      function hrow(title, date){
+        return '<a class="io-hrow" href="#"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
+      }
+
+      var mount = document.getElementById('hpInsights');
+      if(!mount) return;
+
+      // blog: first TWO posts share the same lead layout, rest as a headline stack
+      function blogLead(x){
+        return '<a class="ioD-lead" href="#">'+ img(x.id,x.alt,'r169') +
+          '<span class="b"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span><h3 class="io-title">'+x.title+'</h3><p class="io-teaser">'+x.teaser+'</p><span class="io-more">Read more &rarr;</span></span></a>';
+      }
+      var bleads = BLOG.featured.slice(0,2).map(blogLead).join("");
+      var bmore = BLOG.featured.slice(2).map(function(x){ return hrow(x.title,x.date); }).join("") + BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+
+      // research: first TWO reports share the same full-cover lead layout. Headline text is dropped —
+      // the title already lives on the cover image — so the text column is just teaser + link.
+      function resLead(x, withCap){
+        return '<div class="ioB-lead">'+
+            '<a class="ioB-page" href="#"><img src="'+insrc(x)+'" alt="'+x.title+'" loading="lazy" onerror="this.style.display=\'none\'" /></a>'+
+            '<div class="ioB-leadbody"><span class="io-kicker">Industry Research</span><p class="io-teaser">'+x.teaser+'</p><a class="io-link" href="#">Read report &rarr;</a>'+
+              (withCap ? '<p class="ioB-cap" id="ioB-capw-g">Measuring…</p>' : '')+'</div>'+
+          '</div>';
+      }
+      var rleads = resLead(INSIGHTS.featured[0], true) + resLead(INSIGHTS.featured[1], false);
+      // headline stack = remaining featured + "more", minus the bottom 3 (matches the catalog's density)
+      var rItems = INSIGHTS.featured.slice(2).map(function(x){ return x.title; }).concat(INSIGHTS.more);
+      rItems = rItems.slice(0, Math.max(0, rItems.length - 3));
+      var rmore = rItems.map(function(t){ return hrow(t,''); }).join("");
+
+      mount.innerHTML =
+        '<div class="ioB-grid">'+
+          '<div class="ioB-col blog">'+ head('Peoples Perspective Blog','From the field.') + bleads + '<p class="io-moretag">More from the blog</p><div class="io-hlist">'+bmore+'</div></div>'+
+          '<div class="ioB-col insights">'+ head('Industry Research','Research that informs the decision.') + rleads + '<p class="io-moretag">More research</p><div class="io-hlist">'+rmore+'</div></div>'+
+        '</div>';
+
+      var coverEl = mount.querySelector('.ioB-page');
+      var cap = document.getElementById('ioB-capw-g');
+      function upd(){
+        if(!coverEl || !cap) return;
+        var w = Math.round(coverEl.getBoundingClientRect().width); var h = Math.round(w*1100/850);
+        cap.textContent = 'Actual cover — 850×1100, rendered here at ~'+w+'×'+h+' px.';
+      }
+      upd(); window.addEventListener('resize', upd);
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe

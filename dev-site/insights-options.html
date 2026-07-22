@@ -194,6 +194,29 @@
       .ioD-lead{ flex-direction:column; } .ioD-lead .io-ph.rcover,.ioD-lead .io-ph.r169{ width:100%; }
       .ioD-lead .b{ padding:0 18px 18px; }
     }
+    /* ===== Option H — version-G Insights grid (tall lead + 2 small + 1 wide), one grid per type ===== */
+    .io-read{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--faint); }
+    .ioH-grid{ display:grid; grid-template-columns:1.45fr 1fr 1fr; grid-auto-rows:1fr; gap:18px; }
+    .ioH-grid .io-ph{ height:180px; }
+    .ioH-grid .io-card.lead{ grid-row:span 2; }
+    .ioH-grid .io-card.lead .io-ph{ height:300px; }
+    .ioH-grid .io-card.wide{ grid-column:span 2; }
+    .ioH-grid .io-card.lead .io-title{ font-size:24px; }
+    .ioH-grid .io-card.wide .io-title{ font-size:22px; }
+    /* research tiles that use the real portrait cover: show it whole (contained) on a neutral backdrop */
+    .ioH-grid .io-doc{ background:#EEF1F4; }
+    .ioH-grid .io-doc img{ object-fit:contain; }
+    /* the wide area is a headline list (items 4–10) instead of an image tile */
+    .ioH-grid .ioH-more{ grid-column:span 2; align-self:start; }
+    .ioH-grid .ioH-more .io-moretag{ margin:0 0 8px; }
+    /* tighter gap between the Research and Blog sections in Option H */
+    #optH .io-block + .io-block{ margin-top:22px; padding-top:22px; }
+    @media (max-width:1040px){
+      .ioH-grid{ grid-template-columns:1fr 1fr; }
+      .ioH-grid .io-card.lead{ grid-row:auto; } .ioH-grid .io-card.lead .io-ph{ height:200px; }
+      .ioH-grid .io-card.wide{ grid-column:auto; }
+    }
+    @media (max-width:640px){ .ioH-grid{ grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -219,6 +242,12 @@
     <section class="opt"><div class="opt-bar"><span class="opt-n">Option F</span><span class="opt-name">Tabbed</span><span class="opt-desc">One container, toggle between Industry Research and Blog. Featured cards + a short "more" headline stack per tab.</span></div><div class="frame tinted" id="optF"></div></section>
 
     <section class="opt"><div class="opt-bar"><span class="opt-n">Option G</span><span class="opt-name">Unified Feed + Filters</span><span class="opt-desc">Featured items from both types in one equal-tile grid, with All / Research / Blog filter chips.</span></div><div class="frame" id="optG"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option H</span><span class="opt-name">Version-G Grid (per type)</span><span class="opt-desc">Mirrors version-G's Insights layout — a tall lead tile + two small tiles + one wide tile — duplicated: one grid for Industry Research, one for the Blog.</span></div><div class="frame" id="optH"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option I</span><span class="opt-name">Tabbed · C (Featured cards + headline stack)</span><span class="opt-desc">Option C in one tabbed container: toggle between Industry Research and Blog. Each tab shows the 3 featured cards, then the full "more" headline list.</span></div><div class="frame tinted" id="optI"></div></section>
+
+    <section class="opt"><div class="opt-bar"><span class="opt-n">Option K</span><span class="opt-name">Tabbed · H (Version-G grid)</span><span class="opt-desc">Option H in one tabbed container: toggle between Industry Research and Blog. Each tab shows version-G's varied-tile grid (tall lead + two small + wide).</span></div><div class="frame tinted" id="optK"></div></section>
 
   </div>
 
@@ -434,6 +463,94 @@
       upd(); window.addEventListener('resize', upd);
     })();
 
+    /* ---------- Option H (version-G grid, one per type) ---------- */
+    (function(){
+      function gtile(o){
+        var isRes = (o.kind === 'research');
+        return '<a class="io-card '+(o.cls||'')+'" href="#">'+
+          '<span class="io-ph'+(o.cover?' io-doc':'')+'"><img src="'+(o.cover ? o.cover : 'https://images.unsplash.com/photo-'+o.imgId+'?auto=format&fit=crop&w=1200&q=80')+'" alt="" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
+          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+o.tag+'</span>'+(o.date?'<span class="io-date">'+o.date+'</span>':'')+'</span>'+
+          '<h4 class="io-title">'+o.title+'</h4>'+
+          (o.teaser ? '<p class="io-teaser">'+o.teaser+'</p>' : '')+
+          '<span class="io-read">'+(o.read.indexOf('min')>-1?CLOCK:'')+o.read+'</span>'+
+          '<span class="io-more">'+(isRes?'Read report':'Read more')+' &rarr;</span></span></a>';
+      }
+      var rf = INSIGHTS.featured;
+      var research =
+        gtile({kind:'research', cls:'lead', cover:rf[0].cover, tag:'Industry Research', title:rf[0].title, teaser:rf[0].teaser, read:'PDF'})+
+        gtile({kind:'research', cover:rf[1].cover, tag:'Industry Research', title:rf[1].title, read:'PDF'})+
+        gtile({kind:'research', imgId:'1560493676-04071c5f467b', tag:'Industry Research', title:rf[2].title, read:'PDF'})+
+        '<div class="ioH-more"><p class="io-moretag">More research</p><div class="io-hlist2">'+ INSIGHTS.more.slice(0,7).map(function(t){ return hrow(t,''); }).join("") +'</div></div>';
+      var bf = BLOG.featured;
+      var blog =
+        gtile({cls:'lead', imgId:bf[0].id, tag:bf[0].cat, date:bf[0].date, title:bf[0].title, teaser:bf[0].teaser, read:'5 min read'})+
+        gtile({imgId:bf[1].id, tag:bf[1].cat, date:bf[1].date, title:bf[1].title, read:'4 min read'})+
+        gtile({imgId:bf[2].id, tag:bf[2].cat, date:bf[2].date, title:bf[2].title, read:'7 min read'})+
+        '<div class="ioH-more"><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+ BLOG.more.slice(0,7).map(function(x){ return hrow(x.t,x.d); }).join("") +'</div></div>';
+      document.getElementById('optH').innerHTML =
+        '<div class="io-block">'+ head('Industry Research','Research that informs the decision.') +'<div class="ioH-grid">'+research+'</div></div>'+
+        '<div class="io-block">'+ head('Peoples Perspective Blog','From the field.') +'<div class="ioH-grid">'+blog+'</div></div>';
+    })();
+
+    /* ---------- Tabbed helper (shared by Options I / J / K) ---------- */
+    function tabbedBlock(rootId, h2, researchInner, blogInner){
+      var root = document.getElementById(rootId);
+      if(!root) return;
+      root.innerHTML =
+        '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="#">View more &rarr;</a></div>'+
+        '<div class="ioF-tabs" role="tablist">'+
+          '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
+          '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
+        '</div>'+
+        '<div class="ioF-panel" data-panel="0">'+researchInner+'</div>'+
+        '<div class="ioF-panel" data-panel="1" hidden>'+blogInner+'</div>';
+      root.querySelectorAll('.ioF-tab').forEach(function(t){
+        t.addEventListener('click', function(){
+          root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
+          root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
+        });
+      });
+    }
+
+    /* ---------- Option I — Tabbed C (featured cards + full headline stack) ---------- */
+    (function(){
+      var rc = INSIGHTS.featured.map(coverCard).join("");
+      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
+      var bc = BLOG.featured.map(blogCard).join("");
+      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+      tabbedBlock('optI', 'Land intelligence, made readable.',
+        '<div class="ioC-cover3">'+rc+'</div><p class="io-moretag">More research</p><div class="io-hlist2">'+rmore+'</div>',
+        '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
+    })();
+
+    /* ---------- Option K — Tabbed H (version-G grid per type) ---------- */
+    (function(){
+      function gtile(o){
+        var isRes = (o.kind === 'research');
+        return '<a class="io-card '+(o.cls||'')+'" href="#">'+
+          '<span class="io-ph'+(o.cover?' io-doc':'')+'"><img src="'+(o.cover ? o.cover : 'https://images.unsplash.com/photo-'+o.imgId+'?auto=format&fit=crop&w=1200&q=80')+'" alt="" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
+          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+o.tag+'</span>'+(o.date?'<span class="io-date">'+o.date+'</span>':'')+'</span>'+
+          '<h4 class="io-title">'+o.title+'</h4>'+
+          (o.teaser ? '<p class="io-teaser">'+o.teaser+'</p>' : '')+
+          '<span class="io-read">'+(o.read.indexOf('min')>-1?CLOCK:'')+o.read+'</span>'+
+          '<span class="io-more">'+(isRes?'Read report':'Read more')+' &rarr;</span></span></a>';
+      }
+      var rf = INSIGHTS.featured;
+      var research =
+        gtile({kind:'research', cls:'lead', cover:rf[0].cover, tag:'Industry Research', title:rf[0].title, teaser:rf[0].teaser, read:'PDF'})+
+        gtile({kind:'research', cover:rf[1].cover, tag:'Industry Research', title:rf[1].title, read:'PDF'})+
+        gtile({kind:'research', imgId:'1560493676-04071c5f467b', tag:'Industry Research', title:rf[2].title, read:'PDF'})+
+        '<div class="ioH-more"><p class="io-moretag">More research</p><div class="io-hlist2">'+ INSIGHTS.more.slice(0,7).map(function(t){ return hrow(t,''); }).join("") +'</div></div>';
+      var bf = BLOG.featured;
+      var blog =
+        gtile({cls:'lead', imgId:bf[0].id, tag:bf[0].cat, date:bf[0].date, title:bf[0].title, teaser:bf[0].teaser, read:'5 min read'})+
+        gtile({imgId:bf[1].id, tag:bf[1].cat, date:bf[1].date, title:bf[1].title, read:'4 min read'})+
+        gtile({imgId:bf[2].id, tag:bf[2].cat, date:bf[2].date, title:bf[2].title, read:'7 min read'})+
+        '<div class="ioH-more"><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+ BLOG.more.slice(0,7).map(function(x){ return hrow(x.t,x.d); }).join("") +'</div></div>';
+      tabbedBlock('optK', 'Land intelligence, made readable.',
+        '<div class="ioH-grid">'+research+'</div>',
+        '<div class="ioH-grid">'+blog+'</div>');
+    })();
   </script>
 </body>
 </html>

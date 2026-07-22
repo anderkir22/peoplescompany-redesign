@@ -11,15 +11,15 @@
 
   <link href="./shared/main.css?v=20260601" rel="stylesheet" />
   <title>Listing #19282 — 136.57 acres, Wayne County IA (Design E) | Peoples Company</title>
-  <meta name="description" content="Listing detail — Design E (dashboard + tract switcher). Wayne County, IA farmland auction: navy stat dashboard, sticky section rail + agents + calculator, tract switcher, map, video, downloads, terms." />
+  <meta name="description" content="Listing detail — Design E (dashboard + tract switcher). Wayne County, IA farmland auction: navy stat dashboard, sticky section rail + agents, tract switcher, map, video, downloads, terms." />
 
   <style>
     /* =============================================================================
        LISTING DETAIL — Design E ("Dashboard + Tract Switcher")
        A full-width DARK NAVY summary dashboard (status chip + stat tiles + Bid CTA)
        tops a data-dense two-column body. LEFT = a STICKY vertical section-nav rail
-       (scroll-spy active states) with a STICKY agent card + shared Payment Calculator
-       kept in view. RIGHT = white CARD panels (Overview · Map · Tracts · Video ·
+       (scroll-spy active states) with a STICKY agent card kept in view.
+       RIGHT = white CARD panels (Overview · Map · Tracts · Video ·
        Downloads · Terms). The Tracts card carries a SEGMENTED TRACT SWITCHER that
        swaps the shown tract's stat TABLE + photo gallery (shared lightbox) + its own
        clean downloads list. Map card sits prominent near the top. Shared Similar-
@@ -112,22 +112,6 @@
     .de-agent .c{ font-family: var(--font-sans); font-size: 12.5px; line-height: 1.5; color: var(--gray-600); margin: 0; }
     .de-agent .c a{ color: var(--de-blue); text-decoration: none; }
     .de-agent .c a:hover{ text-decoration: underline; }
-
-    /* payment calculator (shared xmc-) */
-    .de-calc{ padding: var(--space-5); }
-    .de-calc-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
-    .de-calc label{ display: flex; flex-direction: column; gap: 4px; font-family: var(--font-sans);
-      font-size: 11px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--gray-500); }
-    .de-calc input{ font-family: var(--font-sans); font-size: 14px; font-weight: 600; color: var(--de-ink);
-      background: var(--white); border: 1px solid var(--gray-300, #cbd5e1); border-radius: var(--radius-sm);
-      padding: 9px 10px; width: 100%; }
-    .de-calc input:focus-visible{ outline: 2px solid var(--de-blue); outline-offset: 1px; }
-    .de-calc-out{ grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between;
-      gap: var(--space-3); background: var(--de-navy); border-radius: var(--radius-sm);
-      padding: var(--space-3) var(--space-4); margin-top: 2px; }
-    .de-calc-out .lbl{ font-family: var(--font-sans); font-size: 12px; color: rgba(255,255,255,.75); }
-    .xmc-out{ font-family: var(--font-serif); font-size: 24px; font-weight: 600; color: #fff; }
-    .de-calc-note{ grid-column: 1 / -1; font-family: var(--font-sans); font-size: 11px; color: var(--gray-500); margin: 4px 0 0; }
 
     /* ── CARD PANELS (right column) ─────────────────────────────────────────── */
     .de-panels{ display: flex; flex-direction: column; gap: var(--space-6); }
@@ -315,7 +299,7 @@
 
     <!-- BODY: sticky rail + card panels -->
     <div class="de-body">
-      <!-- LEFT: sticky section rail + agents + calculator -->
+      <!-- LEFT: sticky section rail + agents -->
       <aside class="de-rail">
         <!-- section nav (scroll-spy) -->
         <nav class="de-railcard de-secnav" aria-label="Jump to section">
@@ -361,30 +345,6 @@
                 <a href="mailto:MikeNelson@PeoplesCompany.com">MikeNelson@PeoplesCompany.com</a></p>
             </div>
           </div>
-        </div>
-
-        <!-- payment calculator (shared xmc-) -->
-        <div class="de-railcard de-calc">
-          <p class="de-railhead2">Payment Calculator</p>
-          <form id="xmc" class="de-calc-grid" onsubmit="return false">
-            <label>Purchase price
-              <input type="number" name="price" value="1500000" min="0" step="10000" inputmode="numeric" />
-            </label>
-            <label>Down payment %
-              <input type="number" name="dp" value="30" min="0" max="100" step="1" inputmode="numeric" />
-            </label>
-            <label>Interest rate %
-              <input type="number" name="rate" value="7.0" min="0" step="0.1" inputmode="decimal" />
-            </label>
-            <label>Term (years)
-              <input type="number" name="yrs" value="20" min="1" step="1" inputmode="numeric" />
-            </label>
-            <div class="de-calc-out">
-              <span class="lbl">Est. monthly P&amp;I</span>
-              <span class="xmc-out">—</span>
-            </div>
-            <p class="de-calc-note">Estimate only. Not a loan offer.</p>
-          </form>
         </div>
       </aside>
 
@@ -708,21 +668,6 @@
         }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
         sections.forEach(function(s){ if(s) spy.observe(s); });
       }
-
-      /* ── Payment calculator (shared §3b) ──────────────────────────────────── */
-      (function(){
-        var f = document.getElementById('xmc'); if(!f) return;
-        function calc(){
-          var price = +f.querySelector('[name=price]').value || 0,
-              dp = +f.querySelector('[name=dp]').value || 0,
-              rate = +f.querySelector('[name=rate]').value || 0,
-              yrs = +f.querySelector('[name=yrs]').value || 0;
-          var P = price * (1 - dp / 100), r = rate / 100 / 12, n = yrs * 12, m;
-          m = (r === 0) ? (n ? P / n : 0) : P * r / (1 - Math.pow(1 + r, -n));
-          f.querySelector('.xmc-out').textContent = (isFinite(m) && m > 0) ? ('$' + Math.round(m).toLocaleString() + '/mo') : '—';
-        }
-        f.addEventListener('input', calc); calc();
-      })();
 
       /* ── Shared lightbox (§3a) — runs after galleries are injected ────────── */
       (function(){

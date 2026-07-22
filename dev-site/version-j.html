@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Version J</title>
+  <meta name="description" content="Homepage mockup, Version J: duplicate of Version H (pending changes)." />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link href="shared/main.css?v=20260601" rel="stylesheet" />
+
+  <style>
+    /* This page overrides the shared 1200px container to the concept 1400px width */
+    :root{ --site: 1400px; }
+    body{ color: var(--color-text); }
+    .site-inner{ max-width: var(--site); margin: 0 auto; }
+
+    /* ============================================================
+       DEEP TEAL PALETTE — teal / pine / neutral only.
+       NO blue, NO red, NO true-green. Solid fills on dark bands.
+       ============================================================ */
+    :root{
+      --accent-light:#005F5B;   /* AA fills / text on white */
+      --accent-deep:#103B38;    /* solid dark band */
+      --accent-pine:#0C2E2B;    /* deepest solid band */
+      --teal-tint:#E4F0EE;      /* pale chip / section tint */
+      --teal-soft:#CDE9E2;      /* on-dark soft accent */
+      --accent-dark:#79C6BC;    /* on-dark accent text (contrast on pine) */
+      --hp-ink:#0C2422;         /* body ink */
+    }
+
+    /* ============================================================
+       HEADER — Option F "Editorial Spread" (D right/tight nav)
+       ============================================================ */
+    .pcf{ background: var(--white); border-bottom: 1px solid var(--color-border);
+      position: sticky; top: 0; z-index: 40; }
+    .pcf-inner{ max-width: var(--site); margin: 0 auto; }
+    .pcf-brandrow{ display: flex; align-items: stretch; }
+    .pcf-brandcell{ display: flex; align-items: center; padding: 0 24px; flex: none; }
+    .pcf-logo{ height: 80px; width: auto; }
+    .pcf-stack{ flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* utility strip — white→teal-tint gradient, Expo + Login top-right */
+    .pcf-util{
+      display: flex; align-items: center; gap: 18px; height: 40px; padding: 0 24px;
+      font-size: 13px; color: var(--gray-600);
+      background: linear-gradient(90deg, #fff 0%, #fff 22%, var(--teal-tint) 100%);
+    }
+    .pcf-util .sp{ flex: 1; }
+    .pcf-util a{ color: var(--gray-900); text-decoration: none; font-weight: 400; white-space: nowrap; }
+    .pcf-util a:hover{ color: var(--accent-light); }
+    .pcf-util .sep{ opacity: .35; font-weight: 300; }
+
+    /* main nav row — placement: CENTERED with wide gaps (sits between "centered" and "evenly spread") */
+    .pcf-row{ display: flex; align-items: center; gap: 34px; padding: 0 24px 0 36px; height: 76px; }
+    .pcf-menus{
+      list-style: none; margin: 0; padding: 0;
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 60px;
+      font-family: var(--font-serif); font-size: 18px; font-weight: 600;
+    }
+    .pcf-menus > li{ position: static; } /* static so the mega-menu can span the full header width */
+    .pcf-menus > li > a{
+      color: var(--gray-900); text-decoration: none; white-space: nowrap;
+      position: relative; padding: 8px 0; display: inline-block;
+    }
+    .pcf-menus > li > a::after{
+      content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 3px;
+      background: var(--accent-light); border-radius: 2px; transform: scaleX(0); transform-origin: left;
+      transition: transform .18s ease;
+    }
+    .pcf-menus > li:hover > a::after,
+    .pcf-menus > li:focus-within > a::after{ transform: scaleX(1); }
+
+    /* mega-menu pop-down */
+    .pcf-mega{
+      position: absolute; left: 0; right: 0; top: 100%;
+      background: #fff; border-top: 3px solid var(--accent-light);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: 0 14px 28px rgba(12,46,43,.12);
+      opacity: 0; visibility: hidden; transform: translateY(-6px);
+      transition: opacity .14s ease, transform .14s ease, visibility .14s;
+      z-index: 39;
+    }
+    .pcf-menus > li:hover .pcf-mega,
+    .pcf-menus > li:focus-within .pcf-mega{ opacity: 1; visibility: visible; transform: translateY(0); }
+    .pcf-mega::before{ content: ""; position: absolute; left: 0; right: 0; top: -26px; height: 26px; }
+    .pcf-mega-in{
+      max-width: var(--site); margin: 0 auto; padding: var(--space-6) 24px;
+      display: grid; gap: var(--space-7); grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+    .pcf-col h4{
+      font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gray-900);
+      margin: 0 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--gray-200);
+    }
+    .pcf-col ul{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .pcf-col a{
+      font-family: var(--font-sans); font-size: 11px; color: var(--gray-500); text-decoration: none;
+      display: inline-block; transition: color .12s ease;
+    }
+    .pcf-col a:hover, .pcf-col a:focus{ color: var(--accent-light); text-decoration: underline; text-underline-offset: 3px; }
+    .pcf-col .soft{ color: var(--gray-500); font-size: 12px; margin: 0; }
+    .pcf-svcblock{ margin-bottom: 22px; }
+    .pcf-svcblock:last-child{ margin-bottom: 0; }
+    .pcf-col .pcf-svc a{
+      font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gray-900); text-decoration: none; display: inline-block;
+    }
+    .pcf-col .pcf-svc a:hover{ color: var(--accent-light); }
+    .pcf-sublist{ list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+    /* Company mega-menu — right-side AFFILIATION BADGES (this tab only) */
+    .pcf-badgecol{ display: flex; flex-direction: column; gap: 14px; }
+    .pcf-badge{ display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .pcf-badge .emb{ width: 46px; height: 46px; flex: none; border-radius: 50%;
+      border: 1px solid var(--gray-200); background: var(--teal-tint); color: var(--accent-light);
+      display: inline-flex; align-items: center; justify-content: center; transition: border-color .14s ease, background .14s ease; }
+    .pcf-badge.rect .emb{ border-radius: 6px; width: 62px; height: 42px;
+      font-family: var(--font-sans); font-weight: 800; font-size: 15px; letter-spacing: .06em; color: var(--accent-light); }
+    .pcf-badge .blabel{ font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--gray-900); line-height: 1.25; text-decoration: none; }
+    .pcf-badge:hover .blabel{ color: var(--accent-light); text-decoration: none; }
+    .pcf-badge:hover .emb{ border-color: var(--accent-light); }
+    .pcf-badge .emb svg{ display: block; }
+
+    @media (prefers-reduced-motion: reduce){
+      .pcf-mega{ transition: none; transform: none; }
+      .pcf-menus > li > a::after{ transition: none; }
+    }
+
+    .pcf-searchwrap{ position: relative; flex: none; }
+    .pcf-search{
+      width: 40px; height: 40px; border-radius: 50%; border: 0;
+      display: inline-flex; align-items: center; justify-content: center; color: var(--gray-900);
+      flex: none; cursor: pointer; background: transparent;
+      transition: background-color .15s ease, color .15s ease;
+    }
+    .pcf-search:hover, .pcf-search:focus-visible,
+    .pcf-search[aria-expanded="true"]{ background: var(--accent-light); color:#fff; border-radius: 50%; }
+    .pcf-search:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+
+    .pcf-searchpanel{
+      position: absolute; top: calc(100% + 18px); right: 0; z-index: 50;
+      background: var(--white); border: 1px solid var(--color-border);
+      border-radius: 0; box-shadow: 0 12px 32px rgba(16,59,56,.16);
+      padding: 6px;
+      opacity: 0; transform: translateY(-8px); visibility: hidden; pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease, visibility 0s .18s;
+    }
+    .pcf-searchpanel.open{
+      opacity: 1; transform: none; visibility: visible; pointer-events: auto;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .pcf-searchform{ display: flex; align-items: center; gap: 6px; }
+    .pcf-searchform input{
+      border: 0; outline: 0; background: transparent; color: var(--gray-900);
+      font-family: var(--font-sans); font-size: 15px; padding: 9px 14px; width: 300px;
+    }
+    .pcf-searchform input::placeholder{ color: var(--gray-500); }
+    .pcf-searchgo{
+      width: 40px; height: 40px; flex: none; border: 0; border-radius: var(--radius-pill);
+      background: var(--accent-light); color: var(--white); cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background-color .15s ease;
+    }
+    .pcf-searchgo:hover{ background: var(--accent-deep); }
+    @media (prefers-reduced-motion: reduce){
+      .pcf-searchpanel{ transition: visibility 0s .001s; transform: none; }
+      .pcf-searchpanel.open{ transition: none; }
+    }
+
+    /* ============================================================
+       INTERACTIVE MAP pull-down tab → slides down the map layer
+       ============================================================ */
+    :root{ --navH: 132px; } /* measured from the header by JS */
+    .md-tabwrap{ position: sticky; top: var(--navH); z-index: 39; height: 0; text-align: center; pointer-events: none; }
+    .md-tab{
+      pointer-events: auto; position: relative; cursor: pointer; border: 0; box-sizing: border-box;
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      font-family: var(--font-sans); font-weight: 600; font-size: 15px; color:#0C2E2B;
+      background: var(--teal-soft); height: 46px; width: 340px; padding: 0 26px;
+      border-radius: 0 0 14px 14px; box-shadow: 0 6px 16px rgba(0,0,0,.18);
+      animation: md-flex 2s ease-in-out infinite;
+    }
+    .md-tab:hover{ background:#B4DED6; }
+    .md-tab:focus-visible{ outline: 3px solid var(--black); outline-offset: 2px; }
+    .md-tab .md-chev{ display: inline-block; transition: transform .2s ease; }
+    .md-tab[aria-expanded="true"] .md-chev{ transform: rotate(180deg); }
+    .md-tab[aria-expanded="true"]{ animation: none; height: 46px; }
+    @keyframes md-flex{ 0%,100%{ height: 46px; } 50%{ height: 56px; } }
+
+    .md-backdrop{ position: fixed; inset: var(--navH) 0 0 0; z-index: 30; background: rgba(8,22,20,.55);
+      opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
+    .md-backdrop.is-open{ opacity: 1; visibility: visible; }
+    .md-layer{ position: fixed; top: var(--navH); left: 0; right: 0; margin-inline: auto;
+      max-width: var(--site, 1400px); height: calc(100vh - var(--navH)); z-index: 31; background: #fff;
+      box-shadow: 0 18px 40px rgba(0,0,0,.25); transform: translateY(-100%);
+      transition: transform .38s cubic-bezier(.16,.84,.44,1); overflow-y: auto; overscroll-behavior: contain; }
+    .md-layer.is-open{ transform: translateY(0); }
+    .md-layer-bar{ position: sticky; top: 0; z-index: 2; display: flex; justify-content: flex-end;
+      align-items: center; padding: 14px 40px; background: #fff; }
+    .md-close{ display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+      font-size: 18px; line-height: 1; color: var(--gray-900); background: #fff;
+      border: 1px solid var(--gray-200); border-radius: 50%; width: 40px; height: 40px; }
+    .md-close:hover{ border-color: var(--gray-900); }
+    .md-close:focus-visible{ outline: 2px solid var(--black); outline-offset: 2px; }
+    .md-layer-body{ display: flex; align-items: center; justify-content: center;
+      min-height: calc(100vh - var(--navH) - 68px); }
+    .md-placeholder{ font-family: var(--font-serif); font-size: 40px; color: var(--gray-500); margin: 0; }
+    .md-mapimg{ display: block; width: 100%; height: calc(100vh - var(--navH) - 68px);
+      object-fit: cover; object-position: center; }
+    @media (prefers-reduced-motion: reduce){
+      .md-tab{ animation: none !important; height: 46px !important; }
+      .md-tab .md-chev{ transition: none; }
+      .md-layer, .md-backdrop{ transition: none; }
+    }
+
+    /* ============================================================
+       FOOTER — version-C connect band on top + right-justified nav
+       ============================================================ */
+    .pff{ background: #000; color: rgba(255,255,255,.78); }
+    .pff a{ color: rgba(255,255,255,.78); text-decoration: none; transition: color .15s ease; }
+    .pff a:hover{ color: var(--accent-dark); }
+    .pff-inner{ max-width: var(--site); margin: 0 auto; padding: 0 var(--space-6); }
+
+    .pff-main{ padding: var(--space-8) 0 var(--space-7); }
+    .pff-grid{
+      display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7);
+    }
+    /* top connect band: logo (left) · newsletter line · subscribe pill (right) */
+    .pff-connect{ display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7);
+      align-items: center; margin-bottom: var(--space-7); }
+    .pff-connect-logo{ grid-column: 1; grid-row: 1; display: inline-block; }
+    .pff-connect-logo img{ width: 232px; max-width: 100%; height: auto; display: block; }
+    .pff-connect-line{ grid-column: 2 / -1; grid-row: 1; text-align: left; margin: 0; padding-left: 20px; font-family: var(--font-sans);
+      font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #fff; }
+
+    /* newsletter subscribe — dark pill with a teal Subscribe pill flush right */
+    .pff-subform{ grid-column: 2 / -1; grid-row: 1; justify-self: end;
+      display: flex; align-items: stretch; width: 420px; max-width: 100%;
+      background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.16);
+      border-radius: var(--radius-pill); padding: 0; overflow: hidden; }
+    .pff-subform:focus-within{ border-color: var(--teal-soft); }
+    .pff-subform input{
+      flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff;
+      font-family: var(--font-sans); font-size: 14px; font-weight: 700; padding: 12px 16px 12px 22px;
+    }
+    .pff-subform input::placeholder{ color: rgba(255,255,255,.6); font-weight: 700; }
+    .pff-subform button{
+      flex: none; align-self: stretch; display: flex; align-items: center; justify-content: center;
+      border: 0; cursor: pointer; background: var(--teal-soft); color: #06231F;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .04em;
+      padding: 0 26px; transition: background-color .15s ease;
+    }
+    .pff-subform button:hover{ background: #B4DED6; }
+    .pff-contact{ font-size: 14px; line-height: 1.9; margin-bottom: var(--space-5); }
+    .pff-contact b{ color: #fff; font-weight: 500; }
+    .pff-cta{ display: flex; gap: var(--space-3); flex-wrap: wrap; }
+    .pff-cta .btn{ padding: 12px 22px; font-size: 15px; }
+    .btn-ghost{ background: transparent; color: #fff; border-color: rgba(255,255,255,.45); }
+    .btn-ghost:hover{ border-color: #fff; }
+
+    .pff-col h3{
+      font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: #fff; margin: 0 0 var(--space-4);
+    }
+    .pff-brand h3{ margin-bottom: var(--space-2); }
+    /* Corporate Office + address indented to match version-B placement */
+    .pff-brand h3, .pff-brand .pff-contact, .pff-brand .pff-cta{ padding-left: 49px; }
+    .pff-col ul{ list-style: none; margin: 0; padding: 2px 0 0; overflow: visible; }
+    .pff-col li{ margin-bottom: var(--space-3); line-height: 1.35; }
+    .pff-col li:first-child{ margin-top: 2px; }
+    .pff-col a{ font-size: 14px; display: inline-block; }
+    /* RIGHT-JUSTIFIED text in the four nav columns (version-H) */
+    nav.pff-col, nav.pff-col h3{ text-align: right; }
+
+    /* bottom bar: social · legal */
+    .pff-bottom{ border-top: 1px solid rgba(255,255,255,.14); }
+    .pff-bottom-inner{
+      max-width: var(--site); margin: 0 auto; padding: var(--space-5) var(--space-6);
+      display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap;
+    }
+    .pff-social{ display: inline-flex; align-items: center; gap: 16px; }
+    .pff-social a{ display: inline-flex; color: rgba(255,255,255,.85); }
+    .pff-social a:hover{ color: var(--accent-dark); }
+    .pff-social svg{ width: 18px; height: 18px; display: block; }
+
+
+    .pff-legal{ margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 12.5px; }
+    .pff-legal .copy{ color: rgba(255,255,255,.55); }
+    .pff-legal .legal-links{ display: flex; gap: 20px; }
+    .pff-legal a{ color: rgba(255,255,255,.7); }
+    .pff-legal a:hover{ color: var(--accent-dark); }
+
+    /* ============================================================
+       Scroll-reveal (a must-have) — reduced-motion safe
+       ============================================================ */
+    .reveal{ opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in{ opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce){
+      .reveal{ opacity: 1; transform: none; transition: none; }
+      .pcf-menus a::after{ transition: none; }
+    }
+
+    /* ============================================================
+       HOMEPAGE BODY (.hp) — Version H · Deep Teal · Land Atlas
+       ============================================================ */
+    .hp{ font-family: var(--font-sans); color: var(--hp-ink); }
+    .hp .hp-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 40px; }
+
+    /* graceful photo fallback container — deep-teal gradient */
+    .hp-imgwrap{ background: linear-gradient(135deg,#0C2E2B 0%,#103B38 55%,#0A2422 100%); overflow: hidden; }
+    .hp-imgwrap img{ display: block; width: 100%; height: 100%; object-fit: cover; }
+
+    /* shared bits */
+    .hp-eyebrow{ display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-sans);
+      font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-light); margin: 0; }
+    .hp-eyebrow::before{ content:""; width: 26px; height: 2px; background: var(--accent-light); display: block; }
+    .hp-eyebrow.on-dark{ color: var(--accent-dark); }
+    .hp-eyebrow.on-dark::before{ background: var(--accent-dark); }
+
+    .hp-btn{ display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer;
+      padding: 13px 28px; border: 2px solid transparent; transition: background .15s, border-color .15s, color .15s; }
+    .hp-btn-primary{ background: var(--accent-light); color:#fff; border-color: var(--accent-light); }
+    .hp-btn-primary:hover, .hp-btn-primary:focus{ background: var(--accent-deep); border-color: var(--accent-deep); }
+    .hp-btn-primary:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 3px; }
+    .hp-btn-solid-dark{ background: var(--teal-soft); color: var(--accent-pine); border-color: var(--teal-soft); }
+    .hp-btn-solid-dark:hover, .hp-btn-solid-dark:focus{ background:#B4DED6; border-color:#B4DED6; }
+    .hp-btn-solid-dark:focus-visible{ outline: 2px solid #fff; outline-offset: 3px; }
+    .hp-btn-ghost-light{ background: transparent; color:#fff; border-color: rgba(255,255,255,.55); }
+    .hp-btn-ghost-light:hover, .hp-btn-ghost-light:focus{ border-color:#fff; }
+    .hp-btn-ghost-light:focus-visible{ outline: 2px solid var(--accent-dark); outline-offset: 3px; }
+
+    .hp-sec{ padding: var(--space-9) 0; }
+    .hp-sec h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; line-height: 1.12;
+      color: var(--hp-ink); margin: var(--space-3) 0 0; }
+
+    /* ── 1 · HERO — crossfading crop-type sequence + inline stats ── */
+    .hp-hero{ position: relative; min-height: 620px; display: flex; align-items: flex-end; overflow: hidden; }
+    .hp-hero .hp-hero-bg{ position: absolute; inset: 0; z-index: 0; }
+    .hp-hero-video{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hp-hero-slide{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; transition: opacity 1.4s ease; }
+    .hp-hero-slide.is-active{ opacity: 1; }
+    @media (prefers-reduced-motion: reduce){
+      .hp-hero-slide{ transition: none; }
+      .hp-hero-slide:not(.is-active){ display: none; }
+    }
+    /* version-J: version-F hero wash, but WHITE (solid left → photo revealed right) */
+    .hp-hero .hp-hero-bg::after{ content:""; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to right, #fff 0%, rgba(255,255,255,.92) 15%, rgba(255,255,255,.6) 45%, rgba(255,255,255,.4) 75%, rgba(255,255,255,.36) 100%); }
+    .hp-hero-inner{ position: relative; z-index: 2; padding: var(--space-9) 0 var(--space-8); width: 100%; }
+    .hp-hero h1{ font-family: var(--font-serif); font-weight: 500; font-size: 64px; line-height: 1.06;
+      color: var(--gray-900); margin: var(--space-4) 0 var(--space-4); max-width: 16ch; }
+    .hp-hero h1 em{ font-style: italic; color: var(--accent-light); }
+    .hp-hero > .hp-hero-inner p.hp-lead{ font-size: 18px; color: var(--gray-600); max-width: 52ch; line-height: 1.65; margin: 0; }
+    .hp-hero::after{ content:""; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: var(--accent-light); z-index: 3; }
+    /* inline hero stats */
+    .hp-hero-stats{ display: flex; flex-wrap: wrap; gap: 34px; margin-top: 34px; }
+    .hp-hstat{ display: flex; flex-direction: column; padding-left: 15px; border-left: 2px solid var(--accent-light); }
+    .hp-hstat .n{ font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1; color: var(--gray-900); }
+    .hp-hstat .l{ font-size: 12.5px; color: var(--gray-600); margin-top: 7px; letter-spacing: .02em; max-width: 15ch; }
+
+    /* ── 2 · SERVICES (option B — small left line icons, no top band) ── */
+    .hp-svc{ background:#F5F7F6; }
+    .hp-svc-head{ margin-bottom: var(--space-6); }
+    .hp-svc-head h2{ max-width: none; }
+    .hp-svc-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
+    .hp-card{ background:#fff; border: 1px solid #DCE6E3; border-radius: var(--radius-md);
+      padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3);
+      transition: box-shadow .18s, transform .18s; }
+    .hp-card:hover{ box-shadow: 0 8px 22px rgba(12,46,43,.09); transform: translateY(-2px); }
+    @media (prefers-reduced-motion: reduce){ .hp-card:hover{ transform: none; } }
+    /* solid accent chip holding the official white-fill PC service glyphs */
+    .hp-svc-ic{ width: 44px; height: 44px; border-radius: 10px; background: var(--accent-light); color: #fff;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .hp-svc-ic svg{ width: 23px; height: 23px; display: block; }
+    /* all 7 glyphs normalized to the SAME 27px box, contain-fit + centered → identical margins */
+    .hp-svc-ic .hp-svcimg{ width: 27px; height: 27px; display: block; object-fit: contain; }
+    .hp-svc-ic svg.hp-gavel{ width: 27px; height: 27px; fill: #fff; stroke: none; } /* brokerage: circle dropped, viewBox tightened to glyph */
+    .hp-card h4{ font-family: var(--font-serif); font-weight: 500; font-size: 18px; color: var(--hp-ink); margin: 0; }
+    .hp-card p{ font-size: 13px; color: var(--gray-600); margin: 0; line-height: 1.55; }
+    /* 8th "All Services" accent-filled CTA card */
+    a.hp-card-all{ background: var(--accent-light); border-color: var(--accent-light);
+      text-decoration: none; justify-content: flex-start; }
+    a.hp-card-all:hover{ box-shadow: 0 8px 22px rgba(12,46,43,.18); }
+    a.hp-card-all .hp-svc-ic{ background: rgba(255,255,255,.18); color:#fff; }
+    a.hp-card-all h4{ color:#fff; }
+    a.hp-card-all p{ color: rgba(255,255,255,.90); }
+    a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14px; font-weight: 600; color:#fff; }
+
+    /* ── 3 · WHO WE SERVE (dark teal audience cards — D treatment) ── */
+    .hp-serve{ background: var(--accent-deep); }
+    .hp-serve .hp-wrap{ padding-top: var(--space-9); padding-bottom: var(--space-9); }
+    .hp-serve-head{ margin-bottom: var(--space-5); }
+    .hp-serve-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 32px; color:#fff; margin: var(--space-2) 0; }
+    .hp-serve-head p{ font-size: 15px; color:#A9CEC9; margin: 0; max-width: 54ch; }
+    .hp-serve-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
+    .hp-serve-card{ display: flex; flex-direction: column; gap: 6px; padding: var(--space-6) var(--space-5);
+      border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius-md);
+      text-decoration: none; background: rgba(255,255,255,.04); transition: background .18s, border-color .18s; }
+    .hp-serve-card:hover, .hp-serve-card:focus{ background: rgba(121,198,188,.12); border-color: rgba(121,198,188,.45); outline: none; }
+    .hp-serve-card:focus-visible{ outline: 2px solid var(--accent-dark); outline-offset: 2px; }
+    .hp-serve-card .tag{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-dark); }
+    .hp-serve-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; color:#fff; margin: 6px 0 0; line-height: 1.2; }
+    .hp-serve-card p{ font-size: 13px; color:#B8CCC9; margin: 0; line-height: 1.5; }
+    .hp-serve-card .arrow{ margin-top: auto; padding-top: var(--space-3); color: var(--accent-dark); font-size: 18px; }
+
+    /* ── 4 · FARMWORTH — SOLID pine band, horizontal media slot ── */
+    .hp-tech{ background: var(--accent-pine); color:#fff; }
+    .hp-tech .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
+    .hp-tech h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; color:#fff; margin: var(--space-3) 0; line-height: 1.12; }
+    .hp-tech p{ font-size: 16px; color:#C8E0DC; line-height: 1.65; margin: 0 0 var(--space-5); max-width: 46ch; }
+    .hp-tech-feat{ list-style: none; padding: 0; margin: 0 0 var(--space-6); display: grid; gap: 10px; }
+    .hp-tech-feat li{ font-size: 14px; color:#DDECEA; display: flex; gap: 10px; align-items: flex-start; }
+    .hp-tech-feat li::before{ content:"\25C6"; color: var(--accent-dark); font-size: 9px; margin-top: 5px; flex-shrink: 0; }
+    .hp-tech-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
+      aspect-ratio: 16 / 9; width: 100%; min-height: 0;
+      border: 1px solid rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; }
+    .hp-tech-media .cap{ position: relative; z-index: 2; font-family: var(--font-serif); font-style: italic; font-size: 20px;
+      color:#fff; background: rgba(8,22,20,.55); border: 1px solid rgba(255,255,255,.28); border-radius: var(--radius-pill); padding: 10px 22px; }
+    .hp-tech-media .hp-imgwrap{ position: absolute; inset: 0; }
+    .hp-tech-media .hp-imgwrap::after{ content:""; position: absolute; inset: 0; background: rgba(8,22,20,.35); }
+
+    /* ── 5 · LAND INVESTMENT EXPO (new section) ── */
+    .hp-expo{ background: var(--teal-tint); }
+    .hp-expo .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
+    .hp-expo-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
+      aspect-ratio: 4 / 3; min-height: 300px; }
+    .hp-expo-media .hp-imgwrap{ position: absolute; inset: 0; }
+    .hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; color: var(--hp-ink); margin: var(--space-3) 0; line-height: 1.12; max-width: 18ch; }
+    .hp-expo p{ font-size: 16px; color: var(--gray-600); line-height: 1.65; margin: 0 0 var(--space-4); max-width: 48ch; }
+    .hp-expo-meta{ display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 var(--space-6); font-size: 13.5px; font-weight: 600; color: var(--accent-light); }
+    .hp-expo-meta span{ display: inline-flex; align-items: center; gap: 8px; }
+    .hp-expo-meta span::before{ content:"\25C6"; font-size: 8px; }
+
+    /* ── 6 · NATIONAL FOOTPRINT + CONNECT (combined) ── */
+    .hp-reach{ background:#fff; border-top: 1px solid #DCE6E3; }
+    .hp-reach-head{ margin-bottom: var(--space-6); max-width: 62ch; }
+    .hp-reach-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; color: var(--hp-ink);
+      margin: var(--space-2) 0 var(--space-3); line-height: 1.12; max-width: 20ch; }
+    .hp-reach-head > p{ font-size: 15px; color: var(--gray-600); line-height: 1.6; margin: 0; max-width: 52ch; }
+    .hp-reach-grid{ display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-8); align-items: center; }
+    /* map — no outline, no legend labels; image stands on its own */
+    .hp-map{ border: 0; border-radius: 0; overflow: hidden; background: transparent; }
+    .hp-map-img{ display: block; width: 100%; height: auto; }
+    .hp-map.hp-map-fallback{ min-height: 340px; border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #E4F0EE, #79C6BC); }
+    /* connect block (1/3) */
+    .hp-connect-card{ background: var(--teal-tint); border-radius: var(--radius-md); padding: var(--space-7); }
+    .hp-connect-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; color: var(--hp-ink);
+      margin: var(--space-2) 0 var(--space-3); line-height: 1.14; }
+    .hp-connect-card > p{ font-size: 15px; color: var(--gray-600); line-height: 1.6; margin: 0 0 var(--space-5); }
+    .hp-connect-stat{ display: flex; align-items: baseline; gap: 10px; margin: 0 0 var(--space-5); }
+    .hp-connect-stat .n{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; line-height: 1; color: var(--accent-light); }
+    .hp-connect-stat .l{ font-size: 13px; color: var(--gray-600); }
+
+    /* ── 7 · INSIGHTS & NEWS — Option K catalog (tabbed, version-G grid), themed teal ── */
+    .hp-ins-sec{ background:#EAF3F1; }
+
+    /* catalog vars, scoped + retinted (deep teal, no blue) */
+    .io-scope{ --serif:var(--font-serif); --sans:var(--font-sans);
+      --ink:#12302C; --muted:#4B5B57; --faint:#7B8B87;
+      --line:#DCE6E3; --line-2:#E7EFEC; --card:#FFFFFF; --panel:#EAF3F1;
+      --blue:#005F5B; --blue-br:#0E7F79; --blue-tint:#DCEBE7; --r:14px; --r-sm:10px;
+      font-family: var(--sans); color: var(--ink); }
+
+    /* shared section furniture */
+    .io-scope .io-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin:0 0 22px; }
+    .io-scope .io-eyebrow{ display:inline-flex; align-items:center; gap:9px; font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
+    .io-scope .io-eyebrow::before{ content:""; width:22px; height:2px; background:var(--blue); }
+    .io-scope .io-h2{ font-family:var(--serif); font-weight:500; font-size:29px; line-height:1.12; margin:0; letter-spacing:-.01em; }
+    .io-scope .io-viewmore{ font-size:13.5px; font-weight:700; color:var(--blue); text-decoration:none; white-space:nowrap; }
+    .io-scope .io-viewmore:hover{ text-decoration:underline; text-underline-offset:3px; }
+    .io-scope .io-block + .io-block{ margin-top:46px; padding-top:44px; border-top:1px solid var(--line-2); }
+    #hpInsights .io-block + .io-block{ margin-top:22px; padding-top:22px; }
+
+    /* image wrapper + graceful fallback — teal gradient (no blue) */
+    .io-scope .io-ph{ position:relative; overflow:hidden; background:linear-gradient(135deg,#0B3B38,#005F5B); }
+    .io-scope .io-ph img{ width:100%; height:100%; object-fit:cover; }
+    .io-scope .io-ph.r169{ aspect-ratio:16/9; }
+    .io-scope .io-ph.rcover{ aspect-ratio:850/1100; }
+    .io-scope .io-doctag{ position:absolute; left:12px; top:12px; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#0B3B38; background:rgba(255,255,255,.92); padding:4px 9px; border-radius:6px; }
+
+    /* text bits */
+    .io-scope .io-kicker{ font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); }
+    .io-scope .io-chip{ display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-tint); border-radius:999px; padding:3px 10px; }
+    .io-scope .io-date{ font-size:12px; color:var(--faint); }
+    .io-scope .io-metarow{ display:flex; gap:10px; align-items:center; }
+    .io-scope .io-title{ font-family:var(--serif); font-weight:500; color:var(--ink); line-height:1.25; margin:0; }
+    .io-scope .io-teaser{ font-size:13.5px; color:var(--muted); line-height:1.5; margin:0; }
+    .io-scope .io-link, .io-scope .io-more{ font-size:12.5px; font-weight:700; color:var(--blue); text-decoration:none; margin-top:2px; }
+    .io-scope .io-moretag{ font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin:24px 0 4px; }
+    .io-scope .io-read{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--faint); }
+
+    /* card base */
+    .io-scope .io-card{ display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--card);
+      border:1px solid var(--line); border-radius:var(--r); overflow:hidden; transition:box-shadow .18s ease, transform .18s ease; }
+    .io-scope .io-card:hover{ box-shadow:0 12px 30px rgba(12,46,43,.10); transform:translateY(-3px); }
+    @media (prefers-reduced-motion: reduce){ .io-scope .io-card:hover{ transform:none; } }
+    .io-scope .io-card:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+    .io-scope .io-body{ display:flex; flex-direction:column; gap:8px; padding:16px 16px 18px; flex:1; }
+
+    /* clickable headline rows (older items) */
+    .io-scope .io-hlist{ display:flex; flex-direction:column; border-bottom:1px solid var(--line); }
+    .io-scope .io-hlist2{ display:grid; grid-template-columns:1fr 1fr; column-gap:44px; border-bottom:1px solid var(--line); }
+    .io-scope .io-hrow{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:12px 0; border-top:1px solid var(--line); text-decoration:none; color:inherit; }
+    .io-scope .io-hrow .t{ font-family:var(--serif); font-size:16.5px; color:var(--ink); line-height:1.3; }
+    .io-scope .io-hrow:hover .t{ color:var(--blue); text-decoration:underline; text-underline-offset:3px; }
+    .io-scope .io-hrow .d{ font-size:12px; color:var(--faint); white-space:nowrap; flex:none; }
+
+    /* ===== Option K — tabs ===== */
+    .io-scope .ioF-tabs{ display:inline-flex; gap:4px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:4px; margin:0 0 22px; }
+    .io-scope .ioF-tab{ border:0; background:transparent; cursor:pointer; font-family:var(--sans); font-size:14px; font-weight:600; color:var(--muted); padding:9px 20px; border-radius:999px; }
+    .io-scope .ioF-tab[aria-selected="true"]{ background:var(--blue); color:#fff; }
+    .io-scope .ioF-tab:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+    .io-scope .ioF-panel[hidden]{ display:none; }
+
+    /* ===== Option K — version-G varied-tile grid ===== */
+    .io-scope .ioH-grid{ display:grid; grid-template-columns:1.45fr 1fr 1fr; grid-auto-rows:1fr; gap:18px; }
+    .io-scope .ioH-grid .io-ph{ height:180px; }
+    .io-scope .ioH-grid .io-card.lead{ grid-row:span 2; }
+    .io-scope .ioH-grid .io-card.lead .io-ph{ height:300px; }
+    .io-scope .ioH-grid .io-card.wide{ grid-column:span 2; }
+    .io-scope .ioH-grid .io-card.lead .io-title{ font-size:24px; }
+    .io-scope .ioH-grid .io-card.wide .io-title{ font-size:22px; }
+    .io-scope .ioH-grid .io-doc{ background:#EEF1F0; }
+    .io-scope .ioH-grid .io-doc img{ object-fit:contain; }
+    .io-scope .ioH-grid .ioH-more{ grid-column:span 2; align-self:start; }
+    .io-scope .ioH-grid .ioH-more .io-moretag{ margin:0 0 8px; }
+    @media (max-width:1040px){
+      .io-scope .io-hlist2{ grid-template-columns:1fr; }
+      .io-scope .ioH-grid{ grid-template-columns:1fr 1fr; }
+      .io-scope .ioH-grid .io-card.lead{ grid-row:auto; } .io-scope .ioH-grid .io-card.lead .io-ph{ height:200px; }
+      .io-scope .ioH-grid .io-card.wide{ grid-column:auto; }
+    }
+    @media (max-width:640px){ .io-scope .ioH-grid{ grid-template-columns:1fr; } }
+
+    /* ── homepage responsive ── */
+    @media (max-width: 1100px){
+      .hp-hero h1{ font-size: 48px; }
+      .hp-sec h2, .hp-reach-head h2, .hp-tech h2, .hp-expo h2{ font-size: 36px; }
+      .hp-serve-grid{ grid-template-columns: repeat(2,1fr); }
+      .hp-svc-grid{ grid-template-columns: repeat(2,1fr); }
+      .hp-tech .hp-wrap{ grid-template-columns: 1fr; }
+      .hp-expo .hp-wrap{ grid-template-columns: 1fr; }
+      .hp-reach-grid{ grid-template-columns: 1fr; }
+    }
+    @media (max-width: 1040px){
+      .pff-grid{ grid-template-columns: 1fr 1fr 1fr; }
+      .pff-brand{ grid-column: 1 / -1; }
+      .pff-connect{ display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+      .pff-connect-line{ text-align: left; }
+      .pff-subform{ width: 100%; }
+      nav.pff-col, nav.pff-col h3{ text-align: left; }
+    }
+    @media (max-width: 880px){
+      .pcf-logo{ height: 60px; }
+      .pcf-menus{ font-size: 16px; }
+      .pcf-row{ gap: 28px; }
+    }
+    @media (max-width: 720px){
+      .pcf-menus{ display: none; }
+      .pff-grid{ grid-template-columns: 1fr 1fr; }
+      .pff-legal{ margin-left: 0; text-align: left; align-items: flex-start; }
+    }
+    @media (max-width: 640px){
+      .hp .hp-wrap{ padding: 0 20px; }
+      .hp-hero h1{ font-size: 34px; }
+      .hp-serve-grid, .hp-svc-grid{ grid-template-columns: 1fr; }
+      .hp-hero-stats{ gap: 20px; }
+    }
+
+    /* partner logos — both white/cream: BOTH sit in ONE box, themed to the version
+       (H = pine green) and matching the site's card radius/border. */
+    .pcf-badges{ display:flex; flex-direction:column; gap:0;
+      background:var(--accent-pine); border:1px solid rgba(255,255,255,.16); border-radius:var(--radius-md); padding:2px 16px; }
+    .pcf-badge-logo{ background:transparent; border:0; padding:16px 0; justify-content:flex-start; align-items:center; }
+    .pcf-badge-logo:hover{ box-shadow:none; transform:none; }
+    .pcf-badge-logo + .pcf-badge-logo{ border-top:1px solid rgba(255,255,255,.14); }
+    .pcf-badge-logo img{ height:24px; width:auto; max-width:100%; display:block; }
+
+    /* ── Announcement: floating corner toast, bottom-right (version-J adopts
+       version-I's toast concept, themed teal). Sits BELOW the Interactive Map
+       backdrop (z 30) and layer (z 31) so it never floats over the open map. ── */
+    .pc-toast{ position: fixed; right: 20px; bottom: 20px; z-index: 25;
+      width: min(340px, calc(100vw - 40px));
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--accent-light); color: #fff;
+      border-radius: var(--radius-md); box-shadow: 0 18px 44px rgba(0,0,0,.28);
+      padding: 16px; font-family: var(--font-sans); }
+    .pc-toast[hidden]{ display: none; }
+    .pc-toast-ico{ flex: none; width: 26px; height: auto; display: block; margin-top: 1px; }
+    .pc-toast-body{ flex: 1 1 auto; min-width: 0; }
+    .pc-toast-body p{ margin: 0; font-size: 13.5px; line-height: 1.6; color: #fff; }
+    .pc-toast-body p strong{ color: #fff; display: inline-block; margin-bottom: 4px; }
+    .pc-toast-body p em{ font-style: italic; }
+    .pc-toast-body p a{ color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+    .pc-toast-body p a:hover{ text-decoration-thickness: 2px; }
+    .pc-toast-body p a:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; border-radius: 2px; }
+    .pc-toast-x{ flex: none; appearance: none; border: 0; background: transparent;
+      color: rgba(255,255,255,.8); font-size: 20px; line-height: 1; cursor: pointer;
+      padding: 0 2px; border-radius: 6px; margin: -2px -2px 0 0; }
+    .pc-toast-x:hover{ color: #fff; background: rgba(255,255,255,.14); }
+    .pc-toast-x:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; }
+    @media (prefers-reduced-motion: no-preference){
+      .pc-toast{ animation: pc-toast-in .32s ease both; }
+      @keyframes pc-toast-in{ from{ opacity: 0; transform: translateY(16px); } to{ opacity: 1; transform: none; } }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ================= HEADER (Option F · D right/tight nav) ================= -->
+  <header class="pcf">
+    <div class="pcf-inner">
+      <div class="pcf-brandrow">
+        <div class="pcf-brandcell">
+          <a href="./version-j.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="shared/logos/peoples-company-logo.png" alt="Peoples Company: Integrated Land Solutions" />
+          </a>
+        </div>
+        <div class="pcf-stack">
+          <div class="pcf-util">
+            <span class="sp"></span>
+            <a href="#">Land Investment Expo</a>
+            <span class="sep">|</span>
+            <a href="#">Login</a>
+          </div>
+          <nav class="pcf-row" aria-label="Primary">
+            <ul class="pcf-menus" id="pcfMenus"></ul>
+            <div class="pcf-searchwrap">
+              <button class="pcf-search" id="searchToggle" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+              </button>
+              <div class="pcf-searchpanel" id="searchPanel">
+                <form class="pcf-searchform" role="search" action="#" onsubmit="return false;">
+                  <input type="search" id="searchInput" placeholder="Search Peoples Company…" aria-label="Search the site" />
+                  <button type="submit" class="pcf-searchgo" aria-label="Submit search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ INTERACTIVE MAP pull-down tab → map layer ============ -->
+  <div class="md-tabwrap">
+    <button class="md-tab" type="button" aria-expanded="false" aria-controls="md-layer">Interactive Map <span class="md-chev" aria-hidden="true">▾</span></button>
+  </div>
+  <div class="md-backdrop" hidden></div>
+  <div class="md-layer" id="md-layer" role="region" aria-label="Interactive map" aria-hidden="true" hidden>
+    <div class="md-layer-bar"><button class="md-close" type="button" aria-label="Close">✕</button></div>
+    <div class="md-layer-body">
+      <img class="md-mapimg" src="./assets/find-properties-map.png" alt="Interactive FarmWorth map (placeholder)"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<p class=\'md-placeholder\'>Interactive FarmWorth Map</p>');this.onerror=null;" />
+    </div>
+  </div>
+
+  <!-- ================= PAGE CONTENT — homepage (Version H · Deep Teal) ================= -->
+  <main class="hp">
+
+    <!-- ── 1 · HERO — crossfading crop-type sequence (stands in for a video)
+         + inline stats. Reduced-motion shows the first static frame. ── -->
+    <section class="hp-hero" aria-label="Hero">
+      <div class="hp-hero-bg hp-imgwrap" id="hpHeroBg">
+        <!-- hero background video (peoplescompany.com CDN); poster + reduced-motion fallback = first frame image -->
+        <video class="hp-hero-video" autoplay loop muted playsinline preload="auto" aria-hidden="true"
+               poster="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80">
+          <source src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/videos/pcwebvideo-5sec_loop-1748895144.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="hp-hero-inner">
+        <div class="hp-wrap">
+          <p class="hp-eyebrow">Integrated Land Solutions</p>
+          <h1>Clarity for every <em>land decision.</em></h1>
+          <p class="hp-lead">Seven services. One integrated platform: local expertise backed by national reach and proprietary land data.</p>
+          <div class="hp-hero-stats">
+            <div class="hp-hstat"><span class="n">$1B+</span><span class="l">Farmland Transactions</span></div>
+            <div class="hp-hstat"><span class="n">$4B+</span><span class="l">Assets Under Management</span></div>
+            <div class="hp-hstat"><span class="n">$1B+</span><span class="l">Farmland Valuations</span></div>
+            <div class="hp-hstat"><span class="n">170+</span><span class="l">Land Professionals</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2 · SERVICES (option B — small left line icons, 7 + All Services) ── -->
+    <section class="hp-sec hp-svc reveal" id="services" aria-labelledby="hp-svc-h">
+      <div class="hp-wrap">
+        <div class="hp-svc-head">
+          <p class="hp-eyebrow">What We Do</p>
+          <h2 id="hp-svc-h">Seven services. One integrated platform.</h2>
+        </div>
+        <div class="hp-svc-grid">
+          <div class="hp-card">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <svg class="hp-gavel" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg>
+            </div>
+            <h4>Land Brokerage &amp; Auctions</h4>
+            <p>Farmland listings and competitive auction services with a 40,000+ buyer database and national reach.</p>
+          </div>
+          <div class="hp-card">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_land_management.svg" />
+            </div>
+            <h4>Land Management</h4>
+            <p>Full-service stewardship, operator oversight, lease negotiation, and financial reporting.</p>
+          </div>
+          <div class="hp-card">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_agricultural_appraisal.svg" />
+            </div>
+            <h4>Agricultural Appraisal</h4>
+            <p>Certified, data-driven land valuation supported by proprietary comparable-sales modeling.</p>
+          </div>
+          <div class="hp-card">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_capital_markets.svg" />
+            </div>
+            <h4>Capital Markets</h4>
+            <p>Equity placement, debt structuring, JV formation, and portfolio advisory for institutional capital.</p>
+          </div>
+          <div class="hp-card">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_energy_management.svg" />
+            </div>
+            <h4>Energy Management</h4>
+            <p>Solar, wind, and energy lease strategy, negotiation, and oversight for landowners.</p>
+          </div>
+          <div class="hp-card">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_crop_insurance.svg" />
+            </div>
+            <h4>Crop Insurance</h4>
+            <p>Tailored multi-peril and specialty coverage protecting farm operations and yield.</p>
+          </div>
+          <div class="hp-card">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_corporate_services.svg" />
+            </div>
+            <h4>Corporate Services</h4>
+            <p>Institutional programs for ag lenders, REITs, and large land portfolios requiring scale.</p>
+          </div>
+          <a class="hp-card hp-card-all" href="#services">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 17h7m0 0-3-3m3 3-3 3"/></svg>
+            </div>
+            <h4>Explore All Services</h4>
+            <p>See all seven integrated services and find the right team for your land.</p>
+            <span class="go" aria-hidden="true">View all services &rarr;</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3 · WHO WE SERVE — 4-audience router (dark teal cards) ── -->
+    <section class="hp-serve reveal" aria-labelledby="hp-serve-h">
+      <div class="hp-wrap">
+        <div class="hp-serve-head">
+          <p class="hp-eyebrow on-dark">Who We Serve</p>
+          <h2 id="hp-serve-h">Start where you stand</h2>
+          <p>Tailored guidance for every relationship to the land, whether you own it, operate it, invest in it, or plan for the next generation.</p>
+        </div>
+        <div class="hp-serve-grid">
+          <a class="hp-serve-card" href="#">
+            <span class="tag">Landowners</span>
+            <h3>Sell or manage your land</h3>
+            <p>Maximize the value of your agricultural asset with a local advisor and a national buyer network.</p>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="hp-serve-card" href="#">
+            <span class="tag">Investors</span>
+            <h3>Access farmland markets</h3>
+            <p>Direct land investment strategy backed by proprietary data, deal flow, and institutional scale.</p>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="hp-serve-card" href="#">
+            <span class="tag">Farm Operators</span>
+            <h3>Management &amp; crop insurance</h3>
+            <p>Leases, stewardship, and coverage for the people who farm the land every day.</p>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="hp-serve-card" href="#">
+            <span class="tag">Family Offices</span>
+            <h3>Portfolio advisory</h3>
+            <p>Long-horizon capital strategies built around agricultural real estate and generational wealth.</p>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4 · FARMWORTH — solid pine band, horizontal media slot ── -->
+    <section class="hp-sec hp-tech reveal" aria-labelledby="hp-tech-h">
+      <div class="hp-wrap">
+        <div>
+          <p class="hp-eyebrow on-dark">Proprietary Technology</p>
+          <h2 id="hp-tech-h">The FarmWorth Advantage</h2>
+          <p>FarmWorth pairs soil capability analysis, automated appraisal modeling, and a comparable-sales database: the proprietary data that powers every Peoples Company recommendation.</p>
+          <ul class="hp-tech-feat">
+            <li>Parcel-level soil &amp; productivity scoring across any market</li>
+            <li>Automated valuation modeling on comparable sales</li>
+            <li>Public and proprietary data layers in one view</li>
+            <li>Portfolio-level reporting for institutional clients</li>
+          </ul>
+          <a href="#" class="hp-btn hp-btn-solid-dark">Open Interactive Map</a>
+        </div>
+        <!-- horizontal media slot: video / map / demo placeholder -->
+        <div class="hp-tech-media">
+          <div class="hp-imgwrap" aria-hidden="true">
+            <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1600&q=80"
+                 alt="" onerror="this.style.display='none'" />
+          </div>
+          <span class="cap">video / map / demo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5 · LAND INVESTMENT EXPO — new homepage section ── -->
+    <section class="hp-sec hp-expo reveal" aria-labelledby="hp-expo-h">
+      <div class="hp-wrap">
+        <div class="hp-expo-media">
+          <div class="hp-imgwrap">
+            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1600&q=80"
+                 alt="Audience seated at a large land investment conference" onerror="this.style.display='none'" />
+          </div>
+        </div>
+        <div>
+          <p class="hp-eyebrow">Land Investment Expo</p>
+          <h2 id="hp-expo-h">The nation's largest land investment event</h2>
+          <p>For two decades, Peoples Company has convened landowners, investors, operators, policymakers, and industry leaders for a full day of market outlooks, big-name keynotes, and connection. It is where the land economy gathers, in person or online.</p>
+          <div class="hp-expo-meta">
+            <span>20th annual event, January 12, 2027</span>
+            <span>1,800+ participants, in person and online</span>
+            <span>Keynotes, breakout sessions and exhibitors</span>
+          </div>
+          <a href="#" class="hp-btn hp-btn-primary">Explore the Expo</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6 · NATIONAL FOOTPRINT + CONNECT (combined) ──
+         version-D regional reach map beside the Connect block (1/3 + 2/3).
+         Map carries no outline and no labels-below (per D feedback). -->
+    <section class="hp-sec hp-reach reveal" id="offices" aria-labelledby="hp-reach-h">
+      <div class="hp-wrap">
+        <div class="hp-reach-head">
+          <p class="hp-eyebrow">Our National Footprint</p>
+          <h2 id="hp-reach-h">Where local expertise meets national reach</h2>
+          <p>With regional offices spanning the agricultural heartland, a Peoples Company advisor is never far from your land.</p>
+        </div>
+        <div class="hp-reach-grid">
+          <!-- MAP (2/3) -->
+          <div class="hp-map">
+            <img class="hp-map-img"
+                 src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/maps/peoples-company-regional-map-6-30-26.jpg/9761b73340f147c2df67f872b8c1a626.webp"
+                 alt="Peoples Company U.S. regional footprint map showing regions shaded by presence, with office locations marked."
+                 loading="lazy"
+                 onerror="this.style.display='none'; if(this.parentNode){ this.parentNode.classList.add('hp-map-fallback'); }" />
+          </div>
+          <!-- CONNECT (1/3) -->
+          <div class="hp-connect-card">
+            <p class="hp-eyebrow">Connect</p>
+            <h3>Get connected with a land&nbsp;professional.</h3>
+            <p>Whether you are selling, investing, or managing farmland, our local team members are ready to&nbsp;serve.</p>
+            <div class="hp-connect-stat">
+              <span class="n">170+</span>
+              <span class="l">land professionals across the country</span>
+            </div>
+            <a href="#" class="hp-btn hp-btn-primary">Find a Land&nbsp;Professional</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7 · INSIGHTS & NEWS — Option K (tabbed, version-G grid), built by JS ── -->
+    <section class="hp-sec hp-ins-sec reveal" aria-labelledby="hp-ins-h">
+      <div class="hp-wrap">
+        <div class="io-scope" id="hpInsights"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="pff">
+    <div class="pff-main">
+      <!-- connect band on top: logo · newsletter line · subscribe pill -->
+      <div class="pff-inner pff-connect">
+        <a class="pff-connect-logo" href="#" aria-label="Peoples Company home">
+          <img src="shared/logos/pc_logo_white.webp" alt="Peoples Company" />
+        </a>
+        <p class="pff-connect-line">Stay Connected and Subscribe to Our Newsletter.</p>
+        <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
+          <input type="email" placeholder="Email Address" aria-label="Email address" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+
+      <div class="pff-inner pff-grid">
+        <div class="pff-brand pff-col">
+          <h3>Corporate Office</h3>
+          <p class="pff-contact">
+            1108 S. 44th Street, Suite 102<br />
+            Cumming, IA 50061<br />
+            <b><a href="tel:+18558005263">855.800.LAND</a></b><br />
+            <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+          </p>
+          <div class="pff-cta">
+            <a class="btn btn-ghost" href="#">Find an Office</a>
+          </div>
+        </div>
+
+        <nav class="pff-col" aria-label="Real Estate">
+          <h3>Real Estate</h3>
+          <ul>
+            <li><a href="#">Traditional Search</a></li>
+            <li><a href="#">AI Search</a></li>
+            <li><a href="#">Interactive Map</a></li>
+            <li><a href="#">Auctions</a></li>
+            <li><a href="#">Prior Transactions</a></li>
+            <li><a href="#">Find An Agent</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="The Company">
+          <h3>The Company</h3>
+          <ul>
+            <li><a href="#">Overview</a></li>
+            <li><a href="#">Regions</a></li>
+            <li><a href="#">Industry Collaboration</a></li>
+            <li><a href="#">Our Team</a></li>
+            <li><a href="#">Offices</a></li>
+            <li><a href="#">Culture</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="What We Do">
+          <h3>What We Do</h3>
+          <ul>
+            <li><a href="#">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="#">Agricultural Appraisal</a></li>
+            <li><a href="#">Land Management</a></li>
+            <li><a href="#">Energy Management</a></li>
+            <li><a href="#">Crop Insurance</a></li>
+            <li><a href="#">Capital Markets</a></li>
+            <li><a href="#">Corporate Services</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="Insights &amp; News">
+          <h3>Insights &amp; News</h3>
+          <ul>
+            <li><a href="#">Industry Research</a></li>
+            <li><a href="#">National Land Values</a></li>
+            <li><a href="#">Case Studies</a></li>
+            <li><a href="#">Newsletters</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">In the News</a></li>
+            <li><a href="#">Industry Recognition</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="pff-bottom">
+      <div class="pff-bottom-inner">
+        <span class="pff-social">
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="#" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </span>
+
+        <span class="pff-legal">
+          <span class="copy">© 2026 Peoples Company</span>
+          <span class="legal-links">
+            <a href="#">Privacy Notice</a>
+            <a href="#">Disclaimer</a>
+            <a href="#">Equal Opportunity</a>
+          </span>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Announcement toast (floating, bottom-right, dismissible) -->
+  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
+    <img class="pc-toast-ico" src="shared/logos/pc_blue_mark.png" alt="" aria-hidden="true" />
+    <div class="pc-toast-body">
+      <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
+        <a href="http://www.peoplescompany.com/listing/18594">136.57 Acres M/L in Wayne County IA</a><br>
+        <a href="https://vimeo.com/event/6039697" target="_blank" rel="noopener"><em>WATCH</em></a><br>
+        <a href="https://peoplescompany.com/listings/land-auction-juneau-county-wisconsin-19265">804 Acres M/L in Juneau County WI</a><br>
+        <a href="https://vimeo.com/event/6039697" target="_blank" rel="noopener"><em>WATCH</em></a>
+      </p>
+    </div>
+    <button class="pc-toast-x" type="button" aria-label="Dismiss announcement">&times;</button>
+  </aside>
+
+  <script>
+    // Mega-menu nav built from the real IA. "The Company" panel carries three
+    // affiliation badges on the right (this tab only).
+    (function(){
+      var IAA_SVG = '<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.6"/><ellipse cx="32" cy="26" rx="6" ry="14" fill="none" stroke="currentColor" stroke-width="1.1"/><line x1="18" y1="26" x2="46" y2="26" stroke="currentColor" stroke-width="1.1"/><path d="M20 19 Q32 23 44 19" fill="none" stroke="currentColor" stroke-width="1"/><path d="M20 33 Q32 29 44 33" fill="none" stroke="currentColor" stroke-width="1"/><path d="M32 45 C24 43 18 47 15 55 C24 55 30 52 32 45Z" fill="currentColor"/><path d="M32 45 C40 43 46 47 49 55 C40 55 34 52 32 45Z" fill="currentColor"/><line x1="32" y1="43" x2="32" y2="55" stroke="currentColor" stroke-width="1.3"/></svg>';
+      var EXPO_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5"/><circle cx="12" cy="10" r="2.6"/><path d="M7.5 19c0-2.5 2-4.4 4.5-4.4s4.5 1.9 4.5 4.4"/><path d="M4.5 8l2 1M19.5 8l-2 1"/></svg>';
+
+      var NAV = [
+        { label: "Real Estate", cols: [
+          { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
+          { h: "Auctions", items: ["Upcoming Auctions","Prior Auctions","Auction Results"] },
+          { h: "Prior Transactions", items: [] },
+          { note: "Listings are out of scope, so links are placeholders." }
+        ]},
+        { label: "The Company", cols: [
+          { h: "The Company", items: ["Overview","Regions","Offices","Sustainability"] },
+          { items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
+          { badges: [
+            { type: "iaa",  label: "International Ag Alliance" },
+            { type: "afo",  label: "American Farmland Owner" }
+          ]}
+        ]},
+        { label: "What We Do", cols: [
+          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] }, { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
+          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] }, { name: "Energy Management" }, { name: "Crop Insurance" } ]},
+          { svc: [ { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+        ]},
+        { label: "Insights & News", cols: [
+          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
+        ]}
+      ];
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+      function badgeHTML(b){
+        var emb;
+        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="#" aria-label="International Ag Alliance"><img src="assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
+        if(b.type === "expo"){ return '<a class="pcf-badge" href="#"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
+        // american farmland owner — real horizontal logo (assets/afo.png)
+        return '<a class="pcf-badge pcf-badge-logo afo" href="#" aria-label="American Farmland Owner"><img src="assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
+      }
+      function colHTML(c){
+        if(c.badges){
+          return '<div class="pcf-col pcf-badgecol"><h4>Affiliations</h4><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
+        }
+        if(c.svc){
+          var blocks = c.svc.map(function(s){
+            var sub = (s.items || []).map(function(i){ return '<li><a href="#">'+esc(i)+'</a></li>'; }).join("");
+            return '<div class="pcf-svcblock">'+
+              '<div class="pcf-svc"><a href="#">'+esc(s.name)+'</a></div>'+
+              (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
+            '</div>';
+          }).join("");
+          return '<div class="pcf-col">'+blocks+'</div>';
+        }
+        if(c.h && (!c.items || !c.items.length) && !c.note){
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="#" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+        }
+        var links = (c.items || []).map(function(i){ return '<li><a href="#">'+esc(i)+'</a></li>'; }).join("");
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>' : '';
+        var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
+        return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
+      }
+      function itemHTML(n){
+        return '<li><a href="#" aria-haspopup="true">'+esc(n.label)+'</a>'+
+          '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
+            '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
+          '</div></li>';
+      }
+      var mount = document.getElementById("pcfMenus");
+      if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+    })();
+
+    // Interactive Map pull-down → slide-down map layer (map module drops in later)
+    (function(){
+      var tab = document.querySelector(".md-tab"),
+          layer = document.getElementById("md-layer"),
+          backdrop = document.querySelector(".md-backdrop"),
+          closeBtn = document.querySelector(".md-close"),
+          header = document.querySelector("header.pcf");
+      if(!tab || !layer || !backdrop) return;
+      function syncNavH(){ if(header) document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      syncNavH(); window.addEventListener("resize", syncNavH); window.addEventListener("load", syncNavH);
+      var logoImg = header && header.querySelector("img");
+      if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
+      function open(){
+        syncNavH(); backdrop.hidden = false; layer.hidden = false;
+        requestAnimationFrame(function(){ backdrop.classList.add("is-open"); layer.classList.add("is-open"); });
+        tab.setAttribute("aria-expanded", "true"); layer.setAttribute("aria-hidden", "false");
+        closeBtn.focus(); document.addEventListener("keydown", onKey);
+      }
+      function close(){
+        backdrop.classList.remove("is-open"); layer.classList.remove("is-open");
+        tab.setAttribute("aria-expanded", "false"); layer.setAttribute("aria-hidden", "true");
+        document.removeEventListener("keydown", onKey);
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var after = function(){ backdrop.hidden = true; layer.hidden = true; };
+        if(reduce) after();
+        else layer.addEventListener("transitionend", function te(e){ if(e.propertyName === "transform"){ layer.removeEventListener("transitionend", te); after(); } });
+        tab.focus();
+      }
+      tab.addEventListener("click", function(){ if(tab.getAttribute("aria-expanded") === "true") close(); else open(); });
+      closeBtn.addEventListener("click", close); backdrop.addEventListener("click", close);
+    })();
+
+    // Search: magnifier toggles a text field + submit icon below it
+    (function(){
+      var toggle = document.getElementById("searchToggle");
+      var panel  = document.getElementById("searchPanel");
+      var input  = document.getElementById("searchInput");
+      if(!toggle || !panel) return;
+      function open(){
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        if(input){ input.focus(); }
+        document.addEventListener("mousedown", onOutside);
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutside);
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus){ toggle.focus(); }
+      }
+      function onOutside(e){
+        if(!panel.contains(e.target) && !toggle.contains(e.target)){ close(false); }
+      }
+      function onKey(e){
+        if(e.key === "Escape" || e.key === "Esc"){ close(true); }
+      }
+      toggle.addEventListener("click", function(){
+        if(panel.classList.contains("open")){ close(true); } else { open(); }
+      });
+    })();
+
+    // Hero crossfade — cycles crop-type photos; static first image under reduced motion
+    (function(){
+      var bg = document.getElementById("hpHeroBg");
+      if(!bg) return;
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      // hero background video: pause + show the poster frame when reduced motion is preferred
+      var video = bg.querySelector(".hp-hero-video");
+      if(video && reduce){ video.removeAttribute("autoplay"); try{ video.pause(); }catch(e){} }
+      var slides = bg.querySelectorAll(".hp-hero-slide");
+      if(slides.length < 2) return;
+      if(reduce) return; // first slide stays active, others hidden via CSS
+      var i = 0;
+      setInterval(function(){
+        slides[i].classList.remove("is-active");
+        i = (i + 1) % slides.length;
+        slides[i].classList.add("is-active");
+      }, 5000);
+    })();
+
+    // Insights & Research — Option K (tabbed, version-G varied-tile grid),
+    // ported from dev-site/insights-options.html. Content model: Blog = 16:9
+    // photo + headline + teaser + date; Insights = digital documents, cover
+    // art 850x1100 portrait, often no date. Teal theme via .io-scope vars.
+    (function(){
+      var CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
+      function insrc(x){ return x.cover ? x.cover : 'https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80'; }
+      function hrow(title, date){
+        return '<a class="io-hrow" href="#"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
+      }
+
+      var INSIGHTS = {
+        featured: [
+          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
+          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
+          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
+        ],
+        more: [
+          "The Inflation Hedge: Farmland vs. Traditional Assets",
+          "Water Rights and the Value of Irrigated Ground",
+          "Row Crop vs. Permanent Crop: A Risk Framework",
+          "Carbon, Conservation, and Land Returns",
+          "Timber & Transition Land: An Allocation Primer",
+          "The 2025 National Land Values Report"
+        ]
+      };
+      var BLOG = {
+        featured: [
+          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
+          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
+          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
+        ],
+        more: [
+          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
+          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
+          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
+          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
+          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
+          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
+          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
+          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
+        ]
+      };
+
+      function tabbedBlock(rootId, h2, researchInner, blogInner){
+        var root = document.getElementById(rootId);
+        if(!root) return;
+        root.innerHTML =
+          '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 id="hp-ins-h" class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="#">View more &rarr;</a></div>'+
+          '<div class="ioF-tabs" role="tablist">'+
+            '<button class="ioF-tab" role="tab" aria-selected="false" data-p="0">Industry Research</button>'+
+            '<button class="ioF-tab" role="tab" aria-selected="true" data-p="1">Peoples Perspective Blog</button>'+
+          '</div>'+
+          '<div class="ioF-panel" data-panel="0" hidden>'+researchInner+'</div>'+
+          '<div class="ioF-panel" data-panel="1">'+blogInner+'</div>';
+        root.querySelectorAll('.ioF-tab').forEach(function(t){
+          t.addEventListener('click', function(){
+            root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
+            root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
+          });
+        });
+      }
+
+      function gtile(o){
+        var isRes = (o.kind === 'research');
+        return '<a class="io-card '+(o.cls||'')+'" href="#">'+
+          '<span class="io-ph'+(o.cover?' io-doc':'')+'"><img src="'+(o.cover ? o.cover : 'https://images.unsplash.com/photo-'+o.imgId+'?auto=format&fit=crop&w=1200&q=80')+'" alt="" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
+          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+o.tag+'</span>'+(o.date?'<span class="io-date">'+o.date+'</span>':'')+'</span>'+
+          '<h4 class="io-title">'+o.title+'</h4>'+
+          (o.teaser ? '<p class="io-teaser">'+o.teaser+'</p>' : '')+
+          '<span class="io-read">'+(o.read.indexOf('min')>-1?CLOCK:'')+o.read+'</span>'+
+          '<span class="io-more">'+(isRes?'Read report':'Read more')+' &rarr;</span></span></a>';
+      }
+
+      var rf = INSIGHTS.featured;
+      var research =
+        gtile({kind:'research', cls:'lead', cover:rf[0].cover, tag:'Industry Research', title:rf[0].title, teaser:rf[0].teaser, read:'PDF'})+
+        gtile({kind:'research', cover:rf[1].cover, tag:'Industry Research', title:rf[1].title, read:'PDF'})+
+        gtile({kind:'research', imgId:'1560493676-04071c5f467b', tag:'Industry Research', title:rf[2].title, read:'PDF'})+
+        '<div class="ioH-more"><p class="io-moretag">More research</p><div class="io-hlist2">'+ INSIGHTS.more.slice(0,7).map(function(t){ return hrow(t,''); }).join("") +'</div></div>';
+      var bf = BLOG.featured;
+      var blog =
+        gtile({cls:'lead', imgId:bf[0].id, tag:bf[0].cat, date:bf[0].date, title:bf[0].title, teaser:bf[0].teaser, read:'5 min read'})+
+        gtile({imgId:bf[1].id, tag:bf[1].cat, date:bf[1].date, title:bf[1].title, read:'4 min read'})+
+        gtile({imgId:bf[2].id, tag:bf[2].cat, date:bf[2].date, title:bf[2].title, read:'7 min read'})+
+        '<div class="ioH-more"><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+ BLOG.more.slice(0,7).map(function(x){ return hrow(x.t,x.d); }).join("") +'</div></div>';
+
+      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
+        '<div class="ioH-grid">'+research+'</div>',
+        '<div class="ioH-grid">'+blog+'</div>');
+    })();
+
+    // Scroll-reveal (must-have) — reduced-motion safe
+    (function(){
+      var els = document.querySelectorAll(".reveal");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce || !("IntersectionObserver" in window)){
+        els.forEach(function(el){ el.classList.add("in"); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+
+    // Announcement toast (version-J): bottom-right floating card.
+    (function(){
+      var t = document.getElementById("pcToast");
+      if(!t) return;
+      var KEY = "pcAnnDismissed_vj";
+      /* always show on reload (session-remember disabled for now — re-enable to restore): */
+      /* try{ if(sessionStorage.getItem(KEY)){ t.hidden = true; return; } }catch(e){} */
+      var x = t.querySelector(".pc-toast-x");
+      if(x){ x.addEventListener("click", function(){
+        t.hidden = true;
+        try{ sessionStorage.setItem(KEY, "1"); }catch(e){}
+      }); }
+    })();
+  </script>
+</body>
+</html>
