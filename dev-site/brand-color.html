@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Brand Color Tester</title>
+  <meta name="description" content="Every text-on-background combination of the 6 brand colors, auto-graded against WCAG AA." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --font-serif: "EB Garamond", Georgia, "Times New Roman", serif;
+      --font-sans:  "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --ink: #0A0F1A;
+      --page: #F4F5F6;
+      --line: #DDE1E4;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0; background: var(--page); color: var(--ink);
+      font-family: var(--font-sans); line-height: 1.5;
+      padding: 40px 24px 80px;
+    }
+    .wrap{ max-width: 1040px; margin: 0 auto; }
+
+    header.intro{ margin-bottom: 32px; }
+    header.intro h1{ font-family: var(--font-serif); font-weight: 600; font-size: 34px; margin: 0 0 12px; }
+    header.intro p{ margin: 0 0 18px; color: #4A5560; font-size: 15px; }
+    header.intro code{ font-family: var(--mono);
+      background: #E7EAEC; padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+
+    /* WCAG grade reference */
+    table.wcag{ border-collapse: collapse; font-size: 14px; width: 100%; }
+    table.wcag caption{ text-align: left; font-weight: 600; color: var(--ink); margin-bottom: 6px; font-size: 15px; }
+    table.wcag th, table.wcag td{ text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+    table.wcag thead th{ font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: #6B7580; }
+    table.wcag td.grade{ font-weight: 700; white-space: nowrap; }
+    table.wcag td.ratio{ font-family: var(--mono); white-space: nowrap; }
+
+    /* Palette legend */
+    .legend{ display:flex; flex-wrap:wrap; gap:10px; margin: 22px 0 34px; }
+    .legend .chip{ display:flex; align-items:center; gap:9px; font-size:13px; font-weight:600;
+      background:#fff; border:1px solid var(--line); border-radius:999px; padding:5px 12px 5px 6px; }
+    .legend .chip .dot{ width:22px; height:22px; border-radius:50%; border:1px solid rgba(0,0,0,.12); flex:none; }
+    .legend .chip .hx{ font-family:var(--mono); font-weight:500; color:#6B7580; font-size:12px; }
+
+    /* Background section */
+    .bg-block{ margin-bottom: 34px; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; }
+    .bg-head{ display:flex; align-items:center; gap:14px; padding:16px 20px; }
+    .bg-head .swatch{ width:40px; height:40px; border-radius:9px; border:1px solid rgba(0,0,0,.12); flex:none; }
+    .bg-head h2{ font-family:var(--font-serif); font-weight:600; font-size:22px; margin:0; }
+    .bg-head .bh-hex{ font-family:var(--mono); font-size:13px; color:#6B7580; margin-left:2px; }
+    .bg-head .bh-note{ margin-left:auto; font-size:12.5px; color:#6B7580; text-align:right; }
+
+    .cols{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border-top:1px solid var(--line); }
+    @media (max-width:720px){ .cols{ grid-template-columns:1fr; } }
+    .col{ background:#fff; padding:16px 18px; }
+    .col h3{ font-size:12px; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; }
+    .col.pass h3{ color:#186A3B; }
+    .col.fail h3{ color:#6B7580; }
+    .col .empty{ font-size:13px; color:#9AA3AC; font-style:italic; }
+
+    /* Text sample on background */
+    .samp{ border-radius:9px; padding:12px 14px; margin-bottom:10px; position:relative;
+      border:1px solid rgba(0,0,0,.10); }
+    .samp .big{ font-family:var(--font-serif); font-size:26px; font-weight:600; line-height:1.15; }
+    .samp .sm{ font-family:var(--font-sans); font-size:14px; font-weight:600; }
+    .samp .meta{ display:flex; align-items:center; gap:8px; margin-top:8px; }
+    .samp .name{ font-size:12.5px; font-weight:700; }
+    .samp .hx{ font-family:var(--mono); font-size:11.5px; opacity:.8; }
+    .samp .ratio{ font-family:var(--mono); font-size:11.5px; margin-left:auto; opacity:.9; }
+    .samp .star{ font-size:11px; font-weight:700; }
+
+    /* Grade badge */
+    .badge{ display:inline-block; font-size:10.5px; font-weight:800; letter-spacing:.04em;
+      padding:2px 7px; border-radius:999px; text-transform:uppercase; }
+    .b-aaa{ background:#12633A; color:#fff; }
+    .b-aa{  background:#1F7A4D; color:#fff; }
+    .b-lg{  background:#EAD9A0; color:#5A4A12; }
+    .b-fail{background:#E4E7EA; color:#6B7580; }
+
+    footer.note{ font-size:13px; color:#6B7580; margin-top:30px; border-top:1px solid var(--line); padding-top:18px; }
+    footer.note b{ color:var(--ink); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="intro">
+      <h1>WCAG Contrast Reference — 6-Color Brand Palette</h1>
+
+      <p>
+        Every combination below pairs one of the six brand colors as <strong>text</strong> over
+        each of the six as a <strong>background</strong>. Each pair is auto-graded against its
+        real <strong>contrast ratio</strong> (1:1 = none, 21:1 = black on white). White text is
+        included on every background. Combinations are split into
+        <strong>Passes AA</strong> (normal-text safe) and <strong>Does not pass AA</strong>
+        (below the 4.5:1 line for normal text — a few of these still clear AA for
+        <em>large</em> text, and are marked as such).
+      </p>
+
+      <table class="wcag">
+        <caption>Contrast thresholds used</caption>
+        <thead>
+          <tr><th>Level</th><th>Contrast Ratio</th><th>Applies to</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="grade">AAA</td><td class="ratio">7:1 or higher</td><td>Enhanced — best for body text</td></tr>
+          <tr><td class="grade">AA</td><td class="ratio">4.5:1 – 6.99:1</td><td>Minimum for normal text</td></tr>
+          <tr><td class="grade">AA Large</td><td class="ratio">3:1 – 4.49:1</td><td>Large text only (≥24px, or ≥18.66px bold) &amp; UI components</td></tr>
+          <tr><td class="grade">Fail</td><td class="ratio">Below 3:1</td><td>Not usable for text</td></tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top:14px">
+        <strong>Project target:</strong> because this site serves many mobile users aged 60+,
+        aim for <strong>6.5:1+</strong> where possible — above the AA minimum for better
+        real-world readability.
+      </p>
+
+      <div class="legend" id="legend"></div>
+    </header>
+
+    <div id="matrix"></div>
+
+    <footer class="note">
+      <p><b>How to read a swatch:</b> the large line is display-size text; the small line is
+      body-size text. The badge is the grade at the pair's actual ratio. A ★ marks white text.
+      Large-only pairs appear in the <b>Does not pass AA</b> column with an
+      <span class="badge b-lg" style="vertical-align:baseline">AA Large</span> badge — they are
+      fine for headings but not body copy.</p>
+      <p style="margin-bottom:0"><b>To change the palette:</b> edit the <code>PALETTE</code>
+      array at the top of the script — everything regrades automatically.</p>
+    </footer>
+  </div>
+
+  <script>
+    /* ---- 6 brand colors. Edit here to re-test. ---- */
+    var PALETTE = [
+      { name: "Navy",       hex: "#07162C" },
+      { name: "Dark Blue",  hex: "#12406A" },
+      { name: "Blue",       hex: "#3D7EA6" },
+      { name: "White",      hex: "#FFFFFF" },
+      { name: "PC Blue",    hex: "#00AEEF" },
+      { name: "Light Blue", hex: "#D7EFFB" }
+    ];
+
+    /* ---- WCAG math ---- */
+    function chan(c){ c/=255; return c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
+    function lum(hex){
+      var m = hex.replace('#','');
+      var r=parseInt(m.substr(0,2),16), g=parseInt(m.substr(2,2),16), b=parseInt(m.substr(4,2),16);
+      return 0.2126*chan(r)+0.7152*chan(g)+0.0722*chan(b);
+    }
+    function ratio(a,b){ var l1=lum(a), l2=lum(b); var hi=Math.max(l1,l2), lo=Math.min(l1,l2); return (hi+0.05)/(lo+0.05); }
+    function grade(r){
+      if(r>=7)   return {key:'aaa', label:'AAA',      pass:true};
+      if(r>=4.5) return {key:'aa',  label:'AA',       pass:true};
+      if(r>=3)   return {key:'lg',  label:'AA Large', pass:false};
+      return              {key:'fail',label:'Fail',    pass:false};
+    }
+    function isLight(hex){ return lum(hex) > 0.35; }
+
+    /* ---- Legend ---- */
+    var legend = document.getElementById('legend');
+    PALETTE.forEach(function(c){
+      var chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = '<span class="dot" style="background:'+c.hex+'"></span>'+c.name+
+                       ' <span class="hx">'+c.hex.toUpperCase()+'</span>';
+      legend.appendChild(chip);
+    });
+
+    /* ---- Build one background block ---- */
+    function sampleEl(bg, txt){
+      var r = ratio(bg.hex, txt.hex);
+      var g = grade(r);
+      var isWhite = txt.hex.toUpperCase() === '#FFFFFF';
+      var el = document.createElement('div');
+      el.className = 'samp';
+      el.style.background = bg.hex;
+      el.style.color = txt.hex;
+      // Keep a faint outline visible regardless of bg
+      el.style.borderColor = isLight(bg.hex) ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.18)';
+      el.innerHTML =
+        '<div class="big">Sample Text</div>'+
+        '<div class="sm">Sample body text at 14px</div>'+
+        '<div class="meta">'+
+          '<span class="name">'+txt.name+(isWhite?' <span class="star">★</span>':'')+'</span>'+
+          '<span class="hx">'+txt.hex.toUpperCase()+'</span>'+
+          '<span class="ratio">'+r.toFixed(2)+':1</span>'+
+          '<span class="badge b-'+g.key+'">'+g.label+'</span>'+
+        '</div>';
+      return { el: el, ratio: r, grade: g };
+    }
+
+    var matrix = document.getElementById('matrix');
+    PALETTE.forEach(function(bg){
+      var block = document.createElement('div'); block.className = 'bg-block';
+
+      var head = document.createElement('div'); head.className = 'bg-head';
+      head.innerHTML =
+        '<span class="swatch" style="background:'+bg.hex+'"></span>'+
+        '<h2>'+bg.name+'</h2><span class="bh-hex">'+bg.hex.toUpperCase()+'</span>';
+      block.appendChild(head);
+
+      var cols = document.createElement('div'); cols.className = 'cols';
+      var passCol = document.createElement('div'); passCol.className = 'col pass';
+      var failCol = document.createElement('div'); failCol.className = 'col fail';
+      passCol.innerHTML = '<h3>Passes AA · normal text</h3>';
+      failCol.innerHTML = '<h3>Does not pass AA · normal text</h3>';
+
+      var passItems = [], failItems = [];
+      PALETTE.forEach(function(txt){
+        if(txt.hex.toUpperCase() === bg.hex.toUpperCase()) return; // skip same-on-same
+        var s = sampleEl(bg, txt);
+        (s.grade.pass ? passItems : failItems).push(s);
+      });
+      // sort best-first within each column
+      passItems.sort(function(a,b){ return b.ratio - a.ratio; });
+      failItems.sort(function(a,b){ return b.ratio - a.ratio; });
+
+      var passN = 0, failN = 0;
+      passItems.forEach(function(s){ passCol.appendChild(s.el); passN++; });
+      failItems.forEach(function(s){ failCol.appendChild(s.el); failN++; });
+      if(!passN) passCol.innerHTML += '<div class="empty">No brand color passes AA on this background.</div>';
+      if(!failN) failCol.innerHTML += '<div class="empty">Every brand color passes AA on this background.</div>';
+
+      cols.appendChild(passCol); cols.appendChild(failCol);
+      block.appendChild(cols);
+      matrix.appendChild(block);
+    });
+  </script>
+</body>
+</html>
