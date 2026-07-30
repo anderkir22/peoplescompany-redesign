@@ -199,13 +199,15 @@
     }
 
     var matrix = document.getElementById('matrix');
-    PALETTE.forEach(function(bg){
+
+    function buildBlock(bg, note){
       var block = document.createElement('div'); block.className = 'bg-block';
 
       var head = document.createElement('div'); head.className = 'bg-head';
       head.innerHTML =
         '<span class="swatch" style="background:'+bg.hex+'"></span>'+
-        '<h2>'+bg.name+'</h2><span class="bh-hex">'+bg.hex.toUpperCase()+'</span>';
+        '<h2>'+bg.name+'</h2><span class="bh-hex">'+bg.hex.toUpperCase()+'</span>'+
+        (note ? '<span class="bh-note">'+note+'</span>' : '');
       block.appendChild(head);
 
       var cols = document.createElement('div'); cols.className = 'cols';
@@ -233,7 +235,13 @@
       cols.appendChild(passCol); cols.appendChild(failCol);
       block.appendChild(cols);
       matrix.appendChild(block);
-    });
+    }
+
+    // The six brand backgrounds
+    PALETTE.forEach(function(bg){ buildBlock(bg); });
+
+    // Reference-only: pure black background (not a brand color). Brand colors as text.
+    buildBlock({ name: "Black", hex: "#000000" }, "Reference only — not a brand color");
   </script>
 </body>
 </html>
