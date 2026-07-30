@@ -14,8 +14,16 @@
   <link href="shared/main.css?v=20260601" rel="stylesheet" />
 
   <style>
-    /* This page overrides the shared 1200px container to the concept 1400px width */
-    :root{ --site: 1400px; }
+    /* Container replicates Tailwind's default responsive `.container` (as used on the live
+       peoplescompany.com: <div class="container mx-auto">). It STEPS UP at each breakpoint —
+       max-width = the breakpoint min-width — rather than a single fixed width, so version-pc
+       tracks the live site at every screen size (1280 on xl, 1536 on 2xl, etc.). */
+    :root{ --site: 100%; }                                  /* <640px: full width  */
+    @media (min-width: 640px){  :root{ --site: 640px;  } }  /* sm  */
+    @media (min-width: 768px){  :root{ --site: 768px;  } }  /* md  */
+    @media (min-width: 1024px){ :root{ --site: 1024px; } }  /* lg  */
+    @media (min-width: 1280px){ :root{ --site: 1280px; } }  /* xl  */
+    @media (min-width: 1536px){ :root{ --site: 1536px; } }  /* 2xl */
     body{ color: var(--color-text); }
     .site-inner{ max-width: var(--site); margin: 0 auto; }
 
@@ -69,7 +77,7 @@
     .pcf-row{ display: flex; align-items: center; gap: 34px; padding: 0 24px 0 36px; height: 76px; }
     .pcf-menus{
       list-style: none; margin: 0; padding: 0;
-      flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 48px;
+      flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 56px;
       font-family: var(--font-serif); font-size: 18px; font-weight: 600;
     }
     .pcf-menus > li{ position: static; } /* static so the mega-menu can span the full header width */
@@ -284,6 +292,10 @@
     .pff-cta .btn{ padding: 12px 22px; font-size: 15px; }
     .btn-ghost{ background: transparent; color: var(--accent-light); border-color: rgba(18,64,106,.45); }
     .btn-ghost:hover{ border-color: var(--accent-light); background: var(--teal-tint); }
+    /* Find an Office — matches the newsletter Subscribe pill (filled teal, white text) */
+    .pff-cta a.btn-subscribe{ background: var(--accent-light); color: #fff; border-color: var(--accent-light);
+      border-radius: var(--radius-pill); font-weight: 700; letter-spacing: .04em; }
+    .pff-cta a.btn-subscribe:hover{ background: var(--accent-pine); border-color: var(--accent-pine); color: #fff; }
 
     .pff-col h3{
       font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
@@ -339,7 +351,7 @@
 
     /* shared bits */
     .hp-eyebrow{ display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-sans);
-      font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-light); margin: 0; }
+      font-size: 16px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-light); margin: 0; }
     .hp-eyebrow::before{ content:""; width: 26px; height: 2px; background: var(--accent-light); display: block; }
     .hp-eyebrow.on-dark{ color: var(--accent-dark); }
     .hp-eyebrow.on-dark::before{ background: var(--accent-dark); }
@@ -395,7 +407,7 @@
     .hp-svc-head{ margin-bottom: var(--space-6); }
     .hp-svc-head h2{ max-width: none; }
     .hp-svc-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
-    .hp-card{ background:#fff; border: 1px solid #D7EFFB; border-radius: var(--radius-md);
+    .hp-card{ background:#fff; border: 1px solid rgba(18,64,106,.22); border-radius: var(--radius-md);
       padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3);
       transition: box-shadow .18s, transform .18s; }
     .hp-card:hover{ box-shadow: 0 8px 22px rgba(0,0,0,.09); transform: translateY(-2px); }
@@ -425,13 +437,15 @@
     .hp-serve .hp-wrap{ padding-top: var(--space-7); padding-bottom: var(--space-7); }
     @media (max-width:680px){ .hp-serve .hp-wrap{ padding-top: var(--space-6); padding-bottom: var(--space-6); } }
     .hp-serve-head{ margin-bottom: var(--space-5); }
-    .hp-serve-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 32px; color: var(--hp-ink); margin: var(--space-2) 0; }
-    .hp-serve-head p{ font-size: 15px; color: var(--gray-600); margin: 0; max-width: 54ch; }
+    .hp-serve-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; line-height: 1.12; color: var(--hp-ink); margin: var(--space-2) 0; }
+    .hp-serve-head p:not(.hp-eyebrow){ font-size: 15px; color: var(--gray-600); margin: 0; max-width: 54ch; }
     .hp-serve-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
     .hp-serve-card{ display: flex; flex-direction: column; gap: 6px; padding: var(--space-6) var(--space-5);
-      border: 1px solid #D7EFFB; border-radius: var(--radius-md);
-      text-decoration: none; background: #fff; transition: background .18s, border-color .18s, box-shadow .18s; }
-    .hp-serve-card:hover, .hp-serve-card:focus{ border-color: rgba(18,64,106,.45); box-shadow: 0 6px 18px rgba(0,0,0,.10); outline: none; }
+      border: 1px solid rgba(18,64,106,.22); border-radius: var(--radius-md);
+      text-decoration: none; background: #fff; transition: box-shadow .18s, transform .18s; }
+    /* match the "What We Do" (.hp-card) hover: lift + shadow */
+    .hp-serve-card:hover, .hp-serve-card:focus{ box-shadow: 0 8px 22px rgba(0,0,0,.09); transform: translateY(-2px); outline: none; }
+    @media (prefers-reduced-motion: reduce){ .hp-serve-card:hover, .hp-serve-card:focus{ transform: none; } }
     .hp-serve-card:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
     .hp-serve-card .tag{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-light); }
     .hp-serve-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; color: var(--hp-ink); margin: 6px 0 0; line-height: 1.2; }
@@ -441,8 +455,8 @@
     /* ── 4 · FARMWORTH — SOLID pine band, horizontal media slot ── */
     .hp-tech{ background: var(--accent-pine); color:#fff; }
     .hp-tech .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
-    .hp-tech h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; color:#fff; margin: var(--space-3) 0; line-height: 1.12; }
-    .hp-tech p{ font-size: 16px; color:#D7EFFB; line-height: 1.65; margin: 0 0 var(--space-5); max-width: 46ch; }
+    .hp-tech h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color:#fff; margin: var(--space-3) 0; line-height: 1.12; }
+    .hp-tech p:not(.hp-eyebrow){ font-size: 16px; color:#D7EFFB; line-height: 1.65; margin: 0 0 var(--space-5); max-width: 46ch; }
     .hp-tech-feat{ list-style: none; padding: 0; margin: 0 0 var(--space-6); display: grid; gap: 10px; }
     .hp-tech-feat li{ font-size: 14px; color:#D7EFFB; display: flex; gap: 10px; align-items: flex-start; }
     .hp-tech-feat li::before{ content:"\25C6"; color: var(--accent-dark); font-size: 9px; margin-top: 5px; flex-shrink: 0; }
@@ -460,8 +474,8 @@
     .hp-expo-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
       aspect-ratio: 4 / 3; min-height: 300px; }
     .hp-expo-media .hp-imgwrap{ position: absolute; inset: 0; }
-    .hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; color: var(--hp-ink); margin: var(--space-3) 0; line-height: 1.12; max-width: 18ch; }
-    .hp-expo p{ font-size: 16px; color: var(--gray-600); line-height: 1.65; margin: 0 0 var(--space-4); max-width: 48ch; }
+    .hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink); margin: var(--space-3) 0; line-height: 1.12; max-width: 18ch; }
+    .hp-expo p:not(.hp-eyebrow){ font-size: 16px; color: var(--gray-600); line-height: 1.65; margin: 0 0 var(--space-4); max-width: 48ch; }
     .hp-expo-meta{ display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 var(--space-6); font-size: 13.5px; font-weight: 600; color: var(--accent-light); }
     .hp-expo-meta span{ display: inline-flex; align-items: center; gap: 8px; }
     .hp-expo-meta span::before{ content:"\25C6"; font-size: 8px; }
@@ -469,9 +483,9 @@
     /* ── 6 · NATIONAL FOOTPRINT + CONNECT (combined) ── */
     .hp-reach{ background:#fff; border-top: 1px solid #D7EFFB; }
     .hp-reach-head{ margin-bottom: var(--space-6); max-width: 62ch; }
-    .hp-reach-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 42px; color: var(--hp-ink);
+    .hp-reach-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink);
       margin: var(--space-2) 0 var(--space-3); line-height: 1.12; max-width: 20ch; }
-    .hp-reach-head > p{ font-size: 15px; color: var(--gray-600); line-height: 1.6; margin: 0; max-width: 52ch; }
+    .hp-reach-head > p:not(.hp-eyebrow){ font-size: 15px; color: var(--gray-600); line-height: 1.6; margin: 0; max-width: 52ch; }
     .hp-reach-grid{ display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-8); align-items: center; }
     /* map — no outline, no legend labels; image stands on its own */
     .hp-map{ border: 0; border-radius: 0; overflow: hidden; background: transparent; }
@@ -507,9 +521,10 @@
 
     /* shared section furniture */
     .io-scope .io-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin:0 0 22px; }
-    .io-scope .io-eyebrow{ display:inline-flex; align-items:center; gap:9px; font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
-    .io-scope .io-eyebrow::before{ content:""; width:22px; height:2px; background:var(--blue); }
-    .io-scope .io-h2{ font-family:var(--serif); font-weight:500; font-size:29px; line-height:1.12; margin:0; letter-spacing:-.01em; }
+    /* eyebrow unified to match .hp-eyebrow (What We Do / Who We Serve): 12px / 600 / 26px rule */
+    .io-scope .io-eyebrow{ display:inline-flex; align-items:center; gap:10px; font-size:16px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
+    .io-scope .io-eyebrow::before{ content:""; width:26px; height:2px; background:var(--blue); }
+    .io-scope .io-h2{ font-family:var(--serif); font-weight:500; font-size:44px; line-height:1.12; margin:0; letter-spacing:-.01em; }
     .io-scope .io-viewmore{ font-size:13.5px; font-weight:700; color:var(--blue); text-decoration:none; white-space:nowrap; }
     .io-scope .io-viewmore:hover{ color:var(--ink); text-decoration:none; }
     .io-scope .io-block + .io-block{ margin-top:46px; padding-top:44px; border-top:1px solid var(--line-2); }
@@ -571,7 +586,7 @@
     /* ── homepage responsive ── */
     @media (max-width: 1100px){
       .hp-hero h1{ font-size: 48px; }
-      .hp-sec h2, .hp-reach-head h2, .hp-tech h2, .hp-expo h2{ font-size: 36px; }
+      .hp-sec h2, .hp-reach-head h2, .hp-tech h2, .hp-expo h2, .hp-serve-head h2, .io-scope .io-h2{ font-size: 36px; }
       .hp-serve-grid{ grid-template-columns: repeat(2,1fr); }
       .hp-svc-grid{ grid-template-columns: repeat(2,1fr); }
       .hp-tech .hp-wrap{ grid-template-columns: 1fr; }
@@ -961,7 +976,7 @@
             <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
           </p>
           <div class="pff-cta">
-            <a class="btn btn-ghost" href="./version-pc-internal.html">Find an Office</a>
+            <a class="btn btn-subscribe" href="./version-pc-internal.html">Find an Office</a>
           </div>
         </div>
 
@@ -1041,9 +1056,9 @@
   </footer>
 
   <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
-       DEFAULT CLOSED on load (per version-L) — starts hidden, the handle shows instead. The open card
-       carries the same alert icon as the handle. -->
-  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement" hidden>
+       DEFAULT OPEN on load (Kiron) — the card shows on load; the handle stays hidden until minimized.
+       The open card carries the same alert icon as the handle. -->
+  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
     <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
     <div class="pc-toast-body">
       <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
@@ -1056,8 +1071,8 @@
     <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
   </aside>
 
-  <!-- Reopen handle: hovers on the right edge; visible by default since the toast starts minimized -->
-  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement">
+  <!-- Reopen handle: hovers on the right edge; hidden by default since the toast starts open -->
+  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
     <span>Auction Alerts</span>
   </button>
@@ -1086,9 +1101,10 @@
           ]}
         ]},
         { label: "What We Do", cols: [
-          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] }, { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
-          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] }, { name: "Energy Management" }, { name: "Crop Insurance" } ]},
-          { svc: [ { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] } ]},
+          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] } ]},
+          { svc: [ { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
+          { svc: [ { name: "Energy Management" }, { name: "Crop Insurance" }, { name: "Capital Markets" }, { name: "Corporate Services" } ]}
         ]},
         { label: "Insights & News", cols: [
           { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
@@ -1304,7 +1320,7 @@
       var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
 
       tabbedBlock('hpInsights', 'Land intelligence, made readable.',
-        '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">More research</p><div class="io-hlist2">'+rmore+'</div>',
+        '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional Whitepapers</p><div class="io-hlist2">'+rmore+'</div>',
         '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
     })();
 
