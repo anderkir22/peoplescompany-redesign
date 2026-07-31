@@ -617,6 +617,9 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
   transition: box-shadow .18s, transform .18s; }
 .hp-card:hover{ box-shadow: 0 8px 22px rgba(0,0,0,.09); transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce){ .hp-card:hover{ transform: none; } }
+/* the 7 service cards are links → keep text tone, no underline; visible focus ring */
+a.hp-card{ text-decoration: none; color: inherit; }
+a.hp-card:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
 /* solid accent chip holding the official white-fill PC service glyphs */
 .hp-svc-ic{ width: 44px; height: 44px; border-radius: 10px; background: var(--accent-light); color: #fff;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -671,28 +674,36 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .hp-tech-media .hp-imgwrap{ position: absolute; inset: 0; }
 .hp-tech-media .hp-imgwrap::after{ content:""; position: absolute; inset: 0; background: rgba(7,20,40,.35); }
 
-/* ── 5 · LAND INVESTMENT EXPO ── */
-.hp-expo{ background: var(--soft-white); }  /* PC Soft White */
+/* ── 5 · LAND INVESTMENT EXPO — PC Medium Blue band (matches Who We Serve),
+   on-dark text: PC Light Blue eyebrow, white heading/body, white CTA ── */
+.hp-expo{ background: var(--accent-medium); }
 .hp-expo .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
 .hp-expo-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
   aspect-ratio: 4 / 3; min-height: 300px; }
 .hp-expo-media .hp-imgwrap{ position: absolute; inset: 0; }
-.hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink); margin: var(--space-3) 0; line-height: 1.12; max-width: 18ch; }
-.hp-expo p:not(.hp-eyebrow){ font-size: 16px; color: var(--hp-ink); line-height: 1.65; margin: 0 0 var(--space-4); max-width: 48ch; }
-.hp-expo-meta{ display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 var(--space-6); font-size: 13.5px; font-weight: 600; color: var(--hp-ink); }
+.hp-expo .hp-eyebrow{ color: var(--teal-tint); }                 /* PC Light Blue */
+.hp-expo .hp-eyebrow::before{ background: var(--teal-tint); }
+.hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: #fff; margin: var(--space-3) 0; line-height: 1.12; max-width: 18ch; }
+.hp-expo p:not(.hp-eyebrow){ font-size: 16px; color: #fff; line-height: 1.65; margin: 0 0 var(--space-4); max-width: 48ch; }
+.hp-expo-meta{ display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 var(--space-6); font-size: 13.5px; font-weight: 600; color: #fff; }
 .hp-expo-meta span{ display: inline-flex; align-items: center; gap: 8px; }
 .hp-expo-meta span::before{ content:"\25C6"; font-size: 8px; }
+/* CTA reads on the medium-blue band: white fill, PC Navy label */
+.hp-expo .hp-btn-primary{ background: #fff; color: var(--accent-light); border-color: #fff; }
+.hp-expo .hp-btn-primary:hover, .hp-expo .hp-btn-primary:focus{ background: var(--teal-tint); border-color: var(--teal-tint); color: var(--accent-light); }
+.hp-expo .hp-btn-primary:focus-visible{ outline: 2px solid #fff; outline-offset: 3px; }
 
 /* ── 6 · NATIONAL FOOTPRINT + CONNECT (combined) ── */
-.hp-reach{ background:#fff; border-top: 1px solid var(--pc-light-blue); }
+.hp-reach{ background: var(--soft-white); border-top: 1px solid var(--pc-light-blue); }
 .hp-reach-head{ margin-bottom: var(--space-6); max-width: 62ch; }
 .hp-reach-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink);
-  margin: var(--space-2) 0 var(--space-3); line-height: 1.12; max-width: 20ch; }
+  margin: var(--space-2) 0 var(--space-3); line-height: 1.12; max-width: none; white-space: nowrap; }
 .hp-reach-head > p:not(.hp-eyebrow){ font-size: 15px; color: var(--hp-ink); line-height: 1.6; margin: 0; max-width: 52ch; }
-.hp-reach-grid{ display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-8); align-items: center; }
-/* map — no outline, no legend labels; image stands on its own */
-.hp-map{ border: 0; border-radius: 0; overflow: hidden; background: transparent; }
-.hp-map-img{ display: block; width: 100%; height: auto; }
+/* stretch so the map and the Connect card are the SAME height (row = the taller one) */
+.hp-reach-grid{ display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-8); align-items: stretch; }
+/* map — no outline, no legend labels; fills its cell height to match the card */
+.hp-map{ border: 0; border-radius: var(--radius-md); overflow: hidden; background: transparent; height: 100%; }
+.hp-map-img{ display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .hp-map.hp-map-fallback{ min-height: 340px; border-radius: var(--radius-md);
   background: linear-gradient(135deg, #D7EFFB, #00AEEF); }
 /* placeholder box standing in for the real deep-green/teal US office-locations map */
@@ -713,7 +724,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .hp-connect-stat .l{ font-size: 13px; color: var(--hp-ink); }
 
 /* ── 7 · INSIGHTS & NEWS — Industry Research, horizontal cards, tabbed ── */
-.hp-ins-sec{ background: var(--soft-white); }  /* PC Soft White */
+.hp-ins-sec{ background: var(--pc-white); }  /* PC White */
 
 /* catalog vars, scoped + retinted to the PC palette (no blue-blue, no green) */
 .io-scope{ --serif:var(--font-serif); --sans:var(--font-sans);
@@ -839,6 +850,10 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .hp-tech .hp-wrap{ grid-template-columns: 1fr; }
   .hp-expo .hp-wrap{ grid-template-columns: 1fr; }
   .hp-reach-grid{ grid-template-columns: 1fr; }
+  /* stacked: map returns to its natural height (no cover-crop against a sibling) */
+  .hp-map, .hp-map-img{ height: auto; }
+  /* narrower viewport: let the footprint heading wrap again so it can't overflow */
+  .hp-reach-head h2{ white-space: normal; }
 }
 @media (max-width: 1040px){
   .pff-grid{ grid-template-columns: 1fr 1fr 1fr; }
