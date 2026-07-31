@@ -1,0 +1,866 @@
+/* =============================================================================
+   Peoples Company — FINAL PC Design System  (pc.css)
+   -----------------------------------------------------------------------------
+   Single source of truth for the FINAL "version-pc" direction. Self-contained:
+   pages in this folder link ONLY this file (not shared/main.css). The older
+   dev-site versions/concepts keep pointing at shared/main.css and are untouched.
+
+   PALETTE — the final PC blue brand set (see ./brand-color.html). NO red, NO
+   green. Plain black (rgba(0,0,0,…)) is reserved for drop-shadows / overlays.
+
+     PC Black       #07162C   headings · nav · primary ink · ALL body copy · deepest band
+     PC Navy        #12406A   fills / accents / text on white (AA/AAA) — NOT body copy
+     PC Medium Blue #316F96   nav-link hover · What-We-Do eyebrow · light-bg buttons
+     PC Blue        #00AEEF   bright accent — ON DARK BACKGROUNDS ONLY (fails on white)
+     PC Light Blue  #D7EFFB   hairline borders · pale section tint · secondary text on dark
+     PC Soft White  #f3fbfe   subtle card / section fill
+     PC White       #FFFFFF   surfaces · headings + body ON DARK backgrounds
+
+   BODY TEXT RULE: all body copy (large and small) is PC Black on light — never
+   PC Navy. Navy is reserved for fills, buttons, eyebrows, borders, and links.
+   Contrast rule (WCAG, many mobile users 60+): PC Navy carries fills + accent
+   text on white (AA/AAA); the bright PC Blue is used ONLY on the dark bands (it
+   fails on white). See the on-light / on-dark text treatments in section 1.
+   ============================================================================= */
+
+/* ----------------------------------------------------------------------------
+   1. Design tokens
+   ---------------------------------------------------------------------------- */
+:root {
+  /* --- PC brand palette (the source of truth — every color resolves here) --- */
+  --pc-black:       #07162C;
+  --pc-navy:        #12406A;
+  --pc-medium-blue: #316F96;
+  --pc-blue:        #00AEEF;
+  --pc-light-blue:  #D7EFFB;
+  --pc-soft-white:  #f3fbfe;
+  --pc-white:       #FFFFFF;
+
+  /* --- Neutral aliases → palette (kept so component rules read cleanly and any
+         legacy reference resolves; there is no grey in the system anymore) --- */
+  --black:    var(--pc-black);
+  --white:    var(--pc-white);
+  --gray-900: var(--pc-black);       /* headings, nav, primary ink, body copy */
+  --gray-600: var(--pc-navy);        /* secondary text / links / accents (NOT body copy) */
+  --gray-500: var(--pc-navy);        /* muted / eyebrow / label text */
+  --gray-200: var(--pc-light-blue);  /* hairline borders */
+  --gray-100: var(--pc-soft-white);  /* alt surface */
+  --blue:     var(--pc-blue);
+
+  /* --- Semantic roles --- */
+  --color-text:        var(--pc-black);        /* primary ink / headings */
+  --color-text-muted:  var(--pc-black);        /* body copy — ALL body text is PC Black (never Navy) */
+  --color-text-subtle: var(--pc-navy);         /* muted labels / eyebrow (NOT body copy) */
+  --color-border:      var(--pc-light-blue);   /* hairlines */
+  --color-surface:     var(--pc-white);
+  --color-surface-alt: var(--pc-soft-white);
+  --color-accent:      var(--pc-medium-blue);  /* link hover, active accents */
+
+  /* --- Text treatments by background --------------------------------------
+     Two schemes so any section works on any background. Apply .on-light or
+     .on-dark to a section (see utilities below), or read these tokens directly.
+       ON LIGHT (white / PC Soft White / PC Light Blue):
+         heading + body = PC Black · secondary/labels = PC Navy · accent = PC Medium Blue
+       ON DARK (PC Black / PC Navy / PC Medium Blue bands):
+         heading + body = PC White · secondary = PC Light Blue · accent = PC Blue (bright)
+     ------------------------------------------------------------------------- */
+  --text-on-light:       var(--pc-black);       /* headings + body copy on light */
+  --text-on-light-muted: var(--pc-navy);        /* secondary text / labels on light */
+  --accent-on-light:     var(--pc-medium-blue); /* links / accents on light */
+  --text-on-dark:        var(--pc-white);       /* headings + body copy on dark */
+  --text-on-dark-muted:  var(--pc-light-blue);  /* secondary text on dark */
+  --accent-on-dark:      var(--pc-blue);         /* bright accent on dark */
+
+  /* --- version-pc role aliases (used throughout header / footer / homepage) --- */
+  --accent-light:  var(--pc-navy);        /* AA fills / text on white (~10.7:1 white text) */
+  --accent-pine:   var(--pc-black);        /* deepest solid band (FarmWorth) */
+  --accent-medium: var(--pc-medium-blue);  /* nav-link hover, Interactive Map tab, light-bg buttons */
+  --accent-dark:   var(--pc-blue);         /* on-dark accent text ONLY */
+  --teal-tint:     var(--pc-light-blue);   /* pale chip / section tint */
+  --teal-soft:     var(--pc-light-blue);   /* on-dark soft accent */
+  --soft-white:    var(--pc-soft-white);   /* subtle card fill */
+  --hp-ink:        var(--pc-black);         /* homepage headings / primary ink */
+
+  /* --- Typography --- */
+  --font-serif: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-sans:  "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Type scale */
+  --h1-size: 48px;
+  --h2-size: 32px;
+  --h3-size: 24px;
+  --h4-size: 20px;
+  --body-lg: 18px;
+  --body:    16px;
+  --body-sm: 12px;
+  --label:   12px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Layout */
+  --container: 1200px;
+
+  /* Site width — replicates Tailwind's responsive `.container` (as on the live
+     peoplescompany.com). It STEPS UP at each breakpoint = the breakpoint width. */
+  --site: 100%;                                    /* <640px: full width */
+  --navH: 132px;                                   /* header height, synced by JS */
+}
+@media (min-width: 640px){  :root{ --site: 640px;  } }  /* sm  */
+@media (min-width: 768px){  :root{ --site: 768px;  } }  /* md  */
+@media (min-width: 1024px){ :root{ --site: 1024px; } }  /* lg  */
+@media (min-width: 1280px){ :root{ --site: 1280px; } }  /* xl  */
+@media (min-width: 1536px){ :root{ --site: 1536px; } }  /* 2xl */
+
+/* ----------------------------------------------------------------------------
+   2. Reset & base
+   ---------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--body);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img { max-width: 100%; display: block; }
+
+/* ----------------------------------------------------------------------------
+   3. Typography
+   ---------------------------------------------------------------------------- */
+h1, h2, h3, h4 { margin: 0; color: var(--color-text); }
+
+h1, .h1 { font-family: var(--font-serif); font-weight: 500; font-size: var(--h1-size); line-height: 1.1; letter-spacing: -0.01em; }
+h2, .h2 { font-family: var(--font-serif); font-weight: 500; font-size: var(--h2-size); line-height: 1.2; letter-spacing: -0.01em; }
+h3, .h3 { font-family: var(--font-serif); font-weight: 500; font-size: var(--h3-size); line-height: 1.3; color: var(--color-text); }
+h4, .h4 { font-family: var(--font-serif); font-weight: 500; font-size: var(--h4-size); line-height: 1.4; color: var(--color-text); }
+
+p { margin: 0 0 1em; }
+
+/* Eyebrow / label — default PC Navy (sits in PC Medium Blue on "What We Do") */
+.label {
+  font-family: var(--font-sans); font-weight: 400; font-size: var(--label);
+  line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+/* Body copy variants — ALL body text is PC Black (never Navy), any size */
+.body-lg { font-size: var(--body-lg); line-height: 1.7; color: var(--color-text-muted); }
+.body    { font-size: var(--body);    line-height: 1.6; color: var(--color-text-muted); }
+.body-sm { font-size: var(--body-sm); line-height: 1.6; color: var(--color-text-muted); }
+
+/* ----------------------------------------------------------------------------
+   Text treatments — put .on-light or .on-dark on a section so its headings and
+   body copy take the right scheme for that background. .txt-muted / .txt-accent
+   pick the secondary + accent tone for whichever treatment is in effect.
+   ---------------------------------------------------------------------------- */
+.on-light { color: var(--text-on-light); }
+.on-light h1, .on-light h2, .on-light h3, .on-light h4 { color: var(--text-on-light); }
+.on-light .txt-muted  { color: var(--text-on-light-muted); }
+.on-light .txt-accent { color: var(--accent-on-light); }
+
+.on-dark { color: var(--text-on-dark); }
+.on-dark h1, .on-dark h2, .on-dark h3, .on-dark h4 { color: var(--text-on-dark); }
+.on-dark .txt-muted  { color: var(--text-on-dark-muted); }
+.on-dark .txt-accent { color: var(--accent-on-dark); }
+
+/* ----------------------------------------------------------------------------
+   4. Links
+   ---------------------------------------------------------------------------- */
+.link, a.inline-link {
+  color: var(--color-text); text-decoration: underline;
+  text-underline-offset: 3px; text-decoration-thickness: 1px;
+  transition: color 0.15s ease;
+}
+.link:hover, a.inline-link:hover { color: var(--color-accent); }
+
+/* Read More — static: muted + underline; hover: PC Black, no underline */
+/* Read More is a muted LINK (not body copy): PC Navy → PC Black on hover */
+.read-more {
+  display: inline-block; font-family: var(--font-sans); font-weight: 400;
+  font-size: var(--body); color: var(--pc-navy);
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.read-more:hover { color: var(--color-text); text-decoration-color: transparent; }
+
+/* ----------------------------------------------------------------------------
+   5. Buttons
+   ---------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  font-family: var(--font-sans); font-weight: 500; font-size: var(--body); line-height: 1;
+  padding: 14px 24px; border-radius: var(--radius-pill); border: 1px solid transparent;
+  cursor: pointer; text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.btn:active { transform: translateY(1px); }
+
+/* Primary pill button on a light background — PC Medium Blue → PC Navy on hover
+   (version-pc unified every light-bg pill button to this). */
+.btn-primary { background: var(--pc-medium-blue); color: var(--white); border-color: var(--pc-medium-blue); }
+.btn-primary:hover { background: var(--pc-navy); border-color: var(--pc-navy); }
+
+/* Button White / outline */
+.btn-white { background: var(--white); color: var(--gray-900); border-color: var(--gray-200); }
+.btn-white:hover { border-color: var(--gray-900); }
+
+/* ----------------------------------------------------------------------------
+   6. Cards
+   ---------------------------------------------------------------------------- */
+.card {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-6);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover { border-color: var(--pc-medium-blue); box-shadow: 0 1px 2px rgba(7, 22, 44, 0.06); }
+.card > .label { display: block; margin-bottom: var(--space-3); }
+.card > h3, .card > h4 { margin-bottom: var(--space-3); }
+
+/* ----------------------------------------------------------------------------
+   7. Layout helpers
+   ---------------------------------------------------------------------------- */
+.container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 var(--space-5); }
+.site-inner { max-width: var(--site); margin: 0 auto; }
+
+/* ============================================================================
+   8. HEADER — Option F "Editorial Spread" (D right/tight nav)
+   ============================================================================ */
+.pcf{ background: var(--white); border-bottom: 1px solid var(--color-border);
+  position: sticky; top: 0; z-index: 40; }
+.pcf-inner{ max-width: var(--site); margin: 0 auto; }
+.pcf-brandrow{ display: flex; align-items: stretch; }
+.pcf-brandcell{ display: flex; align-items: center; padding: 0 24px; flex: none; }
+.pcf-logo{ height: 80px; width: auto; }
+.pcf-stack{ flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+/* utility strip — white→light-blue gradient, Create Account + Login top-right */
+.pcf-util{
+  display: flex; align-items: center; gap: 18px; height: 40px; padding: 0 24px;
+  font-size: 13px; color: var(--gray-600);
+  background: linear-gradient(90deg, #fff 0%, #fff 22%, var(--teal-tint) 100%);
+}
+.pcf-util .sp{ flex: 1; }
+.pcf-util a{ color: var(--gray-900); text-decoration: none; font-weight: 400; white-space: nowrap; }
+.pcf-util a:hover{ color: var(--accent-light); }
+.pcf-util .sep{ opacity: .35; font-weight: 300; }
+
+/* main nav row — placement: RIGHT-ALIGNED (menus pushed toward the search icon) */
+.pcf-row{ display: flex; align-items: center; gap: 34px; padding: 0 24px 0 36px; height: 76px; }
+.pcf-menus{
+  list-style: none; margin: 0; padding: 0;
+  flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 56px;
+  font-family: var(--font-serif); font-size: 18px; font-weight: 600;
+}
+.pcf-menus > li{ position: static; } /* static so the mega-menu can span the full header width */
+.pcf-menus > li > a{
+  color: var(--gray-900); text-decoration: none; white-space: nowrap;   /* PC Black */
+  position: relative; padding: 8px 0; display: inline-block;
+  transition: color .18s ease;
+}
+/* hover / keyboard focus: no underline — the label shifts to PC Medium Blue */
+.pcf-menus > li:hover > a,
+.pcf-menus > li:focus-within > a{ color: var(--accent-medium); }
+
+/* mega-menu pop-down */
+.pcf-mega{
+  position: absolute; left: 0; right: 0; top: 100%;
+  background: #fff; border-top: 3px solid var(--accent-light);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 14px 28px rgba(0,0,0,.12);
+  opacity: 0; visibility: hidden; transform: translateY(-6px);
+  transition: opacity .14s ease, transform .14s ease, visibility .14s;
+  z-index: 39;
+}
+.pcf-menus > li:hover .pcf-mega,
+.pcf-menus > li:focus-within .pcf-mega{ opacity: 1; visibility: visible; transform: translateY(0); }
+.pcf-mega::before{ content: ""; position: absolute; left: 0; right: 0; top: -26px; height: 26px; }
+.pcf-mega-in{
+  max-width: var(--site); margin: 0 auto; padding: var(--space-6) 24px;
+  /* All mega-menus share a fixed 4-column structure (a panel may leave columns
+     empty). Real Estate + What We Do have 3 groups → 4th column stays empty. */
+  display: grid; gap: var(--space-7); grid-template-columns: repeat(4, 1fr);
+}
+/* Insights & News has only two columns — cap + left-align them so they match the
+   column width on the other tabs instead of stretching across the full header. */
+.pcf-mega[aria-label="Insights & News"] .pcf-mega-in{
+  grid-template-columns: repeat(2, minmax(200px, 300px));
+  justify-content: start;
+}
+.pcf-col h4{
+  font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--gray-900);
+  margin: 0 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--gray-200);
+}
+.pcf-col ul{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.pcf-col a{
+  font-family: var(--font-sans); font-size: 11px; color: var(--gray-500); text-decoration: none;
+  display: inline-block; transition: color .12s ease;
+}
+.pcf-col a:hover, .pcf-col a:focus{ color: var(--accent-pine); text-decoration: none; }
+.pcf-col .soft{ color: var(--gray-500); font-size: 12px; margin: 0; }
+.pcf-svcblock{ margin-bottom: 22px; }
+.pcf-svcblock:last-child{ margin-bottom: 0; }
+/* underline under each What-We-Do service heading, matching the h4 column-heading line on the other tabs */
+.pcf-col .pcf-svc{ display: block; margin-bottom: var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--gray-200); }
+.pcf-col .pcf-svc a{
+  font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--gray-900); text-decoration: none; display: inline-block;
+}
+.pcf-col .pcf-svc a:hover{ color: var(--accent-light); }
+.pcf-sublist{ list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+/* Company mega-menu — right-side AFFILIATION BADGES (this tab only) */
+.pcf-badgecol{ display: flex; flex-direction: column; gap: 14px; }
+.pcf-badge{ display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.pcf-badge .emb{ width: 46px; height: 46px; flex: none; border-radius: 50%;
+  border: 1px solid var(--gray-200); background: var(--teal-tint); color: var(--accent-light);
+  display: inline-flex; align-items: center; justify-content: center; transition: border-color .14s ease, background .14s ease; }
+.pcf-badge.rect .emb{ border-radius: 6px; width: 62px; height: 42px;
+  font-family: var(--font-sans); font-weight: 800; font-size: 15px; letter-spacing: .06em; color: var(--accent-light); }
+.pcf-badge .blabel{ font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--gray-900); line-height: 1.25; text-decoration: none; }
+.pcf-badge:hover .blabel{ color: var(--accent-light); text-decoration: none; }
+.pcf-badge:hover .emb{ border-color: var(--accent-light); }
+.pcf-badge .emb svg{ display: block; }
+
+@media (prefers-reduced-motion: reduce){
+  .pcf-mega{ transition: none; transform: none; }
+  .pcf-menus > li > a{ transition: none; }
+}
+
+.pcf-searchwrap{ position: relative; flex: none; }
+.pcf-search{
+  width: 40px; height: 40px; border-radius: 50%; border: 0;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--gray-900);
+  flex: none; cursor: pointer; background: transparent;
+  transition: background-color .15s ease, color .15s ease;
+}
+.pcf-search:hover, .pcf-search:focus-visible,
+.pcf-search[aria-expanded="true"]{ background: var(--accent-light); color:#fff; border-radius: 50%; }
+.pcf-search:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+
+.pcf-searchpanel{
+  position: absolute; top: calc(100% + 18px); right: 0; z-index: 50;
+  background: var(--white); border: 1px solid var(--color-border);
+  border-radius: 0; box-shadow: 0 12px 32px rgba(0,0,0,.16);
+  padding: 6px;
+  opacity: 0; transform: translateY(-8px); visibility: hidden; pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease, visibility 0s .18s;
+}
+.pcf-searchpanel.open{
+  opacity: 1; transform: none; visibility: visible; pointer-events: auto;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.pcf-searchform{ display: flex; align-items: center; gap: 6px; }
+.pcf-searchform input{
+  border: 0; outline: 0; background: transparent; color: var(--gray-900);
+  font-family: var(--font-sans); font-size: 15px; padding: 9px 14px; width: 300px;
+}
+.pcf-searchform input::placeholder{ color: var(--gray-500); }
+.pcf-searchgo{
+  width: 40px; height: 40px; flex: none; border: 0; border-radius: var(--radius-pill);
+  background: var(--accent-light); color: var(--white); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background-color .15s ease;
+}
+.pcf-searchgo:hover{ background: var(--accent-pine); }
+@media (prefers-reduced-motion: reduce){
+  .pcf-searchpanel{ transition: visibility 0s .001s; transform: none; }
+  .pcf-searchpanel.open{ transition: none; }
+}
+
+/* Company mega-menu partner-logo box (both marks white/cream, on a PC Black panel) */
+.pcf-badges{ display:flex; flex-direction:column; gap:0;
+  background:var(--accent-pine); border:1px solid rgba(255,255,255,.16); border-radius:var(--radius-md); padding:2px 16px; }
+.pcf-badge-logo{ background:transparent; border:0; padding:16px 0; justify-content:flex-start; align-items:center; }
+.pcf-badge-logo:hover{ box-shadow:none; transform:none; }
+.pcf-badge-logo + .pcf-badge-logo{ border-top:1px solid rgba(255,255,255,.14); }
+.pcf-badge-logo img{ height:24px; width:auto; max-width:100%; display:block; }
+/* Land Investment Expo row (no logo asset): white emblem + white label, matches the two logo rows */
+.pcf-badge-logo.expo{ gap:12px; }
+.pcf-badge-logo.expo .emb{ width:26px; height:26px; flex:none; border:0; border-radius:0; background:transparent; color:#fff;
+  display:inline-flex; align-items:center; justify-content:center; }
+.pcf-badge-logo.expo .blabel{ color:#fff; font-family:var(--font-sans); font-size:13px; font-weight:700; letter-spacing:.02em; }
+.pcf-badge-logo.expo:hover .blabel{ color:var(--teal-soft); }
+
+/* ============================================================================
+   9. INTERACTIVE MAP pull-down tab → slides down the map layer
+   ============================================================================ */
+.md-tabwrap{ position: sticky; top: var(--navH); z-index: 39; height: 0; text-align: center; pointer-events: none; }
+/* solid pill + white text — PC Medium Blue, hover → PC Navy */
+.md-tab{
+  pointer-events: auto; position: relative; cursor: pointer; border: 0; box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  font-family: var(--font-sans); font-weight: 600; font-size: 15px; color:#fff;
+  background: var(--accent-medium); height: 46px; width: 340px; padding: 0 26px;
+  border-radius: 0 0 14px 14px; box-shadow: 0 6px 16px rgba(0,0,0,.18);
+  animation: md-flex 2s ease-in-out infinite;
+}
+.md-tab:hover{ background: var(--accent-light); }
+.md-tab:focus-visible{ outline: 3px solid var(--accent-pine); outline-offset: 2px; }
+.md-tab .md-chev{ display: inline-block; transition: transform .2s ease; }
+.md-tab[aria-expanded="true"] .md-chev{ transform: rotate(180deg); }
+.md-tab[aria-expanded="true"]{ animation: none; height: 46px; }
+@keyframes md-flex{ 0%,100%{ height: 46px; } 50%{ height: 56px; } }
+
+.md-backdrop{ position: fixed; inset: var(--navH) 0 0 0; z-index: 30; background: rgba(7,20,40,.55);
+  opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
+.md-backdrop.is-open{ opacity: 1; visibility: visible; }
+.md-layer{ position: fixed; top: var(--navH); left: 0; right: 0; margin-inline: auto;
+  max-width: var(--site, 1400px); height: calc(100vh - var(--navH)); z-index: 31; background: #fff;
+  box-shadow: 0 18px 40px rgba(0,0,0,.25); transform: translateY(-100%);
+  transition: transform .38s cubic-bezier(.16,.84,.44,1); overflow-y: auto; overscroll-behavior: contain; }
+.md-layer.is-open{ transform: translateY(0); }
+.md-layer-bar{ position: sticky; top: 0; z-index: 2; display: flex; justify-content: flex-end;
+  align-items: center; padding: 14px 40px; background: #fff; }
+.md-close{ display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  font-size: 18px; line-height: 1; color: var(--gray-900); background: #fff;
+  border: 1px solid var(--gray-200); border-radius: 50%; width: 40px; height: 40px; }
+.md-close:hover{ border-color: var(--gray-900); }
+.md-close:focus-visible{ outline: 2px solid var(--accent-pine); outline-offset: 2px; }
+.md-layer-body{ display: flex; align-items: center; justify-content: center;
+  min-height: calc(100vh - var(--navH) - 68px); }
+.md-placeholder{ font-family: var(--font-serif); font-size: 40px; color: var(--gray-500); margin: 0; }
+.md-mapimg{ display: block; width: 100%; height: calc(100vh - var(--navH) - 68px);
+  object-fit: cover; object-position: center; }
+@media (prefers-reduced-motion: reduce){
+  .md-tab{ animation: none !important; height: 46px !important; }
+  .md-tab .md-chev{ transition: none; }
+  .md-layer, .md-backdrop{ transition: none; }
+}
+
+/* ============================================================================
+   10. FOOTER — connect band on top + right-justified nav columns
+   ============================================================================ */
+.pff{ background: #fff; color: var(--gray-600); border-top: 1px solid var(--pc-light-blue); }
+.pff a{ color: var(--gray-600); text-decoration: none; transition: color .15s ease; }
+.pff a:hover{ color: var(--accent-medium); }  /* footer link hover → PC Medium Blue (matches nav) */
+.pff-inner{ max-width: var(--site); margin: 0 auto; padding: 0 var(--space-6); }
+
+.pff-main{ padding: var(--space-8) 0 var(--space-7); }
+.pff-grid{ display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7); }
+/* top connect band: logo (left) · newsletter line · subscribe pill (right) */
+.pff-connect{ display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7);
+  align-items: center; margin-bottom: var(--space-7); }
+.pff-connect-logo{ grid-column: 1; grid-row: 1; display: inline-block; }
+.pff-connect-logo img{ width: 232px; max-width: 100%; height: auto; display: block; }
+.pff-connect-line{ grid-column: 2 / -1; grid-row: 1; text-align: left; margin: 0; padding-left: 20px; font-family: var(--font-sans);
+  font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--hp-ink); }
+
+/* newsletter subscribe — light pill on white with a PC Medium Blue Subscribe pill flush right */
+.pff-subform{ grid-column: 2 / -1; grid-row: 1; justify-self: end;
+  display: flex; align-items: stretch; width: 420px; max-width: 100%;
+  background: var(--teal-tint); border: 1px solid var(--pc-light-blue);
+  border-radius: var(--radius-pill); padding: 0; overflow: hidden; }
+.pff-subform:focus-within{ border-color: var(--accent-light); }
+.pff-subform input{
+  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--hp-ink);
+  font-family: var(--font-sans); font-size: 14px; font-weight: 700; padding: 12px 16px 12px 22px;
+}
+.pff-subform input::placeholder{ color: var(--gray-600); font-weight: 700; }
+.pff-subform button{
+  flex: none; align-self: stretch; display: flex; align-items: center; justify-content: center;
+  border: 0; cursor: pointer; background: var(--accent-medium); color: #fff;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .04em;
+  padding: 0 26px; transition: background-color .15s ease;
+}
+.pff-subform button:hover{ background: var(--accent-light); }
+.pff-contact{ font-size: 14px; line-height: 1.9; margin-bottom: var(--space-5); color: var(--hp-ink); }
+.pff-contact b{ color: var(--hp-ink); font-weight: 500; }
+.pff-cta{ display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.pff-cta .btn{ padding: 12px 22px; font-size: 15px; }
+.btn-ghost{ background: transparent; color: var(--accent-light); border-color: rgba(18,64,106,.45); }
+.btn-ghost:hover{ border-color: var(--accent-light); background: var(--teal-tint); }
+/* Find an Office — matches the newsletter Subscribe pill (filled PC Medium Blue, white text) */
+.pff-cta a.btn-subscribe{ background: var(--accent-medium); color: #fff; border-color: var(--accent-medium);
+  border-radius: var(--radius-pill); font-weight: 700; letter-spacing: .04em; }
+.pff-cta a.btn-subscribe:hover{ background: var(--accent-light); border-color: var(--accent-light); color: #fff; }
+
+.pff-col h3{
+  font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--hp-ink); margin: 0 0 var(--space-4);
+}
+.pff-brand h3{ margin-bottom: var(--space-2); }
+/* Corporate Office + address indented to match version-B placement */
+.pff-brand h3, .pff-brand .pff-contact, .pff-brand .pff-cta{ padding-left: 49px; }
+.pff-col ul{ list-style: none; margin: 0; padding: 2px 0 0; overflow: visible; }
+.pff-col li{ margin-bottom: var(--space-3); line-height: 1.35; }
+.pff-col li:first-child{ margin-top: 2px; }
+.pff-col a{ font-size: 14px; display: inline-block; }
+/* RIGHT-JUSTIFIED text in the four nav columns */
+nav.pff-col, nav.pff-col h3{ text-align: right; }
+
+/* bottom bar: social · legal */
+.pff-bottom{ border-top: 1px solid var(--pc-light-blue); }
+.pff-bottom-inner{
+  max-width: var(--site); margin: 0 auto; padding: var(--space-5) var(--space-6);
+  display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap;
+}
+.pff-social{ display: inline-flex; align-items: center; gap: 16px; }
+.pff-social a{ display: inline-flex; color: var(--gray-600); }
+.pff-social a:hover{ color: var(--accent-medium); }
+.pff-social svg{ width: 18px; height: 18px; display: block; }
+
+.pff-legal{ margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 12.5px; }
+.pff-legal .copy{ color: var(--gray-500); }
+.pff-legal .legal-links{ display: flex; gap: 20px; }
+.pff-legal a{ color: var(--gray-600); }
+.pff-legal a:hover{ color: var(--accent-medium); }
+
+/* ============================================================================
+   11. Scroll-reveal (a must-have) — reduced-motion safe
+   ============================================================================ */
+.reveal{ opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.in{ opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce){
+  .reveal{ opacity: 1; transform: none; transition: none; }
+  .pcf-menus > li > a{ transition: none; }
+}
+
+/* ============================================================================
+   12. HOMEPAGE BODY (.hp)
+   ============================================================================ */
+.hp{ font-family: var(--font-sans); color: var(--hp-ink); }
+.hp .hp-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 40px; }
+
+/* graceful photo fallback container — PC Black → PC Navy gradient */
+.hp-imgwrap{ background: linear-gradient(135deg,#07162C 0%,#12406A 100%); overflow: hidden; }
+.hp-imgwrap img{ display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* shared bits */
+.hp-eyebrow{ display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-sans);
+  font-size: 16px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-light); margin: 0; }
+.hp-eyebrow::before{ content:""; width: 26px; height: 2px; background: var(--accent-light); display: block; }
+.hp-eyebrow.on-dark{ color: var(--accent-dark); }
+.hp-eyebrow.on-dark::before{ background: var(--accent-dark); }
+/* "What We Do" section eyebrow → PC Medium Blue (other eyebrows stay PC Navy) */
+.hp-svc .hp-eyebrow{ color: var(--accent-medium); }
+.hp-svc .hp-eyebrow::before{ background: var(--accent-medium); }
+
+.hp-btn{ display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-pill);
+  font-family: var(--font-sans); font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer;
+  padding: 13px 28px; border: 2px solid transparent; transition: background .15s, border-color .15s, color .15s; }
+/* pill buttons on light backgrounds — PC Medium Blue → PC Navy on hover (matches the Interactive Map button/tab) */
+.hp-btn-primary{ background: var(--accent-medium); color:#fff; border-color: var(--accent-medium); }
+.hp-btn-primary:hover, .hp-btn-primary:focus{ background: var(--accent-light); border-color: var(--accent-light); }
+.hp-btn-primary:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 3px; }
+/* "Open Interactive Map" — flat solid, no outline; PC Medium Blue → PC Navy on hover */
+.hp-btn-solid-dark{ background: var(--accent-medium); color:#fff; border-color: var(--accent-medium); }
+.hp-btn-solid-dark:hover, .hp-btn-solid-dark:focus{ background: var(--accent-light); border-color: var(--accent-light); }
+.hp-btn-solid-dark:focus-visible{ outline: 2px solid #fff; outline-offset: 3px; }
+.hp-btn-ghost-light{ background: transparent; color:#fff; border-color: rgba(255,255,255,.55); }
+.hp-btn-ghost-light:hover, .hp-btn-ghost-light:focus{ border-color:#fff; }
+.hp-btn-ghost-light:focus-visible{ outline: 2px solid var(--accent-dark); outline-offset: 3px; }
+
+/* cohesive spacing between sections */
+.hp-sec{ padding: var(--space-7) 0; }
+@media (max-width:680px){ .hp-sec{ padding: var(--space-6) 0; } }
+.hp-sec h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; line-height: 1.12;
+  color: var(--hp-ink); margin: var(--space-3) 0 0; }
+
+/* ── 1 · HERO — static editorial still + dark overlay + inline stats ── */
+.hp-hero{ position: relative; min-height: 620px; display: flex; align-items: flex-end; overflow: hidden; }
+.hp-hero .hp-hero-bg{ position: absolute; inset: 0; z-index: 0; }
+.hp-hero-video{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.hp-hero-slide{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity 1.4s ease; }
+.hp-hero-slide.is-active{ opacity: 1; }
+@media (prefers-reduced-motion: reduce){
+  .hp-hero-slide{ transition: none; }
+  .hp-hero-slide:not(.is-active){ display: none; }
+}
+/* DARK overlay (solid PC Black left → photo revealed right) + light text */
+.hp-hero .hp-hero-bg::after{ content:""; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(100deg, rgba(7,20,40,.93) 0%, rgba(7,20,40,.66) 48%, rgba(7,20,40,.22) 100%); }
+.hp-hero-inner{ position: relative; z-index: 2; padding: var(--space-8) 0 var(--space-7); width: 100%; }
+.hp-hero h1{ font-family: var(--font-serif); font-weight: 500; font-size: 64px; line-height: 1.06;
+  color:#fff; margin: var(--space-4) 0 var(--space-4); max-width: 16ch; }
+.hp-hero h1 em{ font-style: italic; color: var(--accent-dark); }
+.hp-hero > .hp-hero-inner p.hp-lead{ font-size: 18px; color:#D7EFFB; max-width: 52ch; line-height: 1.65; margin: 0; }
+.hp-hero::after{ content:""; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: var(--accent-light); z-index: 3; }
+/* inline hero stats */
+.hp-hero-stats{ display: flex; flex-wrap: wrap; gap: 34px; margin-top: 34px; }
+.hp-hstat{ display: flex; flex-direction: column; padding-left: 15px; border-left: 2px solid var(--accent-dark); }
+.hp-hstat .n{ font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1; color:#fff; }
+.hp-hstat .l{ font-size: 12.5px; color:#D7EFFB; margin-top: 7px; letter-spacing: .02em; max-width: 15ch; }
+
+/* ── 2 · SERVICES (small left line icons, no top band) ── */
+.hp-svc{ background:#FFFFFF; }
+.hp-svc-head{ margin-bottom: var(--space-6); }
+.hp-svc-head h2{ max-width: none; }
+.hp-svc-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
+.hp-card{ background: var(--soft-white); border: 1px solid rgba(18,64,106,.22); border-radius: var(--radius-md);
+  padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3);
+  transition: box-shadow .18s, transform .18s; }
+.hp-card:hover{ box-shadow: 0 8px 22px rgba(0,0,0,.09); transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce){ .hp-card:hover{ transform: none; } }
+/* solid accent chip holding the official white-fill PC service glyphs */
+.hp-svc-ic{ width: 44px; height: 44px; border-radius: 10px; background: var(--accent-light); color: #fff;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.hp-svc-ic svg{ width: 23px; height: 23px; display: block; }
+.hp-svc-ic .hp-svcimg{ width: 27px; height: 27px; display: block; object-fit: contain; }
+.hp-svc-ic svg.hp-gavel{ width: 27px; height: 27px; fill: #fff; stroke: none; }
+.hp-card h4{ font-family: var(--font-serif); font-weight: 500; font-size: 18px; color: var(--hp-ink); margin: 0; }
+.hp-card p{ font-size: 13px; color: var(--hp-ink); margin: 0; line-height: 1.55; }  /* PC Black */
+/* 8th "All Services" accent-filled CTA card */
+a.hp-card-all{ background: var(--accent-medium); border-color: var(--accent-medium);
+  text-decoration: none; justify-content: flex-start; }
+a.hp-card-all:hover{ box-shadow: 0 8px 22px rgba(0,0,0,.18); }
+a.hp-card-all .hp-svc-ic{ background: var(--accent-light); color:#fff; }
+a.hp-card-all h4{ color:#fff; }
+a.hp-card-all p{ color: rgba(255,255,255,.90); }
+a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14px; font-weight: 600; color:#fff; }
+
+/* ── 3 · WHO WE SERVE — PC Medium Blue band, white audience cards ── */
+.hp-serve{ background: var(--accent-medium); }
+.hp-serve .hp-wrap{ padding-top: var(--space-7); padding-bottom: var(--space-7); }
+@media (max-width:680px){ .hp-serve .hp-wrap{ padding-top: var(--space-6); padding-bottom: var(--space-6); } }
+.hp-serve-head{ margin-bottom: var(--space-5); }
+.hp-serve .hp-eyebrow{ color: var(--teal-tint); }              /* "Who We Serve" → PC Light Blue */
+.hp-serve .hp-eyebrow::before{ background: var(--teal-tint); }
+.hp-serve-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; line-height: 1.12; color:#fff; margin: var(--space-2) 0; }
+.hp-serve-head p:not(.hp-eyebrow){ font-size: 15px; color:#fff; margin: 0; max-width: 54ch; }
+.hp-serve-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
+.hp-serve-card{ display: flex; flex-direction: column; gap: 6px; padding: var(--space-6) var(--space-5);
+  border: 1px solid rgba(18,64,106,.22); border-radius: var(--radius-md);
+  text-decoration: none; background: #fff; transition: box-shadow .18s, transform .18s; }
+.hp-serve-card:hover, .hp-serve-card:focus{ box-shadow: 0 8px 22px rgba(0,0,0,.09); transform: translateY(-2px); outline: none; }
+@media (prefers-reduced-motion: reduce){ .hp-serve-card:hover, .hp-serve-card:focus{ transform: none; } }
+.hp-serve-card:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+.hp-serve-card .tag{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-medium); }
+.hp-serve-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; color: var(--hp-ink); margin: 6px 0 0; line-height: 1.2; }
+.hp-serve-card p{ font-size: 13px; color: var(--hp-ink); margin: 0; line-height: 1.5; }
+.hp-serve-card .arrow{ margin-top: auto; padding-top: var(--space-3); color: var(--hp-ink); font-size: 18px; }
+
+/* ── 4 · FARMWORTH — SOLID PC Black band, horizontal media slot ── */
+.hp-tech{ background: var(--accent-pine); color:#fff; }
+.hp-tech .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
+.hp-tech h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color:#fff; margin: var(--space-3) 0; line-height: 1.12; }
+.hp-tech p:not(.hp-eyebrow){ font-size: 16px; color:#D7EFFB; line-height: 1.65; margin: 0 0 var(--space-5); max-width: 46ch; }
+.hp-tech-feat{ list-style: none; padding: 0; margin: 0 0 var(--space-6); display: grid; gap: 10px; }
+.hp-tech-feat li{ font-size: 14px; color:#D7EFFB; display: flex; gap: 10px; align-items: flex-start; }
+.hp-tech-feat li::before{ content:"\25C6"; color: var(--accent-dark); font-size: 9px; margin-top: 5px; flex-shrink: 0; }
+.hp-tech-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
+  aspect-ratio: 16 / 9; width: 100%; min-height: 0;
+  border: 1px solid rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; }
+.hp-tech-media .cap{ position: relative; z-index: 2; font-family: var(--font-serif); font-style: italic; font-size: 20px;
+  color:#fff; background: rgba(7,20,40,.55); border: 1px solid rgba(255,255,255,.28); border-radius: var(--radius-pill); padding: 10px 22px; }
+.hp-tech-media .hp-imgwrap{ position: absolute; inset: 0; }
+.hp-tech-media .hp-imgwrap::after{ content:""; position: absolute; inset: 0; background: rgba(7,20,40,.35); }
+
+/* ── 5 · LAND INVESTMENT EXPO ── */
+.hp-expo{ background: var(--soft-white); }  /* PC Soft White */
+.hp-expo .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
+.hp-expo-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
+  aspect-ratio: 4 / 3; min-height: 300px; }
+.hp-expo-media .hp-imgwrap{ position: absolute; inset: 0; }
+.hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink); margin: var(--space-3) 0; line-height: 1.12; max-width: 18ch; }
+.hp-expo p:not(.hp-eyebrow){ font-size: 16px; color: var(--hp-ink); line-height: 1.65; margin: 0 0 var(--space-4); max-width: 48ch; }
+.hp-expo-meta{ display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 var(--space-6); font-size: 13.5px; font-weight: 600; color: var(--hp-ink); }
+.hp-expo-meta span{ display: inline-flex; align-items: center; gap: 8px; }
+.hp-expo-meta span::before{ content:"\25C6"; font-size: 8px; }
+
+/* ── 6 · NATIONAL FOOTPRINT + CONNECT (combined) ── */
+.hp-reach{ background:#fff; border-top: 1px solid var(--pc-light-blue); }
+.hp-reach-head{ margin-bottom: var(--space-6); max-width: 62ch; }
+.hp-reach-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink);
+  margin: var(--space-2) 0 var(--space-3); line-height: 1.12; max-width: 20ch; }
+.hp-reach-head > p:not(.hp-eyebrow){ font-size: 15px; color: var(--hp-ink); line-height: 1.6; margin: 0; max-width: 52ch; }
+.hp-reach-grid{ display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-8); align-items: center; }
+/* map — no outline, no legend labels; image stands on its own */
+.hp-map{ border: 0; border-radius: 0; overflow: hidden; background: transparent; }
+.hp-map-img{ display: block; width: 100%; height: auto; }
+.hp-map.hp-map-fallback{ min-height: 340px; border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #D7EFFB, #00AEEF); }
+/* placeholder box standing in for the real deep-green/teal US office-locations map */
+.hp-map-placeholder{ min-height: 380px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: var(--space-6);
+  background: linear-gradient(135deg, #07162C, #12406A);
+  border: 1px dashed rgba(255,255,255,.35); }
+.hp-map-placeholder span{ font-family: var(--font-serif); font-weight: 500;
+  font-size: 24px; line-height: 1.3; color: #fff; max-width: 26ch; }
+/* connect block (1/3) */
+.hp-connect-card{ background: var(--teal-tint); border-radius: var(--radius-md); padding: var(--space-7); }
+.hp-connect-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; color: var(--hp-ink);
+  margin: var(--space-2) 0 var(--space-3); line-height: 1.14; }
+.hp-connect-card > p{ font-size: 15px; color: var(--hp-ink); line-height: 1.6; margin: 0 0 var(--space-5); }
+.hp-connect-stat{ display: flex; align-items: baseline; gap: 10px; margin: 0 0 var(--space-5); }
+.hp-connect-stat .n{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; line-height: 1; color: var(--accent-light); }
+.hp-connect-stat .l{ font-size: 13px; color: var(--hp-ink); }
+
+/* ── 7 · INSIGHTS & NEWS — Industry Research, horizontal cards, tabbed ── */
+.hp-ins-sec{ background: var(--soft-white); }  /* PC Soft White */
+
+/* catalog vars, scoped + retinted to the PC palette (no blue-blue, no green) */
+.io-scope{ --serif:var(--font-serif); --sans:var(--font-sans);
+  /* body text (titles, teasers, dates/meta) is all PC Black; --blue stays PC Navy
+     for accents/labels/links (chips, "View more", category tag). */
+  --ink:#07162C; --muted:#07162C; --faint:#07162C;
+  --line:#D7EFFB; --line-2:#D7EFFB; --card:#FFFFFF; --panel:#FFFFFF;
+  --blue:#12406A; --blue-tint:#D7EFFB; --r:14px; --r-sm:10px;
+  font-family: var(--sans); color: var(--ink); }
+
+/* shared section furniture */
+.io-scope .io-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin:0 0 22px; }
+.io-scope .io-eyebrow{ display:inline-flex; align-items:center; gap:10px; font-size:16px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
+.io-scope .io-eyebrow::before{ content:""; width:26px; height:2px; background:var(--blue); }
+.io-scope .io-h2{ font-family:var(--serif); font-weight:500; font-size:44px; line-height:1.12; margin:0; letter-spacing:-.01em; }
+.io-scope .io-viewmore{ font-size:13.5px; font-weight:700; color:var(--blue); text-decoration:none; white-space:nowrap; }
+.io-scope .io-viewmore:hover{ color:var(--ink); text-decoration:none; }
+.io-scope .io-block + .io-block{ margin-top:46px; padding-top:44px; border-top:1px solid var(--line-2); }
+#hpInsights .io-block + .io-block{ margin-top:22px; padding-top:22px; }
+
+/* image wrapper + graceful fallback — PC Black → PC Navy gradient */
+.io-scope .io-ph{ position:relative; overflow:hidden; background:linear-gradient(135deg,#07162C,#12406A); }
+.io-scope .io-ph img{ width:100%; height:100%; object-fit:cover; }
+.io-scope .io-ph.r169{ aspect-ratio:16/9; }
+.io-scope .io-ph.rcover{ aspect-ratio:850/1100; }
+
+/* text bits */
+.io-scope .io-kicker{ font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); }
+.io-scope .io-chip{ display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-tint); border-radius:999px; padding:3px 10px; }
+.io-scope .io-date{ font-size:12px; color:var(--faint); }
+.io-scope .io-metarow{ display:flex; gap:10px; align-items:center; }
+.io-scope .io-title{ font-family:var(--serif); font-weight:500; color:var(--ink); line-height:1.25; margin:0; }
+.io-scope .io-teaser{ font-size:13.5px; color:var(--muted); line-height:1.5; margin:0; }
+.io-scope .io-link, .io-scope .io-more{ font-size:12.5px; font-weight:700; color:var(--blue); text-decoration:none; margin-top:2px; }
+.io-scope .io-moretag{ font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin:24px 0 4px; }
+.io-scope .io-read{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--faint); }
+
+/* card base */
+.io-scope .io-card{ display:flex; flex-direction:column; text-decoration:none; color:inherit; background:var(--card);
+  border:1px solid var(--line); border-radius:var(--r); overflow:hidden; transition:box-shadow .18s ease, transform .18s ease; }
+.io-scope .io-card:hover{ box-shadow:0 12px 30px rgba(0,0,0,.10); transform:translateY(-3px); }
+@media (prefers-reduced-motion: reduce){ .io-scope .io-card:hover{ transform:none; } }
+.io-scope .io-card:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+.io-scope .io-body{ display:flex; flex-direction:column; gap:8px; padding:16px 16px 18px; flex:1; }
+
+/* clickable headline rows (older items) */
+.io-scope .io-hlist{ display:flex; flex-direction:column; border-bottom:1px solid var(--line); }
+.io-scope .io-hlist2{ display:grid; grid-template-columns:1fr 1fr; column-gap:44px; border-bottom:1px solid var(--line); }
+.io-scope .io-hrow{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:12px 0; border-top:1px solid var(--line); text-decoration:none; color:inherit; }
+.io-scope .io-hrow .t{ font-family:var(--serif); font-size:16.5px; color:var(--ink); line-height:1.3; }
+.io-scope .io-hrow:hover .t{ color:var(--blue); text-decoration:none; }
+.io-scope .io-hrow .d{ font-size:12px; color:var(--faint); white-space:nowrap; flex:none; }
+
+/* tabs */
+.io-scope .ioF-tabs{ display:inline-flex; gap:4px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:4px; margin:0 0 22px; }
+.io-scope .ioF-tab{ border:0; background:transparent; cursor:pointer; font-family:var(--sans); font-size:14px; font-weight:600; color:var(--muted); padding:9px 20px; border-radius:999px; }
+.io-scope .ioF-tab[aria-selected="true"]{ background:var(--blue); color:#fff; }
+.io-scope .ioF-tab:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+/* Stack both panels in one grid cell so the section height = the taller tab. */
+.io-scope .ioF-panels{ display:grid; }
+.io-scope .ioF-panels > .ioF-panel{ grid-area:1/1; }
+.io-scope .ioF-panel[hidden]{ display:block; visibility:hidden; }
+
+/* Industry-Research / Blog row of horizontal cards */
+.io-scope .ioC-blog3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media (max-width:1040px){
+  .io-scope .io-hlist2{ grid-template-columns:1fr; }
+  .io-scope .ioC-blog3{ grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:640px){ .io-scope .ioC-blog3{ grid-template-columns:1fr; } }
+
+/* ============================================================================
+   13. Announcement toast — floating corner card, minimizes to a reopen handle
+   ============================================================================ */
+.pc-toast{ position: fixed; right: 20px; bottom: 20px; z-index: 25;
+  width: min(340px, calc(100vw - 40px));
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--accent-light); color: #fff;
+  border-radius: var(--radius-md); box-shadow: 0 18px 44px rgba(0,0,0,.28);
+  padding: 16px; font-family: var(--font-sans); }
+.pc-toast[hidden]{ display: none; }
+.pc-toast-ico{ flex: none; width: 26px; height: auto; display: block; margin-top: 1px; }
+.pc-toast-body{ flex: 1 1 auto; min-width: 0; }
+.pc-toast-body p{ margin: 0; font-size: 13.5px; line-height: 1.6; color: #fff; }
+.pc-toast-body p strong{ color: #fff; display: inline-block; margin-bottom: 4px; }
+.pc-toast-body p em{ font-style: italic; }
+.pc-toast-body p a{ color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+.pc-toast-body p a:hover{ text-decoration-thickness: 2px; }
+.pc-toast-body p a:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; border-radius: 2px; }
+.pc-toast-x{ flex: none; appearance: none; border: 0; background: transparent;
+  color: rgba(255,255,255,.8); font-size: 20px; line-height: 1; cursor: pointer;
+  padding: 0 2px; border-radius: 6px; margin: -2px -2px 0 0; }
+.pc-toast-x:hover{ color: #fff; background: rgba(255,255,255,.14); }
+.pc-toast-x:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference){
+  .pc-toast{ animation: pc-toast-in .32s ease both; }
+  @keyframes pc-toast-in{ from{ opacity: 0; transform: translateY(16px); } to{ opacity: 1; transform: none; } }
+}
+
+/* Reopen handle — attached to the right edge; appears after the toast is minimized */
+.pc-toast-reopen{ position: fixed; right: 0; bottom: 96px; z-index: 25;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent-light); color:#fff; border: 0; cursor: pointer;
+  font-family: var(--font-sans); font-size: 12.5px; font-weight: 700; letter-spacing: .02em;
+  padding: 11px 15px; border-radius: 12px 0 0 12px; box-shadow: -6px 8px 22px rgba(0,0,0,.24); }
+.pc-toast-reopen[hidden]{ display: none; }
+.pc-toast-reopen:hover{ background: var(--accent-pine); }
+.pc-toast-reopen svg{ flex: none; display: block; }
+.pc-toast-reopen:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference){
+  .pc-toast-reopen:not([hidden]){ animation: pc-reopen-in .3s ease both; }
+  @keyframes pc-reopen-in{ from{ opacity: 0; transform: translateX(20px); } to{ opacity: 1; transform: none; } }
+}
+
+/* ============================================================================
+   14. Responsive
+   ============================================================================ */
+@media (max-width: 1100px){
+  .hp-hero h1{ font-size: 48px; }
+  .hp-sec h2, .hp-reach-head h2, .hp-tech h2, .hp-expo h2, .hp-serve-head h2, .io-scope .io-h2{ font-size: 36px; }
+  .hp-serve-grid{ grid-template-columns: repeat(2,1fr); }
+  .hp-svc-grid{ grid-template-columns: repeat(2,1fr); }
+  .hp-tech .hp-wrap{ grid-template-columns: 1fr; }
+  .hp-expo .hp-wrap{ grid-template-columns: 1fr; }
+  .hp-reach-grid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 1040px){
+  .pff-grid{ grid-template-columns: 1fr 1fr 1fr; }
+  .pff-brand{ grid-column: 1 / -1; }
+  .pff-connect{ display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  .pff-connect-line{ text-align: left; }
+  .pff-subform{ width: 100%; }
+  nav.pff-col, nav.pff-col h3{ text-align: left; }
+}
+@media (max-width: 880px){
+  .pcf-logo{ height: 60px; }
+  .pcf-menus{ font-size: 16px; }
+  .pcf-row{ gap: 28px; }
+}
+@media (max-width: 720px){
+  .pcf-menus{ display: none; }
+  .pff-grid{ grid-template-columns: 1fr 1fr; }
+  .pff-legal{ margin-left: 0; text-align: left; align-items: flex-start; }
+}
+@media (max-width: 640px){
+  .hp .hp-wrap{ padding: 0 20px; }
+  .hp-hero h1{ font-size: 34px; }
+  .hp-serve-grid, .hp-svc-grid{ grid-template-columns: 1fr; }
+  .hp-hero-stats{ gap: 20px; }
+}
