@@ -117,12 +117,44 @@
      peoplescompany.com). It STEPS UP at each breakpoint = the breakpoint width. */
   --site: 100%;                                    /* <640px: full width */
   --navH: 132px;                                   /* header height, synced by JS */
+
+  /* Content rail — the ONE horizontal inset between the --site edge and content.
+     Header, footer, body sections and the map layer all use this, so everything
+     stacks on a single vertical line. At --site 1440px the content box = 1376px.
+     Change this one value to move every rail on the site. Steps 20px → 32px at
+     the sm breakpoint, same as --site. */
+  --rail: 20px;                                    /* <640px */
+
+  /* Logo lockup metrics. pc_logo_07162c.png is 500x135 with the diamond on the left and
+     the three wordmark lines (PEOPLES / COMPANY / INTEGRATED LAND SOLUTIONS) all flush
+     at x=95. Since width scales with height, the wordmark's left edge is always
+     0.7037 x the render height (95/135) into the image.
+     --logo-text-x is therefore the distance from the --site box edge to the "P" of
+     PEOPLES, and is what the mega-menu columns align to. Derived, not hardcoded, so it
+     follows --logo-h and --rail automatically. */
+  --logo-h: 80px;                                  /* .pcf-logo render height */
+  --logo-text-x: calc(var(--rail) + var(--logo-h) * 0.7037);
+
+  /* Footer brand-column indent — aligns the Corporate Office block (and the bottom-bar
+     copyright) under the footer lockup's wordmark. Shared token so the two stay locked
+     together; see .pff-brand and .pff-bottom-inner .copy. */
+  --footer-brand-indent: 49px;
+
+  /* Announcement toast — the open card and the minimized "Auction Alerts" handle sit at
+     DIFFERENT heights by design: the card hangs lower in the corner, the handle rides
+     higher up the right edge. Two tokens, tuned independently. */
+  --toast-bottom: 40px;         /* open card */
+  --toast-handle-bottom: 76px;  /* minimized right-edge handle */
 }
-@media (min-width: 640px){  :root{ --site: 640px;  } }  /* sm  */
+@media (min-width: 640px){  :root{ --site: 640px; --rail: 32px; } }  /* sm  */
 @media (min-width: 768px){  :root{ --site: 768px;  } }  /* md  */
 @media (min-width: 1024px){ :root{ --site: 1024px; } }  /* lg  */
 @media (min-width: 1280px){ :root{ --site: 1280px; } }  /* xl  */
-@media (min-width: 1536px){ :root{ --site: 1536px; } }  /* 2xl */
+/* 2xl: capped at 1440px, NOT the 1536px breakpoint width. Tailwind's default makes
+   the top container equal its breakpoint; 1536 tested too wide (the lockup and footer
+   columns stretch apart and the page loses its center of gravity). 1440 → a 1376px
+   content box at --rail 32px, close to the project's documented 1400px width. */
+@media (min-width: 1536px){ :root{ --site: 1440px; } }  /* 2xl */
 
 /* ----------------------------------------------------------------------------
    2. Reset & base
@@ -251,13 +283,13 @@ p { margin: 0 0 1em; }
   position: sticky; top: 0; z-index: 40; }
 .pcf-inner{ max-width: var(--site); margin: 0 auto; }
 .pcf-brandrow{ display: flex; align-items: stretch; }
-.pcf-brandcell{ display: flex; align-items: center; padding: 0 24px; flex: none; }
-.pcf-logo{ height: 80px; width: auto; }
+.pcf-brandcell{ display: flex; align-items: center; padding: 0 var(--rail); flex: none; }
+.pcf-logo{ height: var(--logo-h); width: auto; }
 .pcf-stack{ flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
 /* utility strip — white→light-blue gradient, Create Account + Login top-right */
 .pcf-util{
-  display: flex; align-items: center; gap: 18px; height: 40px; padding: 0 24px;
+  display: flex; align-items: center; gap: 18px; height: 40px; padding: 0 var(--rail);
   font-size: 13px; color: var(--gray-600);
   background: linear-gradient(90deg, #fff 0%, #fff 22%, var(--pc-light-blue) 100%);
 }
@@ -267,7 +299,10 @@ p { margin: 0 0 1em; }
 .pcf-util .sep{ opacity: .35; font-weight: 300; }
 
 /* main nav row — placement: RIGHT-ALIGNED (menus pushed toward the search icon) */
-.pcf-row{ display: flex; align-items: center; gap: 34px; padding: 0 24px 0 36px; height: 76px; }
+/* Right padding = the shared --rail. Left padding is NOT a rail: it's the second
+   half of the logo → "Real Estate" gap (brandcell 32px + 28px = the approved 60px),
+   so it tracks --rail's 32px rather than matching it. */
+.pcf-row{ display: flex; align-items: center; gap: 34px; padding: 0 var(--rail) 0 28px; height: 76px; }
 .pcf-menus{
   list-style: none; margin: 0; padding: 0;
   flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 56px;
@@ -297,7 +332,11 @@ p { margin: 0 0 1em; }
 .pcf-menus > li:focus-within .pcf-mega{ opacity: 1; visibility: visible; transform: translateY(0); }
 .pcf-mega::before{ content: ""; position: absolute; left: 0; right: 0; top: -26px; height: 26px; }
 .pcf-mega-in{
-  max-width: var(--site); margin: 0 auto; padding: var(--space-6) 24px;
+  /* Horizontal inset is --logo-text-x (~88px), NOT --rail: the column text left-aligns
+     with the "P" of PEOPLES in the header lockup, and the same value on the right keeps
+     the column block centred in the panel. Intentional exception — don't "normalize"
+     this to --rail. */
+  max-width: var(--site); margin: 0 auto; padding: var(--space-6) var(--logo-text-x);
   /* All mega-menus share a fixed 4-column structure (a panel may leave columns
      empty). Real Estate + What We Do have 3 groups → 4th column stays empty. */
   display: grid; gap: var(--space-7); grid-template-columns: repeat(4, 1fr);
@@ -427,18 +466,31 @@ p { margin: 0 0 1em; }
 .md-backdrop{ position: fixed; inset: var(--navH) 0 0 0; z-index: 30; background: rgba(7,20,40,.55);
   opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
 .md-backdrop.is-open{ opacity: 1; visibility: visible; }
+/* The white panel itself is inset to the content rail (--site minus a rail each side),
+   so the PANEL edges — not padding inside it — land on the same vertical line as the
+   header logo and footer columns. The map image then runs edge to edge within it.
+   1376px at --site 1440px. */
 .md-layer{ position: fixed; top: var(--navH); left: 0; right: 0; margin-inline: auto;
-  max-width: var(--site, 1400px); height: calc(100vh - var(--navH)); z-index: 31; background: #fff;
+  max-width: calc(var(--site) - (var(--rail) * 2));
+  height: calc(100vh - var(--navH)); z-index: 31; background: #fff;
   box-shadow: 0 18px 40px rgba(0,0,0,.25); transform: translateY(-100%);
   transition: transform .38s cubic-bezier(.16,.84,.44,1); overflow-y: auto; overscroll-behavior: contain; }
 .md-layer.is-open{ transform: translateY(0); }
 .md-layer-bar{ position: sticky; top: 0; z-index: 2; display: flex; justify-content: flex-end;
-  align-items: center; padding: 14px 40px; background: #fff; }
+  align-items: center; padding: 14px var(--rail); background: #fff; }
+/* Style-guide pill: --radius-pill, filled PC Light Blue with a PC Navy glyph (8.9:1 —
+   AAA). Border matches the fill rather than outlining it — same treatment as
+   .pcf-badge .emb and the .pff-subform newsletter pill, so no visible outline.
+   Hover follows the light-bg pill button language: PC Medium Blue with a white glyph. */
 .md-close{ display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
-  font-size: 18px; line-height: 1; color: var(--gray-900); background: #fff;
-  border: 1px solid var(--gray-200); border-radius: 50%; width: 40px; height: 40px; }
-.md-close:hover{ border-color: var(--gray-900); }
+  font-size: 18px; line-height: 1; color: var(--pc-navy); background: var(--pc-light-blue);
+  border: 1px solid var(--pc-light-blue); border-radius: var(--radius-pill);
+  padding: 0 18px; height: 40px;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease; }
+.md-close:hover{ background: var(--accent-medium); border-color: var(--accent-medium); color: #fff; }
 .md-close:focus-visible{ outline: 2px solid var(--accent-pine); outline-offset: 2px; }
+/* No horizontal padding — the rail lives on .md-layer's max-width now, so the map
+   image fills the panel edge to edge. */
 .md-layer-body{ display: flex; align-items: center; justify-content: center;
   min-height: calc(100vh - var(--navH) - 68px); }
 .md-placeholder{ font-family: var(--font-serif); font-size: 40px; color: var(--gray-500); margin: 0; }
@@ -456,7 +508,7 @@ p { margin: 0 0 1em; }
 .pff{ background: #fff; color: var(--gray-600); border-top: 1px solid var(--pc-light-blue); }
 .pff a{ color: var(--gray-600); text-decoration: none; transition: color .15s ease; }
 .pff a:hover{ color: var(--color-accent); }  /* footer link hover → PC Medium Blue (matches nav) */
-.pff-inner{ max-width: var(--site); margin: 0 auto; padding: 0 var(--space-6); }
+.pff-inner{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
 .pff-main{ padding: var(--space-8) 0 var(--space-7); }
 .pff-grid{ display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7); }
@@ -504,7 +556,7 @@ p { margin: 0 0 1em; }
 }
 .pff-brand h3{ margin-bottom: var(--space-2); }
 /* Corporate Office + address indented to match version-B placement */
-.pff-brand h3, .pff-brand .pff-contact, .pff-brand .pff-cta{ padding-left: 49px; }
+.pff-brand h3, .pff-brand .pff-contact, .pff-brand .pff-cta{ padding-left: var(--footer-brand-indent); }
 .pff-col ul{ list-style: none; margin: 0; padding: 2px 0 0; overflow: visible; }
 .pff-col li{ margin-bottom: var(--space-3); line-height: 1.35; }
 .pff-col li:first-child{ margin-top: 2px; }
@@ -514,20 +566,30 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
 
 /* bottom bar: social · legal */
 .pff-bottom{ border-top: 1px solid var(--pc-light-blue); }
+/* Single row: copyright left · legal links centred · social right.
+   A 1fr/auto/1fr grid (not flex space-between) so the links sit centred in the BAR
+   rather than in the leftover space — their position can't drift as the copyright or
+   icon count changes. */
 .pff-bottom-inner{
-  max-width: var(--site); margin: 0 auto; padding: var(--space-5) var(--space-6);
-  display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap;
+  max-width: var(--site); margin: 0 auto; padding: var(--space-5) var(--rail);
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  gap: var(--space-6);
 }
-.pff-social{ display: inline-flex; align-items: center; gap: 16px; }
+/* Copyright shares the brand column's indent so it lines up with the office address. */
+.pff-bottom-inner .copy{
+  justify-self: start; padding-left: var(--footer-brand-indent);
+  font-size: 12.5px; color: var(--gray-500);
+}
+.pff-bottom-inner .legal-links{
+  justify-self: center; display: flex; gap: 20px; font-size: 12.5px;
+}
+.pff-bottom-inner .legal-links a{ color: var(--gray-600); }
+.pff-bottom-inner .legal-links a:hover{ color: var(--color-accent); }
+
+.pff-social{ justify-self: end; display: inline-flex; align-items: center; gap: 16px; }
 .pff-social a{ display: inline-flex; color: var(--gray-600); }
 .pff-social a:hover{ color: var(--color-accent); }
 .pff-social svg{ width: 18px; height: 18px; display: block; }
-
-.pff-legal{ margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 12.5px; }
-.pff-legal .copy{ color: var(--gray-500); }
-.pff-legal .legal-links{ display: flex; gap: 20px; }
-.pff-legal a{ color: var(--gray-600); }
-.pff-legal a:hover{ color: var(--color-accent); }
 
 /* ============================================================================
    11. Scroll-reveal (a must-have) — reduced-motion safe
@@ -543,7 +605,7 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
    12. HOMEPAGE BODY (.hp)
    ============================================================================ */
 .hp{ font-family: var(--font-sans); color: var(--hp-ink); }
-.hp .hp-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 40px; }
+.hp .hp-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
 /* graceful photo fallback container — PC Black → PC Navy gradient */
 .hp-imgwrap{ background: linear-gradient(135deg,#07162C 0%,#12406A 100%); overflow: hidden; }
@@ -796,7 +858,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 /* ============================================================================
    13. Announcement toast — floating corner card, minimizes to a reopen handle
    ============================================================================ */
-.pc-toast{ position: fixed; right: 20px; bottom: 20px; z-index: 25;
+.pc-toast{ position: fixed; right: 20px; bottom: var(--toast-bottom); z-index: 25;
   width: min(340px, calc(100vw - 40px));
   display: flex; align-items: flex-start; gap: 12px;
   background: var(--pc-black); color: #fff;  /* was var(--accent-light) = PC Navy; see REVIEW.md revert log 2026-08-04 */
@@ -822,7 +884,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 }
 
 /* Reopen handle — attached to the right edge; appears after the toast is minimized */
-.pc-toast-reopen{ position: fixed; right: 0; bottom: 96px; z-index: 25;
+.pc-toast-reopen{ position: fixed; right: 0; bottom: var(--toast-handle-bottom); z-index: 25;
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--pc-black); color:#fff; border: 0; cursor: pointer;  /* was var(--accent-light) = PC Navy; see REVIEW.md revert log 2026-08-04 */
   font-family: var(--font-sans); font-size: 12.5px; font-weight: 700; letter-spacing: .02em;
@@ -861,17 +923,23 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   nav.pff-col, nav.pff-col h3{ text-align: left; }
 }
 @media (max-width: 880px){
-  .pcf-logo{ height: 60px; }
+  /* Shrinking the logo via the token keeps --logo-text-x (and so the mega-menu column
+     alignment) in step automatically. */
+  :root{ --logo-h: 60px; }
   .pcf-menus{ font-size: 16px; }
   .pcf-row{ gap: 28px; }
 }
 @media (max-width: 720px){
   .pcf-menus{ display: none; }
   .pff-grid{ grid-template-columns: 1fr 1fr; }
-  .pff-legal{ margin-left: 0; text-align: left; align-items: flex-start; }
+  /* Three-across won't fit — stack the bottom bar and drop the brand indent. */
+  .pff-bottom-inner{ grid-template-columns: 1fr; justify-items: start; gap: var(--space-4); }
+  .pff-bottom-inner .copy{ padding-left: 0; }
+  .pff-bottom-inner .legal-links{ justify-self: start; flex-wrap: wrap; }
+  .pff-social{ justify-self: start; }
 }
 @media (max-width: 640px){
-  .hp .hp-wrap{ padding: 0 20px; }
+  /* .hp-wrap's 20px inset now comes from --rail (see :root) — no override needed. */
   .hp-hero h1{ font-size: 34px; }
   .hp-serve-grid, .hp-svc-grid{ grid-template-columns: 1fr; }
   .hp-hero-stats{ gap: 20px; }
