@@ -352,6 +352,11 @@ p { margin: 0 0 1em; }
   text-transform: uppercase; color: var(--gray-900);
   margin: 0 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--gray-200);
 }
+/* Ghost heading: a column that continues the list from the column to its left gets an
+   invisible h4 so its first link starts on the same line as the neighbour's first link
+   (otherwise the continuation's top item reads as that column's heading). Uses the real
+   h4 box so the two columns can never drift apart. */
+.pcf-col h4.pcf-h4-ghost{ color: transparent; border-bottom-color: transparent; }
 .pcf-col ul{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .pcf-col a{
   font-family: var(--font-sans); font-size: 11px; color: var(--gray-500); text-decoration: none;
@@ -399,8 +404,12 @@ p { margin: 0 0 1em; }
 .pcf-search[aria-expanded="true"]{ background: var(--accent-light); color:#fff; border-radius: 50%; }
 .pcf-search:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
 
+/* Right edge is pulled out one --rail so the panel is flush with the RIGHT EDGE OF THE
+   UTILITY BAR above it (the light-blue gradient ends at the --site edge), not with the
+   search button's own right edge — the button sits one rail inside that. Because the
+   offset is --rail, this tracks the bar at every breakpoint. */
 .pcf-searchpanel{
-  position: absolute; top: calc(100% + 18px); right: 0; z-index: 50;
+  position: absolute; top: calc(100% + 18px); right: calc(var(--rail) * -1); z-index: 50;
   background: var(--white); border: 1px solid var(--color-border);
   border-radius: 0; box-shadow: 0 12px 32px rgba(0,0,0,.16);
   padding: 6px;

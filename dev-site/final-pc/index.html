@@ -69,14 +69,13 @@
   <!-- ================= PAGE CONTENT — homepage (final PC blue palette) ================= -->
   <main class="hp">
 
-    <!-- ── 1 · HERO — two crossfading crop-type stills under H's dark overlay +
-         inline stats. Slides cycle via JS (5s); reduced-motion shows only the
-         first. Dark overlay comes from .hp-hero-bg::after. ── -->
+    <!-- ── 1 · HERO — one still (owned photography, 2400x1000 per the hero crop
+         spec) under H's dark overlay + inline stats. Dark overlay comes from
+         .hp-hero-bg::after. Was two crossfading stills; single image as of
+         2026-08-07. Alternatives are stacked on hero.html for comparison. ── -->
     <section class="hp-hero" aria-label="Hero">
       <div class="hp-hero-bg hp-imgwrap" id="hpHeroBg">
-        <img class="hp-hero-slide is-active" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80"
-             alt="" aria-hidden="true" onerror="this.style.display='none'" />
-        <img class="hp-hero-slide" src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=1600&q=80"
+        <img class="hp-hero-slide is-active" src="../assets/pc-hero4.jpg"
              alt="" aria-hidden="true" onerror="this.style.display='none'" />
       </div>
       <div class="hp-hero-inner">
@@ -430,7 +429,7 @@
         ]},
         { label: "The Company", cols: [
           { h: "The Company", items: ["Overview","Regions"] },
-          { items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { spacer: true, items: ["Our Team","Culture","Careers","Industry Collaboration"] },
           { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
           { badges: [
             { type: "expo", label: "Land Investment Expo" },
@@ -475,7 +474,10 @@
           return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
         }
         var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
-        var head = c.h ? '<h4>'+esc(c.h)+'</h4>' : '';
+        // spacer:true → an invisible h4 so a continuation column's first link lines up
+        // with the neighbouring column's first link (see .pcf-h4-ghost in pc.css).
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
+                       : (c.spacer ? '<h4 class="pcf-h4-ghost" aria-hidden="true">&nbsp;</h4>' : '');
         var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
         return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
       }
@@ -553,21 +555,7 @@
       });
     })();
 
-    // Hero crossfade — cycles crop-type photos; static first image under reduced motion
-    (function(){
-      var bg = document.getElementById("hpHeroBg");
-      if(!bg) return;
-      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      var slides = bg.querySelectorAll(".hp-hero-slide");
-      if(slides.length < 2) return;
-      if(reduce) return; // first slide stays active, others hidden via CSS
-      var i = 0;
-      setInterval(function(){
-        slides[i].classList.remove("is-active");
-        i = (i + 1) % slides.length;
-        slides[i].classList.add("is-active");
-      }, 5000);
-    })();
+    // (Hero crossfade removed 2026-08-07 — the hero is a single still image.)
 
     // Insights & Research — Option K (tabbed, version-G varied-tile grid),
     // ported from dev-site/insights-options.html. Content model: Blog = 16:9

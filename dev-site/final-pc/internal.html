@@ -235,7 +235,7 @@
         ]},
         { label: "The Company", cols: [
           { h: "The Company", items: ["Overview","Regions"] },
-          { items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { spacer: true, items: ["Our Team","Culture","Careers","Industry Collaboration"] },
           { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
           { badges: [
             { type: "expo", label: "Land Investment Expo" },
@@ -280,7 +280,10 @@
           return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
         }
         var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
-        var head = c.h ? '<h4>'+esc(c.h)+'</h4>' : '';
+        // spacer:true → an invisible h4 so a continuation column's first link lines up
+        // with the neighbouring column's first link (see .pcf-h4-ghost in pc.css).
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
+                       : (c.spacer ? '<h4 class="pcf-h4-ghost" aria-hidden="true">&nbsp;</h4>' : '');
         var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
         return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
       }
