@@ -110,11 +110,14 @@
   --radius-lg: 16px;
   --radius-pill: 999px;
 
-  /* Layout */
-  --container: 1200px;
+  /* Layout — --site + --rail are the ONLY width system. There is deliberately
+     no second, narrower container token: page width comes from --site and the
+     horizontal inset from --rail, so everything stacks on one vertical line. */
 
-  /* Site width — replicates Tailwind's responsive `.container` (as on the live
-     peoplescompany.com). It STEPS UP at each breakpoint = the breakpoint width. */
+  /* Site width — replicates the behaviour of Tailwind's responsive container
+     utility (which is what the live peoplescompany.com is built on). It STEPS
+     UP at each breakpoint = the breakpoint width, except the top rung: see the
+     1536px query below, which caps at 1440px on purpose. */
   --site: 100%;                                    /* <640px: full width */
   /* Header height = .pcf-util 40 + .pcf-row 76 + 1px border-bottom. Constant at
      every breakpoint (no rule changes those heights). Anything that must sit
@@ -282,7 +285,9 @@ p { margin: 0 0 1em; }
 /* ----------------------------------------------------------------------------
    7. Layout helpers
    ---------------------------------------------------------------------------- */
-.container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 var(--space-5); }
+/* Wrap page content to the site width. Pair it with `padding: 0 var(--rail)`
+   (or a child that applies the rail) so the content lines up with the header
+   lockup and the footer columns. */
 .site-inner { max-width: var(--site); margin: 0 auto; }
 
 /* ============================================================================
