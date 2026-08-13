@@ -152,6 +152,21 @@
      together; see .pff-brand and .pff-bottom-inner .copy. */
   --footer-brand-indent: 49px;
 
+  /* Newsletter subscribe pill width. ONE token because two rules depend on it: the pill
+     itself, and the reserved space the connect-band headline keeps clear for it. Change
+     this and both follow — see .pff-subform and .pff-connect-line. */
+  --pff-pill-w: 420px;
+
+  /* Header search popover input width. Panel width = this + 58px (6px gap + 40px submit
+     + 12px padding). Narrowed below 1280 — see the 1279 block. */
+  --pcf-search-w: 300px;
+
+  /* Interactive Map tab height. Tokenised because the tab's idle animation ANIMATES height
+     (@keyframes md-flex), so a plain `height` override in a media query is overridden by the
+     animation. Both the rest height and the breathing peak have to move together. */
+  --md-tab-h: 46px;
+  --md-tab-h-peak: 56px;
+
   /* Announcement toast — the open card and the minimized "Auction Alerts" handle sit at
      DIFFERENT heights by design: the card hangs lower in the corner, the handle rides
      higher up the right edge. Two tokens, tuned independently. */
@@ -293,17 +308,41 @@ p { margin: 0 0 1em; }
 /* ============================================================================
    8. HEADER — Option F "Editorial Spread" (D right/tight nav)
    ============================================================================ */
+/* z-index 45 puts the HEADER above the hamburger drawer (42).
+   This is about the search popover, not the header itself. Because this element is
+   positioned WITH a z-index, it forms a stacking context — so .pcf-searchpanel's z-index:50
+   is 50 *inside the header*, not on the page. The whole header layer sat at 40 and the
+   drawer at 42 painted over it, popover included. Raising the header lifts everything it
+   contains (popover, mega panels) above the drawer in one move. Safe because the drawer
+   starts at --navH, below the header, so the two never actually overlap. */
 .pcf{ background: var(--white); border-bottom: 1px solid var(--color-border);
-  position: sticky; top: 0; z-index: 40; }
-.pcf-inner{ max-width: var(--site); margin: 0 auto; }
+  position: sticky; top: 0; z-index: 45; }
+/* position: relative makes this the containing block for the search popover, so the
+   popover anchors to the --site BOX rather than to the search button. See
+   .pcf-searchpanel — anchoring to the button meant the popover inherited the nav row's
+   overflow and drifted off the page edge below 1280. */
+.pcf-inner{ max-width: var(--site); margin: 0 auto; position: relative; }
 .pcf-brandrow{ display: flex; align-items: stretch; }
 .pcf-brandcell{ display: flex; align-items: center; padding: 0 var(--rail); flex: none; }
 .pcf-logo{ height: var(--logo-h); width: auto; }
 .pcf-stack{ flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
 /* utility strip — white→light-blue gradient, Create Account + Login top-right */
+/* margin-right pulls the BAR ITSELF in to the --rail; padding-right then insets the text
+   one more rail inside that.
+
+   The gradient used to end on the --site edge — the only thing in the header or footer not
+   landing on the rail, overshooting the nav, the search button, the footer's last column
+   and the social icons by exactly 32px. Shrinking the box (rather than clipping the paint
+   with background-clip) is what keeps the text's breathing room: the bar's right edge moves
+   in 32px AND the text moves in 32px with it, so their relationship is unchanged. Clipping
+   alone would have left the text flush against the new edge.
+
+   Net: bar ends on the rail, text ends one rail inside the bar. The left end is white on
+   white and the .sp spacer absorbs the difference, so that side is unaffected. */
 .pcf-util{
-  display: flex; align-items: center; gap: 18px; height: 40px; padding: 0 var(--rail);
+  display: flex; align-items: center; gap: 18px; height: 40px;
+  padding: 0 var(--rail); margin-right: var(--rail);
   font-size: 13px; color: var(--gray-600);
   background: linear-gradient(90deg, #fff 0%, #fff 22%, var(--pc-light-blue) 100%);
 }
@@ -323,18 +362,36 @@ p { margin: 0 0 1em; }
   font-family: var(--font-serif); font-size: 18px; font-weight: 600;
 }
 .pcf-menus > li{ position: static; } /* static so the mega-menu can span the full header width */
-.pcf-menus > li > a{
+/* Top-level items are TRIGGERS, never destinations — clicking must open the panel, not
+   navigate (Kiron, 2026-08-13). So they render as <button class="pcf-menu-btn">. The <a>
+   selector is kept alongside it only until every page is migrated off the old anchor
+   markup; both are styled identically so the two can coexist meanwhile. */
+.pcf-menus > li > a,
+.pcf-menus > li > .pcf-menu-btn{
   color: var(--gray-900); text-decoration: none; white-space: nowrap;   /* PC Black */
   position: relative; padding: 8px 0; display: inline-block;
   transition: color .18s ease;
+  /* button reset — the label must be visually identical to the old anchor */
+  background: none; border: 0; margin: 0; cursor: pointer;
+  font-family: inherit; font-size: inherit; font-weight: inherit; line-height: inherit;
 }
 /* hover / keyboard focus: no underline — the label shifts to PC Medium Blue */
 .pcf-menus > li:hover > a,
-.pcf-menus > li:focus-within > a{ color: var(--color-accent); }
+.pcf-menus > li:focus-within > a,
+.pcf-menus > li:hover > .pcf-menu-btn,
+.pcf-menus > li:focus-within > .pcf-menu-btn{ color: var(--color-accent); }
 
 /* mega-menu pop-down */
+/* FIXED, not absolute, so the panel spans the VIEWPORT edge-to-edge.
+   It used to be `absolute; top: 100%` resolving against header.pcf (sticky = a positioned
+   ancestor). That broke when .pcf-inner gained position: relative for the search popover —
+   the panel silently narrowed to the --site box (1440px inset 48px each side at 1536)
+   instead of bleeding full width. Fixed positioning makes it independent of any ancestor,
+   and the header is sticky at top: 0 so the panel stays locked beneath it.
+   `top: var(--navH)` is the header's real height (117px, JS-synced) — the same place
+   `top: 100%` used to land. That makes this a FIFTH consumer of --navH; see §6. */
 .pcf-mega{
-  position: absolute; left: 0; right: 0; top: 100%;
+  position: fixed; left: 0; right: 0; top: var(--navH);
   background: #fff; border-top: 3px solid var(--accent-light);
   border-bottom: 1px solid var(--color-border);
   box-shadow: 0 14px 28px rgba(0,0,0,.12);
@@ -344,6 +401,19 @@ p { margin: 0 0 1em; }
 }
 .pcf-menus > li:hover .pcf-mega,
 .pcf-menus > li:focus-within .pcf-mega{ opacity: 1; visibility: visible; transform: translateY(0); }
+
+/* JS-DRIVEN MODE. The nav script adds .nav-js to the <ul>, which hands all opening and
+   closing to JS and neutralises the CSS-only rules above. Needed because those rules make
+   :focus-within alone force the panel open — so after clicking a trigger (which focuses it)
+   a second click could never close it. With JS in charge, hover is re-implemented via
+   mouseenter/mouseleave, so behaviour is unchanged for pointer users, and click / Esc /
+   click-outside all work like the search popover.
+   Pages WITHOUT the script never get .nav-js and keep the pure-CSS hover behaviour. */
+.pcf-menus.nav-js > li:hover .pcf-mega,
+.pcf-menus.nav-js > li:focus-within .pcf-mega{
+  opacity: 0; visibility: hidden; transform: translateY(-6px);
+}
+.pcf-menus.nav-js > li.is-open .pcf-mega{ opacity: 1; visibility: visible; transform: translateY(0); }
 .pcf-mega::before{ content: ""; position: absolute; left: 0; right: 0; top: -26px; height: 26px; }
 .pcf-mega-in{
   /* Horizontal inset is --logo-text-x (~88px), NOT --rail: the column text left-aligns
@@ -407,7 +477,9 @@ p { margin: 0 0 1em; }
   .pcf-menus > li > a{ transition: none; }
 }
 
-.pcf-searchwrap{ position: relative; flex: none; }
+/* NOT position: relative — the popover must anchor to .pcf-inner (the --site box), not to
+   this button wrapper. See .pcf-searchpanel. */
+.pcf-searchwrap{ flex: none; }
 .pcf-search{
   width: 40px; height: 40px; border-radius: 50%; border: 0;
   display: inline-flex; align-items: center; justify-content: center; color: var(--gray-900);
@@ -418,12 +490,23 @@ p { margin: 0 0 1em; }
 .pcf-search[aria-expanded="true"]{ background: var(--accent-light); color:#fff; border-radius: 50%; }
 .pcf-search:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
 
-/* Right edge is pulled out one --rail so the panel is flush with the RIGHT EDGE OF THE
-   UTILITY BAR above it (the light-blue gradient ends at the --site edge), not with the
-   search button's own right edge — the button sits one rail inside that. Because the
-   offset is --rail, this tracks the bar at every breakpoint. */
+/* Flush with the RIGHT EDGE OF THE UTILITY BAR above it — which now ends on the --rail
+   (see .pcf-util), the same line as the nav, the search button and the footer columns.
+   Anchored to .pcf-inner, so `right: var(--rail)` IS that line at every width.
+
+   It used to be anchored to .pcf-searchwrap with `right: calc(var(--rail) * -1)`, which
+   resolved to the same place ONLY while the nav row fitted. Below 1280 the row overflows
+   and pushes the button off the rail, so the popover went with it — 41px past the --site
+   edge at 1279, and 3px past the VIEWPORT at 1100, 53px past it at 1024 and below.
+   Anchoring to the box makes the alignment independent of whether the row fits.
+
+   `top: 100%` = the bottom of .pcf-inner (util 40 + row 76 = 116px), which is exactly
+   where the old `calc(100% + 18px)` off the 40px button landed. Same position, derived
+   rather than coincidental. */
 .pcf-searchpanel{
-  position: absolute; top: calc(100% + 18px); right: calc(var(--rail) * -1); z-index: 50;
+  position: absolute; top: 100%; right: var(--rail); z-index: 50;
+  /* never wider than the content box, whatever the input asks for */
+  max-width: calc(var(--site) - var(--rail) * 2);
   background: var(--white); border: 1px solid var(--color-border);
   border-radius: 0; box-shadow: 0 12px 32px rgba(0,0,0,.16);
   padding: 6px;
@@ -437,7 +520,8 @@ p { margin: 0 0 1em; }
 .pcf-searchform{ display: flex; align-items: center; gap: 6px; }
 .pcf-searchform input{
   border: 0; outline: 0; background: transparent; color: var(--gray-900);
-  font-family: var(--font-sans); font-size: 15px; padding: 9px 14px; width: 300px;
+  font-family: var(--font-sans); font-size: 15px; padding: 9px 14px; width: var(--pcf-search-w);
+  min-width: 0; flex: 1 1 auto;   /* so the panel's max-width can actually shrink it */
 }
 .pcf-searchform input::placeholder{ color: var(--gray-500); }
 .pcf-searchgo{
@@ -475,7 +559,7 @@ p { margin: 0 0 1em; }
   pointer-events: auto; position: relative; cursor: pointer; border: 0; box-sizing: border-box;
   display: inline-flex; align-items: center; justify-content: center; gap: 9px;
   font-family: var(--font-sans); font-weight: 600; font-size: 15px; color:#fff;
-  background: var(--pc-black); height: 46px; width: 340px; padding: 0 26px;  /* was var(--accent-medium); see REVIEW.md revert log 2026-08-04 */
+  background: var(--pc-black); height: var(--md-tab-h); width: 340px; padding: 0 26px;  /* was var(--accent-medium); see REVIEW.md revert log 2026-08-04 */
   border-radius: 0 0 14px 14px; box-shadow: 0 6px 16px rgba(0,0,0,.18);
   animation: md-flex 2s ease-in-out infinite;
 }
@@ -483,8 +567,8 @@ p { margin: 0 0 1em; }
 .md-tab:focus-visible{ outline: 3px solid var(--accent-pine); outline-offset: 2px; }
 .md-tab .md-chev{ display: inline-block; transition: transform .2s ease; }
 .md-tab[aria-expanded="true"] .md-chev{ transform: rotate(180deg); }
-.md-tab[aria-expanded="true"]{ animation: none; height: 46px; }
-@keyframes md-flex{ 0%,100%{ height: 46px; } 50%{ height: 56px; } }
+.md-tab[aria-expanded="true"]{ animation: none; height: var(--md-tab-h); }
+@keyframes md-flex{ 0%,100%{ height: var(--md-tab-h); } 50%{ height: var(--md-tab-h-peak); } }
 
 .md-backdrop{ position: fixed; inset: var(--navH) 0 0 0; z-index: 30; background: rgba(7,20,40,.55);
   opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
@@ -520,7 +604,7 @@ p { margin: 0 0 1em; }
 .md-mapimg{ display: block; width: 100%; height: calc(100vh - var(--navH) - 68px);
   object-fit: cover; object-position: center; }
 @media (prefers-reduced-motion: reduce){
-  .md-tab{ animation: none !important; height: 46px !important; }
+  .md-tab{ animation: none !important; height: var(--md-tab-h) !important; }
   .md-tab .md-chev{ transition: none; }
   .md-layer, .md-backdrop{ transition: none; }
 }
@@ -540,12 +624,33 @@ p { margin: 0 0 1em; }
   align-items: center; margin-bottom: var(--space-7); }
 .pff-connect-logo{ grid-column: 1; grid-row: 1; display: inline-block; }
 .pff-connect-logo img{ width: 232px; max-width: 100%; height: auto; display: block; }
-.pff-connect-line{ grid-column: 2 / -1; grid-row: 1; text-align: left; margin: 0; padding-left: 20px; font-family: var(--font-sans);
+/* Second footer lockup, shown ONLY at 640-767 where it sits inside the office block. Hidden
+   by default so exactly one lockup is ever visible: the connect-band one above 767, this one
+   below.
+   Selector is .pff-col a.pff-brand-logo, NOT .pff-brand-logo: .pff-brand also carries the
+   class pff-col, so the generic `.pff-col a{ display: inline-block }` (0,1,1) outranks a bare
+   class (0,1,0) and the lockup was never actually hidden — it rendered at its natural 500px
+   in every band. Both this rule and the one that shows it need to clear that bar. */
+.pff-col a.pff-brand-logo{ display: none; }
+/* The headline and the subscribe pill share this grid cell (both 2/-1, row 1) — the
+   headline left, the pill right. So the headline RESERVES the pill's width on its right
+   via padding, and wraps instead of disappearing under it. Without this the pill simply
+   covers the end of the line: at --site 1280 that hid the final "R." of NEWSLETTER, on
+   every viewport from 1280 to 1535. Reserved rather than a separate grid column so the
+   headline keeps its position at --site 1440; a real column split would pull it 91px
+   left. Dropped again at <=1040, where the band stacks and the pill goes full-width.
+
+   RIGHT-aligned so the text stays anchored to the form: when it wraps, it grows leftward
+   and its right edge holds its relationship to the pill instead of drifting. The <=1040
+   rule flips it back to left, where the band is stacked and there is no pill beside it.
+   The markup binds "to Our Newsletter." with nbsp so the only break is after Subscribe. */
+.pff-connect-line{ grid-column: 2 / -1; grid-row: 1; text-align: right; margin: 0; padding-left: 20px;
+  padding-right: calc(var(--pff-pill-w) + var(--space-7)); font-family: var(--font-sans);
   font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--hp-ink); }
 
 /* newsletter subscribe — light pill on white with a PC Medium Blue Subscribe pill flush right */
 .pff-subform{ grid-column: 2 / -1; grid-row: 1; justify-self: end;
-  display: flex; align-items: stretch; width: 420px; max-width: 100%;
+  display: flex; align-items: stretch; width: var(--pff-pill-w); max-width: 100%;
   background: var(--pc-light-blue); border: 1px solid var(--pc-light-blue);
   border-radius: var(--radius-pill); padding: 0; overflow: hidden; }
 .pff-subform:focus-within{ border-color: var(--accent-light); }
@@ -921,6 +1026,61 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 /* ============================================================================
    14. Responsive
    ============================================================================ */
+/* UTILITY BAR TINT BLEEDS OFF THE RIGHT EDGE, 1023px down (Kiron).
+   1024 and up keeps the tint ON THE RAIL, aligned with the nav, the search button and the
+   footer columns — that alignment is approved and must not change.
+   The bar's BOX must not move: its text is right-aligned inside it, so widening the box to
+   the window edge would drag "Create An Account | Login" right along with it. Only the
+   background may bleed.
+
+   So the gap between the bar's right edge and the window is painted by a pseudo-element that
+   is position: FIXED — fixed elements are laid out against the viewport and cannot create
+   horizontal overflow, unlike a negative margin, a border, or an absolutely positioned strip,
+   all of which would widen the document and raise a scrollbar.
+
+   Gap width = the outer margin either side of the --site box, plus the --rail:
+     (100vw - --site) / 2 + --rail
+   With --site: 100% (768-1023) a fixed element's 100% IS the viewport, so that resolves to
+   just --rail. With --site: 1024px it grows as the viewport widens past 1024. Either way it
+   lands exactly on the window edge. The bar's gradient ends on solid PC Light Blue, so the
+   join is seamless. */
+@media (max-width: 1023px){
+  .pcf-util{ position: relative; }
+  .pcf-util::after{
+    content: ""; position: fixed; top: 0; right: 0; height: 40px;
+    width: calc((100vw - var(--site)) / 2 + var(--rail));
+    background: var(--pc-light-blue);
+    pointer-events: none;
+  }
+}
+
+/* FOOTER connect band, 1279px down. --site drops to 1024 here, leaving the headline only
+   ~188px beside the reserved pill — enough to force it to THREE lines. Narrowing the pill
+   to 300px gives the headline ~308px, so it holds the intended two lines ("...SUBSCRIBE" /
+   "TO OUR NEWSLETTER."). One token drives both the pill's width and the space the headline
+   reserves for it, so this single declaration moves the two together. */
+@media (max-width: 1279px){
+  :root{
+    --pff-pill-w: 300px;
+    /* Search popover narrows here (panel 360px → 278px). Below 1280 the content box drops
+       to 960 and then 704, so a 360px popover reads oversized against it. */
+    --pcf-search-w: 220px;
+    /* Wordmark indent OFF from 1279 down. The brand column is 236px here and the street
+       line needs 192px, so a 49px indent left it 5px short and forced the address to
+       wrap. Flush to the rail instead — there is not room for both.
+       NOTE: this token is shared with the bottom-bar copyright by design (see the token
+       definition), so the copyright goes flush at these widths too and the two stay
+       locked. Split them only if they should deliberately disagree. */
+    --footer-brand-indent: 0px;
+  }
+  /* Nav item spacing 56 → 40px so the SEARCH ICON lands back on the rail. --site is pinned
+     at 1024 below 1280, so the content box is 960px while the nav row needs ~1033px — the
+     row overran the rail by a constant 41px at every width from 1024 to 1279, pushing the
+     magnifier off the right content edge. Three gaps × 16px recovers 48px, which closes it
+     with a little slack. Measured: gap 56 → +41px past the rail, gap 44 → +5px, gap 40 → 0. */
+  .pcf-menus{ gap: 40px; }
+}
+
 @media (max-width: 1100px){
   .hp-hero h1{ font-size: 48px; }
   .hp-sec h2, .hp-reach-head h2, .hp-tech h2, .hp-expo h2, .hp-serve-head h2, .io-scope .io-h2{ font-size: 36px; }
@@ -934,29 +1094,623 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   /* narrower viewport: let the footprint heading wrap again so it can't overflow */
   .hp-reach-head h2{ white-space: normal; }
 }
-@media (max-width: 1040px){
+/* FOOTER restructure — pinned to 1023px, NOT 1040px, on purpose. --site steps down at
+   1024, so a 1040 breakpoint left a dead 1024–1040 sliver: the footer had already
+   restructured to 3 columns while --site was still 1024, for the sake of 17px of width.
+   Restructuring at 1023 makes the footer change shape at the same moment --site does, so
+   the 5-column layout now runs cleanly from 1024 all the way up. */
+@media (max-width: 1023px){
   .pff-grid{ grid-template-columns: 1fr 1fr 1fr; }
   .pff-brand{ grid-column: 1 / -1; }
-  .pff-connect{ display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); }
-  .pff-connect-line{ text-align: left; }
+  /* display/align-items removed 2026-08-13: the footer band below re-declares both across
+     this exact range, so they were dead. flex-direction/gap are kept — they are inert while
+     that band sets display:grid, but they are the fallback if it is ever removed. */
+  .pff-connect{ flex-direction: column; gap: var(--space-4); }
+  /* Band is stacked now, so the pill no longer sits beside the headline — release the
+     reserved space or the headline would wrap against an invisible 468px margin. */
+  .pff-connect-line{ padding-right: 0; }   /* text-align was dead — re-declared below */
   .pff-subform{ width: 100%; }
-  nav.pff-col, nav.pff-col h3{ text-align: left; }
+  /* nav.pff-col text-align was dead here — the footer band below sets it to center over
+     the same range. */
 }
-@media (max-width: 880px){
-  /* Shrinking the logo via the token keeps --logo-text-x (and so the mega-menu column
-     alignment) in step automatically. */
-  :root{ --logo-h: 60px; }
-  .pcf-menus{ font-size: 16px; }
-  .pcf-row{ gap: 28px; }
+
+/* ============================================================================
+   FOOTER 1023 AND DOWN — restacked (Kiron, 2026-08-13)
+   Order becomes: centred lockup → the four link sections as a 2×2 → the newsletter
+   beside the corporate address.
+
+   Why display: contents. The lockup, headline and subscribe form live in .pff-connect,
+   while the address and the four link columns live in .pff-grid — two SIBLING wrappers,
+   with connect before grid. No amount of ordering inside either one can interleave them,
+   and the target order needs the logo (from connect) above the links (from grid) above the
+   form (from connect again). Dissolving both wrappers makes all seven pieces direct
+   children of one grid on .pff-main, which can then place them freely.
+
+   Consequence to know: dissolving .pff-inner removes the box that carried
+   max-width/--rail, so .pff-main has to take that over — hence the box properties here.
+   This block must also stay AFTER the <=1023 block above, which sets
+   .pff-brand{grid-column: 1 / -1}; grid-area resets that, but only if it comes later.
+   ============================================================================ */
+@media (max-width: 1023px){   /* footer treatment: 1023 all the way down */
+  /* --site FILLS THE VIEWPORT in this band, instead of holding at the 768px rung.
+     This is a deliberate break from the stepped ladder in §5, and the reason is that the
+     rung is far too narrow for the viewport it covers: at a 950px viewport --site 768 gives
+     a 704px content box and leaves ~246px of margin unused on each side. Everything in this
+     band was fighting that — the one-line headline needs 232 (logo) + 48 (gap) + 463 = 743px
+     and only had 704, the four link columns were squeezed to 140px, and the header nav row
+     overran the rail by 249px. Filling the viewport gives 836px at 900 and 959px at 1023.
+     Reverting this one declaration restores the stepped behaviour. */
+  :root{
+    --site: 100%;
+    /* Logo 80 -> 64px. Part of the three-way trim below that gets the nav row to fit.
+       --logo-text-x recomputes from this automatically, so the mega-menu columns stay on
+       the wordmark (§5). NOTE 64px is also why the logo -> "Real Estate" gap grows from the
+       approved 60px to 71px here; trim .pcf-row's 28px left padding if that matters. */
+    --logo-h: 64px;
+  }
+
+  /* ---- HEADER: get the nav row back on the rail ----------------------------------
+     The row needs ~1033px and the box gives 836-959px in this band, so it overran the
+     rail by up to 117px at 900. No single lever closes that: logo alone would have to
+     drop to 48px (tagline ~4px, illegible), and nav-only trims get within 2-4px but never
+     to zero. This spreads the reduction across three things instead — logo 80->64,
+     nav 18->16px, item gap 40->32 — which lands on the rail at 900, 950 and 1023 with
+     headroom rather than sitting on the boundary.
+     Measured: logo64+16px+32gap = +0 at all three widths. -------------------------- */
+  .pcf-menus{ font-size: 16px; gap: 32px; }
+
+  /* Interactive Map tab narrowed 340 -> 240px so it stops colliding with the open search
+     popover. The popover is right-aligned to the rail and the tab is centred, so at these
+     widths they met in the middle: 32px of overlap at 900, 7px at 950 (clear from 1000 up).
+     Narrowing the TAB rather than the popover because the tab has ~200px of slack — its
+     label plus chevron is only ~140px — whereas a popover narrow enough to clear would
+     truncate its own placeholder text. */
+  .md-tab{ width: 240px; }
+
+  .pff-main{
+    max-width: var(--site); margin: 0 auto;
+    /* Top padding matches the connect->links gap below (both --space-6), so the band sits
+       evenly between the rule above it and the link columns. Bottom is deliberately tiny:
+       the office line and the copyright/legal/social row should read as ONE closing group,
+       so the space between them is 8px here + 16px on .pff-bottom-inner = 24px, down from
+       the 48px the two default paddings produced. */
+    padding: var(--space-6) var(--rail) 8px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    /* Column gap is 32px, not 48px, so the four EQUAL columns are wide enough that
+       "Land Brokerage & Auctions" (180px, the longest label in the footer by 33px) holds
+       one line at 900. At 48px the columns were 171px and it wrapped; at 32px they are
+       185px. Measured: nothing wraps at >=880px viewport, so this covers the whole band.
+       row-gap: 0 on purpose — a single row-gap would space every row equally, and the
+       office section needs to sit tighter than the rest, so vertical rhythm is set with
+       explicit margins per row instead. */
+    column-gap: var(--space-6); row-gap: 0;
+    grid-template-areas:
+      "conn conn conn conn"
+      "nav1 nav2 nav3 nav4"
+      "addr addr addr addr";
+  }
+
+  /* Connect band keeps its own nested grid (NOT display:contents) purely so the second
+     column can be `max-content`. That column is sized by the one-line headline, and the
+     pill is width:100% of it — so THE PILL IS EXACTLY THE HEADLINE'S WIDTH, derived from
+     the text instead of a hardcoded number. If the copy changes, the pill follows. */
+  .pff-connect{
+    grid-area: conn;
+    /* This div is also .pff-inner, so it arrives carrying padding: 0 var(--rail),
+       max-width and margin: 0 auto. Left alone, the band sat 807px wide inset from the
+       content edge (47->853 at a 900px viewport) and the headline/pill could never reach
+       the rail. .pff-main owns the --site/--rail box here, so clear all three. */
+    padding: 0; max-width: none; margin: 0;
+    display: grid; grid-template-columns: 1fr max-content;
+    /* row-gap 0: the <=1023 rule sets `gap: var(--space-4)` which applies to ROWS too, so
+       the headline->pill space was 16px of gap plus the pill's own margin. One source now. */
+    column-gap: var(--space-7); row-gap: 0; align-items: center;
+  }
+  /* Lockup: unchanged size, left justified, exactly as at >=1024. */
+  .pff-connect-logo{
+    grid-column: 1; grid-row: 1 / span 2; justify-self: start; align-self: center;
+  }
+  /* ONE line, no break, right edge on the rail. */
+  .pff-connect-line{
+    grid-column: 2; grid-row: 1; white-space: nowrap;
+    text-align: right; padding: 0; margin: 0;
+  }
+  /* width:100% of the max-content column = exactly the headline's width, and both are
+     right-justified because that column is the last one in the grid. */
+  .pff-subform{
+    grid-column: 2; grid-row: 2; width: 100%; justify-self: end;
+    margin-top: 8px;   /* tight to the headline above it */
+  }
+
+  /* One row of four, CENTRED text. (>=1024 right-justifies these and the <=1023 block
+     left-aligns them for its 3-column stack, so this band states its own alignment.) */
+  .pff-grid{ display: contents; }
+  nav.pff-col, nav.pff-col h3{ text-align: center; }
+  /* all four share one row, so an equal margin shifts the row as a unit */
+  .pff-grid nav.pff-col{ margin-top: var(--space-6); }
+  .pff-grid nav.pff-col:nth-of-type(1){ grid-area: nav1; }
+  .pff-grid nav.pff-col:nth-of-type(2){ grid-area: nav2; }
+  .pff-grid nav.pff-col:nth-of-type(3){ grid-area: nav3; }
+  .pff-grid nav.pff-col:nth-of-type(4){ grid-area: nav4; }
+
+  /* Corporate address: centred, running ALONG ONE ROW with "|" between the parts that were
+     separate lines. The <br>s are dropped and each <span> gets a separator before it. */
+  /* THE RULE MOVES UP one section: it now divides the link columns from the office block,
+     instead of dividing the office block from the bottom bar. So the border comes off
+     .pff-bottom and goes on top of .pff-brand (which spans all four columns, so it runs the
+     full content width). Office section still sits tighter than the rows above it. */
+  .pff-bottom{ border-top: 0; }
+  .pff-bottom-inner{ padding-top: var(--space-4); }
+  .pff-brand{
+    grid-area: addr; text-align: center;
+    margin-top: var(--space-4);
+    border-top: 1px solid var(--pc-light-blue);
+    padding-top: var(--space-4);
+  }
+  .pff-brand h3{ margin-bottom: 2px; }
+  .pff-contact{
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center;
+    row-gap: 4px; margin-bottom: 0;
+  }
+  .pff-contact br{ display: none; }
+  /* ~ not + : the <span>s are separated by <br> in the markup, so they are never IMMEDIATE
+     siblings and `span + span` matches nothing. The general sibling combinator gives every
+     span after the first a separator. (Flex also discards the inter-item whitespace, so
+     without this the parts would run together with no space at all.) */
+  .pff-contact > span ~ span::before{
+    content: "|"; margin: 0 12px; color: var(--gray-500); font-weight: 400;
+  }
+  /* "Find an Office" is dropped in this band (Kiron). Hidden rather than removed from the
+     markup, because every other width still shows it — the same <div> serves them all. */
+  .pff-cta{ display: none; }
 }
-@media (max-width: 720px){
-  .pcf-menus{ display: none; }
+
+/* ============================================================================
+   768-899 — differences from the 768-1023 treatment above (Kiron, 2026-08-13)
+   The header is the hamburger from 899 down, so this band only adjusts the three things
+   that don't survive the narrower box.
+   ============================================================================ */
+@media (min-width: 768px) and (max-width: 899px){
+  /* Search popover 280 -> 240px. It is right-aligned to the rail while the map tab is
+     centred, so at 768 they overlapped by 48px. Shrinking the TAB alone cannot fix it here
+     (it would have to reach ~140px, less than its own label), so both give a little.
+     Trade-off: a 182px input truncates the "Search Peoples Company…" placeholder. */
+  :root{ --pcf-search-w: 182px; }
+  /* Interactive Map tab: 240 -> 200px wide AND shorter, 46 -> 36px (peak 44 not 56), so it
+     takes less vertical room over the content at these widths. Height goes through the
+     tokens because the idle animation animates height — see --md-tab-h. With the popover at
+     240 the two clear by 12px at 768 and 78px at 899. */
+  .md-tab{ width: 200px; }
+  :root{ --md-tab-h: 36px; --md-tab-h-peak: 44px; }
+
+  /* Connect band keeps the SAME STRUCTURE as above 900: lockup left, one-line nowrap
+     headline and matched pill right (Kiron). What has to give is the headline's type size.
+     The arithmetic, with the lockup held at its full 232px:
+       232 + 32 (gap) + headline <= 704 (the box at 768)  ->  headline <= 440px
+     At 13px/.14em the headline is 463px, which does NOT fit — it only appeared to fit
+     because `max-width: 100%` was quietly squeezing the lockup to ~209px. minmax() below
+     stops that squeeze, and 12px/.12em brings the headline to ~416px, leaving ~24px spare.
+     Measured at 768: one line, lockup at full width. */
+  .pff-connect{
+    grid-template-columns: minmax(232px, 1fr) max-content;
+    column-gap: var(--space-6);
+  }
+  .pff-connect-line{ font-size: 12px; letter-spacing: .12em; }
+
+  /* Footer link columns: type down 14 -> 12px, rows tightened 12 -> 6px with a shorter
+     line-height, and the column gap 32 -> 24px. Together these also stop "Land Brokerage &
+     Auctions" wrapping — it needs 154px at 12px and the columns become 158px. 12px was the
+     threshold: 13px and 12.5px still wrapped at these column widths.
+     Footer height 568px -> 504px. NOTE this puts the links at the same 12px as the column
+     headings, so the size hierarchy between them is now carried by weight, case and colour
+     rather than by size. */
+  .pff-main{ column-gap: var(--space-5); }
+  .pff-col a{ font-size: 12px; }
+  .pff-col li{ margin-bottom: 6px; line-height: 1.3; }
+
+  /* Corporate office line down to 12px too, matching the link columns above it. The
+     "CORPORATE OFFICE" heading was already 12px, so the whole block is now one size. */
+  .pff-contact{ font-size: 12px; }
+}
+
+
+
+/* The old @media (max-width: 880px) block was retired 2026-08-13. It shrank the logo to
+   60px and trimmed the nav font/row gap to buy space for the INLINE nav — but the nav is
+   now a hamburger below 900, so none of it was needed, and 880 was off the --site ladder,
+   creating a dead 881-899 sliver that ran an 80px logo at 18px nav and overflowed ~160px. */
+/* FOOTER: 3 columns → 2, and the bottom bar stacks. Pinned to 767px, NOT 720px, so it
+   lands exactly on the --site step (768 → 640). At 720 there was a 47px window where the
+   footer still had three columns while --site had already dropped to 640, squeezing them
+   to 160px — narrower than they ever get on a phone. With this at 767, the footer's change
+   points match the --site ladder exactly: 1535 / 1279 / 1023 / 767 / 639. */
+@media (max-width: 767px){
   .pff-grid{ grid-template-columns: 1fr 1fr; }
-  /* Three-across won't fit — stack the bottom bar and drop the brand indent. */
-  .pff-bottom-inner{ grid-template-columns: 1fr; justify-items: start; gap: var(--space-4); }
+  /* justify-items / legal-links justify-self / social justify-self were all dead here —
+     the later max-width:767 block re-declares each across this same range (it centres them).
+     flex-wrap is still live. */
+  .pff-bottom-inner{ grid-template-columns: 1fr; gap: var(--space-4); }
   .pff-bottom-inner .copy{ padding-left: 0; }
-  .pff-bottom-inner .legal-links{ justify-self: start; flex-wrap: wrap; }
-  .pff-social{ justify-self: start; }
+  .pff-bottom-inner .legal-links{ flex-wrap: wrap; }
+}
+
+/* NOTE ON ORDER: this block sits AFTER @media (max-width: 767px) on purpose.
+   That block stacks the footer's bottom bar into a single column, and at equal
+   specificity the later rule wins — so the two-row bottom bar below only holds if it
+   comes after it. Moving this block up again would silently revert that. */
+/* ============================================================================
+   767 AND DOWN (Kiron, 2026-08-13)
+   HEADER: the row could not hold an 80px lockup here. brandcell was 344px of a 640px row,
+   which left the utility bar only 138px of text space for 190px of text ("Create An Account
+   | Login" simply did not fit) and pushed 7px of horizontal overflow at 640. Shrinking the
+   lockup to 56px gives the bar ~289px of text space and clears the overflow.
+   FOOTER: same structure as the band above, with three changes Kiron asked for — the footer
+   lockup comes out, the four link sections go 2x2, and the link type goes back up slightly.
+   ============================================================================ */
+@media (max-width: 767px){   /* 767 and down; 639-and-below overrides follow */
+  /* 80 -> 56px. Tagline sets at ~5.0px; 64px (matching 768-899) also clears the utility bar,
+     and 48px is the smallest that stays legible — this is the middle of that range. */
+  :root{ --logo-h: 56px; }
+
+  /* Map tab scaled for the window: 340x46 was 53% of a 640px viewport. 190px wide keeps
+     ~158px of content space for a ~140px label, and the height drops with the peak. */
+  .md-tab{ width: 190px; padding: 0 16px; }
+  :root{ --md-tab-h: 32px; --md-tab-h-peak: 38px; }
+
+  /* --- FOOTER ------------------------------------------------------------------- */
+  /* Lockup out (Kiron). With it gone the connect band is a single max-content column,
+     right-aligned, so the headline and the pill still match each other exactly and still sit
+     on the rail — the relationship from the bands above survives losing the logo. */
+  /* Connect-band lockup stays hidden here. The lockup that shows in this band is
+     .pff-brand-logo, the first child of the office block — see below. */
+  .pff-connect-logo{ display: none; }
+
+  /* headline + form CENTRED in the window (Kiron), not right-aligned. The single
+     max-content column keeps the pill exactly the headline's width; justify-content
+     centres that column. */
+  /* minmax(0, max-content), NOT max-content: a bare max-content column can never shrink
+     below its content, so the nowrap headline (463px) pinned the whole footer grid at 463px
+     and overflowed the viewport by up to 163px at 320. minmax lets it collapse. */
+  .pff-connect{ grid-template-columns: minmax(0, max-content); justify-content: center; }
+  .pff-connect-line{ grid-column: 1; grid-row: 1; }
+  .pff-subform{ grid-column: 1; grid-row: 2; width: 100%; }
+
+  /* Four link sections as 2x2 rather than one row of four. */
+  .pff-main{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "conn conn"
+      "nav1 nav2"
+      "nav3 nav4"
+      "addr addr";
+  }
+  /* the second nav row needs the same break above it as the first */
+  .pff-grid nav.pff-col:nth-of-type(3),
+  .pff-grid nav.pff-col:nth-of-type(4){ margin-top: var(--space-5); }
+
+  /* Link type back up 12 -> 13px: at 2 columns each is ~276px, so the longest label
+     ("Land Brokerage & Auctions", ~167px at 13px) has plenty of room. */
+  .pff-col a{ font-size: 13px; }
+
+  /* Corporate office: "|" separators out, and the EMAIL drops to its own line beneath the
+     address (Kiron). flex-basis:100% on the last span is what forces that break — the block
+     is a centred flex row, so a full-width item has to wrap, and it stays centred there.
+     With the separators gone, column-gap carries the spacing instead of their margins. */
+  /* Lockup back in, BETWEEN the rule and "CORPORATE OFFICE" (Kiron). It is the office
+     block's own first child, so the rule — which is .pff-brand's border-top — stays exactly
+     where it was and the order falls out on its own: rule, lockup, heading, address.
+     An earlier attempt placed the connect-band lockup into a grid row of .pff-main instead;
+     that could never work, because that element is a child of .pff-connect (its own nested
+     grid in this band), so the grid-area named a row that grid does not have. */
+  .pff-col a.pff-brand-logo{ display: block; margin: 0 auto var(--space-4); }
+  /* 174px = 232 - 25% (Kiron). margin-inline:auto centres the IMG inside the anchor — the
+     anchor is display:block and so fills the office block, which means auto margins on IT do
+     nothing. (It only looked centred while the anchor was wrongly inline-block and
+     text-align:center happened to catch it.) */
+  .pff-brand-logo img{
+    width: 174px; max-width: 100%; height: auto; display: block; margin-inline: auto;
+  }
+  .pff-contact{ column-gap: 14px; }
+  .pff-contact > span ~ span::before{ content: none; margin: 0; }
+  .pff-contact > span:last-child{ flex: 0 0 100%; }
+
+  /* Bottom bar: all three segments CENTRED in the window and stacked (Kiron):
+       social icons
+       legal links
+       copyright
+     Note this is the reverse of DOM order (copy, legal-links, social), so named grid areas
+     do the reordering — no markup change, and tab order still follows the document. */
+  .pff-bottom-inner{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "social"
+      "legal"
+      "copy";
+    justify-items: center; row-gap: var(--space-4);
+  }
+  .pff-social{ grid-area: social; justify-self: center; }
+  .pff-bottom-inner .legal-links{
+    grid-area: legal; justify-self: center; justify-content: center;
+  }
+  /* padding-left would push it off centre; the brand indent is 0 in this band anyway */
+  .pff-bottom-inner .copy{ grid-area: copy; justify-self: center; padding-left: 0; }
+}
+
+/* The connect headline stays on ONE line only where it fits. It is 463px, so it needs
+   463 + 2*--rail = 503px of viewport. Above that, nowrap; below, it wraps and the pill
+   (width:100% of the same column) follows it. */
+@media (min-width: 504px) and (max-width: 767px){
+  .pff-connect-line{ white-space: nowrap; }
+}
+/* Below 504 it must be set back to NORMAL explicitly, not merely left unset: the
+   "1023 and down" band above also declares nowrap (it is what puts the headline on one line
+   from 900 up), and that band no longer has a lower bound — so without this the headline
+   stayed a single 463px line at every phone width, overflowing the document to a constant
+   483px (163px past a 320px viewport). */
+@media (max-width: 503px){
+  /* ONE line, centred, type scaled to fit (Kiron). The headline is 463px at 13px/.14em, so
+     it cannot fit a 280px box at full size — it has to shrink with the viewport.
+       - letter-spacing .14em -> .08em removes ~85px of tracking at 13px, which is 18% of the
+         width, before any type-size reduction.
+       - the width then runs about 33x the font-size, so font-size = box / 33 is the largest
+         size that still fits on one line. min() caps it at 13px so it never grows past the
+         design size on the wider end of this band.
+     Because .pff-connect's column is minmax(0, max-content) and the pill is width:100% of it,
+     the pill keeps matching the headline exactly, as it does in every band above. */
+  .pff-connect-line{
+    white-space: nowrap; text-align: center;
+    letter-spacing: .08em;
+    font-size: min(13px, calc((100vw - var(--rail) * 2) / 33));
+  }
+}
+
+/* ============================================================================
+   639 AND DOWN — phone / small tablet (Kiron approved, 2026-08-13)
+   ONE header restructure covers 639 all the way to 320. The binding constraint was the
+   utility strip: "Create An Account | Login" needs 190px, but sharing a row with the burger,
+   lockup and search left it 197px at 639, 98px at 540 and 0px by 430 — and the page overflowed
+   by up to 291px at 320. No logo size fixes that, because the burger and search are fixed
+   costs. Giving the strip its OWN full-width row hands it (vw - 2*rail): 599px at 639 and
+   280px at 320, both clear of 190px.
+   ============================================================================ */
+@media (max-width: 639px){
+  /* .pcf-stack is dissolved so the utility strip and the nav row become direct children of
+     .pcf-brandrow and can be placed as separate grid rows:
+         row 1   utility strip, full width
+         row 2   burger · lockup · search                                              */
+  .pcf-stack{ display: contents; }
+  .pcf-brandrow{
+    display: grid; grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "util util util"
+      "burger brand search";
+    align-items: center;
+  }
+  .pcf-util{ grid-area: util; margin-right: 0; }
+  /* the strip now reaches the edge itself, so the bleed strip is redundant here */
+  .pcf-util::after{ display: none; }
+  .pcf-burger{ grid-area: burger; margin-left: var(--rail); }
+  .pcf-brandcell{ grid-area: brand; padding: 0 var(--space-2); }
+  .pcf-row{ grid-area: search; height: auto; padding: 10px var(--rail) 10px 0; gap: 0; }
+
+  /* Lockup 56 -> 48px. At 320 that is 178px wide: burger 30 + brandcell 194 + search 40 =
+     264 inside a 280px box. ⚠ The "INTEGRATED LAND SOLUTIONS" tagline sets at ~4.3px here —
+     legible only just. Switching to the diamond mark alone on phones is the alternative, but
+     that is a design decision, not a fit problem. */
+  :root{ --logo-h: 48px; }
+
+  /* Map tab: 340px was wider than the whole 320px viewport. min() keeps it inside the rails
+     at every width without another breakpoint. */
+  .md-tab{ width: min(240px, calc(100% - var(--rail) * 4)); padding: 0 14px; }
+  :root{ --md-tab-h: 30px; --md-tab-h-peak: 36px; }
+
+  /* Corporate address fully STACKED from 639 down (Kiron) — one part per line, rather than a
+     centred row that wrapped unpredictably as the viewport narrowed.
+     flex-direction: column is what does it. The <br>s already in the markup cannot: inside a
+     flex container they are blockified into flex items and stop producing line breaks, which
+     is why they were switched off for the row layout in the first place. */
+  /* line-height 1.9 (the base, tuned for a stacked block with <br>s) leaves ~27px between
+     these lines once each part is its own flex item. 1.3 tightens it to ~18px. */
+  .pff-contact{
+    flex-direction: column; align-items: center; column-gap: 0;
+    row-gap: 0; line-height: 1.3;
+  }
+  /* "CORPORATE OFFICE" 12 -> 14px (Kiron), so the heading is no longer smaller than the
+     address beneath it. */
+  .pff-brand h3{ font-size: 14px; }
+
+  /* Footer link rows tightened (Kiron). Below 768 these fall back to the BASE spacing —
+     margin-bottom 12px on a 1.35 line-height — because the 6px/1.3 pair only lives in the
+     768-899 block. That put the pitch near 30px. 4px + 1.25 brings it to about 20px. */
+  .pff-col li{ margin-bottom: 4px; line-height: 1.25; }
+  /* In a ROW, flex:0 0 100% was what forced the email onto its own line. In a COLUMN the
+     main axis is vertical, so that same basis would set its HEIGHT to 100% of the block. */
+  .pff-contact > span:last-child{ flex: 0 1 auto; }
+}
+
+/* ============================================================================
+   479 AND DOWN — the footer's one split (Kiron approved)
+   Link columns go 2 -> 1. Measured: at 480 the columns are 196px and nothing wraps; at 430
+   they are 171px and labels start wrapping, reaching 11 wrapped labels by 320. So 480 is the
+   last width where two columns hold.
+   ============================================================================ */
+@media (max-width: 479px){
+  .pff-main{
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "conn"
+      "nav1"
+      "nav2"
+      "nav3"
+      "nav4"
+      "addr";
+  }
+  /* Every section now starts its own row, so they all take the same break above them.
+     The :nth-of-type(3)/(4) rule from the 767 block (which spaced the 2x2's second row) has
+     to be matched in specificity here, or sections 3 and 4 keep the wider 24px gap. */
+  .pff-grid nav.pff-col,
+  .pff-grid nav.pff-col:nth-of-type(3),
+  .pff-grid nav.pff-col:nth-of-type(4){ margin-top: var(--space-4); }
+
+  /* Footer link block tightened (Kiron). The LINK PITCH ITSELF IS LEFT AT 24px ON PURPOSE —
+     the links are 16px tall, so they are undersized for WCAG 2.2 SC 2.5.8 (Target Size,
+     Minimum, AA) and pass only under its spacing exception: a 24px circle centred on each
+     target must not intersect the next one's. At a 24px pitch those circles touch exactly,
+     so 24 is the floor. Anything tighter fails the criterion.
+     So the space AROUND the links is what gives: the gap between sections drops 24 -> 16px
+     above, and the heading sits 8px off its list instead of 16px. */
+  .pff-col h3{ margin-bottom: var(--space-2); }
+}
+
+/* ============================================================================
+   HEADER <=899 — hamburger (Kiron, 2026-08-13)
+   The inline menus collapse into a hamburger on the LEFT EDGE at 899, not 720. Measured:
+   fitting the inline nav at 768 needs a 48px logo (tagline ~4.3px, illegible) plus 14px nav
+   type and 16px gaps; even 52/15/20 is still 12px over. 900 is the last width where the
+   inline nav fits honestly, so that is where it ends.
+   This also closes a real hole — the old `.pcf-menus{display:none}` at 720 hid the menus
+   with NOTHING replacing them, so every width below 720 had no navigation at all. The
+   drawer is built from the same NAV array and the same colHTML() as the mega panels.
+   ============================================================================ */
+.pcf-burger{ display: none; }               /* >=1024: inline menus are used instead */
+.pcf-drawer, .pcf-drawer-backdrop{ display: none; }
+
+@media (max-width: 899px){
+  .pcf-menus{ display: none; }
+  /* .pcf-menus carried `flex: 1`, which is what pushed the search to the rail. With the
+     menus gone the search collapsed to the LEFT edge (measured 248px inside the rail), so
+     it needs its own auto margin. */
+  .pcf-searchwrap{ margin-left: auto; }
+
+  .pcf-burger{
+    display: flex; flex-direction: column; justify-content: center; gap: 5px;
+    flex: none; align-self: center; width: 30px; height: 44px;
+    margin-left: var(--rail); padding: 0;
+    background: none; border: 0; cursor: pointer;
+  }
+  .pcf-burger span{
+    display: block; height: 2px; background: var(--gray-900); border-radius: 2px;
+    transition: transform .18s ease, opacity .18s ease;
+  }
+  /* becomes an X when open */
+  .pcf-burger[aria-expanded="true"] span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+  .pcf-burger[aria-expanded="true"] span:nth-child(2){ opacity: 0; }
+  .pcf-burger[aria-expanded="true"] span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+  .pcf-burger:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 3px; }
+
+  /* the burger now carries the left rail, so the logo cell must not add another */
+  .pcf-brandcell{ padding-left: var(--space-4); }
+
+  /* Drawer: fixed under the sticky header, full viewport width, scrolls if taller.
+     TOP OF THE STACK (Kiron): z 42 puts it above the map layer (31), the map's backdrop
+     (30) and the map TAB (39) — so opening the nav while the map is open covers both the
+     map and its tab, rather than the tab poking through. Its own backdrop is 41, directly
+     under it. Both start at --navH, so neither covers the header (40) and the logo, search
+     and hamburger all stay reachable. */
+  .pcf-drawer{
+    /* Inset 3% each side (so 94% wide, centred), the horizontal counterpart to the 15% of
+       viewport height left showing below it. The backdrop stays full-width behind, so the
+       dimmed page is visible on all three sides and the panel reads as an overlay.
+       No border-top: the 3px accent rule read as a stray line across the top of a floating
+       panel. It made sense when the drawer was full-bleed and butted to the header. */
+    display: block; position: fixed; left: 3%; right: 3%; top: var(--navH); z-index: 42;
+    background: #fff;
+    /* Bottom corners only — the panel hangs from the header, so the top stays square where
+       it meets it. Same language as the Interactive Map tab (0 0 14px 14px); --radius-lg is
+       a touch larger, which suits a full panel over a small tab. overflow-y: auto below
+       means the scrolling content clips to this radius rather than spilling past it. */
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 14px 28px rgba(0,0,0,.12);
+    /* Always 85% of the viewport height. The drawer starts at --navH, so its own height is
+       85vh minus the header — that puts its BOTTOM edge at 85% down the screen, leaving the
+       last 15% showing the dimmed page behind it (a deliberate cue that this is an overlay,
+       and somewhere to tap/click to dismiss). Content taller than that scrolls inside.
+       The dvh line repeats the calc for browsers that support it: on mobile, vh is locked to
+       the largest viewport and ignores the address bar, so dvh is the accurate one there.
+       Browsers that don't understand dvh simply keep the vh line above it. */
+    height: calc(85vh - var(--navH));
+    height: calc(85dvh - var(--navH));
+    overflow-y: auto; overscroll-behavior: contain;
+  }
+  .pcf-drawer[hidden]{ display: none; }
+  .pcf-drawer-backdrop{
+    display: block; position: fixed; inset: var(--navH) 0 0 0; z-index: 41;
+    background: rgba(7,20,40,.55);
+  }
+  .pcf-drawer-backdrop[hidden]{ display: none; }
+
+  /* Sections alternate a PC Light Blue band, which replaces the hairline dividers.
+     The tint is FULL-BLEED, so the --site/--rail box moves OFF .pcf-drawer-in and onto each
+     section's children — left on the wrapper, the stripe would stop at the content box and
+     read as a card rather than a band. */
+  .pcf-drawer-in{ max-width: none; margin: 0; padding: 0; }
+  .pcf-drawer-sec{ padding: var(--space-4) 0; }
+  .pcf-drawer-sec:nth-of-type(odd){ background: var(--pc-light-blue); }
+  /* dividers no longer needed — the alternating tint does that job */
+  .pcf-drawer-sec + .pcf-drawer-sec{ margin-top: 0; border-top: 0; }
+
+  /* 20px below the section title, so it reads as a title over a group rather than another
+     line of the group (was 10px). */
+  .pcf-drawer-sec > h3{
+    max-width: var(--site); margin: 0 auto 20px; padding: 0 var(--rail);
+    font-family: var(--font-serif); font-size: 19px; font-weight: 500;
+    color: var(--gray-900);
+  }
+  /* Accent rule under the section title: 140px x 1px. Now the ONLY rule in the drawer —
+     the sub-header hairlines were removed. Sits inside the h3's rail padding, so it starts
+     on the same line as the title text. */
+  .pcf-drawer-sec > h3::after{
+    content: ""; display: block; width: 140px; height: 1px;
+    background: var(--pc-medium-blue); margin-top: 10px;
+  }
+  /* reuses .pcf-col styling from the mega panels, tightened: this is a stacked list in a
+     drawer, not a wide panel with room to breathe */
+  .pcf-drawer-cols{
+    max-width: var(--site); margin: 0 auto; padding: 0 var(--rail);
+    /* Fixed 2 columns, not auto-fit: the wide mega panel gives each nav window 4 columns,
+       and this keeps that same structure folded into 2x2. Sections with fewer than 4
+       columns simply fill what they have (Real Estate 3, Insights & News 2). */
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4) var(--space-5);
+  }
+  /* ---- "The Company" section: bespoke layout (Kiron) --------------------------------
+     NAV gives this section four columns: [The Company + Overview/Regions] [continuation:
+     Our Team/Culture/Careers/Industry Collaboration] [Our Clients] [affiliation badges].
+     Rearranged so the first two stack into ONE list down the left, Our Clients sits top
+     right beside it, and the three logos run across one row along the bottom.
+     Targeted by the .sec-the-company slug class, not nth-of-type. ------------------- */
+  .sec-the-company .pcf-drawer-cols{ row-gap: 0; }
+  .sec-the-company .pcf-col:nth-child(1){ grid-column: 1; grid-row: 1; }
+  .sec-the-company .pcf-col:nth-child(2){ grid-column: 1; grid-row: 2; }
+  .sec-the-company .pcf-col:nth-child(3){ grid-column: 2; grid-row: 1 / span 2; }
+  .sec-the-company .pcf-col:nth-child(4){
+    grid-column: 1 / -1; grid-row: 3; margin-top: var(--space-4);
+  }
+  /* The continuation column carries an invisible h4 purely to align its first link with a
+     neighbour in the WIDE panel. Stacked under its own list here, that ghost is just a gap. */
+  .sec-the-company .pcf-col:nth-child(2) .pcf-h4-ghost{ display: none; }
+  /* continue the list at the same pitch as the links above it, so the two read as one */
+  .sec-the-company .pcf-col:nth-child(2) ul{ margin-top: 5px; }
+
+  /* Badges across one row instead of stacked, so the divider flips from top to left. */
+  .sec-the-company .pcf-badges{ flex-direction: row; padding: 0 6px; }
+  .sec-the-company .pcf-badge-logo{ flex: 1; justify-content: center; padding: 14px 8px; }
+  .sec-the-company .pcf-badge-logo + .pcf-badge-logo{
+    border-top: 0; border-left: 1px solid rgba(255,255,255,.14);
+  }
+
+  /* Sub-header rules REMOVED in the drawer (Kiron) — the section title's accent rule is the
+     only rule in the panel now. The base .pcf-col h4 carries both a border-bottom and an
+     8px padding-bottom to sit above that border, so the padding goes too; margin-bottom
+     then carries the whole gap down to the first link. Desktop mega panels keep theirs. */
+  .pcf-drawer-cols .pcf-col h4{
+    margin-bottom: 10px; padding-bottom: 0; border-bottom: 0;
+  }
+  /* Links tightened under each sub-header. The gap was only 6px of a 32px pitch — the rest
+     was the inherited ~1.6 line-height on an 11px link, so capping line-height is what
+     actually closes it. 1.3 + a 5px gap brings the pitch to roughly 21px. */
+  .pcf-drawer-cols .pcf-col ul{ gap: 5px; line-height: 1.3; }
 }
 @media (max-width: 640px){
   /* .hp-wrap's 20px inset now comes from --rail (see :root) — no override needed. */

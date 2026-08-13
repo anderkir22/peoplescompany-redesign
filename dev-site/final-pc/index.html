@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Single source of truth for the final PC direction -->
-  <link href="pc.css?v=20260812c" rel="stylesheet" />
+  <link href="pc.css?v=20260813b" rel="stylesheet" />
 </head>
 
 <body>
@@ -20,6 +20,12 @@
   <header class="pcf">
     <div class="pcf-inner">
       <div class="pcf-brandrow">
+        <!-- Hamburger: left edge, shown only <=1023 where the inline menus don't fit.
+             Opens #navDrawer, which is built from the same NAV array as the mega panels. -->
+        <button class="pcf-burger" id="navBurger" type="button"
+                aria-label="Menu" aria-expanded="false" aria-controls="navDrawer">
+          <span></span><span></span><span></span>
+        </button>
         <div class="pcf-brandcell">
           <a href="./index.html" aria-label="Peoples Company home">
             <img class="pcf-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
@@ -52,6 +58,12 @@
       </div>
     </div>
   </header>
+
+  <!-- Hamburger drawer (<=1023). Sits under the sticky header; content injected from NAV. -->
+  <div class="pcf-drawer-backdrop" hidden></div>
+  <div class="pcf-drawer" id="navDrawer" role="region" aria-label="Menu" hidden>
+    <div class="pcf-drawer-in"></div>
+  </div>
 
   <!-- ============ INTERACTIVE MAP pull-down tab → map layer ============ -->
   <div class="md-tabwrap">
@@ -307,7 +319,9 @@
         <a class="pff-connect-logo" href="./internal.html" aria-label="Peoples Company home">
           <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
         </a>
-        <p class="pff-connect-line">Stay Connected and Subscribe to Our Newsletter.</p>
+        <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
+             Keeps one line where it fits (>=1536) instead of a hard <br> everywhere. -->
+        <p class="pff-connect-line">Stay Connected and Subscribe to&nbsp;Our&nbsp;Newsletter.</p>
         <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
           <input type="email" placeholder="Email Address" aria-label="Email address" required />
           <button type="submit">Subscribe</button>
@@ -316,12 +330,21 @@
 
       <div class="pff-inner pff-grid">
         <div class="pff-brand pff-col">
+          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
+               design puts it between the rule and "Corporate Office". Exactly one footer
+               lockup is visible at any width. -->
+          <a class="pff-brand-logo" href="./internal.html" aria-label="Peoples Company home">
+            <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+          </a>
           <h3>Corporate Office</h3>
+          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
+               row separated by "|" (CSS can't attach a separator to a bare text node). The
+               <br>s are kept for every other width, where the block still stacks. -->
           <p class="pff-contact">
-            1108 S. 44th Street, Suite 102<br />
-            Cumming, IA 50061<br />
-            <b><a href="tel:+18558005263">855.800.LAND</a></b><br />
-            <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+            <span>1108 S. 44th Street, Suite 102</span><br />
+            <span>Cumming, IA 50061</span><br />
+            <span><b><a href="tel:+18558005263">855.800.LAND</a></b></span><br />
+            <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
           </p>
           <div class="pff-cta">
             <a class="btn btn-subscribe" href="./internal.html">Find an Office</a>
@@ -417,7 +440,8 @@
     <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
   </aside>
 
-  <!-- Reopen handle: hovers on the right edge; hidden by default since the toast starts open -->
+  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
+       open; at <=1279px the JS starts minimized and this handle shows instead. -->
   <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
     <span>Auction Alerts</span>
@@ -490,14 +514,160 @@
         var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
         return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
       }
+      // Top level is a TRIGGER, not a destination: a <button>, so clicking opens the panel
+      // instead of navigating. It used to be <a href="./internal.html">, which meant a click
+      // just reloaded the page and the panel was reachable only by hovering.
       function itemHTML(n){
-        return '<li><a href="./internal.html" aria-haspopup="true">'+esc(n.label)+'</a>'+
+        return '<li><button class="pcf-menu-btn" type="button" aria-haspopup="true" aria-expanded="false">'+
+            esc(n.label)+
+          '</button>'+
           '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
             '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
           '</div></li>';
       }
       var mount = document.getElementById("pcfMenus");
       if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+
+      // Hamburger drawer content — SAME colHTML() as the mega panels, so the two can never
+      // drift apart. Each top-level section becomes a heading with its columns beneath.
+      var drawer = document.querySelector("#navDrawer .pcf-drawer-in");
+      if(drawer){
+        // Each section carries a slug class ("sec-the-company") so per-section drawer
+        // layout can be targeted BY NAME rather than by nth-of-type — reordering NAV must
+        // not silently move a layout override onto a different section.
+        function slug(s){
+          return s.toLowerCase().replace(/&/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+        }
+        drawer.innerHTML = NAV.map(function(n){
+          return '<section class="pcf-drawer-sec sec-'+slug(n.label)+'">'+
+                   '<h3>'+esc(n.label)+'</h3>'+
+                   '<div class="pcf-drawer-cols">'+n.cols.map(colHTML).join("")+'</div>'+
+                 '</section>';
+        }).join("");
+      }
+    })();
+
+    // SHARED PAGE SCROLL LOCK for the overlays (map layer, hamburger drawer).
+    // `overscroll-behavior: contain` only stops a scroll gesture INSIDE an overlay from
+    // chaining to the page; a wheel over the backdrop still scrolled the document. This
+    // locks the document itself.
+    //
+    // Reference-counted on purpose: the map layer and the drawer can be open at the same
+    // time, and closing one must not unlock the page while the other is still open.
+    //
+    // Uses overflow:hidden on <html> (which preserves scroll position, so nothing needs
+    // restoring) and pads the right by the scrollbar's width, otherwise removing the
+    // scrollbar shifts the whole page sideways as the overlay opens.
+    var pcScrollLock = (function(){
+      var count = 0;
+      var root = document.documentElement;
+      return {
+        on: function(){
+          if(count++ > 0) return;
+          var sbw = window.innerWidth - root.clientWidth;
+          root.style.overflow = "hidden";
+          if(sbw > 0) root.style.paddingRight = sbw + "px";
+        },
+        off: function(){
+          if(count === 0 || --count > 0) return;   // never go negative
+          root.style.overflow = "";
+          root.style.paddingRight = "";
+        }
+      };
+    })();
+
+    // Hamburger open/close — same contract as the search popover and the map layer:
+    // click toggles, Esc closes and returns focus, backdrop/outside click closes.
+    (function(){
+      var btn = document.getElementById("navBurger"),
+          drawer = document.getElementById("navDrawer"),
+          backdrop = document.querySelector(".pcf-drawer-backdrop");
+      if(!btn || !drawer) return;
+
+      function open(){
+        drawer.hidden = false;
+        if(backdrop) backdrop.hidden = false;
+        pcScrollLock.on();
+        btn.setAttribute("aria-expanded", "true");
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        drawer.hidden = true;
+        if(backdrop) backdrop.hidden = true;
+        pcScrollLock.off();
+        btn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus) btn.focus();
+      }
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(true); }
+
+      btn.addEventListener("click", function(){
+        if(btn.getAttribute("aria-expanded") === "true") close(false); else open();
+      });
+      if(backdrop) backdrop.addEventListener("click", function(){ close(false); });
+      // Close on resize past the collapse point, so the drawer can't be left open and
+      // unreachable once the burger is hidden and the inline menus return.
+      // MUST MATCH the hamburger's media query in pc.css — it is 899px. This was left at
+      // 720 when the breakpoint moved and the drawer then closed itself the moment any
+      // resize event fired at 721-899, i.e. it appeared not to open at all.
+      var COLLAPSE_AT = 899;
+      window.addEventListener("resize", function(){
+        if(window.innerWidth > COLLAPSE_AT && btn.getAttribute("aria-expanded") === "true") close(false);
+      });
+    })();
+
+    // Mega-menu open/close — same interaction contract as the search popover:
+    // click toggles, Esc closes and returns focus, clicking outside closes.
+    // Hover is re-implemented here (not left to CSS) because the CSS :focus-within rule
+    // would otherwise pin the panel open after a click and defeat click-to-close.
+    (function(){
+      var ul = document.getElementById("pcfMenus");
+      if(!ul) return;
+      var items = [].slice.call(ul.children);
+      if(!items.length) return;
+      ul.classList.add("nav-js");        // hands control to JS — see .nav-js rules in pc.css
+      var locked = null;                 // opened by CLICK: stays open when the pointer leaves
+
+      function btnOf(li){ return li.querySelector(".pcf-menu-btn"); }
+      function setOpen(li){
+        items.forEach(function(x){
+          var on = (x === li);
+          x.classList.toggle("is-open", on);
+          var b = btnOf(x);
+          if(b) b.setAttribute("aria-expanded", on ? "true" : "false");
+        });
+      }
+      function closeAll(returnFocus){
+        var was = locked;
+        locked = null; setOpen(null);
+        if(returnFocus && was){ var b = btnOf(was); if(b) b.focus(); }
+      }
+
+      items.forEach(function(li){
+        var btn = btnOf(li);
+        if(!btn) return;
+        // A click LOCKS this panel open; clicking the same trigger again closes it.
+        // `locked` must only ever be set by a click — if hover also moved it, then moving
+        // the pointer from one title to another would pre-lock the second one, and the
+        // click that followed would read as a second click and close it instead of opening.
+        btn.addEventListener("click", function(){
+          if(locked === li){ locked = null; setOpen(null); }
+          else { locked = li; setOpen(li); }
+        });
+        // Hover previews any panel without taking the lock. On leave, fall back to whatever
+        // is locked (setOpen(null) closes everything when nothing is).
+        li.addEventListener("mouseenter", function(){ setOpen(li); });
+        li.addEventListener("mouseleave", function(){ setOpen(locked); });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" || e.key === "Esc"){
+          if(locked) closeAll(true); else setOpen(null);
+        }
+      });
+      document.addEventListener("click", function(e){
+        if(!ul.contains(e.target)) closeAll(false);
+      });
     })();
 
     // Interactive Map pull-down → slide-down map layer (map module drops in later)
@@ -514,12 +684,18 @@
       if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
       function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
       function open(){
+        if(tab.getAttribute("aria-expanded") === "true") return;   // already open
+        pcScrollLock.on();
         syncNavH(); backdrop.hidden = false; layer.hidden = false;
         requestAnimationFrame(function(){ backdrop.classList.add("is-open"); layer.classList.add("is-open"); });
         tab.setAttribute("aria-expanded", "true"); layer.setAttribute("aria-hidden", "false");
         closeBtn.focus(); document.addEventListener("keydown", onKey);
       }
       function close(){
+        // Guarded so close() is idempotent: it is wired to the close button, the backdrop
+        // and Esc, and a double call would unbalance the shared scroll-lock count.
+        if(tab.getAttribute("aria-expanded") !== "true") return;
+        pcScrollLock.off();
         backdrop.classList.remove("is-open"); layer.classList.remove("is-open");
         tab.setAttribute("aria-expanded", "false"); layer.setAttribute("aria-hidden", "true");
         document.removeEventListener("keydown", onKey);
@@ -675,17 +851,32 @@
       if(!t) return;
       var reopen = document.getElementById("pcToastReopen");
       var x = t.querySelector(".pc-toast-x");
-      function minimize(){
-        t.hidden = true;
-        if(reopen){ reopen.hidden = false; reopen.focus(); }
+      // moveFocus is false for the automatic narrow-viewport minimize below — focusing
+      // the handle on page load would steal focus and jump the page to the right edge.
+      function setMinimized(min, moveFocus){
+        t.hidden = min;
+        if(reopen){ reopen.hidden = !min; }
+        if(moveFocus){
+          var target = min ? reopen : x;
+          if(target){ target.focus(); }
+        }
       }
-      function restore(){
-        t.hidden = false;
-        if(reopen){ reopen.hidden = true; }
-        if(x){ x.focus(); }
-      }
+      function minimize(){ setMinimized(true, true); }
+      function restore(){ userChose = true; setMinimized(false, true); }
       if(x){ x.addEventListener("click", minimize); }
       if(reopen){ reopen.addEventListener("click", restore); }
+
+      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
+         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
+         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
+         never auto-restores, so once the visitor opens the handle it stays open, and a
+         toast never pops itself back open mid-resize. */
+      var TOAST_NARROW = 1279, userChose = false;
+      function narrowCheck(){
+        if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
+      }
+      narrowCheck();
+      window.addEventListener("resize", narrowCheck);
     })();
   </script>
 </body>
