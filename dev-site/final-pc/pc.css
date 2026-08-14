@@ -1,9 +1,13 @@
 /* =============================================================================
    Peoples Company — FINAL PC Design System  (pc.css)
    -----------------------------------------------------------------------------
-   Single source of truth for the FINAL "version-pc" direction. Self-contained:
-   pages in this folder link ONLY this file (not shared/main.css). The older
-   dev-site versions/concepts keep pointing at shared/main.css and are untouched.
+   Single source of truth for every page in final-pc/. Self-contained and
+   dependency-free: these pages link ONLY this file. Do not fork it, and do not
+   pull rules in from any stylesheet outside this directory.
+
+   Pages that link it: index.html (homepage), internal.html (interior shell),
+   style-guide.html, brand-color.html, hero.html. Bump the ?v= cache-buster on
+   each of them when deploying a change here.
 
    PALETTE — the final PC blue brand set (see ./brand-color.html). NO red, NO
    green. Plain black (rgba(0,0,0,…)) is reserved for drop-shadows / overlays.
@@ -36,24 +40,14 @@
   --pc-soft-white:  #f3fbfe;
   --pc-white:       #FFFFFF;
 
-  /* --- Neutral aliases → palette (kept so component rules read cleanly and any
-         legacy reference resolves; there is no grey in the system anymore) --- */
-  --black:    var(--pc-black);
-  --white:    var(--pc-white);
-  --gray-900: var(--pc-black);       /* headings, nav, primary ink, body copy */
-  --gray-600: var(--pc-navy);        /* secondary text / links / accents (NOT body copy) */
-  --gray-500: var(--pc-navy);        /* muted / eyebrow / label text */
-  --gray-200: var(--pc-light-blue);  /* hairline borders */
-  --gray-100: var(--pc-soft-white);  /* alt surface */
-  --blue:     var(--pc-blue);
-
-  /* --- Semantic roles --- */
+  /* --- Semantic roles. Text and border roles read through these, so "all body copy"
+         or "every hairline" is a one-line change. Fills, bands and surfaces use the
+         palette above directly — a fill is a colour choice, not a role. --- */
   --color-text:        var(--pc-black);        /* primary ink / headings */
   --color-text-muted:  var(--pc-black);        /* body copy — ALL body text is PC Black (never Navy) */
   --color-text-subtle: var(--pc-navy);         /* muted labels / eyebrow (NOT body copy) */
   --color-border:      var(--pc-light-blue);   /* hairlines */
   --color-surface:     var(--pc-white);
-  --color-surface-alt: var(--pc-soft-white);
   --color-accent:      var(--pc-medium-blue);  /* link hover, active accents */
 
   /* --- Text treatments by background --------------------------------------
@@ -70,14 +64,6 @@
   --text-on-dark:        var(--pc-white);       /* headings + body copy on dark */
   --text-on-dark-muted:  var(--pc-light-blue);  /* secondary text on dark */
   --accent-on-dark:      var(--pc-blue);         /* bright accent on dark */
-
-  /* --- version-pc role aliases (used throughout header / footer / homepage) --- */
-  --accent-light:  var(--pc-navy);        /* AA fills / text on white (~10.7:1 white text) */
-  --accent-pine:   var(--pc-black);        /* deepest solid band (FarmWorth) */
-  --accent-medium: var(--pc-medium-blue);  /* nav-link hover, Interactive Map tab, light-bg buttons */
-  --accent-dark:   var(--pc-blue);         /* on-dark accent text ONLY */
-  --soft-white:    var(--pc-soft-white);   /* subtle card fill */
-  --hp-ink:        var(--pc-black);         /* homepage headings / primary ink */
 
   /* --- Typography --- */
   --font-serif: "EB Garamond", Georgia, "Times New Roman", serif;
@@ -287,14 +273,14 @@ p { margin: 0 0 1em; }
 }
 .btn:active { transform: translateY(1px); }
 
-/* Primary pill button on a light background — PC Medium Blue → PC Navy on hover
-   (version-pc unified every light-bg pill button to this). */
-.btn-primary { background: var(--pc-medium-blue); color: var(--white); border-color: var(--pc-medium-blue); }
+/* Primary pill button on a light background — PC Medium Blue → PC Navy on hover.
+   Every light-bg pill button in this file uses it; keep them unified. */
+.btn-primary { background: var(--pc-medium-blue); color: var(--pc-white); border-color: var(--pc-medium-blue); }
 .btn-primary:hover { background: var(--pc-navy); border-color: var(--pc-navy); }
 
 /* Button White / outline */
-.btn-white { background: var(--white); color: var(--gray-900); border-color: var(--gray-200); }
-.btn-white:hover { border-color: var(--gray-900); }
+.btn-white { background: var(--pc-white); color: var(--color-text); border-color: var(--color-border); }
+.btn-white:hover { border-color: var(--color-text); }
 
 /* ----------------------------------------------------------------------------
    6. Cards
@@ -317,7 +303,7 @@ p { margin: 0 0 1em; }
 .site-inner { max-width: var(--site); margin: 0 auto; }
 
 /* ============================================================================
-   8. HEADER — Option F "Editorial Spread" (D right/tight nav)
+   8. HEADER
    ============================================================================ */
 /* z-index 45 puts the HEADER above the hamburger drawer (42).
    This is about the search popover, not the header itself. Because this element is
@@ -326,7 +312,7 @@ p { margin: 0 0 1em; }
    drawer at 42 painted over it, popover included. Raising the header lifts everything it
    contains (popover, mega panels) above the drawer in one move. Safe because the drawer
    starts at --navH, below the header, so the two never actually overlap. */
-.pcf{ background: var(--white); border-bottom: 1px solid var(--color-border);
+.pcf{ background: var(--pc-white); border-bottom: 1px solid var(--color-border);
   position: sticky; top: 0; z-index: 45; }
 /* position: relative makes this the containing block for the search popover, so the
    popover anchors to the --site BOX rather than to the search button. See
@@ -342,23 +328,22 @@ p { margin: 0 0 1em; }
 /* margin-right pulls the BAR ITSELF in to the --rail; padding-right then insets the text
    one more rail inside that.
 
-   The gradient used to end on the --site edge — the only thing in the header or footer not
-   landing on the rail, overshooting the nav, the search button, the footer's last column
-   and the social icons by exactly 32px. Shrinking the box (rather than clipping the paint
-   with background-clip) is what keeps the text's breathing room: the bar's right edge moves
-   in 32px AND the text moves in 32px with it, so their relationship is unchanged. Clipping
-   alone would have left the text flush against the new edge.
+   The gradient has to end on the --rail, like the nav, the search button, the footer's
+   last column and the social icons. Shrink the BOX to do that, not the paint: clipping with
+   background-clip would move the edge in 32px while leaving the text flush
+   against the new edge. Shrinking the box moves edge and text together, so their spacing is
+   preserved.
 
    Net: bar ends on the rail, text ends one rail inside the bar. The left end is white on
    white and the .sp spacer absorbs the difference, so that side is unaffected. */
 .pcf-util{
   display: flex; align-items: center; gap: 18px; height: 40px;
   padding: 0 var(--rail); margin-right: var(--rail);
-  font-size: 13px; color: var(--gray-600);
+  font-size: 13px; color: var(--color-text-subtle);
   background: linear-gradient(90deg, #fff 0%, #fff 22%, var(--pc-light-blue) 100%);
 }
 .pcf-util .sp{ flex: 1; }
-.pcf-util a{ color: var(--gray-900); text-decoration: none; font-weight: 400; white-space: nowrap; }
+.pcf-util a{ color: var(--color-text); text-decoration: none; font-weight: 400; white-space: nowrap; }
 .pcf-util a:hover{ color: var(--color-accent); }
 .pcf-util .sep{ opacity: .35; font-weight: 300; }
 
@@ -374,36 +359,34 @@ p { margin: 0 0 1em; }
 }
 .pcf-menus > li{ position: static; } /* static so the mega-menu can span the full header width */
 /* Top-level items are TRIGGERS, never destinations — clicking must open the panel, not
-   navigate (Kiron, 2026-08-13). So they render as <button class="pcf-menu-btn">. The <a>
-   selector is kept alongside it only until every page is migrated off the old anchor
-   markup; both are styled identically so the two can coexist meanwhile. */
-.pcf-menus > li > a,
+   navigate. They render as <button class="pcf-menu-btn">, built by the nav script. */
 .pcf-menus > li > .pcf-menu-btn{
-  color: var(--gray-900); text-decoration: none; white-space: nowrap;   /* PC Black */
+  color: var(--color-text); text-decoration: none; white-space: nowrap;   /* PC Black */
   position: relative; padding: 8px 0; display: inline-block;
   transition: color .18s ease;
-  /* button reset — the label must be visually identical to the old anchor */
+  /* button reset — the label must render identically to the links around it */
   background: none; border: 0; margin: 0; cursor: pointer;
   font-family: inherit; font-size: inherit; font-weight: inherit; line-height: inherit;
 }
 /* hover / keyboard focus: no underline — the label shifts to PC Medium Blue */
-.pcf-menus > li:hover > a,
-.pcf-menus > li:focus-within > a,
 .pcf-menus > li:hover > .pcf-menu-btn,
 .pcf-menus > li:focus-within > .pcf-menu-btn{ color: var(--color-accent); }
 
 /* mega-menu pop-down */
 /* FIXED, not absolute, so the panel spans the VIEWPORT edge-to-edge.
-   It used to be `absolute; top: 100%` resolving against header.pcf (sticky = a positioned
-   ancestor). That broke when .pcf-inner gained position: relative for the search popover —
-   the panel silently narrowed to the --site box (1440px inset 48px each side at 1536)
-   instead of bleeding full width. Fixed positioning makes it independent of any ancestor,
-   and the header is sticky at top: 0 so the panel stays locked beneath it.
-   `top: var(--navH)` is the header's real height (117px, JS-synced) — the same place
-   `top: 100%` used to land. That makes this a FIFTH consumer of --navH; see §6. */
+
+   ⚠ Do not switch this to `absolute; top: 100%`. Absolute resolves against the nearest
+   positioned ancestor, which makes the panel's width depend on which ancestor happens to
+   be positioned — and .pcf-inner IS positioned, for the search popover, so the panel
+   silently narrows to the --site box (1440px inset 48px each side at 1536) instead of
+   bleeding full width. Fixed positioning is independent of every ancestor, and the header
+   is sticky at top: 0, so the panel stays locked beneath it either way.
+
+   `top: var(--navH)` is the header's real height (117px, JS-synced). That makes this a
+   FIFTH consumer of --navH; see §6. */
 .pcf-mega{
   position: fixed; left: 0; right: 0; top: var(--navH);
-  background: #fff; border-top: 3px solid var(--accent-light);
+  background: #fff; border-top: 3px solid var(--pc-navy);
   border-bottom: 1px solid var(--color-border);
   box-shadow: 0 14px 28px rgba(0,0,0,.12);
   opacity: 0; visibility: hidden; transform: translateY(-6px);
@@ -444,8 +427,8 @@ p { margin: 0 0 1em; }
 }
 .pcf-col h4{
   font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--gray-900);
-  margin: 0 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--gray-200);
+  text-transform: uppercase; color: var(--color-text);
+  margin: 0 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--color-border);
 }
 /* Ghost heading: a column that continues the list from the column to its left gets an
    invisible h4 so its first link starts on the same line as the neighbour's first link
@@ -454,18 +437,18 @@ p { margin: 0 0 1em; }
 .pcf-col h4.pcf-h4-ghost{ color: transparent; border-bottom-color: transparent; }
 .pcf-col ul{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .pcf-col a{
-  font-family: var(--font-sans); font-size: 11px; color: var(--gray-500); text-decoration: none;
+  font-family: var(--font-sans); font-size: 11px; color: var(--color-text-subtle); text-decoration: none;
   display: inline-block; transition: color .12s ease;
 }
 .pcf-col a:hover, .pcf-col a:focus{ color: var(--color-accent); text-decoration: none; }
-.pcf-col .soft{ color: var(--gray-500); font-size: 12px; margin: 0; }
+.pcf-col .soft{ color: var(--color-text-subtle); font-size: 12px; margin: 0; }
 .pcf-svcblock{ margin-bottom: 22px; }
 .pcf-svcblock:last-child{ margin-bottom: 0; }
 /* underline under each What-We-Do service heading, matching the h4 column-heading line on the other tabs */
-.pcf-col .pcf-svc{ display: block; margin-bottom: var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--gray-200); }
+.pcf-col .pcf-svc{ display: block; margin-bottom: var(--space-3); padding-bottom: var(--space-2); border-bottom: 1px solid var(--color-border); }
 .pcf-col .pcf-svc a{
   font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--gray-900); text-decoration: none; display: inline-block;
+  text-transform: uppercase; color: var(--color-text); text-decoration: none; display: inline-block;
 }
 .pcf-col .pcf-svc a:hover{ color: var(--color-accent); }
 .pcf-sublist{ list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -474,18 +457,18 @@ p { margin: 0 0 1em; }
 .pcf-badgecol{ display: flex; flex-direction: column; gap: 14px; }
 .pcf-badge{ display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .pcf-badge .emb{ width: 46px; height: 46px; flex: none; border-radius: 50%;
-  border: 1px solid var(--gray-200); background: var(--pc-light-blue); color: var(--accent-light);
+  border: 1px solid var(--color-border); background: var(--pc-light-blue); color: var(--pc-navy);
   display: inline-flex; align-items: center; justify-content: center; transition: border-color .14s ease, background .14s ease; }
 .pcf-badge.rect .emb{ border-radius: 6px; width: 62px; height: 42px;
-  font-family: var(--font-sans); font-weight: 800; font-size: 15px; letter-spacing: .06em; color: var(--accent-light); }
-.pcf-badge .blabel{ font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--gray-900); line-height: 1.25; text-decoration: none; }
-.pcf-badge:hover .blabel{ color: var(--accent-light); text-decoration: none; }
-.pcf-badge:hover .emb{ border-color: var(--accent-light); }
+  font-family: var(--font-sans); font-weight: 800; font-size: 15px; letter-spacing: .06em; color: var(--pc-navy); }
+.pcf-badge .blabel{ font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--color-text); line-height: 1.25; text-decoration: none; }
+.pcf-badge:hover .blabel{ color: var(--pc-navy); text-decoration: none; }
+.pcf-badge:hover .emb{ border-color: var(--pc-navy); }
 .pcf-badge .emb svg{ display: block; }
 
 @media (prefers-reduced-motion: reduce){
   .pcf-mega{ transition: none; transform: none; }
-  .pcf-menus > li > a{ transition: none; }
+  .pcf-menus > li > .pcf-menu-btn{ transition: none; }
 }
 
 /* NOT position: relative — the popover must anchor to .pcf-inner (the --site box), not to
@@ -493,32 +476,31 @@ p { margin: 0 0 1em; }
 .pcf-searchwrap{ flex: none; }
 .pcf-search{
   width: 40px; height: 40px; border-radius: 50%; border: 0;
-  display: inline-flex; align-items: center; justify-content: center; color: var(--gray-900);
+  display: inline-flex; align-items: center; justify-content: center; color: var(--color-text);
   flex: none; cursor: pointer; background: transparent;
   transition: background-color .15s ease, color .15s ease;
 }
 .pcf-search:hover, .pcf-search:focus-visible,
-.pcf-search[aria-expanded="true"]{ background: var(--accent-light); color:#fff; border-radius: 50%; }
-.pcf-search:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
+.pcf-search[aria-expanded="true"]{ background: var(--pc-navy); color:#fff; border-radius: 50%; }
+.pcf-search:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
-/* Flush with the RIGHT EDGE OF THE UTILITY BAR above it — which now ends on the --rail
-   (see .pcf-util), the same line as the nav, the search button and the footer columns.
-   Anchored to .pcf-inner, so `right: var(--rail)` IS that line at every width.
+/* Flush with the RIGHT EDGE OF THE UTILITY BAR above it, which ends on the --rail (see
+   .pcf-util) — the same line as the nav, the search button and the footer columns.
 
-   It used to be anchored to .pcf-searchwrap with `right: calc(var(--rail) * -1)`, which
-   resolved to the same place ONLY while the nav row fitted. Below 1280 the row overflows
-   and pushes the button off the rail, so the popover went with it — 41px past the --site
-   edge at 1279, and 3px past the VIEWPORT at 1100, 53px past it at 1024 and below.
-   Anchoring to the box makes the alignment independent of whether the row fits.
+   ⚠ ANCHOR THIS TO .pcf-inner, never to .pcf-searchwrap. Anchoring to the button resolves
+   to the same place ONLY while the nav row fits. Below 1280 the row overflows and pushes
+   the button off the rail, and the popover follows it: 41px past the --site edge at 1279,
+   3px past the VIEWPORT at 1100, and 53px past it at 1024 and below. Anchoring to the box
+   makes the alignment independent of whether the row fits, so `right: var(--rail)` IS the
+   rail at every width.
 
-   `top: 100%` = the bottom of .pcf-inner (util 40 + row 76 = 116px), which is exactly
-   where the old `calc(100% + 18px)` off the 40px button landed. Same position, derived
-   rather than coincidental. */
+   `top: 100%` = the bottom of .pcf-inner (util 40 + row 76 = 116px) — derived from the
+   box rather than measured off the button. */
 .pcf-searchpanel{
   position: absolute; top: 100%; right: var(--rail); z-index: 50;
   /* never wider than the content box, whatever the input asks for */
   max-width: calc(var(--site) - var(--rail) * 2);
-  background: var(--white); border: 1px solid var(--color-border);
+  background: var(--pc-white); border: 1px solid var(--color-border);
   border-radius: 0; box-shadow: 0 12px 32px rgba(0,0,0,.16);
   padding: 6px;
   opacity: 0; transform: translateY(-8px); visibility: hidden; pointer-events: none;
@@ -530,18 +512,18 @@ p { margin: 0 0 1em; }
 }
 .pcf-searchform{ display: flex; align-items: center; gap: 6px; }
 .pcf-searchform input{
-  border: 0; outline: 0; background: transparent; color: var(--gray-900);
+  border: 0; outline: 0; background: transparent; color: var(--color-text);
   font-family: var(--font-sans); font-size: 15px; padding: 9px 14px; width: var(--pcf-search-w);
   min-width: 0; flex: 1 1 auto;   /* so the panel's max-width can actually shrink it */
 }
-.pcf-searchform input::placeholder{ color: var(--gray-500); }
+.pcf-searchform input::placeholder{ color: var(--color-text-subtle); }
 .pcf-searchgo{
   width: 40px; height: 40px; flex: none; border: 0; border-radius: var(--radius-pill);
-  background: var(--accent-light); color: var(--white); cursor: pointer;
+  background: var(--pc-navy); color: var(--pc-white); cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
   transition: background-color .15s ease;
 }
-.pcf-searchgo:hover{ background: var(--accent-pine); }
+.pcf-searchgo:hover{ background: var(--pc-black); }
 @media (prefers-reduced-motion: reduce){
   .pcf-searchpanel{ transition: visibility 0s .001s; transform: none; }
   .pcf-searchpanel.open{ transition: none; }
@@ -549,7 +531,7 @@ p { margin: 0 0 1em; }
 
 /* Company mega-menu partner-logo box (both marks white/cream, on a PC Black panel) */
 .pcf-badges{ display:flex; flex-direction:column; gap:0;
-  background:var(--accent-pine); border:1px solid rgba(255,255,255,.16); border-radius:var(--radius-md); padding:2px 16px; }
+  background:var(--pc-black); border:1px solid rgba(255,255,255,.16); border-radius:var(--radius-md); padding:2px 16px; }
 .pcf-badge-logo{ background:transparent; border:0; padding:16px 0; justify-content:flex-start; align-items:center; }
 .pcf-badge-logo:hover{ box-shadow:none; transform:none; }
 .pcf-badge-logo + .pcf-badge-logo{ border-top:1px solid rgba(255,255,255,.14); }
@@ -570,12 +552,12 @@ p { margin: 0 0 1em; }
   pointer-events: auto; position: relative; cursor: pointer; border: 0; box-sizing: border-box;
   display: inline-flex; align-items: center; justify-content: center; gap: 9px;
   font-family: var(--font-sans); font-weight: 600; font-size: 15px; color:#fff;
-  background: var(--pc-black); height: var(--md-tab-h); width: 340px; padding: 0 26px;  /* was var(--accent-medium); see REVIEW.md revert log 2026-08-04 */
+  background: var(--pc-black); height: var(--md-tab-h); width: 340px; padding: 0 26px;
   border-radius: 0 0 14px 14px; box-shadow: 0 6px 16px rgba(0,0,0,.18);
   animation: md-flex 2s ease-in-out infinite;
 }
-.md-tab:hover{ background: var(--pc-medium-blue); }  /* was var(--accent-light) = PC Navy; see REVIEW.md revert log 2026-08-04 */
-.md-tab:focus-visible{ outline: 3px solid var(--accent-pine); outline-offset: 2px; }
+.md-tab:hover{ background: var(--pc-medium-blue); }
+.md-tab:focus-visible{ outline: 3px solid var(--pc-black); outline-offset: 2px; }
 .md-tab .md-chev{ display: inline-block; transition: transform .2s ease; }
 .md-tab[aria-expanded="true"] .md-chev{ transform: rotate(180deg); }
 .md-tab[aria-expanded="true"]{ animation: none; height: var(--md-tab-h); }
@@ -605,13 +587,13 @@ p { margin: 0 0 1em; }
   border: 1px solid var(--pc-light-blue); border-radius: var(--radius-pill);
   padding: 0 18px; height: 40px;
   transition: background-color .15s ease, color .15s ease, border-color .15s ease; }
-.md-close:hover{ background: var(--accent-medium); border-color: var(--accent-medium); color: #fff; }
-.md-close:focus-visible{ outline: 2px solid var(--accent-pine); outline-offset: 2px; }
-/* No horizontal padding — the rail lives on .md-layer's max-width now, so the map
+.md-close:hover{ background: var(--pc-medium-blue); border-color: var(--pc-medium-blue); color: #fff; }
+.md-close:focus-visible{ outline: 2px solid var(--pc-black); outline-offset: 2px; }
+/* No horizontal padding — the rail lives on .md-layer's max-width, so the map
    image fills the panel edge to edge. */
 .md-layer-body{ display: flex; align-items: center; justify-content: center;
   min-height: calc(100vh - var(--navH) - 68px); }
-.md-placeholder{ font-family: var(--font-serif); font-size: 40px; color: var(--gray-500); margin: 0; }
+.md-placeholder{ font-family: var(--font-serif); font-size: 40px; color: var(--color-text-subtle); margin: 0; }
 .md-mapimg{ display: block; width: 100%; height: calc(100vh - var(--navH) - 68px);
   object-fit: cover; object-position: center; }
 @media (prefers-reduced-motion: reduce){
@@ -623,8 +605,8 @@ p { margin: 0 0 1em; }
 /* ============================================================================
    10. FOOTER — connect band on top + right-justified nav columns
    ============================================================================ */
-.pff{ background: #fff; color: var(--gray-600); border-top: 1px solid var(--pc-light-blue); }
-.pff a{ color: var(--gray-600); text-decoration: none; transition: color .15s ease; }
+.pff{ background: #fff; color: var(--color-text-subtle); border-top: 1px solid var(--pc-light-blue); }
+.pff a{ color: var(--color-text-subtle); text-decoration: none; transition: color .15s ease; }
 .pff a:hover{ color: var(--color-accent); }  /* footer link hover → PC Medium Blue (matches nav) */
 .pff-inner{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
@@ -642,7 +624,7 @@ p { margin: 0 0 1em; }
    below.
    Selector is .pff-col a.pff-brand-logo, NOT .pff-brand-logo: .pff-brand also carries the
    class pff-col, so the generic `.pff-col a{ display: inline-block }` (0,1,1) outranks a bare
-   class (0,1,0) and the lockup was never actually hidden — it rendered at its natural 500px
+   class (0,1,0), so a bare class cannot hide the lockup — it renders at its natural 500px
    in every band. Both this rule and the one that shows it need to clear that bar. */
 .pff-col a.pff-brand-logo{ display: none; }
 /* The headline and the subscribe pill share this grid cell (both 2/-1, row 1) — the
@@ -659,44 +641,44 @@ p { margin: 0 0 1em; }
    The markup binds "to Our Newsletter." with nbsp so the only break is after Subscribe. */
 .pff-connect-line{ grid-column: 2 / -1; grid-row: 1; text-align: right; margin: 0; padding-left: 20px;
   padding-right: calc(var(--pff-pill-w) + var(--space-7)); font-family: var(--font-sans);
-  font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--hp-ink); }
+  font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--pc-black); }
 
 /* newsletter subscribe — light pill on white with a PC Medium Blue Subscribe pill flush right */
 .pff-subform{ grid-column: 2 / -1; grid-row: 1; justify-self: end;
   display: flex; align-items: stretch; width: var(--pff-pill-w); max-width: 100%;
   background: var(--pc-light-blue); border: 1px solid var(--pc-light-blue);
   border-radius: var(--radius-pill); padding: 0; overflow: hidden; }
-.pff-subform:focus-within{ border-color: var(--accent-light); }
+.pff-subform:focus-within{ border-color: var(--pc-navy); }
 .pff-subform input{
-  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--hp-ink);
+  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--pc-black);
   font-family: var(--font-sans); font-size: 14px; font-weight: 700; padding: 12px 16px 12px 22px;
 }
-.pff-subform input::placeholder{ color: var(--gray-600); font-weight: 700; }
+.pff-subform input::placeholder{ color: var(--color-text-subtle); font-weight: 700; }
 .pff-subform button{
   flex: none; align-self: stretch; display: flex; align-items: center; justify-content: center;
-  border: 0; cursor: pointer; background: var(--accent-medium); color: #fff;
+  border: 0; cursor: pointer; background: var(--pc-medium-blue); color: #fff;
   border-radius: var(--radius-pill);
   font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .04em;
   padding: 0 26px; transition: background-color .15s ease;
 }
-.pff-subform button:hover{ background: var(--accent-light); }
-.pff-contact{ font-size: 14px; line-height: 1.9; margin-bottom: var(--space-5); color: var(--hp-ink); }
-.pff-contact b{ color: var(--hp-ink); font-weight: 500; }
+.pff-subform button:hover{ background: var(--pc-navy); }
+.pff-contact{ font-size: 14px; line-height: 1.9; margin-bottom: var(--space-5); color: var(--pc-black); }
+.pff-contact b{ color: var(--pc-black); font-weight: 500; }
 .pff-cta{ display: flex; gap: var(--space-3); flex-wrap: wrap; }
 .pff-cta .btn{ padding: 12px 22px; font-size: 15px; }
-.btn-ghost{ background: transparent; color: var(--accent-light); border-color: rgba(18,64,106,.45); }
-.btn-ghost:hover{ border-color: var(--accent-light); background: var(--pc-light-blue); }
+.btn-ghost{ background: transparent; color: var(--pc-navy); border-color: rgba(18,64,106,.45); }
+.btn-ghost:hover{ border-color: var(--pc-navy); background: var(--pc-light-blue); }
 /* Find an Office — matches the newsletter Subscribe pill (filled PC Medium Blue, white text) */
-.pff-cta a.btn-subscribe{ background: var(--accent-medium); color: #fff; border-color: var(--accent-medium);
+.pff-cta a.btn-subscribe{ background: var(--pc-medium-blue); color: #fff; border-color: var(--pc-medium-blue);
   border-radius: var(--radius-pill); font-weight: 700; letter-spacing: .04em; }
-.pff-cta a.btn-subscribe:hover{ background: var(--accent-light); border-color: var(--accent-light); color: #fff; }
+.pff-cta a.btn-subscribe:hover{ background: var(--pc-navy); border-color: var(--pc-navy); color: #fff; }
 
 .pff-col h3{
   font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--hp-ink); margin: 0 0 var(--space-4);
+  text-transform: uppercase; color: var(--pc-black); margin: 0 0 var(--space-4);
 }
 .pff-brand h3{ margin-bottom: var(--space-2); }
-/* Corporate Office + address indented to match version-B placement */
+/* Corporate Office + address indented to sit under the footer lockup's wordmark */
 .pff-brand h3, .pff-brand .pff-contact, .pff-brand .pff-cta{ padding-left: var(--footer-brand-indent); }
 .pff-col ul{ list-style: none; margin: 0; padding: 2px 0 0; overflow: visible; }
 .pff-col li{ margin-bottom: var(--space-3); line-height: 1.35; }
@@ -719,16 +701,16 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
 /* Copyright shares the brand column's indent so it lines up with the office address. */
 .pff-bottom-inner .copy{
   justify-self: start; padding-left: var(--footer-brand-indent);
-  font-size: 12.5px; color: var(--gray-500);
+  font-size: 12.5px; color: var(--color-text-subtle);
 }
 .pff-bottom-inner .legal-links{
   justify-self: center; display: flex; gap: 20px; font-size: 12.5px;
 }
-.pff-bottom-inner .legal-links a{ color: var(--gray-600); }
+.pff-bottom-inner .legal-links a{ color: var(--color-text-subtle); }
 .pff-bottom-inner .legal-links a:hover{ color: var(--color-accent); }
 
 .pff-social{ justify-self: end; display: inline-flex; align-items: center; gap: 16px; }
-.pff-social a{ display: inline-flex; color: var(--gray-600); }
+.pff-social a{ display: inline-flex; color: var(--color-text-subtle); }
 .pff-social a:hover{ color: var(--color-accent); }
 .pff-social svg{ width: 18px; height: 18px; display: block; }
 
@@ -739,49 +721,48 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
 .reveal.in{ opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce){
   .reveal{ opacity: 1; transform: none; transition: none; }
-  .pcf-menus > li > a{ transition: none; }
 }
 
 /* ============================================================================
    12. HOMEPAGE BODY (.hp)
    ============================================================================ */
-.hp{ font-family: var(--font-sans); color: var(--hp-ink); }
+.hp{ font-family: var(--font-sans); color: var(--pc-black); }
 .hp .hp-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
 /* graceful photo fallback container — PC Black → PC Navy gradient */
-.hp-imgwrap{ background: linear-gradient(135deg,#07162C 0%,#12406A 100%); overflow: hidden; }
+.hp-imgwrap{ background: linear-gradient(135deg,var(--pc-black) 0%,var(--pc-navy) 100%); overflow: hidden; }
 .hp-imgwrap img{ display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* shared bits */
 .hp-eyebrow{ display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-sans);
-  font-size: 16px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-light); margin: 0; }
-.hp-eyebrow::before{ content:""; width: 26px; height: 2px; background: var(--accent-light); display: block; }
-.hp-eyebrow.on-dark{ color: var(--accent-dark); }
-.hp-eyebrow.on-dark::before{ background: var(--accent-dark); }
+  font-size: 16px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--pc-navy); margin: 0; }
+.hp-eyebrow::before{ content:""; width: 26px; height: 2px; background: var(--pc-navy); display: block; }
+.hp-eyebrow.on-dark{ color: var(--pc-blue); }
+.hp-eyebrow.on-dark::before{ background: var(--pc-blue); }
 /* "What We Do" section eyebrow → PC Medium Blue (other eyebrows stay PC Navy) */
-.hp-svc .hp-eyebrow{ color: var(--accent-medium); }
-.hp-svc .hp-eyebrow::before{ background: var(--accent-medium); }
+.hp-svc .hp-eyebrow{ color: var(--pc-medium-blue); }
+.hp-svc .hp-eyebrow::before{ background: var(--pc-medium-blue); }
 
 .hp-btn{ display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-pill);
   font-family: var(--font-sans); font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer;
   padding: 13px 28px; border: 2px solid transparent; transition: background .15s, border-color .15s, color .15s; }
 /* pill buttons on light backgrounds — PC Medium Blue → PC Navy on hover (matches the Interactive Map button/tab) */
-.hp-btn-primary{ background: var(--accent-medium); color:#fff; border-color: var(--accent-medium); }
-.hp-btn-primary:hover, .hp-btn-primary:focus{ background: var(--accent-light); border-color: var(--accent-light); }
-.hp-btn-primary:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 3px; }
+.hp-btn-primary{ background: var(--pc-medium-blue); color:#fff; border-color: var(--pc-medium-blue); }
+.hp-btn-primary:hover, .hp-btn-primary:focus{ background: var(--pc-navy); border-color: var(--pc-navy); }
+.hp-btn-primary:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px; }
 /* "Open Interactive Map" — flat solid, no outline; PC Medium Blue → PC Navy on hover */
-.hp-btn-solid-dark{ background: var(--accent-medium); color:#fff; border-color: var(--accent-medium); }
-.hp-btn-solid-dark:hover, .hp-btn-solid-dark:focus{ background: var(--accent-light); border-color: var(--accent-light); }
+.hp-btn-solid-dark{ background: var(--pc-medium-blue); color:#fff; border-color: var(--pc-medium-blue); }
+.hp-btn-solid-dark:hover, .hp-btn-solid-dark:focus{ background: var(--pc-navy); border-color: var(--pc-navy); }
 .hp-btn-solid-dark:focus-visible{ outline: 2px solid #fff; outline-offset: 3px; }
 .hp-btn-ghost-light{ background: transparent; color:#fff; border-color: rgba(255,255,255,.55); }
 .hp-btn-ghost-light:hover, .hp-btn-ghost-light:focus{ border-color:#fff; }
-.hp-btn-ghost-light:focus-visible{ outline: 2px solid var(--accent-dark); outline-offset: 3px; }
+.hp-btn-ghost-light:focus-visible{ outline: 2px solid var(--pc-blue); outline-offset: 3px; }
 
 /* cohesive spacing between sections */
 .hp-sec{ padding: var(--space-7) 0; }
 @media (max-width:680px){ .hp-sec{ padding: var(--space-6) 0; } }
 .hp-sec h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; line-height: 1.12;
-  color: var(--hp-ink); margin: var(--space-3) 0 0; }
+  color: var(--pc-black); margin: var(--space-3) 0 0; }
 
 /* ── 1 · HERO — static editorial still + dark overlay + inline stats ── */
 .hp-hero{ position: relative; min-height: 620px; display: flex; align-items: flex-end; overflow: hidden; }
@@ -796,47 +777,47 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
 .hp-hero-inner{ position: relative; z-index: 2; padding: var(--space-8) 0 var(--space-7); width: 100%; }
 .hp-hero h1{ font-family: var(--font-serif); font-weight: 500; font-size: 64px; line-height: 1.06;
   color:#fff; margin: var(--space-4) 0 var(--space-4); max-width: 16ch; }
-.hp-hero h1 em{ font-style: italic; color: var(--accent-dark); }
-.hp-hero > .hp-hero-inner p.hp-lead{ font-size: 18px; color:#D7EFFB; max-width: 52ch; line-height: 1.65; margin: 0; }
-.hp-hero::after{ content:""; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: var(--accent-light); z-index: 3; }
+.hp-hero h1 em{ font-style: italic; color: var(--pc-blue); }
+.hp-hero > .hp-hero-inner p.hp-lead{ font-size: 18px; color:var(--text-on-dark-muted); max-width: 52ch; line-height: 1.65; margin: 0; }
+.hp-hero::after{ content:""; position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: var(--pc-navy); z-index: 3; }
 /* inline hero stats */
 .hp-hero-stats{ display: flex; flex-wrap: wrap; gap: 34px; margin-top: 34px; }
-.hp-hstat{ display: flex; flex-direction: column; padding-left: 15px; border-left: 2px solid var(--accent-dark); }
+.hp-hstat{ display: flex; flex-direction: column; padding-left: 15px; border-left: 2px solid var(--pc-blue); }
 .hp-hstat .n{ font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1; color:#fff; }
-.hp-hstat .l{ font-size: 12.5px; color:#D7EFFB; margin-top: 7px; letter-spacing: .02em; max-width: 15ch; }
+.hp-hstat .l{ font-size: 12.5px; color:var(--text-on-dark-muted); margin-top: 7px; letter-spacing: .02em; max-width: 15ch; }
 
 /* ── 2 · SERVICES (small left line icons, no top band) ── */
-.hp-svc{ background:#FFFFFF; }
+.hp-svc{ background:var(--pc-white); }
 .hp-svc-head{ margin-bottom: var(--space-6); }
 .hp-svc-head h2{ max-width: none; }
 .hp-svc-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
-.hp-card{ background: var(--soft-white); border: 1px solid rgba(18,64,106,.22); border-radius: var(--radius-md);
+.hp-card{ background: var(--pc-soft-white); border: 1px solid rgba(18,64,106,.22); border-radius: var(--radius-md);
   padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3);
   transition: box-shadow .18s, transform .18s; }
 .hp-card:hover{ box-shadow: 0 8px 22px rgba(0,0,0,.09); transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce){ .hp-card:hover{ transform: none; } }
 /* the 7 service cards are links → keep text tone, no underline; visible focus ring */
 a.hp-card{ text-decoration: none; color: inherit; }
-a.hp-card:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
-/* solid chip holding the official white-fill PC service glyphs — PC Black (was var(--accent-light) = PC Navy; see REVIEW.md revert log 2026-08-04) */
+a.hp-card:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+/* solid chip holding the official white-fill PC service glyphs — PC Black */
 .hp-svc-ic{ width: 44px; height: 44px; border-radius: 10px; background: var(--pc-black); color: #fff;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .hp-svc-ic svg{ width: 23px; height: 23px; display: block; }
 .hp-svc-ic .hp-svcimg{ width: 27px; height: 27px; display: block; object-fit: contain; }
 .hp-svc-ic svg.hp-gavel{ width: 27px; height: 27px; fill: #fff; stroke: none; }
-.hp-card h4{ font-family: var(--font-serif); font-weight: 500; font-size: 18px; color: var(--hp-ink); margin: 0; }
-.hp-card p{ font-size: 13px; color: var(--hp-ink); margin: 0; line-height: 1.55; }  /* PC Black */
+.hp-card h4{ font-family: var(--font-serif); font-weight: 500; font-size: 18px; color: var(--pc-black); margin: 0; }
+.hp-card p{ font-size: 13px; color: var(--pc-black); margin: 0; line-height: 1.55; }  /* PC Black */
 /* 8th "All Services" accent-filled CTA card */
-a.hp-card-all{ background: var(--accent-medium); border-color: var(--accent-medium);
+a.hp-card-all{ background: var(--pc-medium-blue); border-color: var(--pc-medium-blue);
   text-decoration: none; justify-content: flex-start; }
 a.hp-card-all:hover{ box-shadow: 0 8px 22px rgba(0,0,0,.18); }
-a.hp-card-all .hp-svc-ic{ background: var(--pc-black); color:#fff; }  /* was var(--accent-light) = PC Navy; see REVIEW.md revert log 2026-08-04 */
+a.hp-card-all .hp-svc-ic{ background: var(--pc-black); color:#fff; }
 a.hp-card-all h4{ color:#fff; }
 a.hp-card-all p{ color: rgba(255,255,255,.90); }
 a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14px; font-weight: 600; color:#fff; }
 
 /* ── 3 · WHO WE SERVE — PC Navy band, white audience cards ── */
-.hp-serve{ background: var(--pc-navy); }  /* was var(--accent-medium) = PC Medium Blue; see REVIEW.md revert log 2026-08-04 */
+.hp-serve{ background: var(--pc-navy); }
 .hp-serve .hp-wrap{ padding-top: var(--space-7); padding-bottom: var(--space-7); }
 @media (max-width:680px){ .hp-serve .hp-wrap{ padding-top: var(--space-6); padding-bottom: var(--space-6); } }
 .hp-serve-head{ margin-bottom: var(--space-5); }
@@ -850,20 +831,20 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   text-decoration: none; background: #fff; transition: box-shadow .18s, transform .18s; }
 .hp-serve-card:hover, .hp-serve-card:focus{ box-shadow: 0 8px 22px rgba(0,0,0,.09); transform: translateY(-2px); outline: none; }
 @media (prefers-reduced-motion: reduce){ .hp-serve-card:hover, .hp-serve-card:focus{ transform: none; } }
-.hp-serve-card:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 2px; }
-.hp-serve-card .tag{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-medium); }
-.hp-serve-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; color: var(--hp-ink); margin: 6px 0 0; line-height: 1.2; }
-.hp-serve-card p{ font-size: 13px; color: var(--hp-ink); margin: 0; line-height: 1.5; }
-.hp-serve-card .arrow{ margin-top: auto; padding-top: var(--space-3); color: var(--hp-ink); font-size: 18px; }
+.hp-serve-card:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+.hp-serve-card .tag{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--pc-medium-blue); }
+.hp-serve-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; color: var(--pc-black); margin: 6px 0 0; line-height: 1.2; }
+.hp-serve-card p{ font-size: 13px; color: var(--pc-black); margin: 0; line-height: 1.5; }
+.hp-serve-card .arrow{ margin-top: auto; padding-top: var(--space-3); color: var(--pc-black); font-size: 18px; }
 
 /* ── 4 · FARMWORTH — SOLID PC Black band, horizontal media slot ── */
-.hp-tech{ background: var(--accent-pine); color:#fff; }
+.hp-tech{ background: var(--pc-black); color:#fff; }
 .hp-tech .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
 .hp-tech h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color:#fff; margin: var(--space-3) 0; line-height: 1.12; }
-.hp-tech p:not(.hp-eyebrow){ font-size: 16px; color:#D7EFFB; line-height: 1.65; margin: 0 0 var(--space-5); max-width: 46ch; }
+.hp-tech p:not(.hp-eyebrow){ font-size: 16px; color:var(--text-on-dark-muted); line-height: 1.65; margin: 0 0 var(--space-5); max-width: 46ch; }
 .hp-tech-feat{ list-style: none; padding: 0; margin: 0 0 var(--space-6); display: grid; gap: 10px; }
-.hp-tech-feat li{ font-size: 14px; color:#D7EFFB; display: flex; gap: 10px; align-items: flex-start; }
-.hp-tech-feat li::before{ content:"\25C6"; color: var(--accent-dark); font-size: 9px; margin-top: 5px; flex-shrink: 0; }
+.hp-tech-feat li{ font-size: 14px; color:var(--text-on-dark-muted); display: flex; gap: 10px; align-items: flex-start; }
+.hp-tech-feat li::before{ content:"\25C6"; color: var(--pc-blue); font-size: 9px; margin-top: 5px; flex-shrink: 0; }
 .hp-tech-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
   aspect-ratio: 16 / 9; width: 100%; min-height: 0;
   border: 1px solid rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; }
@@ -873,31 +854,30 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .hp-tech-media .hp-imgwrap::after{ content:""; position: absolute; inset: 0; background: rgba(7,20,40,.35); }
 
 /* ── 5 · LAND INVESTMENT EXPO — PC Light Blue #D7EFFB band (LIGHT),
-   on-light text: PC Medium Blue eyebrow, PC Black heading/body/meta, solid Medium Blue CTA.
-   (was PC Medium Blue band w/ on-dark white text; see REVIEW.md revert log 2026-08-04) ── */
+   on-light text: PC Medium Blue eyebrow, PC Black heading/body/meta, solid Medium Blue CTA. ── */
 .hp-expo{ background: var(--pc-light-blue); }
 .hp-expo .hp-wrap{ display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--space-8); align-items: center; }
 .hp-expo-media{ position: relative; border-radius: var(--radius-md); overflow: hidden;
   aspect-ratio: 4 / 3; min-height: 300px; }
 .hp-expo-media .hp-imgwrap{ position: absolute; inset: 0; }
-.hp-expo .hp-eyebrow{ color: var(--accent-medium); }                 /* PC Medium Blue (on-light) */
-.hp-expo .hp-eyebrow::before{ background: var(--accent-medium); }
-.hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink); margin: var(--space-3) 0; line-height: 1.12; max-width: 18ch; }
-.hp-expo p:not(.hp-eyebrow){ font-size: 16px; color: var(--hp-ink); line-height: 1.65; margin: 0 0 var(--space-4); max-width: 48ch; }
-.hp-expo-meta{ display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 var(--space-6); font-size: 13.5px; font-weight: 600; color: var(--hp-ink); }
+.hp-expo .hp-eyebrow{ color: var(--pc-medium-blue); }                 /* PC Medium Blue (on-light) */
+.hp-expo .hp-eyebrow::before{ background: var(--pc-medium-blue); }
+.hp-expo h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--pc-black); margin: var(--space-3) 0; line-height: 1.12; max-width: 18ch; }
+.hp-expo p:not(.hp-eyebrow){ font-size: 16px; color: var(--pc-black); line-height: 1.65; margin: 0 0 var(--space-4); max-width: 48ch; }
+.hp-expo-meta{ display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 var(--space-6); font-size: 13.5px; font-weight: 600; color: var(--pc-black); }
 .hp-expo-meta span{ display: inline-flex; align-items: center; gap: 8px; }
-.hp-expo-meta span::before{ content:"\25C6"; font-size: 8px; color: var(--accent-medium); }
+.hp-expo-meta span::before{ content:"\25C6"; font-size: 8px; color: var(--pc-medium-blue); }
 /* CTA reads on the light band: solid PC Medium Blue fill, white label → PC Navy on hover (site light-bg pill convention) */
-.hp-expo .hp-btn-primary{ background: var(--accent-medium); color: #fff; border-color: var(--accent-medium); }
-.hp-expo .hp-btn-primary:hover, .hp-expo .hp-btn-primary:focus{ background: var(--accent-light); border-color: var(--accent-light); color: #fff; }
-.hp-expo .hp-btn-primary:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 3px; }
+.hp-expo .hp-btn-primary{ background: var(--pc-medium-blue); color: #fff; border-color: var(--pc-medium-blue); }
+.hp-expo .hp-btn-primary:hover, .hp-expo .hp-btn-primary:focus{ background: var(--pc-navy); border-color: var(--pc-navy); color: #fff; }
+.hp-expo .hp-btn-primary:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px; }
 
 /* ── 6 · NATIONAL FOOTPRINT + CONNECT (combined) ── */
-.hp-reach{ background: var(--soft-white); border-top: 1px solid var(--pc-light-blue); }
+.hp-reach{ background: var(--pc-soft-white); border-top: 1px solid var(--pc-light-blue); }
 .hp-reach-head{ margin-bottom: var(--space-6); max-width: 62ch; }
-.hp-reach-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink);
+.hp-reach-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--pc-black);
   margin: var(--space-2) 0 var(--space-3); line-height: 1.12; max-width: none; }
-.hp-reach-head > p:not(.hp-eyebrow){ font-size: 15px; color: var(--hp-ink); line-height: 1.6; margin: 0; max-width: 52ch; }
+.hp-reach-head > p:not(.hp-eyebrow){ font-size: 15px; color: var(--pc-black); line-height: 1.6; margin: 0; max-width: 52ch; }
 /* stretch so the map and the Connect card are the SAME height (row = the taller one) */
 .hp-reach-grid{ display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-8); align-items: stretch; }
 /* map — no outline, no legend labels; fills its cell height to match the card */
@@ -907,55 +887,59 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .hp-map-placeholder{ min-height: 380px; border-radius: var(--radius-md);
   display: flex; align-items: center; justify-content: center; text-align: center;
   padding: var(--space-6);
-  background: linear-gradient(135deg, #07162C, #12406A);
+  background: linear-gradient(135deg, var(--pc-black), var(--pc-navy));
   border: 1px dashed rgba(255,255,255,.35); }
 .hp-map-placeholder span{ font-family: var(--font-serif); font-weight: 500;
   font-size: 24px; line-height: 1.3; color: #fff; max-width: 26ch; }
 /* connect block (1/3) */
 .hp-connect-card{ background: var(--pc-light-blue); border-radius: var(--radius-md); padding: var(--space-7); }
-.hp-connect-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; color: var(--hp-ink);
+.hp-connect-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; color: var(--pc-black);
   margin: var(--space-2) 0 var(--space-3); line-height: 1.14; }
-.hp-connect-card > p{ font-size: 15px; color: var(--hp-ink); line-height: 1.6; margin: 0 0 var(--space-5); }
+.hp-connect-card > p{ font-size: 15px; color: var(--pc-black); line-height: 1.6; margin: 0 0 var(--space-5); }
 .hp-connect-stat{ display: flex; align-items: baseline; gap: 10px; margin: 0 0 var(--space-5); }
-.hp-connect-stat .n{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; line-height: 1; color: var(--accent-light); }
-.hp-connect-stat .l{ font-size: 13px; color: var(--hp-ink); }
+.hp-connect-stat .n{ font-family: var(--font-serif); font-weight: 500; font-size: 30px; line-height: 1; color: var(--pc-navy); }
+.hp-connect-stat .l{ font-size: 13px; color: var(--pc-black); }
 
 /* ── 7 · INSIGHTS & NEWS — Industry Research, horizontal cards, tabbed ── */
 .hp-ins-sec{ background: var(--pc-white); }  /* PC White */
 
 /* catalog vars, scoped + retinted to the PC palette (no blue-blue, no green) */
 .io-scope{ --serif:var(--font-serif); --sans:var(--font-sans);
-  /* body text (titles, teasers, dates/meta) is all PC Black; --blue stays PC Navy
-     for accents/labels/links (chips, "View more", category tag). */
-  --ink:#07162C; --muted:#07162C; --faint:#07162C;
-  --line:#D7EFFB; --line-2:#D7EFFB; --card:#FFFFFF; --panel:#FFFFFF;
-  --blue:#12406A; --blue-tint:#D7EFFB; --r:14px; --r-sm:10px;
+  /* Body text (titles, teasers, dates/meta) is all PC Black. --io-accent is PC NAVY,
+     not the bright PC Blue — it carries accents/labels/links (chips, "View more",
+     category tag) on a white card, where bright blue would fail contrast.
+     NOTE --ink and --line are read by inline styles in index.html; do not rename them. */
+  --ink:var(--pc-black); --muted:var(--pc-black); --faint:var(--pc-black);
+  --line:var(--pc-light-blue); --line-2:var(--pc-light-blue);
+  --card:var(--pc-white); --panel:var(--pc-white);
+  --io-accent:var(--pc-navy); --io-accent-tint:var(--pc-light-blue);
+  --r:14px; --r-sm:10px;
   font-family: var(--sans); color: var(--ink); }
 
 /* shared section furniture */
 .io-scope .io-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin:0 0 22px; }
-.io-scope .io-eyebrow{ display:inline-flex; align-items:center; gap:10px; font-size:16px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin:0 0 6px; }
-.io-scope .io-eyebrow::before{ content:""; width:26px; height:2px; background:var(--blue); }
+.io-scope .io-eyebrow{ display:inline-flex; align-items:center; gap:10px; font-size:16px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--io-accent); margin:0 0 6px; }
+.io-scope .io-eyebrow::before{ content:""; width:26px; height:2px; background:var(--io-accent); }
 .io-scope .io-h2{ font-family:var(--serif); font-weight:500; font-size:44px; line-height:1.12; margin:0; letter-spacing:-.01em; }
-.io-scope .io-viewmore{ font-size:13.5px; font-weight:700; color:var(--blue); text-decoration:none; white-space:nowrap; }
+.io-scope .io-viewmore{ font-size:13.5px; font-weight:700; color:var(--io-accent); text-decoration:none; white-space:nowrap; }
 .io-scope .io-viewmore:hover{ color:var(--color-accent); text-decoration:none; }
 .io-scope .io-block + .io-block{ margin-top:46px; padding-top:44px; border-top:1px solid var(--line-2); }
 #hpInsights .io-block + .io-block{ margin-top:22px; padding-top:22px; }
 
 /* image wrapper + graceful fallback — PC Black → PC Navy gradient */
-.io-scope .io-ph{ position:relative; overflow:hidden; background:linear-gradient(135deg,#07162C,#12406A); }
+.io-scope .io-ph{ position:relative; overflow:hidden; background:linear-gradient(135deg,var(--pc-black),var(--pc-navy)); }
 .io-scope .io-ph img{ width:100%; height:100%; object-fit:cover; }
 .io-scope .io-ph.r169{ aspect-ratio:16/9; }
 .io-scope .io-ph.rcover{ aspect-ratio:850/1100; }
 
 /* text bits */
-.io-scope .io-kicker{ font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); }
-.io-scope .io-chip{ display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-tint); border-radius:999px; padding:3px 10px; }
+.io-scope .io-kicker{ font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--io-accent); }
+.io-scope .io-chip{ display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--io-accent); background:var(--io-accent-tint); border-radius:999px; padding:3px 10px; }
 .io-scope .io-date{ font-size:12px; color:var(--faint); }
 .io-scope .io-metarow{ display:flex; gap:10px; align-items:center; }
 .io-scope .io-title{ font-family:var(--serif); font-weight:500; color:var(--ink); line-height:1.25; margin:0; }
 .io-scope .io-teaser{ font-size:13.5px; color:var(--muted); line-height:1.5; margin:0; }
-.io-scope .io-link, .io-scope .io-more{ font-size:12.5px; font-weight:700; color:var(--blue); text-decoration:none; margin-top:2px; }
+.io-scope .io-link, .io-scope .io-more{ font-size:12.5px; font-weight:700; color:var(--io-accent); text-decoration:none; margin-top:2px; }
 .io-scope .io-moretag{ font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin:24px 0 4px; }
 .io-scope .io-read{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--faint); }
 
@@ -964,7 +948,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   border:1px solid var(--line); border-radius:var(--r); overflow:hidden; transition:box-shadow .18s ease, transform .18s ease; }
 .io-scope .io-card:hover{ box-shadow:0 12px 30px rgba(0,0,0,.10); transform:translateY(-3px); }
 @media (prefers-reduced-motion: reduce){ .io-scope .io-card:hover{ transform:none; } }
-.io-scope .io-card:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+.io-scope .io-card:focus-visible{ outline:2px solid var(--io-accent); outline-offset:2px; }
 .io-scope .io-body{ display:flex; flex-direction:column; gap:8px; padding:16px 16px 18px; flex:1; }
 
 /* clickable headline rows (older items) */
@@ -978,8 +962,8 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 /* tabs */
 .io-scope .ioF-tabs{ display:inline-flex; gap:4px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:4px; margin:0 0 22px; }
 .io-scope .ioF-tab{ border:0; background:transparent; cursor:pointer; font-family:var(--sans); font-size:14px; font-weight:600; color:var(--muted); padding:9px 20px; border-radius:999px; }
-.io-scope .ioF-tab[aria-selected="true"]{ background:var(--blue); color:#fff; }
-.io-scope .ioF-tab:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+.io-scope .ioF-tab[aria-selected="true"]{ background:var(--io-accent); color:#fff; }
+.io-scope .ioF-tab:focus-visible{ outline:2px solid var(--io-accent); outline-offset:2px; }
 /* Stack both panels in one grid cell so the section height = the taller tab. */
 .io-scope .ioF-panels{ display:grid; }
 .io-scope .ioF-panels > .ioF-panel{ grid-area:1/1; }
@@ -999,7 +983,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .pc-toast{ position: fixed; right: 20px; bottom: var(--toast-bottom); z-index: 25;
   width: min(340px, calc(100vw - 40px));
   display: flex; align-items: flex-start; gap: 12px;
-  background: var(--pc-black); color: #fff;  /* was var(--accent-light) = PC Navy; see REVIEW.md revert log 2026-08-04 */
+  background: var(--pc-black); color: #fff;
   border-radius: var(--radius-md); box-shadow: 0 18px 44px rgba(0,0,0,.28);
   padding: 16px; font-family: var(--font-sans); }
 .pc-toast[hidden]{ display: none; }
@@ -1024,11 +1008,11 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 /* Reopen handle — attached to the right edge; appears after the toast is minimized */
 .pc-toast-reopen{ position: fixed; right: 0; bottom: var(--toast-handle-bottom); z-index: 25;
   display: inline-flex; align-items: center; gap: 8px;
-  background: var(--pc-black); color:#fff; border: 0; cursor: pointer;  /* was var(--accent-light) = PC Navy; see REVIEW.md revert log 2026-08-04 */
+  background: var(--pc-black); color:#fff; border: 0; cursor: pointer;
   font-family: var(--font-sans); font-size: 12.5px; font-weight: 700; letter-spacing: .02em;
   padding: 11px 15px; border-radius: 12px 0 0 12px; box-shadow: -6px 8px 22px rgba(0,0,0,.24); }
 .pc-toast-reopen[hidden]{ display: none; }
-.pc-toast-reopen:hover{ background: var(--pc-medium-blue); }  /* was var(--accent-pine) = PC Black; see REVIEW.md revert log 2026-08-04 */
+.pc-toast-reopen:hover{ background: var(--pc-medium-blue); }
 .pc-toast-reopen svg{ flex: none; display: block; }
 .pc-toast-reopen:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; }
 @media (prefers-reduced-motion: no-preference){
@@ -1039,7 +1023,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 /* ============================================================================
    14. Responsive
    ============================================================================ */
-/* UTILITY BAR TINT BLEEDS OFF THE RIGHT EDGE, 1023px down (Kiron).
+/* UTILITY BAR TINT BLEEDS OFF THE RIGHT EDGE, 1023px down.
    1024 and up keeps the tint ON THE RAIL, aligned with the nav, the search button and the
    footer columns — that alignment is approved and must not change.
    The bar's BOX must not move: its text is right-aligned inside it, so widening the box to
@@ -1104,57 +1088,48 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .hp-reach-grid{ grid-template-columns: 1fr; }
   /* stacked: map returns to its natural height (no cover-crop against a sibling) */
   .hp-map, .hp-map-img{ height: auto; }
-  /* (The footprint heading used to be forced onto one line above 1024 and released here.
-     The nowrap is gone — it overflowed its own box by 86px at 1280-1536 — so the heading
-     now wraps naturally at every width and this override is no longer needed.) */
 }
 /* ============================================================================
    HOMEPAGE BODY — 639 AND DOWN
-   The 2026-08-13 responsive pass was run on internal.html, which has no .hp-* sections, so
-   the homepage body never went down the ladder with the header and footer. It overflowed
-   the document by 45px at 375 and 100px at 320. Two independent causes, both below.
-   Placed on the 639 --site step per the rule in §5a, not on the width where each symptom
-   happens to start.
+   Both rules here exist to keep the homepage body inside the viewport on phones. Placed on
+   the 639 --site step, like every other breakpoint in this file, rather than on the width
+   where each symptom starts.
    ============================================================================ */
 @media (max-width: 639px){
-  /* aspect-ratio + min-height gives a box an implicit MINIMUM WIDTH. 300px of height at
-     4/3 can only be drawn 400px wide, so this box refused to shrink below 400 and pushed
-     the whole document out on every phone. Releasing the min-height lets the ratio derive
-     height FROM the available width instead of the other way round. No effect above this
-     band, where the column is always wider than 400px anyway. */
+  /* aspect-ratio + min-height is an implicit MINIMUM WIDTH: 300px of height at 4/3 can
+     only be drawn 400px wide, which is wider than the content box on any phone. Releasing
+     the min-height lets the ratio derive height FROM the available width instead of the
+     other way round. No effect above this band, where the column is always wider than
+     400px anyway. */
   .hp-expo-media{ min-height: 0; }
 
-  /* A 1fr track's automatic minimum is min-content, so the connect card's 48px side
-     padding plus its own min-content pinned the stacked column at 304px inside a 265px
-     box — the same trap as the footer headline (§5a hazard 1), reached a different way.
-     minmax(0, 1fr) lets the track shrink; the reduced padding then keeps the card's
-     content from overflowing the track it now fits in. Both halves are needed. */
+  /* A 1fr track's automatic minimum is min-content, so the connect card's side padding
+     plus its own min-content hold the stacked column wider than the box it sits in.
+     minmax(0, 1fr) lets the track shrink; the reduced padding keeps the card's content
+     from overflowing the track it now fits in. Both halves are needed. */
   .hp-reach-grid{ grid-template-columns: minmax(0, 1fr); }
   .hp-connect-card{ padding: var(--space-6) var(--space-5); }
 }
 
 /* FOOTER restructure — pinned to 1023px, NOT 1040px, on purpose. --site steps down at
-   1024, so a 1040 breakpoint left a dead 1024–1040 sliver: the footer had already
-   restructured to 3 columns while --site was still 1024, for the sake of 17px of width.
-   Restructuring at 1023 makes the footer change shape at the same moment --site does, so
-   the 5-column layout now runs cleanly from 1024 all the way up. */
+   1024, so a 1040 breakpoint opens a dead 1024–1040 sliver in which the footer has already
+   restructured to 3 columns while --site is still 1024 — a shape change bought for 17px of
+   width. At 1023 the footer changes shape at the same moment --site does, and the 5-column
+   layout runs cleanly from 1024 all the way up. */
 @media (max-width: 1023px){
   .pff-grid{ grid-template-columns: 1fr 1fr 1fr; }
   .pff-brand{ grid-column: 1 / -1; }
-  /* display/align-items removed 2026-08-13: the footer band below re-declares both across
-     this exact range, so they were dead. flex-direction/gap are kept — they are inert while
-     that band sets display:grid, but they are the fallback if it is ever removed. */
+  /* flex-direction/gap are inert while the footer band below sets display:grid over this
+     same range — they are the fallback if that band is ever removed. */
   .pff-connect{ flex-direction: column; gap: var(--space-4); }
-  /* Band is stacked now, so the pill no longer sits beside the headline — release the
-     reserved space or the headline would wrap against an invisible 468px margin. */
-  .pff-connect-line{ padding-right: 0; }   /* text-align was dead — re-declared below */
+  /* The band is stacked here, so the pill does not sit beside the headline — release the
+     reserved space or the headline wraps against an invisible 468px margin. */
+  .pff-connect-line{ padding-right: 0; }
   .pff-subform{ width: 100%; }
-  /* nav.pff-col text-align was dead here — the footer band below sets it to center over
-     the same range. */
 }
 
 /* ============================================================================
-   FOOTER 1023 AND DOWN — restacked (Kiron, 2026-08-13)
+   FOOTER 1023 AND DOWN — restacked
    Order becomes: centred lockup → the four link sections as a 2×2 → the newsletter
    beside the corporate address.
 
@@ -1175,9 +1150,9 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
      This is a deliberate break from the stepped ladder in §5, and the reason is that the
      rung is far too narrow for the viewport it covers: at a 950px viewport --site 768 gives
      a 704px content box and leaves ~246px of margin unused on each side. Everything in this
-     band was fighting that — the one-line headline needs 232 (logo) + 48 (gap) + 463 = 743px
-     and only had 704, the four link columns were squeezed to 140px, and the header nav row
-     overran the rail by 249px. Filling the viewport gives 836px at 900 and 959px at 1023.
+     band fights that: the one-line headline needs 232 (logo) + 48 (gap) + 463 = 743px against
+     704, the four link columns squeeze to 140px, and the header nav row overruns the rail by
+     249px. Filling the viewport gives 836px at 900 and 959px at 1023.
      Reverting this one declaration restores the stepped behaviour. */
   :root{
     --site: 100%;
@@ -1217,7 +1192,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
     display: grid; grid-template-columns: repeat(4, 1fr);
     /* Column gap is 32px, not 48px, so the four EQUAL columns are wide enough that
        "Land Brokerage & Auctions" (180px, the longest label in the footer by 33px) holds
-       one line at 900. At 48px the columns were 171px and it wrapped; at 32px they are
+       one line at 900. At 48px the columns are 171px and it wraps; at 32px they are
        185px. Measured: nothing wraps at >=880px viewport, so this covers the whole band.
        row-gap: 0 on purpose — a single row-gap would space every row equally, and the
        office section needs to sit tighter than the rest, so vertical rhythm is set with
@@ -1241,8 +1216,8 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
        the rail. .pff-main owns the --site/--rail box here, so clear all three. */
     padding: 0; max-width: none; margin: 0;
     display: grid; grid-template-columns: 1fr max-content;
-    /* row-gap 0: the <=1023 rule sets `gap: var(--space-4)` which applies to ROWS too, so
-       the headline->pill space was 16px of gap plus the pill's own margin. One source now. */
+    /* row-gap 0: the <=1023 rule sets `gap: var(--space-4)` which applies to ROWS too, so a
+       row-gap here would add to the pill's own margin. One source for that spacing. */
     column-gap: var(--space-7); row-gap: 0; align-items: center;
   }
   /* Lockup: unchanged size, left justified, exactly as at >=1024. */
@@ -1272,10 +1247,10 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .pff-grid nav.pff-col:nth-of-type(3){ grid-area: nav3; }
   .pff-grid nav.pff-col:nth-of-type(4){ grid-area: nav4; }
 
-  /* Corporate address: centred, running ALONG ONE ROW with "|" between the parts that were
-     separate lines. The <br>s are dropped and each <span> gets a separator before it. */
-  /* THE RULE MOVES UP one section: it now divides the link columns from the office block,
-     instead of dividing the office block from the bottom bar. So the border comes off
+  /* Corporate address: centered, running ALONG ONE ROW with "|" between the parts, which
+     are separate lines in the markup. The <br>s are dropped and each <span> gets a separator before it. */
+  /* THE RULE SITS ONE SECTION UP in this band: it divides the link columns from the office
+     block, rather than the office block from the bottom bar. So the border comes off
      .pff-bottom and goes on top of .pff-brand (which spans all four columns, so it runs the
      full content width). Office section still sits tighter than the rows above it. */
   .pff-bottom{ border-top: 0; }
@@ -1297,15 +1272,15 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
      span after the first a separator. (Flex also discards the inter-item whitespace, so
      without this the parts would run together with no space at all.) */
   .pff-contact > span ~ span::before{
-    content: "|"; margin: 0 12px; color: var(--gray-500); font-weight: 400;
+    content: "|"; margin: 0 12px; color: var(--color-text-subtle); font-weight: 400;
   }
-  /* "Find an Office" is dropped in this band (Kiron). Hidden rather than removed from the
+  /* "Find an Office" is dropped in this band. Hidden rather than removed from the
      markup, because every other width still shows it — the same <div> serves them all. */
   .pff-cta{ display: none; }
 }
 
 /* ============================================================================
-   768-899 — differences from the 768-1023 treatment above (Kiron, 2026-08-13)
+   768-899 — differences from the 768-1023 treatment above
    The header is the hamburger from 899 down, so this band only adjusts the three things
    that don't survive the narrower box.
    ============================================================================ */
@@ -1323,12 +1298,12 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   :root{ --md-tab-h: 36px; --md-tab-h-peak: 44px; }
 
   /* Connect band keeps the SAME STRUCTURE as above 900: lockup left, one-line nowrap
-     headline and matched pill right (Kiron). What has to give is the headline's type size.
+     headline and matched pill right. What has to give is the headline's type size.
      The arithmetic, with the lockup held at its full 232px:
        232 + 32 (gap) + headline <= 704 (the box at 768)  ->  headline <= 440px
-     At 13px/.14em the headline is 463px, which does NOT fit — it only appeared to fit
-     because `max-width: 100%` was quietly squeezing the lockup to ~209px. minmax() below
-     stops that squeeze, and 12px/.12em brings the headline to ~416px, leaving ~24px spare.
+     At 13px/.14em the headline is 463px, which does NOT fit at full size.
+     ⚠ minmax() below is what holds the lockup at 232px: without it `max-width: 100%`
+     quietly squeezes the lockup to ~209px and the headline only appears to fit. 12px/.12em brings the headline to ~416px, leaving ~24px spare.
      Measured at 768: one line, lockup at full width. */
   .pff-connect{
     grid-template-columns: minmax(232px, 1fr) max-content;
@@ -1336,38 +1311,29 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   }
   .pff-connect-line{ font-size: 12px; letter-spacing: .12em; }
 
-  /* Footer link columns: type down 14 -> 12px, rows tightened 12 -> 6px with a shorter
-     line-height, and the column gap 32 -> 24px. Together these also stop "Land Brokerage &
-     Auctions" wrapping — it needs 154px at 12px and the columns become 158px. 12px was the
-     threshold: 13px and 12.5px still wrapped at these column widths.
-     Footer height 568px -> 504px. NOTE this puts the links at the same 12px as the column
-     headings, so the size hierarchy between them is now carried by weight, case and colour
-     rather than by size. */
+  /* Footer link columns: 12px type, 6px rows with a shorter line-height, 24px column gap.
+     Together these also stop "Land Brokerage & Auctions" wrapping — it needs 154px at 12px
+     and the columns are 158px. 12px is the threshold: 13px and 12.5px both wrap at these
+     column widths. NOTE this puts the links at the same 12px as the column headings, so the
+     hierarchy between them is carried by weight, case and colour rather than by size. */
   .pff-main{ column-gap: var(--space-5); }
   .pff-col a{ font-size: 12px; }
   .pff-col li{ margin-bottom: 6px; line-height: 1.3; }
 
-  /* Corporate office line down to 12px too, matching the link columns above it. The
-     "CORPORATE OFFICE" heading was already 12px, so the whole block is now one size. */
+  /* 12px too, matching the link columns above it. The "CORPORATE OFFICE" heading is also
+     12px, so the whole block sits at one size. */
   .pff-contact{ font-size: 12px; }
 }
 
 
 
-/* The old @media (max-width: 880px) block was retired 2026-08-13. It shrank the logo to
-   60px and trimmed the nav font/row gap to buy space for the INLINE nav — but the nav is
-   now a hamburger below 900, so none of it was needed, and 880 was off the --site ladder,
-   creating a dead 881-899 sliver that ran an 80px logo at 18px nav and overflowed ~160px. */
 /* FOOTER: 3 columns → 2, and the bottom bar stacks. Pinned to 767px, NOT 720px, so it
-   lands exactly on the --site step (768 → 640). At 720 there was a 47px window where the
-   footer still had three columns while --site had already dropped to 640, squeezing them
-   to 160px — narrower than they ever get on a phone. With this at 767, the footer's change
-   points match the --site ladder exactly: 1535 / 1279 / 1023 / 767 / 639. */
+   lands exactly on the --site step (768 → 640). At 720 there is a 47px window where the
+   footer still holds three columns while --site has already dropped to 640, squeezing them
+   to 160px — narrower than they ever get on a phone. At 767 the footer's change points
+   match the --site ladder exactly: 1535 / 1279 / 1023 / 767 / 639. */
 @media (max-width: 767px){
   .pff-grid{ grid-template-columns: 1fr 1fr; }
-  /* justify-items / legal-links justify-self / social justify-self were all dead here —
-     the later max-width:767 block re-declares each across this same range (it centres them).
-     flex-wrap is still live. */
   .pff-bottom-inner{ grid-template-columns: 1fr; gap: var(--space-4); }
   .pff-bottom-inner .copy{ padding-left: 0; }
   .pff-bottom-inner .legal-links{ flex-wrap: wrap; }
@@ -1378,33 +1344,33 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
    specificity the later rule wins — so the two-row bottom bar below only holds if it
    comes after it. Moving this block up again would silently revert that. */
 /* ============================================================================
-   767 AND DOWN (Kiron, 2026-08-13)
-   HEADER: the row could not hold an 80px lockup here. brandcell was 344px of a 640px row,
-   which left the utility bar only 138px of text space for 190px of text ("Create An Account
-   | Login" simply did not fit) and pushed 7px of horizontal overflow at 640. Shrinking the
-   lockup to 56px gives the bar ~289px of text space and clears the overflow.
-   FOOTER: same structure as the band above, with three changes Kiron asked for — the footer
-   lockup comes out, the four link sections go 2x2, and the link type goes back up slightly.
+   767 AND DOWN
+   HEADER: the row cannot hold an 80px lockup here. That makes brandcell 344px of a 640px
+   row, leaving the utility bar 138px of text space for 190px of text ("Create An Account |
+   Login" does not fit) and pushing 7px of horizontal overflow at 640. At 56px the lockup
+   gives the bar ~289px of text space and clears the overflow.
+   FOOTER: same structure as the band above, with three differences — the footer lockup
+   comes out, the four link sections go 2x2, and the link type steps back up slightly.
    ============================================================================ */
 @media (max-width: 767px){   /* 767 and down; 639-and-below overrides follow */
   /* 80 -> 56px. Tagline sets at ~5.0px; 64px (matching 768-899) also clears the utility bar,
      and 48px is the smallest that stays legible — this is the middle of that range. */
   :root{ --logo-h: 56px; }
 
-  /* Map tab scaled for the window: 340x46 was 53% of a 640px viewport. 190px wide keeps
-     ~158px of content space for a ~140px label, and the height drops with the peak. */
+  /* Map tab scaled for the window — at 340px it would be 53% of a 640px viewport. 190px
+     keeps ~158px of content space for a ~140px label; the height drops with the peak. */
   .md-tab{ width: 190px; padding: 0 16px; }
   :root{ --md-tab-h: 32px; --md-tab-h-peak: 38px; }
 
   /* --- FOOTER ------------------------------------------------------------------- */
-  /* Lockup out (Kiron). With it gone the connect band is a single max-content column,
+  /* Lockup out. With it gone the connect band is a single max-content column,
      right-aligned, so the headline and the pill still match each other exactly and still sit
      on the rail — the relationship from the bands above survives losing the logo. */
   /* Connect-band lockup stays hidden here. The lockup that shows in this band is
      .pff-brand-logo, the first child of the office block — see below. */
   .pff-connect-logo{ display: none; }
 
-  /* headline + form CENTRED in the window (Kiron), not right-aligned. The single
+  /* headline + form CENTRED in the window, not right-aligned. The single
      max-content column keeps the pill exactly the headline's width; justify-content
      centres that column. */
   /* minmax(0, max-content), NOT max-content: a bare max-content column can never shrink
@@ -1432,20 +1398,19 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .pff-col a{ font-size: 13px; }
 
   /* Corporate office: "|" separators out, and the EMAIL drops to its own line beneath the
-     address (Kiron). flex-basis:100% on the last span is what forces that break — the block
+     address. flex-basis:100% on the last span is what forces that break — the block
      is a centred flex row, so a full-width item has to wrap, and it stays centred there.
      With the separators gone, column-gap carries the spacing instead of their margins. */
-  /* Lockup back in, BETWEEN the rule and "CORPORATE OFFICE" (Kiron). It is the office
-     block's own first child, so the rule — which is .pff-brand's border-top — stays exactly
-     where it was and the order falls out on its own: rule, lockup, heading, address.
-     An earlier attempt placed the connect-band lockup into a grid row of .pff-main instead;
-     that could never work, because that element is a child of .pff-connect (its own nested
-     grid in this band), so the grid-area named a row that grid does not have. */
+  /* Lockup back in, BETWEEN the rule and "CORPORATE OFFICE". It is the office
+     block's own first child, so the rule — which is .pff-brand's border-top — stays put
+     and the order falls out on its own: rule, lockup, heading, address.
+     ⚠ Do not try to place the CONNECT-BAND lockup into a grid row of .pff-main instead.
+     That element is a child of .pff-connect, its own nested grid in this band, so a
+     grid-area would name a row that grid does not have. */
   .pff-col a.pff-brand-logo{ display: block; margin: 0 auto var(--space-4); }
-  /* 174px = 232 - 25% (Kiron). margin-inline:auto centres the IMG inside the anchor — the
+  /* 174px = 232 - 25%. margin-inline:auto centres the IMG inside the anchor — the
      anchor is display:block and so fills the office block, which means auto margins on IT do
-     nothing. (It only looked centred while the anchor was wrongly inline-block and
-     text-align:center happened to catch it.) */
+     nothing, and text-align:center cannot reach a block child either. */
   .pff-brand-logo img{
     width: 174px; max-width: 100%; height: auto; display: block; margin-inline: auto;
   }
@@ -1453,7 +1418,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .pff-contact > span ~ span::before{ content: none; margin: 0; }
   .pff-contact > span:last-child{ flex: 0 0 100%; }
 
-  /* Bottom bar: all three segments CENTRED in the window and stacked (Kiron):
+  /* Bottom bar: all three segments CENTRED in the window and stacked:
        social icons
        legal links
        copyright
@@ -1483,11 +1448,11 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 }
 /* Below 504 it must be set back to NORMAL explicitly, not merely left unset: the
    "1023 and down" band above also declares nowrap (it is what puts the headline on one line
-   from 900 up), and that band no longer has a lower bound — so without this the headline
-   stayed a single 463px line at every phone width, overflowing the document to a constant
-   483px (163px past a 320px viewport). */
+   from 900 up), and that band has no lower bound — so without this the headline holds a
+   single 463px line at every phone width, overflowing the document to a constant 483px
+   (163px past a 320px viewport). Absence of a value is not the same as the opposite value. */
 @media (max-width: 503px){
-  /* ONE line, centred, type scaled to fit (Kiron). The headline is 463px at 13px/.14em, so
+  /* ONE line, centred, type scaled to fit. The headline is 463px at 13px/.14em, so
      it cannot fit a 280px box at full size — it has to shrink with the viewport.
        - letter-spacing .14em -> .08em removes ~85px of tracking at 13px, which is 18% of the
          width, before any type-size reduction.
@@ -1504,10 +1469,10 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 }
 
 /* ============================================================================
-   639 AND DOWN — phone / small tablet (Kiron approved, 2026-08-13)
-   ONE header restructure covers 639 all the way to 320. The binding constraint was the
+   639 AND DOWN — phone / small tablet
+   ONE header restructure covers 639 all the way to 320. The binding constraint is the
    utility strip: "Create An Account | Login" needs 190px, but sharing a row with the burger,
-   lockup and search left it 197px at 639, 98px at 540 and 0px by 430 — and the page overflowed
+   lockup and search leaves it 197px at 639, 98px at 540 and 0px by 430, overflowing the page
    by up to 291px at 320. No logo size fixes that, because the burger and search are fixed
    costs. Giving the strip its OWN full-width row hands it (vw - 2*rail): 599px at 639 and
    280px at 320, both clear of 190px.
@@ -1526,7 +1491,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
     align-items: center;
   }
   .pcf-util{ grid-area: util; margin-right: 0; }
-  /* the strip now reaches the edge itself, so the bleed strip is redundant here */
+  /* the strip reaches the edge itself here, so the bleed strip is redundant */
   .pcf-util::after{ display: none; }
   .pcf-burger{ grid-area: burger; margin-left: var(--rail); }
   .pcf-brandcell{ grid-area: brand; padding: 0 var(--space-2); }
@@ -1538,37 +1503,37 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
      that is a design decision, not a fit problem. */
   :root{ --logo-h: 48px; }
 
-  /* Map tab: 340px was wider than the whole 320px viewport. min() keeps it inside the rails
-     at every width without another breakpoint. */
+  /* Map tab: a fixed 340px would be wider than the whole 320px viewport. min() keeps it
+     inside the rails at every width without another breakpoint. */
   .md-tab{ width: min(240px, calc(100% - var(--rail) * 4)); padding: 0 14px; }
   :root{ --md-tab-h: 30px; --md-tab-h-peak: 36px; }
 
-  /* Corporate address fully STACKED from 639 down (Kiron) — one part per line, rather than a
+  /* Corporate address fully STACKED from 639 down — one part per line, rather than a
      centred row that wrapped unpredictably as the viewport narrowed.
      flex-direction: column is what does it. The <br>s already in the markup cannot: inside a
-     flex container they are blockified into flex items and stop producing line breaks, which
-     is why they were switched off for the row layout in the first place. */
+     flex container they are blockified into flex items and stop producing line breaks, so the
+     row layout does not rely on them either. */
   /* line-height 1.9 (the base, tuned for a stacked block with <br>s) leaves ~27px between
      these lines once each part is its own flex item. 1.3 tightens it to ~18px. */
   .pff-contact{
     flex-direction: column; align-items: center; column-gap: 0;
     row-gap: 0; line-height: 1.3;
   }
-  /* "CORPORATE OFFICE" 12 -> 14px (Kiron), so the heading is no longer smaller than the
-     address beneath it. */
+  /* 14px here, so the heading is not smaller than the address beneath it. */
   .pff-brand h3{ font-size: 14px; }
 
-  /* Footer link rows tightened (Kiron). Below 768 these fall back to the BASE spacing —
+  /* Footer link rows tightened. Below 768 these fall back to the BASE spacing —
      margin-bottom 12px on a 1.35 line-height — because the 6px/1.3 pair only lives in the
      768-899 block. That put the pitch near 30px. 4px + 1.25 brings it to about 20px. */
   .pff-col li{ margin-bottom: 4px; line-height: 1.25; }
-  /* In a ROW, flex:0 0 100% was what forced the email onto its own line. In a COLUMN the
-     main axis is vertical, so that same basis would set its HEIGHT to 100% of the block. */
+  /* flex:0 0 100% is what forces the email onto its own line in a ROW. The address is a
+     COLUMN here, where the main axis is vertical, so that same basis would set its HEIGHT
+     to 100% of the block instead. */
   .pff-contact > span:last-child{ flex: 0 1 auto; }
 }
 
 /* ============================================================================
-   479 AND DOWN — the footer's one split (Kiron approved)
+   479 AND DOWN — the footer's one split
    Link columns go 2 -> 1. Measured: at 480 the columns are 196px and nothing wraps; at 430
    they are 171px and labels start wrapping, reaching 11 wrapped labels by 320. So 480 is the
    last width where two columns hold.
@@ -1584,14 +1549,14 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
       "nav4"
       "addr";
   }
-  /* Every section now starts its own row, so they all take the same break above them.
+  /* Every section starts its own row here, so they all take the same break above them.
      The :nth-of-type(3)/(4) rule from the 767 block (which spaced the 2x2's second row) has
      to be matched in specificity here, or sections 3 and 4 keep the wider 24px gap. */
   .pff-grid nav.pff-col,
   .pff-grid nav.pff-col:nth-of-type(3),
   .pff-grid nav.pff-col:nth-of-type(4){ margin-top: var(--space-4); }
 
-  /* Footer link block tightened (Kiron). The LINK PITCH ITSELF IS LEFT AT 24px ON PURPOSE —
+  /* Footer link block tightened. The LINK PITCH ITSELF IS LEFT AT 24px ON PURPOSE —
      the links are 16px tall, so they are undersized for WCAG 2.2 SC 2.5.8 (Target Size,
      Minimum, AA) and pass only under its spacing exception: a 24px circle centred on each
      target must not intersect the next one's. At a 24px pitch those circles touch exactly,
@@ -1602,14 +1567,15 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 }
 
 /* ============================================================================
-   HEADER <=899 — hamburger (Kiron, 2026-08-13)
+   HEADER <=899 — hamburger
    The inline menus collapse into a hamburger on the LEFT EDGE at 899, not 720. Measured:
    fitting the inline nav at 768 needs a 48px logo (tagline ~4.3px, illegible) plus 14px nav
    type and 16px gaps; even 52/15/20 is still 12px over. 900 is the last width where the
    inline nav fits honestly, so that is where it ends.
-   This also closes a real hole — the old `.pcf-menus{display:none}` at 720 hid the menus
-   with NOTHING replacing them, so every width below 720 had no navigation at all. The
-   drawer is built from the same NAV array and the same colHTML() as the mega panels.
+   ⚠ The collapse point and the drawer must move together: hiding `.pcf-menus` without a
+   drawer to replace it leaves those widths with no navigation at all. The drawer is built
+   from the same NAV array and the same colHTML() as the mega panels, so the two cannot
+   drift apart.
    ============================================================================ */
 .pcf-burger{ display: none; }               /* >=1024: inline menus are used instead */
 .pcf-drawer, .pcf-drawer-backdrop{ display: none; }
@@ -1628,20 +1594,20 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
     background: none; border: 0; cursor: pointer;
   }
   .pcf-burger span{
-    display: block; height: 2px; background: var(--gray-900); border-radius: 2px;
+    display: block; height: 2px; background: var(--color-text); border-radius: 2px;
     transition: transform .18s ease, opacity .18s ease;
   }
   /* becomes an X when open */
   .pcf-burger[aria-expanded="true"] span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
   .pcf-burger[aria-expanded="true"] span:nth-child(2){ opacity: 0; }
   .pcf-burger[aria-expanded="true"] span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
-  .pcf-burger:focus-visible{ outline: 2px solid var(--accent-light); outline-offset: 3px; }
+  .pcf-burger:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px; }
 
-  /* the burger now carries the left rail, so the logo cell must not add another */
+  /* the burger carries the left rail, so the logo cell must not add another */
   .pcf-brandcell{ padding-left: var(--space-4); }
 
   /* Drawer: fixed under the sticky header, full viewport width, scrolls if taller.
-     TOP OF THE STACK (Kiron): z 42 puts it above the map layer (31), the map's backdrop
+     TOP OF THE STACK: z 42 puts it above the map layer (31), the map's backdrop
      (30) and the map TAB (39) — so opening the nav while the map is open covers both the
      map and its tab, rather than the tab poking through. Its own backdrop is 41, directly
      under it. Both start at --navH, so neither covers the header (40) and the logo, search
@@ -1650,8 +1616,8 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
     /* Inset 3% each side (so 94% wide, centred), the horizontal counterpart to the 15% of
        viewport height left showing below it. The backdrop stays full-width behind, so the
        dimmed page is visible on all three sides and the panel reads as an overlay.
-       No border-top: the 3px accent rule read as a stray line across the top of a floating
-       panel. It made sense when the drawer was full-bleed and butted to the header. */
+       No border-top: a 3px accent rule reads as a stray line across the top of a floating
+       panel. It would only suit a full-bleed drawer butted to the header, which this is not. */
     display: block; position: fixed; left: 3%; right: 3%; top: var(--navH); z-index: 42;
     background: #fff;
     /* Bottom corners only — the panel hangs from the header, so the top stays square where
@@ -1686,18 +1652,18 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .pcf-drawer-in{ max-width: none; margin: 0; padding: 0; }
   .pcf-drawer-sec{ padding: var(--space-4) 0; }
   .pcf-drawer-sec:nth-of-type(odd){ background: var(--pc-light-blue); }
-  /* dividers no longer needed — the alternating tint does that job */
+  /* no dividers — the alternating tint does that job */
   .pcf-drawer-sec + .pcf-drawer-sec{ margin-top: 0; border-top: 0; }
 
   /* 20px below the section title, so it reads as a title over a group rather than another
-     line of the group (was 10px). */
+     line of the group. */
   .pcf-drawer-sec > h3{
     max-width: var(--site); margin: 0 auto 20px; padding: 0 var(--rail);
     font-family: var(--font-serif); font-size: 19px; font-weight: 500;
-    color: var(--gray-900);
+    color: var(--color-text);
   }
-  /* Accent rule under the section title: 140px x 1px. Now the ONLY rule in the drawer —
-     the sub-header hairlines were removed. Sits inside the h3's rail padding, so it starts
+  /* Accent rule under the section title: 140px x 1px. The ONLY rule in the drawer — the
+     sub-headers deliberately carry none. Sits inside the h3's rail padding, so it starts
      on the same line as the title text. */
   .pcf-drawer-sec > h3::after{
     content: ""; display: block; width: 140px; height: 1px;
@@ -1713,7 +1679,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
     display: grid; grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4) var(--space-5);
   }
-  /* ---- "The Company" section: bespoke layout (Kiron) --------------------------------
+  /* ---- "The Company" section: bespoke layout --------------------------------
      NAV gives this section four columns: [The Company + Overview/Regions] [continuation:
      Our Team/Culture/Careers/Industry Collaboration] [Our Clients] [affiliation badges].
      Rearranged so the first two stack into ONE list down the left, Our Clients sits top
@@ -1739,20 +1705,20 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
     border-top: 0; border-left: 1px solid rgba(255,255,255,.14);
   }
 
-  /* Sub-header rules REMOVED in the drawer (Kiron) — the section title's accent rule is the
-     only rule in the panel now. The base .pcf-col h4 carries both a border-bottom and an
-     8px padding-bottom to sit above that border, so the padding goes too; margin-bottom
-     then carries the whole gap down to the first link. Desktop mega panels keep theirs. */
+  /* No sub-header rules in the drawer — the section title's accent rule is the only rule
+     in the panel. The base .pcf-col h4 carries both a border-bottom and an 8px
+     padding-bottom to sit above that border, so the padding goes too; margin-bottom then
+     carries the whole gap down to the first link. Desktop mega panels keep theirs. */
   .pcf-drawer-cols .pcf-col h4{
     margin-bottom: 10px; padding-bottom: 0; border-bottom: 0;
   }
-  /* Links tightened under each sub-header. The gap was only 6px of a 32px pitch — the rest
-     was the inherited ~1.6 line-height on an 11px link, so capping line-height is what
-     actually closes it. 1.3 + a 5px gap brings the pitch to roughly 21px. */
+  /* Links tightened under each sub-header. ⚠ The gap alone cannot close this: at a 32px
+     pitch only 6px is gap, the rest being the inherited ~1.6 line-height on an 11px link,
+     so capping line-height is what actually does it. 1.3 + a 5px gap brings the pitch to roughly 21px. */
   .pcf-drawer-cols .pcf-col ul{ gap: 5px; line-height: 1.3; }
 }
 @media (max-width: 640px){
-  /* .hp-wrap's 20px inset now comes from --rail (see :root) — no override needed. */
+  /* .hp-wrap's 20px inset comes from --rail (see :root) — no override needed. */
   .hp-hero h1{ font-size: 34px; }
   .hp-serve-grid, .hp-svc-grid{ grid-template-columns: 1fr; }
   .hp-hero-stats{ gap: 20px; }
