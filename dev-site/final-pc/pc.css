@@ -147,10 +147,21 @@
   --logo-h: 80px;                                  /* .pcf-logo render height */
   --logo-text-x: calc(var(--rail) + var(--logo-h) * 0.7037);
 
-  /* Footer brand-column indent — aligns the Corporate Office block (and the bottom-bar
-     copyright) under the footer lockup's wordmark. Shared token so the two stay locked
-     together; see .pff-brand and .pff-bottom-inner .copy. */
-  --footer-brand-indent: 49px;
+  /* Footer lockup width, and the brand-column indent derived from it. Aligns the Corporate
+     Office block (and the bottom-bar copyright) under the footer lockup's wordmark — the
+     same problem --logo-text-x solves in the header, solved the same way.
+
+     The footer lockup is sized by WIDTH (unlike the header's, which is sized by height), so
+     the ratio is taken across the image's width: pc_logo_07162c.png is 500 x 135 with all
+     three wordmark lines flush at x=95, so the "P" sits 95/500 = 0.19 of the width in.
+     232 x 0.19 = 44.1px. Derived, not hardcoded, so resizing the lockup moves the address
+     and the copyright with it. If the logo asset ever changes, re-measure 0.19 (see §5 of
+     DEVELOPER-NOTES.md — the header's 0.7037 comes off the same geometry).
+
+     Shared token so the address and copyright stay locked together; see .pff-brand and
+     .pff-bottom-inner .copy. */
+  --footer-logo-w: 232px;
+  --footer-brand-indent: calc(var(--footer-logo-w) * 0.19);
 
   /* Newsletter subscribe pill width. ONE token because two rules depend on it: the pill
      itself, and the reserved space the connect-band headline keeps clear for it. Change
@@ -623,7 +634,9 @@ p { margin: 0 0 1em; }
 .pff-connect{ display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: var(--space-7);
   align-items: center; margin-bottom: var(--space-7); }
 .pff-connect-logo{ grid-column: 1; grid-row: 1; display: inline-block; }
-.pff-connect-logo img{ width: 232px; max-width: 100%; height: auto; display: block; }
+/* Width comes from the token so --footer-brand-indent, which is derived from it, can never
+   drift out of alignment with the lockup it is measuring. */
+.pff-connect-logo img{ width: var(--footer-logo-w); max-width: 100%; height: auto; display: block; }
 /* Second footer lockup, shown ONLY at 640-767 where it sits inside the office block. Hidden
    by default so exactly one lockup is ever visible: the connect-band one above 767, this one
    below.
@@ -883,7 +896,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .hp-reach{ background: var(--soft-white); border-top: 1px solid var(--pc-light-blue); }
 .hp-reach-head{ margin-bottom: var(--space-6); max-width: 62ch; }
 .hp-reach-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; color: var(--hp-ink);
-  margin: var(--space-2) 0 var(--space-3); line-height: 1.12; max-width: none; white-space: nowrap; }
+  margin: var(--space-2) 0 var(--space-3); line-height: 1.12; max-width: none; }
 .hp-reach-head > p:not(.hp-eyebrow){ font-size: 15px; color: var(--hp-ink); line-height: 1.6; margin: 0; max-width: 52ch; }
 /* stretch so the map and the Connect card are the SAME height (row = the taller one) */
 .hp-reach-grid{ display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--space-8); align-items: stretch; }
@@ -1091,9 +1104,35 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .hp-reach-grid{ grid-template-columns: 1fr; }
   /* stacked: map returns to its natural height (no cover-crop against a sibling) */
   .hp-map, .hp-map-img{ height: auto; }
-  /* narrower viewport: let the footprint heading wrap again so it can't overflow */
-  .hp-reach-head h2{ white-space: normal; }
+  /* (The footprint heading used to be forced onto one line above 1024 and released here.
+     The nowrap is gone — it overflowed its own box by 86px at 1280-1536 — so the heading
+     now wraps naturally at every width and this override is no longer needed.) */
 }
+/* ============================================================================
+   HOMEPAGE BODY — 639 AND DOWN
+   The 2026-08-13 responsive pass was run on internal.html, which has no .hp-* sections, so
+   the homepage body never went down the ladder with the header and footer. It overflowed
+   the document by 45px at 375 and 100px at 320. Two independent causes, both below.
+   Placed on the 639 --site step per the rule in §5a, not on the width where each symptom
+   happens to start.
+   ============================================================================ */
+@media (max-width: 639px){
+  /* aspect-ratio + min-height gives a box an implicit MINIMUM WIDTH. 300px of height at
+     4/3 can only be drawn 400px wide, so this box refused to shrink below 400 and pushed
+     the whole document out on every phone. Releasing the min-height lets the ratio derive
+     height FROM the available width instead of the other way round. No effect above this
+     band, where the column is always wider than 400px anyway. */
+  .hp-expo-media{ min-height: 0; }
+
+  /* A 1fr track's automatic minimum is min-content, so the connect card's 48px side
+     padding plus its own min-content pinned the stacked column at 304px inside a 265px
+     box — the same trap as the footer headline (§5a hazard 1), reached a different way.
+     minmax(0, 1fr) lets the track shrink; the reduced padding then keeps the card's
+     content from overflowing the track it now fits in. Both halves are needed. */
+  .hp-reach-grid{ grid-template-columns: minmax(0, 1fr); }
+  .hp-connect-card{ padding: var(--space-6) var(--space-5); }
+}
+
 /* FOOTER restructure — pinned to 1023px, NOT 1040px, on purpose. --site steps down at
    1024, so a 1040 breakpoint left a dead 1024–1040 sliver: the footer had already
    restructured to 3 columns while --site was still 1024, for the sake of 17px of width.
