@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Peoples Company · Final (PC) — Listings</title>
-  <meta name="description" content="Listings page shell for the final PC direction: the shared header and footer around an empty white body, on the clean pc.css design system." />
+  <meta name="description" content="Listings search results for the final PC direction: filter bar, grid/map view switch and the listing card grid, on the clean pc.css design system." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,24 +18,260 @@
        shared --site / --rail tokens so its content lines up with the header lockup and
        footer columns. Type comes from pc.css base styles (h1 = EB Garamond 48px).
 
-       LISTING CARD SPEC. This page is a STATIC REFERENCE for the developer — it is not a
-       real listings page (that content is out of scope) and it is deliberately NOT
-       responsive: the grid is a hard 4-across at every width. The card styles live here
-       rather than in pc.css so a test page can never affect the real pages; promote the
-       .lc-* block into pc.css when the pattern is adopted.
+       SEARCH RESULTS PAGE. Two blocks, both page-local:
+
+         .ls-*   the search / filter bar, the results count, the grid/map view switch and
+                 the map panel. Chrome only — the controls open, close and remember their
+                 own state, but NOTHING filters the cards. Filtering, counting and paging
+                 are the CMS's job.
+         .lc-*   the listing card, unchanged from the card-reference version of this page
+                 apart from the grid now being responsive (3 across on desktop).
+
+       Both live here rather than in pc.css so this page can never affect a real one;
+       promote them into pc.css when the pattern is adopted.
 
        Everything below is built from pc.css tokens only — PC palette, EB Garamond for the
-       display lines, Inter for labels/meta. No red, and no status is carried by colour
-       alone (ACTIVE is a dot PLUS the word). -->
+       display lines, Inter for labels/meta. No red, and nothing is carried by colour
+       alone: ACTIVE is a dot PLUS the word, a filter pill that holds a value shows the
+       VALUE as its label, and the selected view is filled AND bolder. -->
   <style>
-    .listings-body{ background:#fff; min-height:60vh; }
+    /* --ls-panel-w is the FILTERS panel's width. It used to be read by .ls-controls too, to
+       stop the FILTERS pill at the panel's right edge — that lock is gone (see the note
+       where it was removed), so this token now has exactly one consumer. */
+    .listings-body{ background:#fff; min-height:60vh; --ls-panel-w: 700px;
+      /* Width of all four filter pills. DERIVED, and the derivation matters if the option
+         wording ever changes: the widest state any pill can reach is "35,000+–35,000+ ac"
+         at 184px on one line. A chosen value is allowed to wrap to two lines, so the pill
+         does not have to hold 184 — it has to hold the widest LINE that wrapping produces,
+         which is "35,000+ ac" at 76px. 160px leaves 110px of label per line, so every
+         reachable value clears its line by 30px or more and nothing touches the pill's
+         rounded ends. It is also the largest value that keeps the bar on ONE ROW at
+         1280-1535, the tightest band: 4x160 + gaps + a 200px location field exactly fits.
+         Going wider than 164 breaks that row. */
+      --ls-pill-w: 160px; }
     .listings-wrap{ max-width: var(--site); margin: 0 auto; padding: var(--space-8) var(--rail); }
-    .listings-wrap > p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted);
-      margin: var(--space-4) 0 0; }
+    /* Holds the h1 alone — the lede was removed. Total gap from h1 to the filter bar is
+       --space-8 + --space-6 = 96px; drop this rule if that reads too airy. */
+    .listings-intro{ padding-bottom: var(--space-6); }
 
-    /* ---- grid: fixed 4-across, mobile intentionally not handled ---- */
-    .lc-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5);
-      margin-top: var(--space-7); }
+    /* ================= SEARCH / FILTER BAR =================
+       Order is LOCATION · SALE TYPE · ACRES · PRICE · FILTERS, then SORT BY and the view
+       switch hard right. The bar is a plain block, not sticky — see developer-listing.md §7. */
+    .ls-bar{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border); }
+    .ls-bar-in{ max-width: var(--site); margin: 0 auto; padding: var(--space-4) var(--rail);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-2); flex-wrap: wrap; }
+    /* The five filter controls, packed LEFT at a tight --space-2 gap.
+       They used to be spread with space-between inside a container that was width-locked to
+       the FILTERS modal (see the note above .ls-pop-panel). That lock held the box at 1038px
+       when its contents measured 820px, so 218px of stretched air sat between the pills and
+       pushed SORT + the view switch onto a second row. The lock is gone; the group now sizes
+       to its contents and the leftover collects in ONE place, between FILTERS and SORT, which
+       reads as filters-left / actions-right instead of five evenly scattered controls.
+
+       flex-basis 0, NOT auto: a wrapping flex container decides where to break using each
+       item's max-content size, BEFORE any shrinking happens. On flex-basis:auto this group
+       measured 884px against an 881px slot at 1280-1535 and threw SORT onto a second row
+       over 3px, without ever asking .ls-loc to give the width back. At 0 it always fits the
+       line and the elastic field absorbs the difference, which is where it belongs.
+       nowrap for the same reason one level down: allowed to wrap, the group broke the pills
+       onto a second line rather than shrinking .ls-loc. It goes back to wrap at <=1279,
+       where the bar is two rows by design. */
+    .ls-controls{ display: flex; align-items: center; justify-content: flex-start;
+      gap: var(--space-2); flex-wrap: nowrap; flex: 1 1 0; min-width: 0; }
+    /* SORT BY + the view switch: the bar's two ACTIONS, held together hard right and kept
+       out of .ls-controls so the filter group stays a group. */
+    .ls-right{ display: flex; align-items: center; gap: var(--space-2); flex: none; }
+
+    /* ---- shared pill trigger: SALE TYPE, ACRES, PRICE, FILTERS ---- */
+    .ls-f{ position: relative; }
+    /* All four pills share --ls-pill-w so the bar reads as one rhythm, with the content
+       centred inside. See that token for how the width was derived.
+       A chosen VALUE still WRAPS TO TWO LINES rather than spilling over its neighbours —
+       that is why there is no white-space: nowrap here, and why the height is a min-height:
+       two 14px lines measure 32px and still sit inside the 44px touch target, so a wrapped
+       pill never changes the height of the bar. Every RESTING label fits on one line.
+       See developer-listing.md §3.1a.
+       Below 640 the ≤639 rule overrides this and the pills go full width. */
+    .ls-pill{ display: inline-flex; align-items: center; justify-content: center;
+      width: var(--ls-pill-w); gap: var(--space-2); text-align: center;
+      min-height: 44px; padding: 4px 16px; background: var(--pc-white);
+      /* One step down the palette from --color-border (PC Light Blue #D7EFFB) to PC Blue.
+         Palette by luminance: Light Blue -> Blue -> Medium Blue -> Navy -> Black.
+         NOTE: PC Blue on white is 2.5:1, under the 3:1 that WCAG 2.2 SC 1.4.11 asks of a
+         UI component boundary. PC Medium Blue is the next step and clears it at 5.5:1. */
+      border: 1px solid var(--pc-blue); border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; line-height: 1.15;
+      color: var(--pc-black); cursor: pointer; }
+    .ls-pill:hover{ border-color: var(--pc-navy); }
+    .ls-pill[aria-expanded="true"]{ border-color: var(--pc-navy);
+      box-shadow: inset 0 0 0 1px var(--pc-navy); }
+    .ls-pill:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    /* Without this the icon is the only child that CAN shrink, so any pill running tight
+       squashes its glyph instead of overflowing where you would see it. */
+    .ls-pill svg{ flex: none; }
+    .ls-chev{ font-size: 10px; color: var(--pc-medium-blue); }
+    /* A pill holding a chosen value REPLACES ITS LABEL WITH THE VALUE, so the set state is
+       readable as words. The navy fill is reinforcement, never the signal. */
+    .ls-pill.is-set{ background: var(--pc-navy); border-color: var(--pc-navy);
+      color: var(--pc-white); }
+    .ls-pill.is-set .ls-chev{ color: var(--pc-light-blue); }
+    .ls-pill.is-set:focus-visible{ outline-color: var(--pc-black); }
+    /* SORT BY opts out of the 120px lock: its label always carries the chosen value
+       ("Sort: Price: high to low"), so it has to size to its content. It is not one of the
+       five filters, so it is outside the rhythm those pills share. */
+    .ls-pill-auto{ width: auto; white-space: nowrap; }
+    /* Count on the FILTERS pill — a number, not a dot. */
+    .ls-fcount{ display: inline-grid; place-items: center; min-width: 20px; height: 20px;
+      padding: 0 6px; border-radius: var(--radius-pill); background: var(--pc-white);
+      color: var(--pc-navy); font-size: 12px; font-weight: 700; line-height: 1; }
+
+    /* ---- LOCATION: a real text field, not a popover ---- */
+    /* Border matches .ls-pill — PC Blue, one step down the palette from --color-border. */
+    .ls-loc{ display: flex; align-items: center; gap: var(--space-2); min-height: 44px;
+      padding: 0 16px; background: var(--pc-white); border: 1px solid var(--pc-blue);
+      /* THE ONLY ELASTIC CONTROL IN THE BAR. Everything else is a fixed pill, so this field
+         is what absorbs a narrowing window — and what keeps the bar on ONE ROW. It gives
+         width back down to 200px before anything is forced to wrap, which is also why the
+         SORT pill can size to its chosen value without re-wrapping the bar underneath it.
+         It never grows past 340px: the leftover belongs between FILTERS and SORT. */
+      border-radius: var(--radius-pill); flex: 0 1 340px; min-width: 200px; }
+    .ls-loc:focus-within{ border-color: var(--pc-navy); box-shadow: inset 0 0 0 1px var(--pc-navy); }
+    .ls-loc svg{ flex: none; color: var(--pc-medium-blue); }
+    .ls-loc input{ width: 100%; min-width: 0; padding: 12px 0; border: 0; background: none;
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .ls-loc input:focus{ outline: none; }
+
+    /* ---- popover shared by SALE TYPE, ACRES and PRICE ---- */
+    /* z-index 44 sits under the sticky header (45) but above the Interactive Map tab (39)
+       and the announcement toast (25), either of which would otherwise draw over the tall
+       FILTERS panel. */
+    .ls-pop{ position: absolute; top: calc(100% + 8px); left: 0; z-index: 44;
+      min-width: 280px; max-width: calc(100vw - 40px);
+      background: var(--pc-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); box-shadow: 0 8px 28px rgba(7,22,44,.18);
+      padding: var(--space-4); }
+    .ls-pop[hidden]{ display: none; }
+    .ls-opt{ display: flex; align-items: center; gap: 10px; padding: 9px 4px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 14px; line-height: 1.3; color: var(--pc-black); }
+    .ls-opt input{ flex: none; width: 18px; height: 18px; accent-color: var(--pc-navy); }
+    .ls-opt:hover{ color: var(--pc-navy); }
+    /* SORT BY sits near the right edge of the bar, so its popover opens leftward from the
+       pill. Overridden back to left-anchored + full width at <=639, where the popover is
+       viewport-wide anyway. */
+    .ls-pop-right{ left: auto; right: 0; }
+
+    /* ---- ACRES / PRICE: two native range inputs stacked over one drawn track ----
+       Both handles are real <input type="range">, so both are keyboard-operable and
+       announce their own value. The inputs are pointer-transparent EXCEPT their thumbs,
+       which is what lets the lower one stay grabbable under the upper one.
+       The scale is an INDEX into ACRE_STOPS, not acres — a linear 0-35,000 slider makes
+       everything under 640 acres unreachable. See developer-listing.md §3.2. */
+    .ls-range-read{ font-family: var(--font-sans); font-size: 15px; font-weight: 600;
+      color: var(--pc-black); margin: 0 0 var(--space-5); }
+    /* Disclaimer block inside a popover — sits BELOW the range and above the action row,
+       so the margin runs upward and .ls-actions supplies the gap beneath it. Words only:
+       no warning icon and no colour-coded alert, so it reads the same to everyone.
+       PC Light Blue ground, PC Navy rule. The p / ul / li rules are here for the real copy,
+       which may be more than one sentence. */
+    .ls-note{ margin: var(--space-4) 0 0; padding: var(--space-3) var(--space-4);
+      background: var(--pc-light-blue); border-left: 3px solid var(--pc-navy);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans); font-size: 13px; line-height: 1.55; color: var(--pc-black); }
+    .ls-note b{ font-weight: 600; }
+    .ls-note p{ margin: 0; }
+    .ls-note p + p{ margin-top: var(--space-2); }
+    .ls-note ul{ margin: var(--space-2) 0; padding-left: 18px; }
+    .ls-note li{ margin-bottom: 2px; }
+    /* The price popover carries the disclaimer, so it needs more room than SALE TYPE. */
+    .ls-pop-wide{ min-width: 340px; }
+    .ls-range{ position: relative; height: 28px; margin: 0 0 var(--space-3); }
+    .ls-range-track{ position: absolute; top: 12px; left: 0; right: 0; height: 4px;
+      border-radius: 2px; background: var(--pc-light-blue); }
+    .ls-range-fill{ position: absolute; top: 12px; height: 4px; border-radius: 2px;
+      background: var(--pc-navy); }
+    .ls-range input[type="range"]{ position: absolute; top: 0; left: 0; width: 100%;
+      height: 28px; margin: 0; background: none; pointer-events: none;
+      -webkit-appearance: none; appearance: none; }
+    .ls-range input[type="range"]:focus{ outline: none; }
+    .ls-range input[type="range"]::-webkit-slider-thumb{ -webkit-appearance: none;
+      pointer-events: auto; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--pc-white); border: 2px solid var(--pc-navy);
+      box-shadow: 0 1px 4px rgba(7,22,44,.3); cursor: grab; }
+    .ls-range input[type="range"]::-moz-range-thumb{ pointer-events: auto;
+      width: 20px; height: 20px; border-radius: 50%; box-sizing: border-box;
+      background: var(--pc-white); border: 2px solid var(--pc-navy);
+      box-shadow: 0 1px 4px rgba(7,22,44,.3); cursor: grab; }
+    .ls-range input[type="range"]:focus-visible::-webkit-slider-thumb{
+      outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-range input[type="range"]:focus-visible::-moz-range-thumb{
+      outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-range-ends{ display: flex; justify-content: space-between;
+      font-family: var(--font-sans); font-size: 12px; color: var(--pc-navy); }
+
+    /* ---- popover / panel footer ---- */
+    .ls-actions{ display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4); margin-top: var(--space-5);
+      padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+    .ls-clear{ border: 0; background: none; padding: 8px 4px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-navy);
+      text-decoration: underline; text-underline-offset: 3px; }
+    .ls-clear:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-apply{ min-height: 44px; padding: 0 22px; border: 1px solid var(--pc-navy);
+      border-radius: var(--radius-pill); background: var(--pc-navy); color: var(--pc-white);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; cursor: pointer; }
+    .ls-apply:hover{ background: var(--pc-black); border-color: var(--pc-black); }
+    .ls-apply:focus-visible{ outline: 2px solid var(--pc-black); outline-offset: 2px; }
+
+    /* ---- FILTERS: the same .ls-pop environment as the other three, only wider ----
+       Right-anchored, so a 700px panel opens leftward from the pill instead of
+       running off the edge of the page. With .ls-controls stopping the FILTERS pill at
+       centre + half the panel (see the >=1280 rule), a right-anchored panel of that same
+       width lands centred on the page. */
+    .ls-pop-panel{ left: auto; right: 0;
+      width: min(var(--ls-panel-w), calc(100vw - 40px)); max-width: none;
+      max-height: calc(100vh - var(--navH, 120px) - 60px); overflow: auto;
+      padding: var(--space-6); }
+    .ls-fieldset{ border: 0; padding: 0; margin: 0 0 var(--space-6); }
+    .ls-fieldset-flush{ margin: 0; }
+    .ls-opt-label{ padding: 0 0 var(--space-2); }
+    .ls-fieldset legend{ padding: 0; margin-bottom: var(--space-3);
+      font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--pc-navy); }
+    .ls-checks{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px var(--space-4); }
+    .ls-select{ width: 100%; min-height: 44px; padding: 0 14px; background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .ls-select:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    /* ---- GRID / MAP view switch ---- */
+    .ls-view{ display: inline-flex; flex: none; padding: 3px; background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-pill); }
+    .ls-view button{ display: inline-flex; align-items: center; gap: 7px; min-height: 38px;
+      padding: 0 18px; border: 0; border-radius: var(--radius-pill); background: none;
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; color: var(--pc-navy);
+      cursor: pointer; }
+    /* Selected view is filled AND bolder — never fill alone. */
+    .ls-view button[aria-selected="true"]{ background: var(--pc-navy); color: var(--pc-white);
+      font-weight: 700; }
+    .ls-view button:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    /* ---- results count + panels ---- */
+    .ls-results{ max-width: var(--site); margin: 0 auto;
+      padding: var(--space-6) var(--rail) var(--space-8); }
+    .ls-count{ font-family: var(--font-sans); font-size: 14px; color: var(--pc-navy);
+      margin: 0 0 var(--space-5); }
+    .ls-count b{ color: var(--pc-black); }
+    .ls-panel[hidden]{ display: none; }
+    .ls-mapview img{ display: block; width: 100%; height: 620px; object-fit: cover;
+      border-radius: var(--radius-md); background: var(--pc-light-blue); }
+    .ls-mapview .md-placeholder{ display: grid; place-items: center; height: 620px;
+      border-radius: var(--radius-md); background: var(--pc-light-blue);
+      font-family: var(--font-serif); font-size: 28px; color: var(--pc-navy); margin: 0; }
+
+    /* ---- grid: 3 across on desktop ---- */
+    .lc-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
 
     /* ---- card shell ---- */
     .lc{ background: var(--pc-white); border-radius: var(--radius-md); overflow: hidden;
@@ -102,6 +338,78 @@
       color: var(--pc-black); margin: var(--space-3) 0 0; }
     /* Middot separators come from CSS so the markup stays a clean list of facts. */
     .lc-meta span + span::before{ content: "·"; margin: 0 6px; color: var(--pc-medium-blue); }
+
+    /* ---- REMOVED: the >=1280 "FILTERS parks under the modal" lock ----
+       .ls-controls used to be pinned to calc(50% + --ls-panel-w / 2), which put the FILTERS
+       pill's right edge exactly on the right edge of the 700px viewport-centred modal, so
+       an open modal covered its own trigger. It was a flourish, and it cost the row: the
+       lock held the group at 1038px against 820px of content, and once SORT BY joined the
+       bar those 218px of dead air were the difference between one row and two.
+       The modal is still centred on the viewport; it simply no longer aligns to its pill.
+       DO NOT REINSTATE without re-checking the one-row budget (see .ls-loc). */
+
+    /* ================= RESPONSIVE =================
+       Breakpoints sit on --site rungs (1279 / 1023 / 767 / 639) per DEVELOPER-NOTES.md §5a.
+       Card widths, content box = --site - 2 x --rail, gap 24 at every step:
+         >=1536  1376 box  3 up  443     1024-1279  960 box  2 up  468
+         1280-1535 1216 box 3 up 389      768-1023   704 box  2 up  340
+         640-767  576 box  1 up  576      <640  viewport-40  1 up  fills          */
+    @media (max-width: 1279px){
+      .lc-grid{ grid-template-columns: repeat(2, 1fr); }
+      /* Below 1280 the five filters alone need more than the content box, so the bar is
+         honestly two rows: filters, then the two actions right-aligned beneath them.
+         Letting it wrap on its own leaves SORT + the view switch orphaned at the left. */
+      .ls-controls{ width: 100%; flex-wrap: wrap; }
+      .ls-right{ width: 100%; justify-content: flex-end; }
+      .ls-loc{ flex: 1 1 240px; }
+    }
+    @media (max-width: 1023px){
+      .ls-checks{ grid-template-columns: repeat(2, 1fr); }
+      .ls-mapview img, .ls-mapview .md-placeholder{ height: 520px; }
+    }
+    @media (max-width: 767px){
+      .lc-grid{ grid-template-columns: 1fr; }
+      /* The controls take a full row and SORT + the view switch share the next one; the
+         switch takes the slack and splits it between GRID and MAP so both stay above the
+         44px target. */
+      .ls-controls{ width: 100%; }
+      .ls-loc{ flex: 1 1 100%; }
+      .ls-right{ width: 100%; }
+      .ls-view{ flex: 1 1 auto; }
+      .ls-view button{ flex: 1; justify-content: center; }
+      .ls-pop-panel{ padding: var(--space-5); }
+      .ls-mapview img, .ls-mapview .md-placeholder{ height: 420px; }
+    }
+    @media (max-width: 639px){
+      .ls-checks{ grid-template-columns: 1fr; }
+      /* SALE TYPE, ACRES and PRICE stretch and wrap; FILTERS follows. */
+      .ls-f{ flex: 1 1 auto; }
+      .ls-f > .ls-pill{ width: 100%; justify-content: space-between; }
+      /* SORT takes its own row above the view switch rather than halving it. Its label is
+         the longest of any pill, so it reads left with the chevron pushed to the far edge
+         instead of being spread three ways. */
+      .ls-right{ flex-wrap: wrap; }
+      .ls-right > .ls-f{ flex: 1 1 100%; }
+      .ls-f > .ls-pill-auto{ justify-content: flex-start; }
+      .ls-pill-auto .ls-chev{ margin-left: auto; }
+      .ls-pop{ left: 0; right: auto; min-width: 0; width: calc(100vw - 40px); }
+      .ls-actions{ flex-direction: column-reverse; align-items: stretch; }
+      .ls-apply{ width: 100%; }
+    }
+
+    /* =====================================================================
+       TEMPORARY — REVIEW ONLY. DELETE THIS BLOCK TO PUT THE RESULTS BACK.
+       =====================================================================
+       Hides the entire results area (the "9 properties" count, the card grid and the map
+       panel) so the filter bar is the only thing in the content area while the bar itself
+       is being reviewed.
+       Deliberately ONE rule at the END of the stylesheet, and deliberately CSS rather than
+       edits to the markup: the cards, the count, both view panels and all their JS are
+       untouched and come back by deleting these two lines. Nothing above needs unpicking.
+       Note while this is in place: the Grid / Map switch still works and still moves its
+       aria-selected state, there is simply nothing visible for it to switch between. The
+       60vh min-height on .listings-body is what keeps the footer off the bar. */
+    .ls-results{ display: none; }
   </style>
 </head>
 
@@ -168,46 +476,206 @@
     </div>
   </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <!-- ================= PAGE CONTENT — listing card reference ================= -->
+  <!-- ================= PAGE CONTENT — search results ================= -->
   <main class="listings-body" aria-label="Page content">
-    <div class="listings-wrap reveal">
+
+    <div class="listings-wrap listings-intro reveal">
       <h1>Listings</h1>
-      <p>
-        Card reference for the developer. Four across, PC palette and fonts only. Photos are
-        placeholders (the hero crops), and the property details are sample content.
-      </p>
+    </div>
+
+    <!-- ---------- search / filter bar ---------- -->
+    <div class="ls-bar">
+      <div class="ls-bar-in">
+        <div class="ls-controls">
+
+          <!-- LOCATION — a plain text field. No autocomplete is wired; the CMS owns that.
+               FIRST in the bar: it is the widest control and the one people reach for first,
+               so it anchors the left edge and the four pills spread to its right. -->
+          <div class="ls-loc">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <input type="search" id="locInput" placeholder="County, state or ZIP" aria-label="Location" />
+          </div>
+
+          <!-- SALE TYPE — single choice; picking one closes the popover and the pill
+               takes the chosen value as its label. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="saleBtn" type="button" data-label="Sale Type"
+                    aria-expanded="false" aria-controls="salePop">Sale Type <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <div class="ls-pop" id="salePop" hidden>
+              <fieldset class="ls-fieldset ls-fieldset-flush">
+                <legend>Sale Type</legend>
+                <label class="ls-opt"><input type="radio" name="ls-sale" value="" checked /> Any sale type</label>
+                <label class="ls-opt"><input type="radio" name="ls-sale" value="For Sale" /> For Sale</label>
+                <label class="ls-opt"><input type="radio" name="ls-sale" value="Live Auction" /> Live Auction</label>
+                <label class="ls-opt"><input type="radio" name="ls-sale" value="Online-Only Auction" /> Online-Only Auction</label>
+                <label class="ls-opt"><input type="radio" name="ls-sale" value="Sealed Bid" /> Sealed Bid</label>
+              </fieldset>
+            </div>
+          </div>
+
+          <!-- ACRES — two stacked native range inputs. The slider's 0-18 scale is an INDEX
+               into ACRE_STOPS, not an acre count; aria-valuetext carries the real acreage so
+               a screen reader never announces the raw index. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="acresBtn" type="button" data-label="Acres"
+                    aria-expanded="false" aria-controls="acresPop">Acres <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <div class="ls-pop" id="acresPop" hidden>
+              <p class="ls-range-read" id="acresRead" aria-hidden="true">Any acreage</p>
+              <div class="ls-range">
+                <span class="ls-range-track" aria-hidden="true"></span>
+                <span class="ls-range-fill" id="acresFill" aria-hidden="true"></span>
+                <input type="range" id="acresMin" min="0" max="18" step="1" value="0" aria-label="Minimum acres" />
+                <input type="range" id="acresMax" min="0" max="18" step="1" value="18" aria-label="Maximum acres" />
+              </div>
+              <div class="ls-range-ends" aria-hidden="true"><span>0</span><span>35,000+</span></div>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="acres">Clear</button>
+                <button class="ls-apply" type="button" data-apply="acres">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PRICE — same stepped dual-handle range as ACRES, driven by the same function.
+               Opens with a disclaimer, because price is NOT published for most of the
+               inventory: only available For Sale listings and SOLD live / online-only
+               auctions carry one. Upcoming auctions and sealed bids never do. The note is
+               plain words on a tinted ground — no warning icon, no colour-coded alert. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="priceBtn" type="button" data-label="Price"
+                    aria-expanded="false" aria-controls="pricePop">Price <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <div class="ls-pop ls-pop-wide" id="pricePop" hidden>
+              <p class="ls-range-read" id="priceRead" aria-hidden="true">Any price</p>
+              <div class="ls-range">
+                <span class="ls-range-track" aria-hidden="true"></span>
+                <span class="ls-range-fill" id="priceFill" aria-hidden="true"></span>
+                <input type="range" id="priceMin" min="0" max="16" step="1" value="0" aria-label="Minimum price" />
+                <input type="range" id="priceMax" min="0" max="16" step="1" value="16" aria-label="Maximum price" />
+              </div>
+              <div class="ls-range-ends" aria-hidden="true"><span>$0</span><span>$50M+</span></div>
+              <!-- COPY IS PLACEHOLDER — Kiron owns the wording. The rule it has to express:
+                   price is published only for available For Sale listings and for SOLD live /
+                   online-only auctions. Upcoming auctions and sealed bids have no price. -->
+              <p class="ls-note">Disclaimer here explaining what has a price and what does not</p>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="price">Clear</button>
+                <button class="ls-apply" type="button" data-apply="price">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FILTERS — everything that doesn't earn a pill of its own. Same popover
+               environment as SALE TYPE / ACRES / PRICE: a .ls-pop anchored under the pill,
+               driven by the same shared controller. It is only wider, and right-anchored so
+               a 700px panel opens leftward into the page instead of off the edge. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="moreBtn" type="button" aria-expanded="false" aria-controls="morePop">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="15" y2="12"/><line x1="4" y1="17" x2="18" y2="17"/></svg>
+              Filters <span class="ls-fcount" id="moreCount" hidden>0</span>
+            </button>
+            <div class="ls-pop ls-pop-panel" id="morePop" hidden>
+
+              <fieldset class="ls-fieldset">
+                <legend>Property Type</legend>
+                <div class="ls-checks">
+                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Farmland" /> Farmland</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Recreational" /> Recreational</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Ranch" /> Ranch</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Development" /> Development</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Commercial" /> Commercial</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Residential" /> Residential</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Energy" /> Energy</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="ls-fieldset">
+                <legend>Agent</legend>
+                <label class="ls-opt ls-opt-label" for="ls-agent">Land Professional</label>
+                <select class="ls-select" id="ls-agent" name="ls-agent">
+                  <option value="">Any Land Professional</option>
+                  <option>Steve Bruere</option>
+                  <option>Eric Sarff</option>
+                  <option>Jared Chambers</option>
+                  <option>George Baird</option>
+                  <option>Eric Bohnenkamp</option>
+                </select>
+              </fieldset>
+
+              <fieldset class="ls-fieldset ls-fieldset-flush">
+                <legend>Status</legend>
+                <div class="ls-checks">
+                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Active" /> Active</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Under Contract" /> Under Contract</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Pending" /> Pending</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Auction Upcoming" /> Auction Upcoming</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Auction Ended" /> Auction Ended</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Sold" /> Sold</label>
+                </div>
+              </fieldset>
+
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" id="moreClear">Clear all filters</button>
+                <button class="ls-apply" type="button" id="moreApply">Show 9 properties</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- The right-hand group: SORT BY, then the view switch hard right. Both sit
+             OUTSIDE .ls-controls, which is width-locked to the FILTERS modal's right edge
+             (see .ls-controls in the stylesheet) and must hold only the five filters. -->
+        <div class="ls-right">
+
+          <!-- SORT BY — same .ls-f / .ls-pop environment as the filter pills, so the shared
+               controller opens and closes it for free. Two differences: a sort order is
+               ALWAYS in effect, so the pill never returns to a resting label and never takes
+               the navy .is-set fill; and the pill shows the SHORT form from data-pill, not
+               the option's own words. The full wording stays in the popover where there is
+               room to be unambiguous — the same split the PRICE pill already makes when it
+               abbreviates $1.5M. Longest pill state is "Sort: Auction date" at 172px; keep
+               any new option's data-pill inside that or the bar's one-row budget moves. -->
+          <div class="ls-f">
+            <button class="ls-pill ls-pill-auto" id="sortBtn" type="button"
+                    aria-expanded="false" aria-controls="sortPop">
+              <span id="sortLabel">Sort: Newest</span> <span class="ls-chev" aria-hidden="true">▾</span>
+            </button>
+            <div class="ls-pop ls-pop-right" id="sortPop" hidden>
+              <fieldset class="ls-fieldset ls-fieldset-flush">
+                <legend>Sort by</legend>
+                <label class="ls-opt"><input type="radio" name="ls-sort" value="Newest" data-pill="Newest" checked /> Newest</label>
+                <label class="ls-opt"><input type="radio" name="ls-sort" value="Oldest" data-pill="Oldest" /> Oldest</label>
+                <label class="ls-opt"><input type="radio" name="ls-sort" value="Price: low to high" data-pill="Price (low)" /> Price: low to high</label>
+                <label class="ls-opt"><input type="radio" name="ls-sort" value="Price: high to low" data-pill="Price (high)" /> Price: high to low</label>
+                <label class="ls-opt"><input type="radio" name="ls-sort" value="Acres: small to large" data-pill="Acres (low)" /> Acres: small to large</label>
+                <label class="ls-opt"><input type="radio" name="ls-sort" value="Acres: large to small" data-pill="Acres (high)" /> Acres: large to small</label>
+                <label class="ls-opt"><input type="radio" name="ls-sort" value="Auction date" data-pill="Auction date" /> Auction date</label>
+              </fieldset>
+            </div>
+          </div>
+
+          <!-- GRID / MAP. Tabs, because the two really are alternate panels of the same
+               results set. Left/Right arrows move between them, per the tab pattern. -->
+          <div class="ls-view" role="tablist" aria-label="Results view">
+            <button type="button" role="tab" id="viewGrid" aria-selected="true" aria-controls="panelGrid">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
+              Grid
+            </button>
+            <button type="button" role="tab" id="viewMap" aria-selected="false" aria-controls="panelMap" tabindex="-1">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6 9 3Z"/><path d="M9 3v15M15 6v15"/></svg>
+              Map
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- results ---------- -->
+    <div class="ls-results">
+      <p class="ls-count" id="lsCount"><b>9</b> properties</p>
 
       <!-- Each card is one <article>. The photo, the two overlay lines and the three body
            rows are the whole pattern; everything else is styling. -->
+      <div class="ls-panel" id="panelGrid" role="tabpanel" aria-labelledby="viewGrid">
       <div class="lc-grid">
 
         <article class="lc">
@@ -302,44 +770,132 @@
           </div>
         </article>
 
+        <article class="lc">
+          <div class="lc-media">
+            <img src="../assets/pc-hero6.jpg" alt="Corn rows at sunrise" />
+            <span class="lc-pill is-auction">Upcoming Auction</span>
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
+            <div class="lc-over">
+              <p class="lc-place">Wayne County, IA</p>
+              <div class="lc-agentrow">
+                <p class="lc-agent">Jared Chambers | 515.222.1347</p>
+                <p class="lc-id">Listing #19282</p>
+              </div>
+            </div>
+          </div>
+          <div class="lc-body">
+            <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+            <p class="lc-headline">September 24, 2026<br />10:00 AM CT</p>
+            <p class="lc-meta"><span>136.57 Acres</span><span>80.31 Tillable Acres</span><span>Two Tracts</span></p>
+          </div>
+        </article>
+
+        <article class="lc">
+          <div class="lc-media">
+            <img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" />
+            <span class="lc-pill is-new">New Listing</span>
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
+            <div class="lc-over">
+              <p class="lc-place">Story County, IA</p>
+              <div class="lc-agentrow">
+                <p class="lc-agent">George Baird | 515.222.1347</p>
+                <p class="lc-id">Listing #19584</p>
+              </div>
+            </div>
+          </div>
+          <div class="lc-body">
+            <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+            <p class="lc-headline">$1,875,000</p>
+            <p class="lc-meta"><span>152 Acres</span><span>149 Tillable Acres</span></p>
+          </div>
+        </article>
+
+        <article class="lc">
+          <div class="lc-media">
+            <img src="../assets/pc-hero8.jpg" alt="Farm field under open sky" />
+            <span class="lc-pill is-auction">Upcoming Auction</span>
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
+            <div class="lc-over">
+              <p class="lc-place">Juneau County, WI</p>
+              <div class="lc-agentrow">
+                <p class="lc-agent">Eric Bohnenkamp | 515.222.1347</p>
+                <p class="lc-id">Listing #19591</p>
+              </div>
+            </div>
+          </div>
+          <div class="lc-body">
+            <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+            <p class="lc-headline">October 8, 2026<br />11:00 AM CT</p>
+            <p class="lc-meta"><span>804 Acres</span><span>612 Tillable Acres</span><span>Six Tracts</span></p>
+          </div>
+        </article>
+
+        <article class="lc">
+          <div class="lc-media">
+            <img src="../assets/pc-hero9.jpg" alt="Open farmland at sunset" />
+            <span class="lc-pill is-new">New Listing</span>
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
+            <div class="lc-over">
+              <p class="lc-place">Moody County, SD</p>
+              <div class="lc-agentrow">
+                <p class="lc-agent">Eric Sarff | 515.222.1347</p>
+                <p class="lc-id">Listing #19597</p>
+              </div>
+            </div>
+          </div>
+          <div class="lc-body">
+            <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+            <p class="lc-headline">$3,120,000</p>
+            <p class="lc-meta"><span>320 Acres</span><span>311 Tillable Acres</span></p>
+          </div>
+        </article>
+
+        <article class="lc">
+          <div class="lc-media">
+            <img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" />
+            <span class="lc-pill is-new">New Listing</span>
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
+            <div class="lc-over">
+              <p class="lc-place">Hamilton County, IA</p>
+              <div class="lc-agentrow">
+                <p class="lc-agent">Steve Bruere | 515.222.1347</p>
+                <p class="lc-id">Listing #19602</p>
+              </div>
+            </div>
+          </div>
+          <div class="lc-body">
+            <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+            <p class="lc-headline">$4,680,000</p>
+            <p class="lc-meta"><span>400 Acres</span><span>396 Tillable Acres</span></p>
+          </div>
+        </article>
+
+      </div>
+      </div>
+
+      <!-- Map view. Same placeholder image the Interactive Map layer uses, sized into the
+           results area. The real map module replaces the <img> wholesale. -->
+      <div class="ls-panel ls-mapview" id="panelMap" role="tabpanel" aria-labelledby="viewMap" hidden>
+        <img src="../assets/find-properties-map.png" alt="Map of the properties in these results (placeholder)"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<p class=\'md-placeholder\'>Interactive FarmWorth Map</p>');this.onerror=null;" />
       </div>
     </div>
   </main>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   <!-- ================= FOOTER ================= -->
   <footer class="pff">
@@ -772,95 +1328,6 @@
       });
     })();
 
-    // Insights & Research — tabbed, varied-tile grid. Content model: Blog = 16:9
-    // photo + headline + teaser + date; Insights = digital documents, cover
-    // art 850x1100 portrait, often no date. Themed via the .io-scope vars.
-    (function(){
-      function hrow(title, date){
-        return '<a class="io-hrow" href="./internal.html"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
-      }
-
-      var INSIGHTS = {
-        featured: [
-          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"../assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
-          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"../assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
-          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
-        ],
-        more: [
-          "The Inflation Hedge: Farmland vs. Traditional Assets",
-          "Water Rights and the Value of Irrigated Ground",
-          "Row Crop vs. Permanent Crop: A Risk Framework",
-          "Carbon, Conservation, and Land Returns",
-          "Timber & Transition Land: An Allocation Primer",
-          "The 2025 National Land Values Report"
-        ]
-      };
-      var BLOG = {
-        featured: [
-          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
-          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
-          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
-        ],
-        more: [
-          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
-          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
-          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
-          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
-          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
-          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
-          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
-          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
-        ]
-      };
-
-      // Tabbed block: Industry Research (default open) + Peoples Perspective Blog.
-      function tabbedBlock(rootId, h2, researchInner, blogInner){
-        var root = document.getElementById(rootId);
-        if(!root) return;
-        root.innerHTML =
-          '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 id="hp-ins-h" class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="./internal.html">View more &rarr;</a></div>'+
-          '<div class="ioF-tabs" role="tablist">'+
-            '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
-            '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
-          '</div>'+
-          '<div class="ioF-panels">'+
-            '<div class="ioF-panel" data-panel="0">'+researchInner+'</div>'+
-            '<div class="ioF-panel" data-panel="1" hidden>'+blogInner+'</div>'+
-          '</div>';
-        root.querySelectorAll('.ioF-tab').forEach(function(t){
-          t.addEventListener('click', function(){
-            root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
-            root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
-          });
-        });
-      }
-
-      // Industry Research — horizontal 16:9 cards (no portrait cover, no
-      // "Report · PDF" tag), then a "More research" headline stack.
-      function researchCard(x){
-        return '<a class="io-card" href="./internal.html">'+
-          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
-          '<span class="io-body"><h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
-      }
-      // Peoples Perspective Blog — 16:9 photo + category chip + date + title +
-      // teaser + "Read more", then a "More from the blog" stack.
-      function blogCard(x){
-        return '<a class="io-card" href="./internal.html">'+
-          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
-          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span>'+
-          '<h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
-      }
-
-      var rc = INSIGHTS.featured.map(researchCard).join("");
-      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
-      var bc = BLOG.featured.map(blogCard).join("");
-      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
-
-      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
-        '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
-        '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
-    })();
-
     // Scroll-reveal (must-have) — reduced-motion safe
     (function(){
       var els = document.querySelectorAll(".reveal");
@@ -917,6 +1384,263 @@
         b.addEventListener("click", function(){
           b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
         });
+      });
+    })();
+
+    // ================= SEARCH / FILTER BAR =================
+    // CHROME ONLY. Every control here opens, closes, reports its own state and writes its
+    // chosen value back onto its pill. NOTHING filters the cards and the count never moves:
+    // filtering, counting and paging belong to the CMS. Same convention as the team page's
+    // filter chips.
+
+    // ---- popover pills (SALE TYPE, ACRES, PRICE) ----
+    // One controller for both, so they can never drift: only one popover is open at a time,
+    // Esc closes and returns focus, an outside click closes, and the trigger's label is
+    // rewritten from data-label when the value is cleared.
+    (function(){
+      var pops = [].slice.call(document.querySelectorAll(".ls-f > .ls-pop")).map(function(pop){
+        return { pop: pop, btn: document.querySelector('[aria-controls="' + pop.id + '"]') };
+      }).filter(function(p){ return p.btn; });
+      if(!pops.length) return;
+
+      function closeAll(except, returnFocus){
+        pops.forEach(function(p){
+          if(p.pop === except || p.pop.hidden) return;
+          p.pop.hidden = true;
+          p.btn.setAttribute("aria-expanded", "false");
+          if(returnFocus) p.btn.focus();
+        });
+      }
+
+      pops.forEach(function(p){
+        p.btn.addEventListener("click", function(){
+          var isOpen = p.btn.getAttribute("aria-expanded") === "true";
+          closeAll(null, false);
+          if(!isOpen){
+            p.pop.hidden = false;
+            p.btn.setAttribute("aria-expanded", "true");
+            var first = p.pop.querySelector("input, button, select");
+            if(first) first.focus();
+          }
+        });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key !== "Escape" && e.key !== "Esc") return;
+        var open = pops.filter(function(p){ return !p.pop.hidden; });
+        if(open.length) closeAll(null, true);
+      });
+      // A click anywhere outside every .ls-f closes whatever is open. Guarded on the
+      // popover's own subtree so choosing a radio inside one doesn't close its neighbour.
+      document.addEventListener("click", function(e){
+        if(e.target.closest && e.target.closest(".ls-f")) return;
+        closeAll(null, false);
+      });
+    })();
+
+    // ---- SALE TYPE ----
+    // Single choice: picking one writes the value onto the pill and closes the popover,
+    // which is why there is no Apply button in here.
+    (function(){
+      var btn = document.getElementById("saleBtn"), pop = document.getElementById("salePop");
+      if(!btn || !pop) return;
+      var chev = '<span class="ls-chev" aria-hidden="true">▾</span>';
+      pop.addEventListener("change", function(e){
+        var r = e.target;
+        if(r.name !== "ls-sale") return;
+        var set = !!r.value;
+        btn.classList.toggle("is-set", set);
+        btn.innerHTML = (set ? r.value : btn.getAttribute("data-label")) + " " + chev;
+        pop.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        btn.focus();
+      });
+    })();
+
+    // ---- SORT BY ----
+    // Single choice, same as SALE TYPE, so no Apply button. The difference: a sort order is
+    // always in effect, so the label is only ever rewritten — it never returns to a resting
+    // state and the pill never takes .is-set. Only the <span> is replaced, so the icon and
+    // the chevron survive.
+    (function(){
+      var btn = document.getElementById("sortBtn"),
+          pop = document.getElementById("sortPop"),
+          lab = document.getElementById("sortLabel");
+      if(!btn || !pop || !lab) return;
+      pop.addEventListener("change", function(e){
+        if(e.target.name !== "ls-sort") return;
+        // data-pill is the short form; the option's own words are the fallback.
+        lab.textContent = "Sort: " + (e.target.getAttribute("data-pill") || e.target.value);
+        pop.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        btn.focus();
+      });
+    })();
+
+    // ---- ACRES and PRICE: dual-handle ranges ----
+    // ONE function drives both, so the two sliders can never drift apart.
+    //
+    // The <input type="range"> values are INDEXES INTO A STOPS ARRAY, not acres or dollars.
+    // Both quantities span several orders of magnitude — 10 to 35,000 acres, $100K to $50M —
+    // and on a linear track everything at the small end collapses into the first 2%.
+    // WHOEVER WIRES THIS UP MUST SEND stops[value], NEVER value.
+    (function(){
+      function makeRange(key, stops, fmt, pillFmt, anyLabel, unitWord){
+        var btn  = document.getElementById(key + "Btn"),
+            min  = document.getElementById(key + "Min"),
+            max  = document.getElementById(key + "Max"),
+            fill = document.getElementById(key + "Fill"),
+            read = document.getElementById(key + "Read"),
+            pop  = document.getElementById(key + "Pop");
+        if(!btn || !min || !max) return;
+
+        var LAST = stops.length - 1;
+        var chev = '<span class="ls-chev" aria-hidden="true">▾</span>';
+
+        // calc() wants a real operator, not a signed operand — "calc(100% + -20px)" is not
+        // reliably parsed, so the sign becomes the operator here.
+        function calcPx(pct, px){
+          return "calc(" + pct + "% " + (px < 0 ? "- " : "+ ") + Math.abs(px) + "px)";
+        }
+        function paint(){
+          var a = +min.value, b = +max.value;
+          // The thumb is 20px and travels inset by half of it at each end, so the fill has
+          // to carry the same 10px inset or it drifts away from the handles.
+          var pa = a / LAST, pb = b / LAST;
+          fill.style.left  = calcPx(pa * 100, 10 - pa * 20);
+          fill.style.width = calcPx((pb - pa) * 100, (pa - pb) * 20);
+          // Screen readers must hear the quantity, not the raw index.
+          min.setAttribute("aria-valuetext", fmt(a) + " " + unitWord);
+          max.setAttribute("aria-valuetext", fmt(b) + " " + unitWord);
+          read.textContent = (a === 0 && b === LAST) ? anyLabel
+                                                     : fmt(a) + " – " + fmt(b);
+        }
+        // Clamp on input so the handles can meet but never invert their values.
+        min.addEventListener("input", function(){
+          if(+min.value > +max.value) min.value = max.value;
+          paint();
+        });
+        max.addEventListener("input", function(){
+          if(+max.value < +min.value) max.value = min.value;
+          paint();
+        });
+        // The upper input sits on top of the lower one. Once both handles park at the far
+        // right the max thumb covers the min thumb and the min handle stops being grabbable
+        // by mouse — so hand the stack order to whichever handle is nearer the pointer.
+        var range = min.parentNode;
+        range.addEventListener("pointerdown", function(e){
+          var r = range.getBoundingClientRect();
+          var target = ((e.clientX - r.left - 10) / Math.max(1, r.width - 20)) * LAST;
+          var nearMin = Math.abs(target - +min.value) <= Math.abs(target - +max.value);
+          min.style.zIndex = nearMin ? 3 : 1;
+          max.style.zIndex = nearMin ? 1 : 3;
+        });
+
+        function apply(){
+          var a = +min.value, b = +max.value, set = !(a === 0 && b === LAST);
+          btn.classList.toggle("is-set", set);
+          btn.innerHTML = (set ? pillFmt(a, b) : btn.getAttribute("data-label")) + " " + chev;
+          pop.hidden = true;
+          btn.setAttribute("aria-expanded", "false");
+          btn.focus();
+        }
+        pop.querySelector('[data-apply="' + key + '"]').addEventListener("click", apply);
+        pop.querySelector('[data-clear="' + key + '"]').addEventListener("click", function(){
+          min.value = 0; max.value = LAST; paint(); apply();
+        });
+        paint();
+      }
+
+      var ACRE_STOPS = [0,10,20,40,80,120,160,240,320,480,640,960,1280,2000,3000,5000,10000,20000,35000];
+      function acres(i){
+        var n = ACRE_STOPS[i].toLocaleString("en-US");
+        return i === ACRE_STOPS.length - 1 ? n + "+" : n;
+      }
+      makeRange("acres", ACRE_STOPS, acres,
+        function(a, b){ return acres(a) + "–" + acres(b) + " ac"; },
+        "Any acreage", "acres");
+
+      // Money is abbreviated ($1.5M, $750K) because the pill has to stay one short line.
+      var PRICE_STOPS = [0,100000,250000,500000,750000,1000000,1500000,2000000,3000000,
+                         4000000,5000000,7500000,10000000,15000000,20000000,30000000,50000000];
+      function money(i){
+        var v = PRICE_STOPS[i], s;
+        if(v === 0) s = "$0";
+        else if(v >= 1000000) s = "$" + (v / 1000000).toString().replace(/\.0$/, "") + "M";
+        else s = "$" + (v / 1000) + "K";
+        return i === PRICE_STOPS.length - 1 ? s + "+" : s;
+      }
+      makeRange("price", PRICE_STOPS, money,
+        function(a, b){ return money(a) + "–" + money(b); },
+        "Any price", "dollars");
+    })();
+
+    // ---- FILTERS panel ----
+    // Same environment as the other three: a .ls-pop under the pill, opened and closed by
+    // the shared popover controller (Esc, outside click, one-open-at-a-time all come free).
+    // The pill's count badge is a NUMBER, so "some filters are set" is never colour alone.
+    (function(){
+      var btn = document.getElementById("moreBtn"),
+          pop = document.getElementById("morePop"),
+          clearBtn = document.getElementById("moreClear"),
+          applyBtn = document.getElementById("moreApply"),
+          count = document.getElementById("moreCount");
+      if(!btn || !pop) return;
+
+      // Opening and closing is the shared popover controller's job — this block only owns
+      // the count badge and the two action buttons.
+      function tally(){
+        var n = pop.querySelectorAll('input[type="checkbox"]:checked').length;
+        var agent = pop.querySelector("#ls-agent");
+        if(agent && agent.value) n++;
+        count.textContent = n;
+        count.hidden = n === 0;
+        btn.classList.toggle("is-set", n > 0);
+      }
+      function close(){
+        pop.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        btn.focus();
+      }
+      pop.addEventListener("change", tally);
+      applyBtn.addEventListener("click", close);
+      clearBtn.addEventListener("click", function(){
+        pop.querySelectorAll('input[type="checkbox"]').forEach(function(c){ c.checked = false; });
+        var agent = pop.querySelector("#ls-agent");
+        if(agent) agent.value = "";
+        tally();
+      });
+      tally();
+    })();
+
+    // ---- GRID / MAP view switch ----
+    // Tab pattern: one tab in the tab order at a time (roving tabindex), Left/Right/Home/End
+    // move between them, and the matching panel is the only one not hidden.
+    (function(){
+      var list = document.querySelector(".ls-view[role='tablist']");
+      if(!list) return;
+      var tabs = [].slice.call(list.querySelectorAll("[role='tab']"));
+
+      function select(tab, focus){
+        tabs.forEach(function(t){
+          var on = t === tab;
+          t.setAttribute("aria-selected", on ? "true" : "false");
+          if(on) t.removeAttribute("tabindex"); else t.setAttribute("tabindex", "-1");
+          var panel = document.getElementById(t.getAttribute("aria-controls"));
+          if(panel) panel.hidden = !on;
+        });
+        if(focus) tab.focus();
+      }
+      tabs.forEach(function(t){ t.addEventListener("click", function(){ select(t, false); }); });
+      list.addEventListener("keydown", function(e){
+        var i = tabs.indexOf(document.activeElement);
+        if(i < 0) return;
+        var next = null;
+        if(e.key === "ArrowRight" || e.key === "ArrowDown") next = tabs[(i + 1) % tabs.length];
+        else if(e.key === "ArrowLeft" || e.key === "ArrowUp") next = tabs[(i - 1 + tabs.length) % tabs.length];
+        else if(e.key === "Home") next = tabs[0];
+        else if(e.key === "End") next = tabs[tabs.length - 1];
+        if(next){ e.preventDefault(); select(next, true); }
       });
     })();
   </script>
