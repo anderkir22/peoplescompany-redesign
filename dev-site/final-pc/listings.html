@@ -251,8 +251,11 @@
     .ls-fieldset legend{ padding: 0; margin-bottom: var(--space-3);
       font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .09em;
       text-transform: uppercase; color: var(--pc-navy); }
-    /* STATUS is the only consumer now that PROPERTY TYPE has moved to the TYPE pill. 6 items
-       over 3 columns is 2 rows, and "Auction Upcoming" needs ~146px of the 195px column. */
+    /* STATUS is the only consumer now that PROPERTY TYPE has moved to the TYPE pill. Down to
+       3 items (Kiron, 2026-08-21), so 3 columns is exactly one row and the longest label,
+       "Pending", uses ~62px of the 195px column. Kept at 3 columns rather than letting the
+       items run inline so a fourth status, if one ever returns, drops to a second row in
+       the same grid instead of reflowing the whole panel. */
     .ls-checks{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px var(--space-4); }
     .ls-select{ width: 100%; min-height: 44px; padding: 0 14px; background: var(--pc-white);
       border: 1px solid var(--color-border); border-radius: var(--radius-sm);
@@ -281,16 +284,12 @@
     .ls-empty{ margin: var(--space-2) 0 0; font-family: var(--font-sans); font-size: 13px;
       color: var(--pc-navy); }
 
-    /* ---- .ls-duo: two fieldsets sharing one row ----
-       SOIL and AGENT pair here. Both are ~135px tall and neither needs the full 636px content
-       box — a rating pulldown and five names are both comfortable at 302px — so pairing them
-       takes ~135px off the panel's height for nothing. The panel then reads STATUS, PRICE,
-       SOIL, AGENT top-down and left-to-right, which is the order asked for.
-       PRICE stays full width: paired, its disclaimer wraps from one line to three and the row
-       grows taller than the pairing saves. */
-    .ls-duo{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);
-      margin-bottom: var(--space-6); }
-    .ls-duo .ls-fieldset{ margin-bottom: 0; }
+    /* .ls-duo (SOIL and AGENT sharing one row) was REMOVED 2026-08-21: Kiron wants SOIL on its
+       own row above AGENT, so every fieldset in this panel is now full width and the panel is
+       one top-down column. It is ~135px taller as a result, which the panel's max-height
+       + overflow already handles. Nothing here pairs fieldsets any more — if a future pair
+       needs it, the grid was `1fr 1fr` with a --space-6 gap and margin-bottom zeroed on the
+       children. */
 
     /* Compact range header: the legend and the current reading share ONE line, where the
        ACRES / PRICE popovers give .ls-range-read a 15px line of its own beneath the legend.
@@ -306,12 +305,9 @@
       justify-content: space-between; gap: var(--space-3); }
     .ls-legend-row .ls-range-read{ margin: 0; font-size: 14px; text-transform: none;
       letter-spacing: 0; }
-    /* Both legends in the row share ONE line box, so "AGENT" and "SOIL PRODUCTIVITY INDEX"
-       sit on the same baseline. Without this the 14px reading grows only the soil legend's
-       line box and drops that heading ~4px below its neighbour. 14px is the tight fit that
-       holds the row at the height AGENT already had — a taller box would push the panel
-       down by the difference. Glyphs overflow a short line box, they are not clipped. */
-    .ls-duo .ls-fieldset legend{ line-height: 14px; }
+    /* The SOIL/AGENT legends used to need `line-height: 14px` to share a baseline across the
+       .ls-duo row. Stacked, each legend owns its own line box, so that rule went with the
+       pairing. */
     /* The gap between the rating pulldown and its slider lives on the SLIDER, not on the
        select: the slider is hidden until a rating type is chosen, and a margin on the select
        would survive that and leave 12px of dead space under the pulldown. */
@@ -453,12 +449,10 @@
       .ls-mapview img, .ls-mapview .md-placeholder{ height: 420px; }
     }
     @media (max-width: 639px){
+      /* STATUS is the only grid left in the panel now that SOIL and AGENT are full-width
+         rows at every width — three 1fr columns in a viewport-width panel would leave the
+         labels cramped, so they stack. */
       .ls-checks{ grid-template-columns: 1fr; }
-      /* Below 640 the panel is viewport-width, so two columns would put the select and the
-         slider at ~150px each. They stack instead — the panel gets taller here, which is
-         fine: it already scrolls on max-height. Same breakpoint as .ls-checks going to one
-         column, so the whole panel reflows at once. */
-      .ls-duo{ grid-template-columns: 1fr; gap: var(--space-5); }
       /* SALE TYPE, ACRES and PRICE stretch and wrap; FILTERS follows. */
       .ls-f{ flex: 1 1 auto; }
       .ls-f > .ls-pill{ width: 100%; justify-content: space-between; }
@@ -570,7 +564,7 @@
                so it anchors the left edge and the four pills spread to its right. -->
           <div class="ls-loc">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-            <input type="search" id="locInput" placeholder="County, state or ZIP" aria-label="Location" />
+            <input type="search" id="locInput" placeholder="County, State or ZIP" aria-label="Location" />
           </div>
 
           <!-- SALE TYPE — a checkbox tree, so it is MULTI-select and the popover no longer
@@ -630,21 +624,22 @@
           <!-- TYPE — property type, promoted out of the ADD'L FILTERS panel into a pill of its
                own (it traded places with PRICE). Multi-select, so like SALE TYPE it does not
                close when something is picked: Esc, an outside click, the pill or Done close it.
-               The pill is labelled "Type" rather than "Property Type" because a pill is 160px
-               and a resting label has to hold one line.
+               The pill carries the full "Property Type" label: at 126px of pill content the
+               label plus the chevron measures ~112px, so it still rests on one line.
                One column, not the panel's 3-up grid: a .ls-pop is 280px wide. -->
           <div class="ls-f">
-            <button class="ls-pill" id="typeBtn" type="button" data-label="Type"
-                    aria-expanded="false" aria-controls="typePop">Type <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <button class="ls-pill" id="typeBtn" type="button" data-label="Property Type"
+                    aria-expanded="false" aria-controls="typePop">Property Type <span class="ls-chev" aria-hidden="true">▾</span></button>
             <div class="ls-pop" id="typePop" hidden>
               <fieldset class="ls-fieldset ls-fieldset-flush">
                 <legend>Property Type</legend>
                 <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Farmland" /> Farmland</label>
                 <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Recreational" /> Recreational</label>
-                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Ranch" /> Ranch</label>
                 <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Development" /> Development</label>
                 <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Commercial" /> Commercial</label>
                 <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Residential" /> Residential</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Building Site" /> Building Site</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Acreage" /> Acreage</label>
                 <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Energy" /> Energy</label>
               </fieldset>
               <div class="ls-actions">
@@ -670,17 +665,15 @@
             </button>
             <div class="ls-pop ls-pop-panel" id="morePop" hidden>
 
-              <!-- Panel order is STATUS, PRICE, then SOIL and AGENT sharing a row.
-                   Reading left to right that is status / price / soil / agent, the order asked
-                   for, while the .ls-duo pairing keeps ~135px off the panel's height. -->
+              <!-- Panel order is STATUS, PRICE, SOIL, AGENT — one full-width row each.
+                   SOIL and AGENT used to share a row (.ls-duo, now removed) to save ~135px of
+                   panel height; Kiron's call (2026-08-21) is that SOIL gets its own row above
+                   AGENT, so the panel is a single top-down column throughout. -->
               <fieldset class="ls-fieldset">
                 <legend>Status</legend>
                 <div class="ls-checks">
                   <label class="ls-opt"><input type="checkbox" name="ls-status" value="Active" /> Active</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Under Contract" /> Under Contract</label>
                   <label class="ls-opt"><input type="checkbox" name="ls-status" value="Pending" /> Pending</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Auction Upcoming" /> Auction Upcoming</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-status" value="Auction Ended" /> Auction Ended</label>
                   <label class="ls-opt"><input type="checkbox" name="ls-status" value="Sold" /> Sold</label>
                 </div>
               </fieldset>
@@ -710,64 +703,62 @@
                 <p class="ls-note">All auctions will be included regardless of price filter.</p>
               </fieldset>
 
-              <div class="ls-duo">
-                <!-- SOIL PRODUCTIVITY INDEX — a pulldown that picks WHICH rating to filter on,
-                     over the same dual-handle range as ACRES and PRICE. Same wireRange() core,
-                     but with no pill of its own: it reports into the count badge.
-                     Each rating has its own scale, so changing the pulldown rescales the
-                     slider, relabels its end stops and resets the handles to the full span —
-                     the old handle positions mean nothing on a new scale.
-                     Scales live in SOIL_INDEXES in the script; the bounds came from Kiron. -->
-                <fieldset class="ls-fieldset">
-                  <legend class="ls-legend-row">Soil Productivity Index
-                    <span class="ls-range-read" id="soilRead" aria-hidden="true" hidden>Any rating</span></legend>
-                  <select class="ls-select" id="soilType" name="ls-soiltype"
-                          aria-label="Soil productivity rating type">
-                    <!-- No rating type is chosen by default, so nobody has to filter on soil
-                         to use this panel. The reading and the slider below stay hidden until
-                         a type is picked — with no scale chosen there is nothing to slide. -->
-                    <option value="" selected>Rating Type</option>
-                    <option value="CSR2">CSR2</option>
-                    <option value="NCCPI">NCCPI</option>
-                    <option value="PI">PI</option>
-                    <option value="CPI">CPI</option>
-                    <option value="WAPI">WAPI</option>
-                  </select>
-                  <!-- Revealed by applySoilIndex(). It carries the gap up to the pulldown, so
-                       that space collapses with it rather than leaving a hole. -->
-                  <div class="ls-soil-range" id="soilRangeWrap" hidden>
-                    <div class="ls-range">
-                      <span class="ls-range-track" aria-hidden="true"></span>
-                      <span class="ls-range-fill" id="soilFill" aria-hidden="true"></span>
-                      <!-- max and the end labels below are placeholders: setStops() writes
-                           both from the chosen rating type before this is ever shown. -->
-                      <input type="range" id="soilMin" min="0" max="20" step="1" value="0" aria-label="Minimum soil productivity rating" />
-                      <input type="range" id="soilMax" min="0" max="20" step="1" value="20" aria-label="Maximum soil productivity rating" />
-                    </div>
-                    <div class="ls-range-ends" aria-hidden="true"><span id="soilEndMin">0</span><span id="soilEndMax">100</span></div>
+              <!-- SOIL PRODUCTIVITY INDEX — a pulldown that picks WHICH rating to filter on,
+                   over the same dual-handle range as ACRES and PRICE. Same wireRange() core,
+                   but with no pill of its own: it reports into the count badge.
+                   Each rating has its own scale, so changing the pulldown rescales the
+                   slider, relabels its end stops and resets the handles to the full span —
+                   the old handle positions mean nothing on a new scale.
+                   Scales live in SOIL_INDEXES in the script; the bounds came from Kiron. -->
+              <fieldset class="ls-fieldset">
+                <legend class="ls-legend-row">Soil Productivity Index
+                  <span class="ls-range-read" id="soilRead" aria-hidden="true" hidden>Any rating</span></legend>
+                <select class="ls-select" id="soilType" name="ls-soiltype"
+                        aria-label="Soil productivity rating type">
+                  <!-- No rating type is chosen by default, so nobody has to filter on soil
+                       to use this panel. The reading and the slider below stay hidden until
+                       a type is picked — with no scale chosen there is nothing to slide. -->
+                  <option value="" selected>Rating Type</option>
+                  <option value="CSR2">CSR2</option>
+                  <option value="NCCPI">NCCPI</option>
+                  <option value="PI">PI</option>
+                  <option value="CPI">CPI</option>
+                  <option value="WAPI">WAPI</option>
+                </select>
+                <!-- Revealed by applySoilIndex(). It carries the gap up to the pulldown, so
+                     that space collapses with it rather than leaving a hole. -->
+                <div class="ls-soil-range" id="soilRangeWrap" hidden>
+                  <div class="ls-range">
+                    <span class="ls-range-track" aria-hidden="true"></span>
+                    <span class="ls-range-fill" id="soilFill" aria-hidden="true"></span>
+                    <!-- max and the end labels below are placeholders: setStops() writes
+                         both from the chosen rating type before this is ever shown. -->
+                    <input type="range" id="soilMin" min="0" max="20" step="1" value="0" aria-label="Minimum soil productivity rating" />
+                    <input type="range" id="soilMax" min="0" max="20" step="1" value="20" aria-label="Maximum soil productivity rating" />
                   </div>
-                </fieldset>
+                  <div class="ls-range-ends" aria-hidden="true"><span id="soilEndMin">0</span><span id="soilEndMax">100</span></div>
+                </div>
+              </fieldset>
 
-                <!-- AGENT — a type-to-find field over a scrolling checkbox list. This replaced
-                     a native multiple <select>: ctrl/cmd-click is not discoverable, and at the
-                     ~75 names this list is heading for it would have been unusable anyway.
-                     Checkboxes make every selection visible and cost no modifier key.
-                     The list is BUILT FROM THE AGENTS ARRAY in the script — see the note there
-                     for how to drop the real roster in. The rows live in the DOM, so typing
-                     filters by hiding them rather than by re-rendering, which means a checked
-                     name STAYS CHECKED while it is filtered out of view. That is what the
-                     "N selected" readout on the legend is for: with 75 names and a search
-                     field, selections you cannot currently see still have to be accountable.
-                     No "Any" option — selecting nothing IS any, as everywhere else here. -->
-                <fieldset class="ls-fieldset">
-                  <legend class="ls-legend-row">Agent
-                    <span class="ls-range-read" id="agentCount" aria-hidden="true" hidden>0 selected</span></legend>
-                  <input class="ls-find" type="search" id="agentFind" autocomplete="off"
-                         placeholder="Type a name" aria-label="Find an agent by name" />
-                  <div class="ls-agentlist" id="agentList"></div>
-                  <p class="ls-empty" id="agentEmpty" hidden>No agents match that name.</p>
-                </fieldset>
-              </div>
+              <!-- AGENT — a type-to-find field over a scrolling checkbox list. This replaced
+                   a native multiple <select>: ctrl/cmd-click is not discoverable, and at the
+                   ~75 names this list is heading for it would have been unusable anyway.
+                   Checkboxes make every selection visible and cost no modifier key.
+                   The list is BUILT FROM THE AGENTS ARRAY in the script — see the note there
+                   for how to drop the real roster in. The rows live in the DOM, so typing
+                   filters by hiding them rather than by re-rendering, which means a checked
+                   name STAYS CHECKED while it is filtered out of view. That is what the
+                   "N selected" readout on the legend is for: with 75 names and a search
+                   field, selections you cannot currently see still have to be accountable.
+                   No "Any" option — selecting nothing IS any, as everywhere else here. -->
+              <fieldset class="ls-fieldset">
+                <legend class="ls-legend-row">Agent
+                  <span class="ls-range-read" id="agentCount" aria-hidden="true" hidden>0 selected</span></legend>
+                <input class="ls-find" type="search" id="agentFind" autocomplete="off"
+                       placeholder="Type a name" aria-label="Find an agent by name" />
+                <div class="ls-agentlist" id="agentList"></div>
+                <p class="ls-empty" id="agentEmpty" hidden>No agents match that name.</p>
+              </fieldset>
 
               <div class="ls-actions">
                 <button class="ls-clear" type="button" id="moreClear">Clear all filters</button>
@@ -1839,7 +1830,7 @@
           chev = '<span class="ls-chev" aria-hidden="true">▾</span>';
 
       // Names the choice when there is exactly one, counts when there are several — the pill
-      // is 160px and cannot hold "Farmland, Recreational, Ranch".
+      // is 160px and cannot hold "Farmland, Recreational, Building Site".
       function sync(){
         var on = boxes.filter(function(c){ return c.checked; });
         var text = !on.length ? null
