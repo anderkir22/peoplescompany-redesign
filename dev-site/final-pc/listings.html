@@ -55,7 +55,7 @@
     .listings-intro{ padding-bottom: var(--space-6); }
 
     /* ================= SEARCH / FILTER BAR =================
-       Order is LOCATION · SALE TYPE · ACRES · PRICE · FILTERS, then SORT BY and the view
+       Order is LOCATION · SALE TYPE · ACRES · TYPE · ADD'L FILTERS, then SORT BY and the view
        switch hard right. The bar is a plain block, not sticky — see developer-listing.md §7. */
     .ls-bar{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border); }
@@ -84,7 +84,7 @@
        out of .ls-controls so the filter group stays a group. */
     .ls-right{ display: flex; align-items: center; gap: var(--space-2); flex: none; }
 
-    /* ---- shared pill trigger: SALE TYPE, ACRES, PRICE, FILTERS ---- */
+    /* ---- shared pill trigger: SALE TYPE, ACRES, TYPE, ADD'L FILTERS ---- */
     .ls-f{ position: relative; }
     /* All four pills share --ls-pill-w so the bar reads as one rhythm, with the content
        centred inside. See that token for how the width was derived.
@@ -157,6 +157,21 @@
       font-family: var(--font-sans); font-size: 14px; line-height: 1.3; color: var(--pc-black); }
     .ls-opt input{ flex: none; width: 18px; height: 18px; accent-color: var(--pc-navy); }
     .ls-opt:hover{ color: var(--pc-navy); }
+    /* SALE TYPE — the auction types nest under their parent. 28px of indent puts the child
+       boxes under the parent's LABEL (18px box + 10px gap), so the hierarchy reads off the
+       alignment; the hairline makes the grouping explicit instead of leaving it to
+       whitespace. Nesting is never carried by colour. */
+    .ls-subopts{ margin-left: 14px; padding-left: 14px;
+      border-left: 1px solid var(--color-border);
+      /* Pulled up into the parent's bottom padding so the group hangs off "Auctions"
+         instead of floating a full row below it. */
+      margin-top: -4px; }
+    /* The children run a tighter rhythm than the top-level options, so the three read as ONE
+       cluster under Auctions rather than as more siblings. 5px holds the row pitch at 28px —
+       still clear of the 24px WCAG 2.5.8 target-size floor, so tightening the look does not
+       cost pointer accuracy. Control size and type size are deliberately left alone: the
+       indent, the hairline and the rhythm carry the nesting. */
+    .ls-subopts .ls-opt{ padding-top: 5px; padding-bottom: 5px; }
     /* SORT BY sits near the right edge of the bar, so its popover opens leftward from the
        pill. Overridden back to left-anchored + full width at <=639, where the popover is
        viewport-wide anyway. */
@@ -184,8 +199,6 @@
     .ls-note p + p{ margin-top: var(--space-2); }
     .ls-note ul{ margin: var(--space-2) 0; padding-left: 18px; }
     .ls-note li{ margin-bottom: 2px; }
-    /* The price popover carries the disclaimer, so it needs more room than SALE TYPE. */
-    .ls-pop-wide{ min-width: 340px; }
     .ls-range{ position: relative; height: 28px; margin: 0 0 var(--space-3); }
     .ls-range-track{ position: absolute; top: 12px; left: 0; right: 0; height: 4px;
       border-radius: 2px; background: var(--pc-light-blue); }
@@ -224,26 +237,85 @@
     .ls-apply:hover{ background: var(--pc-black); border-color: var(--pc-black); }
     .ls-apply:focus-visible{ outline: 2px solid var(--pc-black); outline-offset: 2px; }
 
-    /* ---- FILTERS: the same .ls-pop environment as the other three, only wider ----
-       Right-anchored, so a 700px panel opens leftward from the pill instead of
-       running off the edge of the page. With .ls-controls stopping the FILTERS pill at
-       centre + half the panel (see the >=1280 rule), a right-anchored panel of that same
-       width lands centred on the page. */
+    /* ---- MORE FILTERS: the same .ls-pop environment as the other three, only wider ----
+       Right-anchored, so a 700px panel opens leftward from the pill instead of running off
+       the edge of the page. It hangs from the pill wherever the pill lands — the old >=1280
+       rule that pinned .ls-controls to "centre + half the panel", so the panel came out
+       centred on the page, was removed with the modal. */
     .ls-pop-panel{ left: auto; right: 0;
       width: min(var(--ls-panel-w), calc(100vw - 40px)); max-width: none;
       max-height: calc(100vh - var(--navH, 120px) - 60px); overflow: auto;
       padding: var(--space-6); }
     .ls-fieldset{ border: 0; padding: 0; margin: 0 0 var(--space-6); }
     .ls-fieldset-flush{ margin: 0; }
-    .ls-opt-label{ padding: 0 0 var(--space-2); }
     .ls-fieldset legend{ padding: 0; margin-bottom: var(--space-3);
       font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .09em;
       text-transform: uppercase; color: var(--pc-navy); }
+    /* STATUS is the only consumer now that PROPERTY TYPE has moved to the TYPE pill. 6 items
+       over 3 columns is 2 rows, and "Auction Upcoming" needs ~146px of the 195px column. */
     .ls-checks{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px var(--space-4); }
     .ls-select{ width: 100%; min-height: 44px; padding: 0 14px; background: var(--pc-white);
       border: 1px solid var(--color-border); border-radius: var(--radius-sm);
       font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
     .ls-select:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    /* ---- AGENT: type-to-find over a scrolling checkbox list ---- */
+    /* 36px, not the 44px of .ls-select: this field sits above a list that also needs vertical
+       room, and 36px still clears the 24px WCAG 2.2 SC 2.5.8 target floor comfortably. */
+    .ls-find{ width: 100%; min-height: 36px; padding: 0 12px; margin-bottom: var(--space-2);
+      background: var(--pc-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .ls-find:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    /* max-height, not height, so a short filtered result set shrinks the box instead of
+       leaving dead space under three names. 140px holds five 28px rows and clips the sixth,
+       which is the scroll affordance — a list that ends flush looks complete. */
+    .ls-agentlist{ max-height: 140px; overflow-y: auto; padding: 4px;
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+    /* Denser than a top-level option so more names are in view at once. 28px of pitch still
+       clears the 24px target floor; do not tighten without recording it as a deliberate
+       accessibility trade. */
+    .ls-agentlist .ls-opt{ padding-top: 5px; padding-bottom: 5px; }
+    /* .ls-opt is display:flex, which BEATS the UA's [hidden]{display:none} — without this
+       rule the search filter would set hidden and nothing would disappear. */
+    .ls-opt[hidden]{ display: none; }
+    .ls-empty{ margin: var(--space-2) 0 0; font-family: var(--font-sans); font-size: 13px;
+      color: var(--pc-navy); }
+
+    /* ---- .ls-duo: two fieldsets sharing one row ----
+       SOIL and AGENT pair here. Both are ~135px tall and neither needs the full 636px content
+       box — a rating pulldown and five names are both comfortable at 302px — so pairing them
+       takes ~135px off the panel's height for nothing. The panel then reads STATUS, PRICE,
+       SOIL, AGENT top-down and left-to-right, which is the order asked for.
+       PRICE stays full width: paired, its disclaimer wraps from one line to three and the row
+       grows taller than the pairing saves. */
+    .ls-duo{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);
+      margin-bottom: var(--space-6); }
+    .ls-duo .ls-fieldset{ margin-bottom: 0; }
+
+    /* Compact range header: the legend and the current reading share ONE line, where the
+       ACRES / PRICE popovers give .ls-range-read a 15px line of its own beneath the legend.
+       That reclaimed line is what keeps soil under the agent block's height.
+       The reading lives INSIDE the <legend> on purpose — a <legend> only labels its fieldset
+       while it is the fieldset's first child, so it cannot be wrapped in a flex row without
+       losing the group's accessible name. It is aria-hidden (same as the other two readings)
+       because each handle already announces its own value, so the group is still named just
+       "Soil Productivity Index".
+       If a browser refuses display:flex on <legend> it falls back to block and the reading
+       simply sits inline after the label — degraded, still legible. */
+    .ls-legend-row{ display: flex; width: 100%; align-items: baseline;
+      justify-content: space-between; gap: var(--space-3); }
+    .ls-legend-row .ls-range-read{ margin: 0; font-size: 14px; text-transform: none;
+      letter-spacing: 0; }
+    /* Both legends in the row share ONE line box, so "AGENT" and "SOIL PRODUCTIVITY INDEX"
+       sit on the same baseline. Without this the 14px reading grows only the soil legend's
+       line box and drops that heading ~4px below its neighbour. 14px is the tight fit that
+       holds the row at the height AGENT already had — a taller box would push the panel
+       down by the difference. Glyphs overflow a short line box, they are not clipped. */
+    .ls-duo .ls-fieldset legend{ line-height: 14px; }
+    /* The gap between the rating pulldown and its slider lives on the SLIDER, not on the
+       select: the slider is hidden until a rating type is chosen, and a margin on the select
+       would survive that and leave 12px of dead space under the pulldown. */
+    .ls-soil-range{ margin-top: var(--space-3); }
 
     /* ---- GRID / MAP view switch ---- */
     .ls-view{ display: inline-flex; flex: none; padding: 3px; background: var(--pc-white);
@@ -382,6 +454,11 @@
     }
     @media (max-width: 639px){
       .ls-checks{ grid-template-columns: 1fr; }
+      /* Below 640 the panel is viewport-width, so two columns would put the select and the
+         slider at ~150px each. They stack instead — the panel gets taller here, which is
+         fine: it already scrolls on max-height. Same breakpoint as .ls-checks going to one
+         column, so the whole panel reflows at once. */
+      .ls-duo{ grid-template-columns: 1fr; gap: var(--space-5); }
       /* SALE TYPE, ACRES and PRICE stretch and wrap; FILTERS follows. */
       .ls-f{ flex: 1 1 auto; }
       .ls-f > .ls-pill{ width: 100%; justify-content: space-between; }
@@ -496,20 +573,35 @@
             <input type="search" id="locInput" placeholder="County, state or ZIP" aria-label="Location" />
           </div>
 
-          <!-- SALE TYPE — single choice; picking one closes the popover and the pill
-               takes the chosen value as its label. -->
+          <!-- SALE TYPE — a checkbox tree, so it is MULTI-select and the popover no longer
+               closes when something is picked. Three parts:
+                 "Any sale type" is the resting state and doubles as the clear.
+                 "Listings" is a leaf that stands on its own.
+                 "Auctions" is a ROLL-UP, not a value: checking it checks all three auction
+                 types, and each one can then be switched back off independently.
+               Only the leaves carry name="ls-sale" — that is what marks the real values and
+               keeps the roll-up out of any tally. -->
           <div class="ls-f">
             <button class="ls-pill" id="saleBtn" type="button" data-label="Sale Type"
                     aria-expanded="false" aria-controls="salePop">Sale Type <span class="ls-chev" aria-hidden="true">▾</span></button>
             <div class="ls-pop" id="salePop" hidden>
               <fieldset class="ls-fieldset ls-fieldset-flush">
                 <legend>Sale Type</legend>
-                <label class="ls-opt"><input type="radio" name="ls-sale" value="" checked /> Any sale type</label>
-                <label class="ls-opt"><input type="radio" name="ls-sale" value="For Sale" /> For Sale</label>
-                <label class="ls-opt"><input type="radio" name="ls-sale" value="Live Auction" /> Live Auction</label>
-                <label class="ls-opt"><input type="radio" name="ls-sale" value="Online-Only Auction" /> Online-Only Auction</label>
-                <label class="ls-opt"><input type="radio" name="ls-sale" value="Sealed Bid" /> Sealed Bid</label>
+                <label class="ls-opt"><input type="checkbox" id="saleAny" checked /> Any sale type</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-sale" value="Listings" /> Listings</label>
+                <label class="ls-opt"><input type="checkbox" id="saleAuctions" /> Auctions</label>
+                <!-- role=group + a name, so the nesting is not carried by the indent alone:
+                     a screen reader announces "Auction types" around the three children. -->
+                <div class="ls-subopts" role="group" aria-label="Auction types">
+                  <label class="ls-opt"><input type="checkbox" name="ls-sale" data-auction value="Live" /> Live</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-sale" data-auction value="Online Only" /> Online Only</label>
+                  <label class="ls-opt"><input type="checkbox" name="ls-sale" data-auction value="Sealed Bid" /> Sealed Bid</label>
+                </div>
               </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="sale">Clear</button>
+                <button class="ls-apply" type="button" data-apply="sale">Done</button>
+              </div>
             </div>
           </div>
 
@@ -535,72 +627,53 @@
             </div>
           </div>
 
-          <!-- PRICE — same stepped dual-handle range as ACRES, driven by the same function.
-               Opens with a disclaimer, because price is NOT published for most of the
-               inventory: only available For Sale listings and SOLD live / online-only
-               auctions carry one. Upcoming auctions and sealed bids never do. The note is
-               plain words on a tinted ground — no warning icon, no colour-coded alert. -->
+          <!-- TYPE — property type, promoted out of the ADD'L FILTERS panel into a pill of its
+               own (it traded places with PRICE). Multi-select, so like SALE TYPE it does not
+               close when something is picked: Esc, an outside click, the pill or Done close it.
+               The pill is labelled "Type" rather than "Property Type" because a pill is 160px
+               and a resting label has to hold one line.
+               One column, not the panel's 3-up grid: a .ls-pop is 280px wide. -->
           <div class="ls-f">
-            <button class="ls-pill" id="priceBtn" type="button" data-label="Price"
-                    aria-expanded="false" aria-controls="pricePop">Price <span class="ls-chev" aria-hidden="true">▾</span></button>
-            <div class="ls-pop ls-pop-wide" id="pricePop" hidden>
-              <p class="ls-range-read" id="priceRead" aria-hidden="true">Any price</p>
-              <div class="ls-range">
-                <span class="ls-range-track" aria-hidden="true"></span>
-                <span class="ls-range-fill" id="priceFill" aria-hidden="true"></span>
-                <input type="range" id="priceMin" min="0" max="16" step="1" value="0" aria-label="Minimum price" />
-                <input type="range" id="priceMax" min="0" max="16" step="1" value="16" aria-label="Maximum price" />
-              </div>
-              <div class="ls-range-ends" aria-hidden="true"><span>$0</span><span>$50M+</span></div>
-              <!-- COPY IS PLACEHOLDER — Kiron owns the wording. The rule it has to express:
-                   price is published only for available For Sale listings and for SOLD live /
-                   online-only auctions. Upcoming auctions and sealed bids have no price. -->
-              <p class="ls-note">Disclaimer here explaining what has a price and what does not</p>
+            <button class="ls-pill" id="typeBtn" type="button" data-label="Type"
+                    aria-expanded="false" aria-controls="typePop">Type <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <div class="ls-pop" id="typePop" hidden>
+              <fieldset class="ls-fieldset ls-fieldset-flush">
+                <legend>Property Type</legend>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Farmland" /> Farmland</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Recreational" /> Recreational</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Ranch" /> Ranch</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Development" /> Development</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Commercial" /> Commercial</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Residential" /> Residential</label>
+                <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Energy" /> Energy</label>
+              </fieldset>
               <div class="ls-actions">
-                <button class="ls-clear" type="button" data-clear="price">Clear</button>
-                <button class="ls-apply" type="button" data-apply="price">Apply</button>
+                <button class="ls-clear" type="button" data-clear="type">Clear</button>
+                <button class="ls-apply" type="button" data-apply="type">Done</button>
               </div>
             </div>
           </div>
 
-          <!-- FILTERS — everything that doesn't earn a pill of its own. Same popover
-               environment as SALE TYPE / ACRES / PRICE: a .ls-pop anchored under the pill,
+          <!-- MORE FILTERS — everything that doesn't earn a pill of its own. Same popover
+               environment as SALE TYPE / ACRES / TYPE: a .ls-pop anchored under the pill,
                driven by the same shared controller. It is only wider, and right-anchored so
-               a 700px panel opens leftward into the page instead of off the edge. -->
+               a 700px panel opens leftward into the page instead of off the edge.
+               NO LEADING ICON. The pill is a fixed 160px (126px of content) and "More Filters"
+               measures ~91px; with the 16px icon and its 8px gap, the label plus the count
+               badge came to ~143px and wrapped to two lines as soon as a filter was set.
+               Widening the pill is not available — 160px is what keeps the bar on one row at
+               1280-1535, see --ls-pill-w. Without the icon it is 119px of 126px.
+               Wording matches FarmWorth's own map, which also says "More Filters". -->
           <div class="ls-f">
             <button class="ls-pill" id="moreBtn" type="button" aria-expanded="false" aria-controls="morePop">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="15" y2="12"/><line x1="4" y1="17" x2="18" y2="17"/></svg>
-              Filters <span class="ls-fcount" id="moreCount" hidden>0</span>
+              More Filters <span class="ls-fcount" id="moreCount" hidden>0</span>
             </button>
             <div class="ls-pop ls-pop-panel" id="morePop" hidden>
 
+              <!-- Panel order is STATUS, PRICE, then SOIL and AGENT sharing a row.
+                   Reading left to right that is status / price / soil / agent, the order asked
+                   for, while the .ls-duo pairing keeps ~135px off the panel's height. -->
               <fieldset class="ls-fieldset">
-                <legend>Property Type</legend>
-                <div class="ls-checks">
-                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Farmland" /> Farmland</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Recreational" /> Recreational</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Ranch" /> Ranch</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Development" /> Development</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Commercial" /> Commercial</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Residential" /> Residential</label>
-                  <label class="ls-opt"><input type="checkbox" name="ls-ptype" value="Energy" /> Energy</label>
-                </div>
-              </fieldset>
-
-              <fieldset class="ls-fieldset">
-                <legend>Agent</legend>
-                <label class="ls-opt ls-opt-label" for="ls-agent">Land Professional</label>
-                <select class="ls-select" id="ls-agent" name="ls-agent">
-                  <option value="">Any Land Professional</option>
-                  <option>Steve Bruere</option>
-                  <option>Eric Sarff</option>
-                  <option>Jared Chambers</option>
-                  <option>George Baird</option>
-                  <option>Eric Bohnenkamp</option>
-                </select>
-              </fieldset>
-
-              <fieldset class="ls-fieldset ls-fieldset-flush">
                 <legend>Status</legend>
                 <div class="ls-checks">
                   <label class="ls-opt"><input type="checkbox" name="ls-status" value="Active" /> Active</label>
@@ -612,6 +685,90 @@
                 </div>
               </fieldset>
 
+              <!-- PRICE — moved in from its own pill (it traded places with TYPE). Same
+                   dual-handle range, same wireRange core, but it reports into this panel's
+                   count badge instead of writing a pill label, so it has no Apply of its own.
+                   It keeps its disclaimer: price is NOT published for most of the inventory —
+                   only available For Sale listings and SOLD live / online-only auctions carry
+                   one. Upcoming auctions and sealed bids never do. The note is plain words on
+                   a tinted ground: no warning icon, no colour-coded alert.
+                   Full width rather than paired, so the disclaimer stays on one line. -->
+              <fieldset class="ls-fieldset">
+                <legend class="ls-legend-row">Price
+                  <span class="ls-range-read" id="priceRead" aria-hidden="true">Any price</span></legend>
+                <div class="ls-range">
+                  <span class="ls-range-track" aria-hidden="true"></span>
+                  <span class="ls-range-fill" id="priceFill" aria-hidden="true"></span>
+                  <input type="range" id="priceMin" min="0" max="16" step="1" value="0" aria-label="Minimum price" />
+                  <input type="range" id="priceMax" min="0" max="16" step="1" value="16" aria-label="Maximum price" />
+                </div>
+                <div class="ls-range-ends" aria-hidden="true"><span>$0</span><span>$50M+</span></div>
+                <!-- FINAL COPY (Kiron, 2026-08-21). It states a BEHAVIOUR, not just a caveat:
+                     the price filter never excludes an auction, because most auctions carry no
+                     published price. Whoever wires this up has to honour that — auctions stay
+                     in the result set no matter where the handles sit. -->
+                <p class="ls-note">All auctions will be included regardless of price filter.</p>
+              </fieldset>
+
+              <div class="ls-duo">
+                <!-- SOIL PRODUCTIVITY INDEX — a pulldown that picks WHICH rating to filter on,
+                     over the same dual-handle range as ACRES and PRICE. Same wireRange() core,
+                     but with no pill of its own: it reports into the count badge.
+                     Each rating has its own scale, so changing the pulldown rescales the
+                     slider, relabels its end stops and resets the handles to the full span —
+                     the old handle positions mean nothing on a new scale.
+                     Scales live in SOIL_INDEXES in the script; the bounds came from Kiron. -->
+                <fieldset class="ls-fieldset">
+                  <legend class="ls-legend-row">Soil Productivity Index
+                    <span class="ls-range-read" id="soilRead" aria-hidden="true" hidden>Any rating</span></legend>
+                  <select class="ls-select" id="soilType" name="ls-soiltype"
+                          aria-label="Soil productivity rating type">
+                    <!-- No rating type is chosen by default, so nobody has to filter on soil
+                         to use this panel. The reading and the slider below stay hidden until
+                         a type is picked — with no scale chosen there is nothing to slide. -->
+                    <option value="" selected>Rating Type</option>
+                    <option value="CSR2">CSR2</option>
+                    <option value="NCCPI">NCCPI</option>
+                    <option value="PI">PI</option>
+                    <option value="CPI">CPI</option>
+                    <option value="WAPI">WAPI</option>
+                  </select>
+                  <!-- Revealed by applySoilIndex(). It carries the gap up to the pulldown, so
+                       that space collapses with it rather than leaving a hole. -->
+                  <div class="ls-soil-range" id="soilRangeWrap" hidden>
+                    <div class="ls-range">
+                      <span class="ls-range-track" aria-hidden="true"></span>
+                      <span class="ls-range-fill" id="soilFill" aria-hidden="true"></span>
+                      <!-- max and the end labels below are placeholders: setStops() writes
+                           both from the chosen rating type before this is ever shown. -->
+                      <input type="range" id="soilMin" min="0" max="20" step="1" value="0" aria-label="Minimum soil productivity rating" />
+                      <input type="range" id="soilMax" min="0" max="20" step="1" value="20" aria-label="Maximum soil productivity rating" />
+                    </div>
+                    <div class="ls-range-ends" aria-hidden="true"><span id="soilEndMin">0</span><span id="soilEndMax">100</span></div>
+                  </div>
+                </fieldset>
+
+                <!-- AGENT — a type-to-find field over a scrolling checkbox list. This replaced
+                     a native multiple <select>: ctrl/cmd-click is not discoverable, and at the
+                     ~75 names this list is heading for it would have been unusable anyway.
+                     Checkboxes make every selection visible and cost no modifier key.
+                     The list is BUILT FROM THE AGENTS ARRAY in the script — see the note there
+                     for how to drop the real roster in. The rows live in the DOM, so typing
+                     filters by hiding them rather than by re-rendering, which means a checked
+                     name STAYS CHECKED while it is filtered out of view. That is what the
+                     "N selected" readout on the legend is for: with 75 names and a search
+                     field, selections you cannot currently see still have to be accountable.
+                     No "Any" option — selecting nothing IS any, as everywhere else here. -->
+                <fieldset class="ls-fieldset">
+                  <legend class="ls-legend-row">Agent
+                    <span class="ls-range-read" id="agentCount" aria-hidden="true" hidden>0 selected</span></legend>
+                  <input class="ls-find" type="search" id="agentFind" autocomplete="off"
+                         placeholder="Type a name" aria-label="Find an agent by name" />
+                  <div class="ls-agentlist" id="agentList"></div>
+                  <p class="ls-empty" id="agentEmpty" hidden>No agents match that name.</p>
+                </fieldset>
+              </div>
+
               <div class="ls-actions">
                 <button class="ls-clear" type="button" id="moreClear">Clear all filters</button>
                 <button class="ls-apply" type="button" id="moreApply">Show 9 properties</button>
@@ -621,9 +778,10 @@
 
         </div>
 
-        <!-- The right-hand group: SORT BY, then the view switch hard right. Both sit
-             OUTSIDE .ls-controls, which is width-locked to the FILTERS modal's right edge
-             (see .ls-controls in the stylesheet) and must hold only the five filters. -->
+        <!-- The right-hand group: SORT BY, then the view switch hard right. Both sit OUTSIDE
+             .ls-controls so the filter group stays a group and the leftover space collects in
+             ONE place, between MORE FILTERS and SORT — which reads as filters-left /
+             actions-right rather than controls scattered across the bar. -->
         <div class="ls-right">
 
           <!-- SORT BY — same .ls-f / .ls-pop environment as the filter pills, so the shared
@@ -1431,7 +1589,7 @@
         if(open.length) closeAll(null, true);
       });
       // A click anywhere outside every .ls-f closes whatever is open. Guarded on the
-      // popover's own subtree so choosing a radio inside one doesn't close its neighbour.
+      // popover's own subtree so choosing an option inside one doesn't close its neighbour.
       document.addEventListener("click", function(e){
         if(e.target.closest && e.target.closest(".ls-f")) return;
         closeAll(null, false);
@@ -1439,27 +1597,91 @@
     })();
 
     // ---- SALE TYPE ----
-    // Single choice: picking one writes the value onto the pill and closes the popover,
-    // which is why there is no Apply button in here.
+    // A checkbox tree, so this one is multi-select and does NOT close on change. Getting out
+    // is Esc, an outside click, the pill itself (all three come free from the shared popover
+    // controller) or the Done button. Four rules keep the tree honest:
+    //   "Any sale type" is the resting state. Clicking it clears everything else, and it can
+    //   never be switched OFF by clicking it, because "nothing selected" and "any" are the
+    //   same query — an empty set would be a state the user cannot read.
+    //   Clearing the last leaf therefore falls back to "Any" rather than leaving nothing.
+    //   "Auctions" is a roll-up with no value of its own: on checks all three types, off
+    //   clears them, and it shows the native indeterminate DASH when only some are on. That
+    //   is a shape, not a colour, so the partial state survives without colour vision.
+    //   Ticking any leaf releases "Any".
     (function(){
       var btn = document.getElementById("saleBtn"), pop = document.getElementById("salePop");
       if(!btn || !pop) return;
-      var chev = '<span class="ls-chev" aria-hidden="true">▾</span>';
-      pop.addEventListener("change", function(e){
-        var r = e.target;
-        if(r.name !== "ls-sale") return;
-        var set = !!r.value;
-        btn.classList.toggle("is-set", set);
-        btn.innerHTML = (set ? r.value : btn.getAttribute("data-label")) + " " + chev;
+      var any = document.getElementById("saleAny"),
+          auctions = document.getElementById("saleAuctions"),
+          leaves = [].slice.call(pop.querySelectorAll('input[name="ls-sale"]')),
+          auctionLeaves = leaves.filter(function(c){ return c.hasAttribute("data-auction"); }),
+          chev = '<span class="ls-chev" aria-hidden="true">▾</span>';
+      if(!any || !auctions) return;
+
+      function checked(list){ return list.filter(function(c){ return c.checked; }); }
+
+      // The pill names the selection exactly when it can, and counts when it cannot. "All
+      // three auction types and nothing else" is worth naming as "Auctions" — that is the
+      // whole point of the roll-up.
+      function label(){
+        var on = checked(leaves), auctionsOn = checked(auctionLeaves);
+        if(!on.length) return null;
+        if(on.length === auctionLeaves.length &&
+           auctionsOn.length === auctionLeaves.length) return "Auctions";
+        if(on.length === 1) return on[0].value;
+        return on.length + " sale types";
+      }
+
+      function sync(){
+        if(!checked(leaves).length) any.checked = true;
+        var aOn = checked(auctionLeaves).length;
+        auctions.checked = aOn === auctionLeaves.length;
+        auctions.indeterminate = aOn > 0 && aOn < auctionLeaves.length;
+        var text = label();
+        btn.classList.toggle("is-set", !!text);
+        btn.innerHTML = (text || btn.getAttribute("data-label")) + " " + chev;
+      }
+
+      function reset(){
+        leaves.forEach(function(c){ c.checked = false; });
+        any.checked = true;
+        sync();
+      }
+
+      // click, not change: the browser has already toggled "Any" off by the time this runs,
+      // and reset() puts it back. Space on a focused checkbox fires click too, so the
+      // keyboard path is the same one.
+      any.addEventListener("click", reset);
+
+      auctions.addEventListener("change", function(){
+        // A click on the indeterminate dash lands here as checked === true, which is the
+        // behaviour we want: partial becomes all.
+        auctionLeaves.forEach(function(c){ c.checked = auctions.checked; });
+        if(auctions.checked) any.checked = false;
+        sync();
+      });
+
+      leaves.forEach(function(c){
+        c.addEventListener("change", function(){
+          if(c.checked) any.checked = false;
+          sync();
+        });
+      });
+
+      pop.querySelector('[data-clear="sale"]').addEventListener("click", reset);
+      pop.querySelector('[data-apply="sale"]').addEventListener("click", function(){
         pop.hidden = true;
         btn.setAttribute("aria-expanded", "false");
         btn.focus();
       });
+
+      sync();
     })();
 
     // ---- SORT BY ----
-    // Single choice, same as SALE TYPE, so no Apply button. The difference: a sort order is
-    // always in effect, so the label is only ever rewritten — it never returns to a resting
+    // Single choice, so picking one closes the popover and there is no Apply button (unlike
+    // SALE TYPE, which is a multi-select tree and needs Done). The other difference: a sort
+    // order is always in effect, so the label is only ever rewritten — it never returns to a resting
     // state and the pill never takes .is-set. Only the <span> is replaced, so the icon and
     // the chevron survive.
     (function(){
@@ -1477,78 +1699,122 @@
       });
     })();
 
-    // ---- ACRES and PRICE: dual-handle ranges ----
-    // ONE function drives both, so the two sliders can never drift apart.
+    // ---- dual-handle range CORE ----
+    // Shared by the ACRES and PRICE pills and by SOIL PRODUCTIVITY INDEX inside the FILTERS
+    // panel, so no slider on this page can drift from the others. It owns everything fiddly:
+    // the index-into-stops scale, the clamp that lets the handles meet without inverting, the
+    // fill's 10px thumb inset, the pointer z-order swap, and aria-valuetext. It deliberately
+    // owns NO chrome — no pill, no popover, no count — so a caller can wrap it in whatever
+    // reporting its own context needs. Returns null when the markup is absent.
     //
     // The <input type="range"> values are INDEXES INTO A STOPS ARRAY, not acres or dollars.
-    // Both quantities span several orders of magnitude — 10 to 35,000 acres, $100K to $50M —
+    // Acres and price span several orders of magnitude — 10 to 35,000 acres, $100K to $50M —
     // and on a linear track everything at the small end collapses into the first 2%.
     // WHOEVER WIRES THIS UP MUST SEND stops[value], NEVER value.
+    function wireRange(key, stops, fmt, anyLabel, unitWord){
+      var min  = document.getElementById(key + "Min"),
+          max  = document.getElementById(key + "Max"),
+          fill = document.getElementById(key + "Fill"),
+          read = document.getElementById(key + "Read");
+      if(!min || !max || !fill || !read) return null;
+
+      // Held in closure vars rather than read from the parameters, because setStops() can
+      // swap the whole scale at runtime — that is how SOIL rescales when its index changes.
+      var LAST = stops.length - 1;
+
+      // calc() wants a real operator, not a signed operand — "calc(100% + -20px)" is not
+      // reliably parsed, so the sign becomes the operator here.
+      function calcPx(pct, px){
+        return "calc(" + pct + "% " + (px < 0 ? "- " : "+ ") + Math.abs(px) + "px)";
+      }
+      function paint(){
+        var a = +min.value, b = +max.value;
+        // The thumb is 20px and travels inset by half of it at each end, so the fill has
+        // to carry the same 10px inset or it drifts away from the handles.
+        var pa = a / LAST, pb = b / LAST;
+        fill.style.left  = calcPx(pa * 100, 10 - pa * 20);
+        fill.style.width = calcPx((pb - pa) * 100, (pa - pb) * 20);
+        // Screen readers must hear the quantity, not the raw index.
+        min.setAttribute("aria-valuetext", fmt(a) + " " + unitWord);
+        max.setAttribute("aria-valuetext", fmt(b) + " " + unitWord);
+        read.textContent = (a === 0 && b === LAST) ? anyLabel
+                                                   : fmt(a) + " – " + fmt(b);
+      }
+      // Clamp on input so the handles can meet but never invert their values.
+      min.addEventListener("input", function(){
+        if(+min.value > +max.value) min.value = max.value;
+        paint();
+      });
+      max.addEventListener("input", function(){
+        if(+max.value < +min.value) max.value = min.value;
+        paint();
+      });
+      // The upper input sits on top of the lower one. Once both handles park at the far
+      // right the max thumb covers the min thumb and the min handle stops being grabbable
+      // by mouse — so hand the stack order to whichever handle is nearer the pointer.
+      var range = min.parentNode;
+      range.addEventListener("pointerdown", function(e){
+        var r = range.getBoundingClientRect();
+        var target = ((e.clientX - r.left - 10) / Math.max(1, r.width - 20)) * LAST;
+        var nearMin = Math.abs(target - +min.value) <= Math.abs(target - +max.value);
+        min.style.zIndex = nearMin ? 3 : 1;
+        max.style.zIndex = nearMin ? 1 : 3;
+      });
+      paint();
+
+      return {
+        // "Set" means the user has narrowed the range — full span reads as no filter.
+        isSet:   function(){ return !(+min.value === 0 && +max.value === LAST); },
+        values:  function(){ return [+min.value, +max.value]; },
+        reset:   function(){ min.value = 0; max.value = LAST; paint(); },
+        // Swap the scale under a live slider. The handles are indexes, so a position on the
+        // old scale means nothing on the new one — this always resets to the full span rather
+        // than trying to carry a value across. The inputs' own max attribute has to move too,
+        // or the handles keep travelling over the old number of stops.
+        setStops: function(newStops, newFmt, newAnyLabel, newUnitWord){
+          stops = newStops; LAST = stops.length - 1;
+          if(newFmt) fmt = newFmt;
+          if(newAnyLabel) anyLabel = newAnyLabel;
+          if(newUnitWord) unitWord = newUnitWord;
+          min.max = String(LAST); max.max = String(LAST);
+          min.value = 0; max.value = LAST;
+          paint();
+        },
+        // input, not change: a caller showing a live count has to update mid-drag.
+        onInput: function(fn){
+          min.addEventListener("input", fn);
+          max.addEventListener("input", fn);
+        }
+      };
+    }
+
+    // ---- ACRES: the one remaining range PILL ----
+    // wireRange does the slider; this adds only the pill chrome — label, is-set, and the
+    // Apply/Clear pair that closes the popover. PRICE used to come through here too; it now
+    // lives in the ADD'L FILTERS panel and reports into the count badge instead, so it needs
+    // no pill chrome at all. makeRange stays parameterised rather than being inlined for its
+    // single caller, because a range pill is exactly the shape a future filter would take.
     (function(){
       function makeRange(key, stops, fmt, pillFmt, anyLabel, unitWord){
-        var btn  = document.getElementById(key + "Btn"),
-            min  = document.getElementById(key + "Min"),
-            max  = document.getElementById(key + "Max"),
-            fill = document.getElementById(key + "Fill"),
-            read = document.getElementById(key + "Read"),
-            pop  = document.getElementById(key + "Pop");
-        if(!btn || !min || !max) return;
+        var btn = document.getElementById(key + "Btn"),
+            pop = document.getElementById(key + "Pop"),
+            r   = wireRange(key, stops, fmt, anyLabel, unitWord);
+        if(!btn || !pop || !r) return;
 
-        var LAST = stops.length - 1;
         var chev = '<span class="ls-chev" aria-hidden="true">▾</span>';
 
-        // calc() wants a real operator, not a signed operand — "calc(100% + -20px)" is not
-        // reliably parsed, so the sign becomes the operator here.
-        function calcPx(pct, px){
-          return "calc(" + pct + "% " + (px < 0 ? "- " : "+ ") + Math.abs(px) + "px)";
-        }
-        function paint(){
-          var a = +min.value, b = +max.value;
-          // The thumb is 20px and travels inset by half of it at each end, so the fill has
-          // to carry the same 10px inset or it drifts away from the handles.
-          var pa = a / LAST, pb = b / LAST;
-          fill.style.left  = calcPx(pa * 100, 10 - pa * 20);
-          fill.style.width = calcPx((pb - pa) * 100, (pa - pb) * 20);
-          // Screen readers must hear the quantity, not the raw index.
-          min.setAttribute("aria-valuetext", fmt(a) + " " + unitWord);
-          max.setAttribute("aria-valuetext", fmt(b) + " " + unitWord);
-          read.textContent = (a === 0 && b === LAST) ? anyLabel
-                                                     : fmt(a) + " – " + fmt(b);
-        }
-        // Clamp on input so the handles can meet but never invert their values.
-        min.addEventListener("input", function(){
-          if(+min.value > +max.value) min.value = max.value;
-          paint();
-        });
-        max.addEventListener("input", function(){
-          if(+max.value < +min.value) max.value = min.value;
-          paint();
-        });
-        // The upper input sits on top of the lower one. Once both handles park at the far
-        // right the max thumb covers the min thumb and the min handle stops being grabbable
-        // by mouse — so hand the stack order to whichever handle is nearer the pointer.
-        var range = min.parentNode;
-        range.addEventListener("pointerdown", function(e){
-          var r = range.getBoundingClientRect();
-          var target = ((e.clientX - r.left - 10) / Math.max(1, r.width - 20)) * LAST;
-          var nearMin = Math.abs(target - +min.value) <= Math.abs(target - +max.value);
-          min.style.zIndex = nearMin ? 3 : 1;
-          max.style.zIndex = nearMin ? 1 : 3;
-        });
-
         function apply(){
-          var a = +min.value, b = +max.value, set = !(a === 0 && b === LAST);
+          var v = r.values(), set = r.isSet();
           btn.classList.toggle("is-set", set);
-          btn.innerHTML = (set ? pillFmt(a, b) : btn.getAttribute("data-label")) + " " + chev;
+          btn.innerHTML = (set ? pillFmt(v[0], v[1]) : btn.getAttribute("data-label")) + " " + chev;
           pop.hidden = true;
           btn.setAttribute("aria-expanded", "false");
           btn.focus();
         }
         pop.querySelector('[data-apply="' + key + '"]').addEventListener("click", apply);
         pop.querySelector('[data-clear="' + key + '"]').addEventListener("click", function(){
-          min.value = 0; max.value = LAST; paint(); apply();
+          r.reset(); apply();
         });
-        paint();
       }
 
       var ACRE_STOPS = [0,10,20,40,80,120,160,240,320,480,640,960,1280,2000,3000,5000,10000,20000,35000];
@@ -1559,20 +1825,40 @@
       makeRange("acres", ACRE_STOPS, acres,
         function(a, b){ return acres(a) + "–" + acres(b) + " ac"; },
         "Any acreage", "acres");
+    })();
 
-      // Money is abbreviated ($1.5M, $750K) because the pill has to stay one short line.
-      var PRICE_STOPS = [0,100000,250000,500000,750000,1000000,1500000,2000000,3000000,
-                         4000000,5000000,7500000,10000000,15000000,20000000,30000000,50000000];
-      function money(i){
-        var v = PRICE_STOPS[i], s;
-        if(v === 0) s = "$0";
-        else if(v >= 1000000) s = "$" + (v / 1000000).toString().replace(/\.0$/, "") + "M";
-        else s = "$" + (v / 1000) + "K";
-        return i === PRICE_STOPS.length - 1 ? s + "+" : s;
+    // ---- TYPE — property type, multi-select ----
+    // Promoted out of the panel into a pill, so it needs what a pill needs: a label that
+    // carries the choice, and an explicit way out (it cannot close on change, being
+    // multi-select). Flat list, so no roll-up like SALE TYPE has — and no "Any" row either:
+    // nothing checked already means any, and Clear is the way back to it.
+    (function(){
+      var btn = document.getElementById("typeBtn"), pop = document.getElementById("typePop");
+      if(!btn || !pop) return;
+      var boxes = [].slice.call(pop.querySelectorAll('input[name="ls-ptype"]')),
+          chev = '<span class="ls-chev" aria-hidden="true">▾</span>';
+
+      // Names the choice when there is exactly one, counts when there are several — the pill
+      // is 160px and cannot hold "Farmland, Recreational, Ranch".
+      function sync(){
+        var on = boxes.filter(function(c){ return c.checked; });
+        var text = !on.length ? null
+                 : on.length === 1 ? on[0].value
+                 : on.length + " types";
+        btn.classList.toggle("is-set", !!text);
+        btn.innerHTML = (text || btn.getAttribute("data-label")) + " " + chev;
       }
-      makeRange("price", PRICE_STOPS, money,
-        function(a, b){ return money(a) + "–" + money(b); },
-        "Any price", "dollars");
+      pop.addEventListener("change", sync);
+      pop.querySelector('[data-clear="type"]').addEventListener("click", function(){
+        boxes.forEach(function(c){ c.checked = false; });
+        sync();
+      });
+      pop.querySelector('[data-apply="type"]').addEventListener("click", function(){
+        pop.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        btn.focus();
+      });
+      sync();
     })();
 
     // ---- FILTERS panel ----
@@ -1587,12 +1873,241 @@
           count = document.getElementById("moreCount");
       if(!btn || !pop) return;
 
+      // ---- PRICE ----
+      // Moved in from its own pill. Same stepped scale and the same core; the only difference
+      // is that nothing here writes a pill label, so there is no Apply — the panel's own
+      // Clear / Show buttons cover it. Money is abbreviated ($1.5M, $750K) to keep the
+      // reading on the legend line beside "PRICE".
+      var PRICE_STOPS = [0,100000,250000,500000,750000,1000000,1500000,2000000,3000000,
+                         4000000,5000000,7500000,10000000,15000000,20000000,30000000,50000000];
+      function money(i){
+        var v = PRICE_STOPS[i], s;
+        if(v === 0) s = "$0";
+        else if(v >= 1000000) s = "$" + (v / 1000000).toString().replace(/\.0$/, "") + "M";
+        else s = "$" + (v / 1000) + "K";
+        return i === PRICE_STOPS.length - 1 ? s + "+" : s;
+      }
+      var price = wireRange("price", PRICE_STOPS, money, "Any price", "dollars");
+
+      // ---- SOIL PRODUCTIVITY INDEX ----
+      // A pulldown picking the index, over the shared range core. It reports into this
+      // panel's count badge instead of owning a pill of its own.
+      //
+      // BOUNDS SUPPLIED BY KIRON, 2026-08-21. They are NOT interchangeable scales — three of
+      // the five top out at 100, PI starts at 47, and WAPI runs to 200 — so this filters ONE
+      // index at a time and must never normalise them into a single column. A wrong bound
+      // here is a DATA error, not a layout one: a slider capped at 100 can never reach a
+      // WAPI of 160.
+      //   CSR2  Corn Suitability Rating 2 — Iowa.                        0-100
+      //   NCCPI National Commodity Crop Productivity Index — USDA-NRCS.  0-100
+      //         (NRCS publishes this natively as 0-1; this UI speaks 0-100, so the CMS has to
+      //         scale it by 100 on the way in.)
+      //   PI    Productivity Index — Illinois / Indiana.                47-147
+      //   CPI   Crop Productivity Index — Minnesota.                     0-100
+      //   WAPI  Weighted Average Productivity Index.                     0-200
+      //
+      // Step is 5 across all five, so the filter granularity does not change when the index
+      // does. PI's 47-147 lands exactly on 147 at that step (47 + 20*5), so no index needs a
+      // ragged final stop. Unlike acres and price none of these span orders of magnitude, so
+      // the stops are a plain arithmetic series — the array exists only to reuse wireRange,
+      // and index i maps to min + i * step.
+      var SOIL_INDEXES = {
+        CSR2:  { min: 0,  max: 100, step: 5 },
+        NCCPI: { min: 0,  max: 100, step: 5 },
+        PI:    { min: 47, max: 147, step: 5 },
+        CPI:   { min: 0,  max: 100, step: 5 },
+        WAPI:  { min: 0,  max: 200, step: 5 }
+      };
+      function soilStops(key){
+        var s = SOIL_INDEXES[key], out = [];
+        for(var v = s.min; v <= s.max; v += s.step) out.push(v);
+        return out;
+      }
+      var soilType = document.getElementById("soilType"),
+          soilRead = document.getElementById("soilRead"),
+          soilWrap = document.getElementById("soilRangeWrap"),
+          soilEndMin = document.getElementById("soilEndMin"),
+          soilEndMax = document.getElementById("soilEndMax"),
+          soilKey = soilType ? soilType.value : "";
+
+      // wireRange has to be built against SOME scale, so it is seeded with one. Which one is
+      // irrelevant: soilKey is "" at rest, so the slider is hidden and these numbers are
+      // never shown or counted — the first real scale arrives from applySoilIndex().
+      var soilCurrent = soilStops(soilKey || "CSR2");
+      var soil = wireRange("soil", soilCurrent,
+        function(i){ return String(soilCurrent[i]); },
+        "Any rating", "rating");
+
+      // The pulldown has two states. No rating type chosen is the resting state: the reading
+      // and the slider are hidden, and soil contributes nothing to the count, so a visitor
+      // never has to filter on soil at all. Choosing a type reveals the slider on that type's
+      // scale; choosing "Rating Type" again hides it and drops any range that was set, so a
+      // stale narrowing can never keep filtering invisibly.
+      function applySoilIndex(){
+        if(!soil || !soilType) return;
+        soilKey = soilType.value;
+        var on = !!soilKey;
+        soilWrap.hidden = !on;
+        soilRead.hidden = !on;
+        if(on){
+          soilCurrent = soilStops(soilKey);
+          // setStops also resets the handles to the full span, which is what we want: a
+          // position on the old scale means nothing on the new one.
+          soil.setStops(soilCurrent,
+            function(i){ return String(soilCurrent[i]); },
+            "Any " + soilKey, soilKey);
+          soilEndMin.textContent = String(soilCurrent[0]);
+          soilEndMax.textContent = String(soilCurrent[soilCurrent.length - 1]);
+        } else {
+          soil.reset();
+        }
+        tally();
+      }
+      if(soilType) soilType.addEventListener("change", applySoilIndex);
+
+      // ---- AGENT ----
+      // 75 names, sorted by surname, which is the roster size this list is built for. It is
+      // here so the scroll and the type-to-find actually demonstrate themselves.
+      // ⚠ THE NAMES ARE PLACEHOLDERS except the five the panel already carried (Steve Bruere,
+      // Eric Sarff, Jared Chambers, George Baird, Eric Bohnenkamp). The other 70 are invented
+      // and must NOT be read as the real roster — swap the whole array for the CMS's list of
+      // land professionals. Everything below follows the array's length, so replacing it is
+      // the only edit needed: rows, search, count and scroll all derive from it.
+      // Production order is whatever the CMS sorts by; this array renders in the order given.
+      var AGENTS = [
+        "Jordan Alcott",
+        "Charles Ambrose",
+        "Jeff Ambrosini",
+        "Grant Ashby",
+        "Lydia Ashcroft",
+        "George Baird",
+        "Claire Bensen",
+        "Laura Bergstrom",
+        "Ian Berkshire",
+        "Eric Bohnenkamp",
+        "Kyle Brannigan",
+        "Evan Brightwater",
+        "Steve Bruere",
+        "Jenna Caldwell",
+        "Leah Castellano",
+        "Harold Cavanaugh",
+        "Jared Chambers",
+        "Faith Corrigan",
+        "Brenda Cottrell",
+        "Keith Danforth",
+        "Frank Delacroix",
+        "Ashley Denton",
+        "Lucas Devereaux",
+        "Chelsea Doyle",
+        "Kara Ellingson",
+        "Colin Fairbanks",
+        "Logan Fairchild",
+        "Dominic Ferraro",
+        "Holly Fitzgerald",
+        "Adam Fletcher",
+        "Austin Gable",
+        "Chris Halloran",
+        "Justin Havelock",
+        "Ben Hollingsworth",
+        "Brandon Ives",
+        "Diane Kessler",
+        "Andrea Kolb",
+        "Hannah Ledbetter",
+        "Isaac Lindgren",
+        "Barbara Linn",
+        "Elena Marchetti",
+        "Anthony Marsh",
+        "Carla Mendoza",
+        "Darren Mullins",
+        "Brian Nash",
+        "Gail Norwood",
+        "Daniel Okafor",
+        "Jasmine Okonkwo",
+        "Kevin Ostrander",
+        "Gabriel Ozuna",
+        "Julia Pemberton",
+        "Dawn Pettigrew",
+        "Angela Prieto",
+        "Carter Pruitt",
+        "Heather Quinlan",
+        "Ellen Radcliffe",
+        "Cody Rasmussen",
+        "Joel Ravenscroft",
+        "Alicia Reyes",
+        "Kelly Rutherford",
+        "Hector Salinas",
+        "Derek Sandoval",
+        "Eric Sarff",
+        "Emily Stanfield",
+        "Greg Sundstrom",
+        "Eli Thornbury",
+        "Jessica Thorne",
+        "Caleb Trent",
+        "Cassidy Vaughn",
+        "Doug Whitaker",
+        "Alan Whitcomb",
+        "Dana Whitlock",
+        "Lance Whitmore",
+        "Hailey Winslow",
+        "Joseph Yamada"
+      ];
+      var agentFind  = document.getElementById("agentFind"),
+          agentList  = document.getElementById("agentList"),
+          agentEmpty = document.getElementById("agentEmpty"),
+          agentCount = document.getElementById("agentCount");
+
+      // Built from the array so adding names is a one-line edit, and so the checkbox markup
+      // cannot drift row to row. Names go in via textContent / value, never innerHTML, so an
+      // apostrophe or an accent in a name can never break the markup.
+      if(agentList){
+        AGENTS.forEach(function(name){
+          var row = document.createElement("label");
+          row.className = "ls-opt";
+          var box = document.createElement("input");
+          box.type = "checkbox";
+          box.name = "ls-agent";
+          box.value = name;
+          row.appendChild(box);
+          row.appendChild(document.createTextNode(" " + name));
+          agentList.appendChild(row);
+        });
+      }
+      var agentRows = agentList ? [].slice.call(agentList.querySelectorAll(".ls-opt")) : [];
+
+      // Hides rows rather than re-rendering, so a checked name that scrolls out of the filter
+      // keeps its state. Substring match, not prefix: people search for a surname.
+      function filterAgents(){
+        if(!agentFind) return;
+        var q = agentFind.value.trim().toLowerCase(), shown = 0;
+        agentRows.forEach(function(row){
+          var hit = !q || row.querySelector("input").value.toLowerCase().indexOf(q) !== -1;
+          row.hidden = !hit;
+          if(hit) shown++;
+        });
+        agentEmpty.hidden = shown > 0;
+      }
+      // Selections can be filtered out of sight, so the count is not decoration — it is the
+      // only way to know a hidden name is still doing something.
+      function countAgents(){
+        if(!agentCount) return;
+        var n = agentRows.filter(function(r){ return r.querySelector("input").checked; }).length;
+        agentCount.textContent = n + " selected";
+        agentCount.hidden = n === 0;
+      }
+      if(agentFind) agentFind.addEventListener("input", filterAgents);
+      if(agentList) agentList.addEventListener("change", countAgents);
+
       // Opening and closing is the shared popover controller's job — this block only owns
       // the count badge and the two action buttons.
       function tally(){
+        // Agents are checkboxes now, so this one query already counts them alongside status —
+        // one filter per thing chosen, whether or not the search field is currently hiding it.
         var n = pop.querySelectorAll('input[type="checkbox"]:checked').length;
-        var agent = pop.querySelector("#ls-agent");
-        if(agent && agent.value) n++;
+        // A narrowed price range is one filter; the full $0-$50M+ span is not.
+        if(price && price.isSet()) n++;
+        // Soil counts only when a rating type is chosen AND its range has been narrowed.
+        // Picking a type alone filters nothing, and with no type there is no scale.
+        if(soil && soilKey && soil.isSet()) n++;
         count.textContent = n;
         count.hidden = n === 0;
         btn.classList.toggle("is-set", n > 0);
@@ -1603,13 +2118,28 @@
         btn.focus();
       }
       pop.addEventListener("change", tally);
+      // The badge has to move while a handle is being dragged, not only on release.
+      if(soil) soil.onInput(tally);
+      if(price) price.onInput(tally);
       applyBtn.addEventListener("click", close);
       clearBtn.addEventListener("click", function(){
+        // Catches the agent checkboxes too, including any the search field is hiding.
         pop.querySelectorAll('input[type="checkbox"]').forEach(function(c){ c.checked = false; });
-        var agent = pop.querySelector("#ls-agent");
-        if(agent) agent.value = "";
+        // The search box is a view, not a filter, but leaving a query behind after "clear all"
+        // would hide most of the roster with nothing on screen explaining why.
+        if(agentFind) agentFind.value = "";
+        filterAgents();
+        countAgents();
+        if(price) price.reset();
+        // Back to no rating type, which also hides the slider and clears its range.
+        if(soilType){ soilType.value = ""; applySoilIndex(); }
         tally();
       });
+      // Drive the derived state from the script on load rather than trusting the hidden
+      // attributes in the markup, so the two can never disagree.
+      applySoilIndex();
+      filterAgents();
+      countAgents();
       tally();
     })();
 
