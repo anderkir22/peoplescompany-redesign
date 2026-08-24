@@ -10,10 +10,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+  <!-- Linked for ONE reason: the seven --pc-* palette tokens. The script below reads the
+       palette out of these at runtime, so this page can never disagree with pc.css about
+       what a brand colour is. It uses none of pc.css's components — everything visible on
+       this page is the review chrome in the <style> block, which is deliberately neutral
+       (grey/white) so it cannot be mistaken for brand colour. Verified: zero class-name
+       collisions between that block and pc.css. -->
+  <link href="pc.css?v=20260824a" rel="stylesheet" />
+
   <style>
     :root{
-      --font-serif: "EB Garamond", Georgia, "Times New Roman", serif;
-      --font-sans:  "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      /* Review chrome only — NOT brand values. The brand palette comes from pc.css. */
       --ink: #0A0F1A;
       --page: #F4F5F6;
       --line: #DDE1E4;
@@ -135,26 +142,61 @@
       Large-only pairs appear in the <b>Does not pass AA</b> column with an
       <span class="badge b-lg" style="vertical-align:baseline">AA Large</span> badge — they are
       fine for headings but not body copy.</p>
-      <p style="margin-bottom:0"><b>To change the palette:</b> edit the <code>PALETTE</code>
-      array at the top of the script — everything regrades automatically.</p>
+      <p style="margin-bottom:0"><b>To change the palette:</b> edit the <code>--pc-*</code>
+      tokens in <code>pc.css</code>. This page reads them at runtime and regrades
+      automatically — there is nothing to change here. The only reason to edit this file is
+      to add or remove a colour, which needs a matching row in <code>PALETTE_TOKENS</code>.</p>
     </footer>
   </div>
 
   <script>
-    /* ---- 7 brand colors. Edit here to re-test. ---- */
-    var PALETTE = [
-      /* { name: "Black",          hex: "#000000" }, */
-      { name: "PC Black",       hex: "#07162C" },
-      { name: "PC Navy",        hex: "#12406A" },
-      /* { name: "Steel Blue",     hex: "#225677" }, */
-      /* { name: "Medium Blue",    hex: "#286087" }, */
-      { name: "PC Medium Blue",           hex: "#316F96" },
-      /* { name: "PC Ocean Blue",  hex: "#3D7EA6" },*/
-      { name: "PC Blue",        hex: "#00AEEF" },
-      { name: "PC Light Blue",  hex: "#D7EFFB" },
-      { name: "PC Soft White",  hex: "#f3fbfe" },
-      { name: "PC White",       hex: "#FFFFFF" }
+    /* ---- The 7 brand colors, READ FROM pc.css ----------------------------------
+       This page used to hardcode the hex values, which made it the one place a colour
+       could silently drift out of step with the system. It now resolves each one from
+       its --pc-* custom property at runtime, so pc.css stays the single source of
+       truth: change a token there and this page regrades automatically, with nothing
+       to edit here.
+
+       Only the NAMES and their dark → light order live in this file — pc.css has no
+       machine-readable ordering, and these are the labels the style guide uses.
+       Adding a colour to the palette means adding a token in pc.css AND a row here. */
+    var PALETTE_TOKENS = [
+      { name: "PC Black",       token: "--pc-black" },
+      { name: "PC Navy",        token: "--pc-navy" },
+      { name: "PC Medium Blue", token: "--pc-medium-blue" },
+      { name: "PC Blue",        token: "--pc-blue" },
+      { name: "PC Light Blue",  token: "--pc-light-blue" },
+      { name: "PC Soft White",  token: "--pc-soft-white" },
+      { name: "PC White",       token: "--pc-white" }
     ];
+
+    /* Normalise whatever the token holds to a 6-digit #RRGGBB, which is what the
+       contrast math below parses. Handles #abc shorthand and stray whitespace. */
+    function normHex(v){
+      v = (v || '').trim();
+      if(/^#[0-9a-f]{3}$/i.test(v)){
+        return '#' + v[1]+v[1] + v[2]+v[2] + v[3]+v[3];
+      }
+      return /^#[0-9a-f]{6}$/i.test(v) ? v : null;
+    }
+
+    var rootStyle = getComputedStyle(document.documentElement);
+    var MISSING = [];
+    var PALETTE = PALETTE_TOKENS.map(function(c){
+      var hex = normHex(rootStyle.getPropertyValue(c.token));
+      if(!hex){ MISSING.push(c.name + ' (' + c.token + ')'); }
+      return { name: c.name, token: c.token, hex: hex };
+    }).filter(function(c){ return c.hex; });
+
+    /* Fail loudly rather than silently grading a short palette — a missing token means
+       pc.css did not load, or a token was renamed without updating the list above. */
+    if(MISSING.length){
+      var warn = document.createElement('p');
+      warn.style.cssText = 'background:#12406A;color:#fff;padding:12px 16px;border-radius:8px;font-size:14px;font-weight:600;';
+      warn.textContent = 'Could not read ' + MISSING.length + ' palette token(s) from pc.css: ' +
+        MISSING.join(', ') + '. Check that pc.css loaded and that the token names still match.';
+      document.getElementById('legend').parentNode.insertBefore(warn, document.getElementById('legend'));
+    }
 
     /* ---- WCAG math ---- */
     function chan(c){ c/=255; return c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
