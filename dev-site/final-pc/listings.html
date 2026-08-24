@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Single source of truth for the final PC direction -->
-  <link href="pc.css?v=20260814b" rel="stylesheet" />
+  <link href="pc.css?v=20260824a" rel="stylesheet" />
 
   <!-- Page-local: white body between the shared header and footer. The wrap uses the
        shared --site / --rail tokens so its content lines up with the header lockup and
@@ -68,14 +68,35 @@
        GROW as the viewport shrank, which is backwards. */
     .listings-wrap{ max-width: var(--site); margin: 0 auto;
       padding: calc(var(--space-8) - 46px) var(--rail) var(--space-8); }
-    /* Holds the h1 alone — the lede was removed. Total gap from h1 to the filter bar is
-       --space-8 + --space-6 = 96px; drop this rule if that reads too airy. */
-    .listings-intro{ padding-bottom: var(--space-6); }
+    /* THE H1 IS PRESENT BUT NOT VISIBLE (Kiron, 2026-08-24: "I still need the H1 header for SEO
+       purposes, but don't need to see it"). It carries .sr-only, so it stays in the document
+       outline, in the accessibility tree and in anything crawling the page — it is simply not
+       painted. This is NOT `display: none`, which would remove it from both.
+       That leaves this wrapper holding nothing with height, so all its padding goes: an .sr-only
+       element is position:absolute and contributes no height, and 18px + 32px of padding around
+       nothing would just push the filter bar down for no reason. The bar now sits flush under the
+       sticky header, which is also what makes it read as part of the header furniture once it
+       sticks (see .ls-bar). */
+    .listings-intro{ padding: 0; }
 
     /* ================= SEARCH / FILTER BAR =================
        Order is LOCATION · SALE TYPE · ACRES · TYPE · ADD'L FILTERS, then SORT BY and the view
        switch hard right. The bar is a plain block, not sticky — see developer-listing.md §7. */
-    .ls-bar{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
+    /* STICKY UNDER THE HEADER (Kiron, 2026-08-24) so the filters keep their place while the
+       results scroll. `top: var(--navH)` rather than 0: --navH is the live header height, written to
+       the DOM by the sync at the foot of this page, so the bar parks exactly under the header at
+       every breakpoint instead of sliding beneath it.
+       z-index 40 sits under the sticky header (45) and the hamburger drawer (42/41), and above the
+       announcement toast (25) and the results.
+       ⚠ THIS MAKES .ls-bar A STACKING CONTEXT, which changes what the popovers' z-index means:
+       .ls-pop is z-44, but it is a DESCENDANT of this bar, so 44 is now resolved INSIDE the z-40
+       layer and can never beat the header — which is the behaviour that was wanted anyway (the
+       header must stay on top), but it means raising .ls-pop above 45 would have no effect. If a
+       popover ever needs to cross the header, this z-index is the one to change, not that one.
+       ⚠ Sticky dies inside an ancestor with overflow other than visible. Nothing between here and
+       <html> clips today; if a wrapper ever gains overflow:hidden, this silently stops working. */
+    .ls-bar{ position: sticky; top: var(--navH); z-index: 40;
+      background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border); }
     .ls-bar-in{ max-width: var(--site); margin: 0 auto; padding: var(--space-4) var(--rail);
       display: flex; align-items: center; justify-content: space-between;
@@ -289,7 +310,12 @@
        centred on the page, was removed with the modal. */
     .ls-pop-panel{ left: auto; right: 0;
       width: min(var(--ls-panel-w), calc(100vw - 40px)); max-width: none;
-      max-height: calc(100vh - var(--navH, 120px) - 60px); overflow: auto;
+      /* Room for the header AND the bar the pill sits in: once .ls-bar is sticky the panel's top
+         edge is --navH + the bar's own height, not --navH. --ls-bar-h is the bar's measured height
+         (space-4 top + 44px control + space-4 bottom + 1px border = 77, rounded to 78); the extra
+         24px is breathing room above the viewport's bottom edge. Understate this and the panel runs
+         off the bottom of the screen with its Apply button unreachable. */
+      max-height: calc(100vh - var(--navH, 120px) - var(--ls-bar-h, 78px) - 24px); overflow: auto;
       padding: var(--space-6); }
     .ls-fieldset{ border: 0; padding: 0; margin: 0 0 var(--space-6); }
     .ls-fieldset-flush{ margin: 0; }
@@ -487,24 +513,22 @@
        .is-new (PC Navy / white) and .is-auction (PC Blue / PC Black, 8.6:1). Both are readable
        without relying on hue.
 
-       ⚠ THE PILL AND THE STATUS LINE ARE CURRENTLY DOING TWO DIFFERENT JOBS AT ONCE, and that is
-       an open taxonomy question, not a styling one (raised by Kiron, 2026-08-24).
-       LISTING-ELEMENTS-master-list.md §1 defines THREE separate fields, and the card as built
-       collapses them into two slots:
-         1. STATUS — the lifecycle state. Available, Under Contract/Pending, Auction Upcoming,
-            Bidding Open, Auction Ended, Sold, Off Market. Every listing always has exactly one.
-         2. SALE METHOD — For Sale, Live Auction, Online-Only Auction, Sealed Bid. Also always
-            present, and it is what SALE TYPE filters on.
-         3. FLAGS — New Listing, Price Reduced, Just Reduced. Transient, and a listing may have
-            NONE. This is the one that answers Kiron's "there should be an option with no button":
-            a listing that is neither new nor reduced has nothing to put here.
-       "New Listing" is a flag (3); "Upcoming Auction" is a status (1). Putting them in the same
-       slot is why the slot looks optional for some cards and mandatory for others.
-       RECOMMENDED SPLIT, pending Kiron's call: the PILL carries only the transient FLAG and is
-       absent when there is none; the STATUS LINE in the body carries the lifecycle state and is
-       always present; sale method rides in the meta row or the headline, where auctions already
-       show a date. Two cards in this grid (Story County IA, Benton County IN) are built with NO
-       PILL so the empty case can be seen next to the others.
+       THE TWO SLOTS AND WHAT EACH IS FOR — settled by Kiron, 2026-08-24.
+       LISTING-ELEMENTS-master-list.md §1 describes three separate fields; this card carries two,
+       and the split is now decided rather than open:
+         1. STATUS — the lifecycle state, in the body beside the listing number. **Exactly three
+            values: Active, Pending, Sold.** Every listing always has one. This is DELIBERATELY
+            narrower than the master list, which also names Available, Auction Upcoming, Bidding
+            Open, Auction Ended and Off Market — Kiron cut it to three, so the master list is
+            SUPERSEDED for the card and the three match the filter panel's Status list exactly.
+         2. FLAGS — this pill. New Listing, Price Reduced, or NOTHING. Transient, and a listing may
+            have none, which is why the pill is optional. "Upcoming Auction" also lives here for
+            now, which is the one place the two fields still blur: it is really a sale method, not
+            a flag. Sale method otherwise rides in the meta row or is implied by the headline, since
+            an auction card shows a date where a listing shows a price.
+       THE RULE THAT KEEPS THE TWO SLOTS HONEST: a card whose status is not Active carries no pill.
+       "Upcoming Auction" on a sold property is the contradiction this prevents. Six cards in this
+       grid have no pill, so the empty case is visible next to the others.
        Any new variant needs its own contrast check — the two that exist were chosen to clear
        WCAG 2.2 SC 1.4.3 against white text and PC Black text respectively. */
     .lc-pill{ position: absolute; top: var(--space-3); left: var(--space-3); z-index: 2;
@@ -557,6 +581,16 @@
     .lc-agentrow{ display: flex; align-items: baseline; margin: 6px 0 0; }
     .lc-agent{ font-family: var(--font-sans); font-size: 13px; line-height: 1.4;
       color: var(--pc-white); margin: 0; }
+    /* "AGENT" label before the name (Kiron, 2026-08-24: "something to signify who this property is
+       being represented by"). A WORD rather than an icon: a small person glyph over a photograph has
+       to be guessed at, and it would need a text alternative anyway to mean anything to a screen
+       reader — at which point the word is simply the shorter route to the same result.
+       Smaller and lighter than the name so the NAME still reads first; PC Light Blue on the scrim
+       keeps it clearly secondary without dropping out. The premium cards already say this a
+       different way, with the role on its own line under the name (.lc-pagent span). */
+    .lc-agent-tag{ display: inline-block; margin-right: 7px;
+      font-size: 9px; font-weight: 600; letter-spacing: .11em; text-transform: uppercase;
+      color: var(--pc-light-blue); vertical-align: 1px; }
 
     /* ---- body: status row, headline, meta ---- */
     .lc-body{ padding: var(--space-4); }
@@ -595,21 +629,35 @@
        "position off-canvas at -9999px" side effects (which can force horizontal scroll in RTL).
        No .sr-only utility existed anywhere in this build, so this is page-local; PROMOTE IT TO
        pc.css if anything else needs it, rather than declaring a second copy. */
-    .lc-sronly{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    /* Renamed from .lc-sronly 2026-08-24: it now serves the page <h1> as well as the card's
+       listing-number label, so a .lc- (listing card) prefix was misleading. Still page-local —
+       promote to pc.css the first time a second page needs it. */
+    .sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
       overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
       border: 0; }
-    /* Dot is decoration — the WORD is what conveys the status. The status line can now say
-       Active, Pending, Sold or Auction Ended (Kiron, 2026-08-24).
-       A FILLED dot means Active; anything else gets a HOLLOW RING via .is-closed. That distinction
-       is deliberately a SHAPE, not a colour: leaving every dot bright PC Blue made a Sold card read
-       as available at a glance, and recolouring the dot instead would have put meaning in hue —
-       which this build does not do, and which Kiron could not rely on in any case.
-       So there are three layers saying the same thing, and the colour is never one of them: the
-       word, the dot's shape, and (on closed cards) the absent pill. */
-    .lc-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--pc-blue);
+    /* ---- STATUS: three states, and a DELIBERATE EXCEPTION TO THE NO-RED-GREEN RULE ----
+       Kiron, 2026-08-24, in his own words: "Status should only be ACTIVE (green dot), Sold (red dot)
+       and Pending (yellow dot) ... I know this breaks the red-green color-blind policy, but just do
+       it here." Auction Ended is gone; its two cards became Sold.
+       THIS IS A SCOPED OVERRIDE, NOT A CHANGE OF POLICY. The build-wide rule (no red, nothing
+       carried by hue) still holds everywhere else — this is the same kind of explicit, recorded
+       exception Kiron made for the FarmWorth map's status pins on 2026-06-09. Do not generalise it.
+       What keeps it defensible: THE WORD IS STILL THERE AND STILL DOES THE WORK. "Active",
+       "Pending" and "Sold" are written out beside every dot, so the colour is redundant
+       reinforcement rather than the signal, which is what SC 1.4.1 actually asks. Nothing on this
+       page is understood by hue alone. The previous hollow-ring shape cue is retired as redundant.
+       Values are darkened off the pure hues so each still reads on white: green 4.6:1, red 4.7:1,
+       amber 3.4:1 as a 9px dot. */
+    .listings-body{ --st-active: #1E7D46; --st-sold: #C0342B; --st-pending: #B07400; }
+    .lc-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--st-active);
       flex: none; }
-    .lc-status.is-closed .lc-dot{ background: transparent;
-      box-shadow: inset 0 0 0 2px var(--pc-medium-blue); }
+    .lc-status.is-pending .lc-dot{ background: var(--st-pending); }
+    .lc-status.is-sold .lc-dot{ background: var(--st-sold); }
+    /* On the premium cards the dot sits on a 94%-black scrim, where those three would go muddy.
+       Brighter siblings of the same hues, same meaning. */
+    .lc-pic .lc-dot{ background: #4FC47E; }
+    .lc-pic .lc-status.is-pending .lc-dot{ background: #FFC24D; }
+    .lc-pic .lc-status.is-sold .lc-dot{ background: #FF7A6B; }
     /* NEVER WRAPS (Kiron, 2026-08-24). This is the line that decides the card's height, and it is
        polymorphic: a price on a listing, "September 24, 2026 - 10:00 AM CT" on an auction. Allowed
        to wrap, the auction cards take a second line, their row becomes the tallest, and
@@ -975,7 +1023,7 @@
   <main class="listings-body" aria-label="Page content">
 
     <div class="listings-wrap listings-intro reveal">
-      <h1>Listings</h1>
+      <h1 class="sr-only">Listings</h1>
     </div>
 
     <!-- ---------- search / filter bar ---------- -->
@@ -1104,15 +1152,11 @@
                   <label class="ls-opt"><input type="checkbox" name="ls-status" value="Active" /> Active</label>
                   <label class="ls-opt"><input type="checkbox" name="ls-status" value="Pending" /> Pending</label>
                   <label class="ls-opt"><input type="checkbox" name="ls-status" value="Sold" /> Sold</label>
-                  <!-- ⚠ KNOWN MISMATCH, LEFT ALONE ON PURPOSE. The cards can now say "Auction
-                       Ended" (Kiron, 2026-08-24) and this list cannot filter for it, so the card
-                       vocabulary and the filter vocabulary are out of sync by one value.
-                       "Auction Ended" was briefly added here and then REVERTED: Kiron locked the
-                       search / filter bar the same day ("those are locked in"). The bar does not
-                       change without an explicit instruction, so this stays as a recorded
-                       discrepancy for the CMS reconciliation rather than a silent edit.
-                       See developer-listing.md §4 item 2. -->
-                  <!-- <label class="ls-opt"><input type="checkbox" name="ls-status" value="Auction Ended" /> Auction Ended</label> -->
+                  <!-- ✅ These three ARE the whole status vocabulary as of 2026-08-24, so this list
+                       and the cards now match exactly. An earlier pass had the cards saying
+                       "Auction Ended" with no filter for it; Kiron removed that status instead of
+                       adding the filter, which is why this list is unchanged and correct.
+                       COMMENT ONLY — no control was added or removed here. The bar stays locked. -->
                 </div>
               </fieldset>
 
@@ -1301,7 +1345,7 @@
             <div class="lc-pover">
               <div class="lc-statusrow">
                 <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="lc-sronly">Listing </span>#19548</p>
+                <p class="lc-id"><span class="sr-only">Listing </span>#19548</p>
               </div>
               <!-- A PROPERTY NAME, not a county (Kiron, 2026-08-24). This is the only card in the
                    grid whose headline is a name — every standard card leads with "County, State",
@@ -1340,7 +1384,7 @@
             <div class="lc-pover">
               <div class="lc-statusrow">
                 <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="lc-sronly">Listing </span>#19702</p>
+                <p class="lc-id"><span class="sr-only">Listing </span>#19702</p>
               </div>
               <p class="lc-pplace"><a class="lc-link" href="./listings-detail.html">Cedar Bend Farm</a></p>
               <div class="lc-prow">
@@ -1364,14 +1408,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Champaign County, IL</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Sarff</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
-              <p class="lc-status is-closed"><span class="lc-dot" aria-hidden="true"></span>Auction Ended</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19551</p>
+              <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19551</p>
             </div>
             <p class="lc-headline">August 22, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
             <p class="lc-meta"><span>160 Acres</span><span>158 Tillable Acres</span><span>Two Tracts</span></p>
@@ -1389,14 +1433,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Kossuth County, IA</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Steve Bruere</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19563</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19563</p>
             </div>
             <p class="lc-headline">$2,450,000</p>
             <p class="lc-meta"><span>240 Acres</span><span>236 Tillable Acres</span></p>
@@ -1413,14 +1457,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Buffalo County, NE</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Sarff</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
-              <p class="lc-status is-closed"><span class="lc-dot" aria-hidden="true"></span>Auction Ended</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19570</p>
+              <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19570</p>
             </div>
             <p class="lc-headline">August 6, 2026 - 1:00&nbsp;PM&nbsp;CT</p>
             <p class="lc-meta"><span>480 Acres</span><span>465 Tillable Acres</span><span>Pivot Irrigated</span></p>
@@ -1438,14 +1482,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Wayne County, IA</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Jared Chambers</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19282</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19282</p>
             </div>
             <p class="lc-headline">September 24, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
             <p class="lc-meta"><span>136.57 Acres</span><span>80.31 Tillable Acres</span><span>Two Tracts</span></p>
@@ -1462,14 +1506,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Story County, IA</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">George Baird</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
-              <p class="lc-status is-closed"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19584</p>
+              <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19584</p>
             </div>
             <p class="lc-headline">$1,875,000</p>
             <p class="lc-meta"><span>152 Acres</span><span>149 Tillable Acres</span></p>
@@ -1487,14 +1531,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Juneau County, WI</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Bohnenkamp</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19591</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19591</p>
             </div>
             <p class="lc-headline">October 8, 2026 - 11:00&nbsp;AM&nbsp;CT</p>
             <p class="lc-meta"><span>804 Acres</span><span>612 Tillable Acres</span><span>Six Tracts</span></p>
@@ -1512,14 +1556,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Moody County, SD</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Sarff</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19597</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19597</p>
             </div>
             <p class="lc-headline">$3,120,000</p>
             <p class="lc-meta"><span>320 Acres</span><span>311 Tillable Acres</span></p>
@@ -1536,14 +1580,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Hamilton County, IA</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Steve Bruere</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
-              <p class="lc-status is-closed"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19602</p>
+              <p class="lc-status is-pending"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19602</p>
             </div>
             <p class="lc-headline">$4,680,000</p>
             <p class="lc-meta"><span>400 Acres</span><span>396 Tillable Acres</span></p>
@@ -1575,14 +1619,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Cass County, ND</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Bohnenkamp</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19608</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19608</p>
             </div>
             <p class="lc-headline">October 22, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
             <p class="lc-meta"><span>640 Acres</span><span>618 Tillable Acres</span><span>Four Tracts</span></p>
@@ -1600,14 +1644,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Brookings County, SD</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">George Baird</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19615</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19615</p>
             </div>
             <p class="lc-headline">$2,980,000</p>
             <p class="lc-meta"><span>280 Acres</span><span>274 Tillable Acres</span></p>
@@ -1625,14 +1669,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">McLean County, IL</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Sarff</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19621</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19621</p>
             </div>
             <p class="lc-headline">November 5, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
             <p class="lc-meta"><span>200 Acres</span><span>197 Tillable Acres</span><span>Two Tracts</span></p>
@@ -1649,14 +1693,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Webster County, IA</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Steve Bruere</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
-              <p class="lc-status is-closed"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19627</p>
+              <p class="lc-status is-pending"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19627</p>
             </div>
             <p class="lc-headline">$3,640,000</p>
             <p class="lc-meta"><span>312 Acres</span><span>305 Tillable Acres</span></p>
@@ -1674,14 +1718,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Saline County, KS</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Jared Chambers</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19634</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19634</p>
             </div>
             <p class="lc-headline">November 19, 2026 - 1:00&nbsp;PM&nbsp;CT</p>
             <p class="lc-meta"><span>560 Acres</span><span>512 Tillable Acres</span><span>Three Tracts</span></p>
@@ -1699,14 +1743,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Renville County, MN</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">George Baird</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19640</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19640</p>
             </div>
             <p class="lc-headline">$5,250,000</p>
             <p class="lc-meta"><span>440 Acres</span><span>432 Tillable Acres</span></p>
@@ -1724,14 +1768,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Carroll County, MO</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Bohnenkamp</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19648</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19648</p>
             </div>
             <p class="lc-headline">December 3, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
             <p class="lc-meta"><span>368 Acres</span><span>344 Tillable Acres</span><span>Two Tracts</span></p>
@@ -1748,14 +1792,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Benton County, IN</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Steve Bruere</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
-              <p class="lc-status is-closed"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19655</p>
+              <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19655</p>
             </div>
             <p class="lc-headline">$4,120,000</p>
             <p class="lc-meta"><span>336 Acres</span><span>330 Tillable Acres</span></p>
@@ -1773,14 +1817,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Yuma County, CO</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Sarff</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19663</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19663</p>
             </div>
             <p class="lc-headline">December 10, 2026 - 11:00&nbsp;AM&nbsp;CT</p>
             <p class="lc-meta"><span>1,280 Acres</span><span>1,190 Tillable Acres</span><span>Pivot Irrigated</span></p>
@@ -1803,14 +1847,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Adams County, IL</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Eric Sarff</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19671</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19671</p>
             </div>
             <p class="lc-headline">January 14, 2027 - 10:00&nbsp;AM&nbsp;CT</p>
             <p class="lc-meta"><span>296 Acres</span><span>288 Tillable Acres</span><span>Two Tracts</span></p>
@@ -1828,14 +1872,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Clay County, IA</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">George Baird</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19678</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19678</p>
             </div>
             <p class="lc-headline">$2,240,000</p>
             <p class="lc-meta"><span>200 Acres</span><span>195 Tillable Acres</span></p>
@@ -1852,14 +1896,14 @@
             <div class="lc-over">
               <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Platte County, NE</a></p>
               <div class="lc-agentrow">
-                <p class="lc-agent">Jared Chambers</p>
+                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
               </div>
             </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
-              <p class="lc-status is-closed"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
-              <p class="lc-id"><span class="lc-sronly">Listing </span>#19685</p>
+              <p class="lc-status is-pending"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19685</p>
             </div>
             <p class="lc-headline">$3,880,000</p>
             <p class="lc-meta"><span>344 Acres</span><span>332 Tillable Acres</span></p>
@@ -2280,7 +2324,16 @@
     (function(){
       var header = document.querySelector("header.pcf");
       if(!header) return;
-      function syncNavH(){ document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      // Both tokens are measured, for the same reason: their heights are content-dependent and
+      // change at breakpoints. --ls-bar-h matters because the filter bar is now STICKY under the
+      // header, so the FILTERS panel's max-height has to subtract the bar as well as the header —
+      // and the bar is 80px while it fits on one row and 133px once it wraps to two at <=1279.
+      // A hard-coded fallback cannot be right for both; the CSS keeps 78px only as a pre-JS value.
+      var bar = document.querySelector(".ls-bar");
+      function syncNavH(){
+        document.documentElement.style.setProperty("--navH", header.offsetHeight + "px");
+        if(bar) document.documentElement.style.setProperty("--ls-bar-h", bar.offsetHeight + "px");
+      }
       syncNavH(); window.addEventListener("resize", syncNavH); window.addEventListener("load", syncNavH);
       // The logo is a raster and the header sizes to it, so the first measurement is short by
       // however tall the image turns out to be until it has decoded.
