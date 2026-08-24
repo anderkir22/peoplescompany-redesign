@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Final (PC) — Team Member</title>
+  <meta name="description" content="Team member page skeleton for the final PC direction: identity header, bio, office sidebar, and related team members on the clean pc.css design system." />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Single source of truth for the final PC direction -->
+  <link href="pc.css?v=20260814b" rel="stylesheet" />
+
+  <!-- Page-local: TEAM MEMBER (skeleton). Layout scaffolding only — the person's bio,
+       designations and photo are sample/placeholder content. Colour, type, buttons and
+       spacing come from pc.css tokens.
+
+       Structure: breadcrumb → identity header (portrait + name, role, facts, actions) →
+       main column (about, focus, designations, listings slot) + sidebar (office, connect,
+       CTA) → "More from the team" row.
+
+       GRID, not a float. This page's main column is capped at a readable measure and the
+       sidebar is short, so there is nothing to gain from the wrap-under-sidebar float used
+       on blog-story.html — and a grid keeps the article after the sidebar in the DOM,
+       which is the better reading order. Do not "make it match" blog-story.
+
+       .tm-card / .tm-grid are DUPLICATED from team.html for the "More from the team" row.
+       Deliberate: page-local CSS means a skeleton page can never affect a real one (same
+       convention as .lc-* in listings.html). Promote to pc.css when adopted and delete
+       both copies. -->
+  <style>
+    .tmd-body{ background: var(--pc-white); }
+    .tmd-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+
+    /* ---- breadcrumb ---- */
+    .tmd-crumb{ display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      padding: var(--space-6) 0 0; font-family: var(--font-sans); font-size: 12.5px;
+      color: var(--pc-black); }
+    .tmd-crumb a{ color: var(--pc-navy); text-decoration: none; }
+    .tmd-crumb a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
+      text-underline-offset: 3px; }
+    .tmd-crumb a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .tmd-crumb .sep{ color: var(--pc-medium-blue); }
+    .tmd-crumb .here{ color: var(--pc-black); }
+
+    /* ---- identity header ---- */
+    .tmd-head{ display: grid; grid-template-columns: 380px minmax(0, 1fr);
+      gap: var(--space-8); align-items: start;
+      padding: var(--space-6) 0 var(--space-7);
+      border-bottom: 1px solid var(--color-border); }
+
+    /* 4:5 headshot. Gradient is the empty state — the onerror hides a missing <img> and
+       the brand gradient shows through, so the layout never collapses. */
+    .tmd-portrait{ aspect-ratio: 4 / 5; border-radius: var(--radius-md); overflow: hidden;
+      background: linear-gradient(135deg, var(--pc-black), var(--pc-navy)); }
+    .tmd-portrait img{ display: block; width: 100%; height: 100%; object-fit: cover;
+      object-position: center top; }
+
+    .tmd-id h1{ font-size: 52px; line-height: 1.08; margin: var(--space-3) 0 0; }
+    .tmd-role{ font-family: var(--font-sans); font-size: var(--body-lg); color: var(--pc-navy);
+      margin: var(--space-3) 0 0; }
+
+    /* Label/value pairs. Each pair is wrapped in a <div> so the <dl> can be a grid without
+       the rows depending on dt/dd source order. */
+    .tmd-facts{ display: grid; gap: var(--space-3); margin: var(--space-6) 0 0; }
+    .tmd-facts > div{ display: grid; grid-template-columns: 130px minmax(0, 1fr);
+      gap: var(--space-4); align-items: baseline;
+      padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
+    .tmd-facts dt{ font-family: var(--font-sans); font-size: 11px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--pc-navy); }
+    .tmd-facts dd{ font-family: var(--font-sans); font-size: 15px; color: var(--pc-black);
+      margin: 0; overflow-wrap: anywhere; }
+    .tmd-facts dd a{ color: var(--pc-navy); text-decoration: none; }
+    .tmd-facts dd a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
+      text-underline-offset: 3px; }
+    .tmd-facts dd a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    .tmd-actions{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+
+    /* ---- main + sidebar ---- */
+    .tmd-layout{ display: grid; grid-template-columns: minmax(0, 1fr) 390px;
+      gap: var(--space-8); align-items: start; padding: var(--space-7) 0 var(--space-8); }
+
+    .tmd-sec + .tmd-sec{ margin-top: var(--space-7); }
+    .tmd-sec > h2{ font-family: var(--font-serif); font-weight: 500; font-size: 30px;
+      line-height: 1.2; color: var(--pc-black); margin: 0 0 var(--space-4); }
+
+    /* PROSE MEASURE: capped at 68ch, per the site-wide 45-75 character rule. This page
+       does NOT copy blog-story.html's uncapped copy — that was a specific scroll-length
+       trade on a long article, and a bio is short enough not to need it. */
+    .tmd-main p{ font-size: 17px; line-height: 1.8; color: var(--color-text-muted);
+      margin: 0 0 var(--space-5); max-width: 68ch; }
+    .tmd-main .tmd-sec > p:first-of-type{ font-size: 19px; line-height: 1.72; }
+
+    /* Areas of focus: pills. Not links — they are attributes of the person, and only
+       become links if the site gets real filtered team archives. */
+    .tmd-taglist{ display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0;
+      margin: 0; }
+    .tmd-taglist li{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+      color: var(--pc-navy); background: var(--pc-light-blue);
+      border-radius: var(--radius-pill); padding: 8px 16px; }
+
+    .tmd-list{ list-style: none; padding: 0; margin: 0; max-width: 68ch; }
+    .tmd-list li{ font-family: var(--font-sans); font-size: 15px; color: var(--pc-black);
+      padding: 12px 0 12px 22px; position: relative;
+      border-bottom: 1px solid var(--color-border); }
+    .tmd-list li::before{ content: "\25C6"; position: absolute; left: 0; top: 15px;
+      font-size: 8px; color: var(--pc-medium-blue); }
+
+    /* Reserved slot for a CMS module that is out of scope. Dashed border so it reads as a
+       placeholder and can never be mistaken for a finished component. */
+    .tmd-slot{ display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; min-height: 260px; text-align: center;
+      background: var(--pc-soft-white); border: 1px dashed var(--pc-medium-blue);
+      border-radius: var(--radius-md); padding: var(--space-6); }
+    .tmd-slot p{ font-family: var(--font-serif); font-weight: 500; font-size: 24px;
+      color: var(--pc-navy); margin: 0; max-width: none; }
+    .tmd-slot .note{ font-family: var(--font-sans); font-size: 13.5px; line-height: 1.55;
+      color: var(--pc-black); max-width: 46ch; }
+
+    /* ---- sidebar ---- */
+    .tmd-side{ display: flex; flex-direction: column; gap: var(--space-5); }
+    .tmd-box{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-6); }
+    .tmd-box h2{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      color: var(--pc-black); margin: 0 0 var(--space-3);
+      padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
+    .tmd-box p{ font-size: 14px; line-height: 1.6; color: var(--color-text-muted);
+      margin: 0 0 var(--space-4); }
+    .tmd-addr a{ color: var(--pc-navy); text-decoration: none; overflow-wrap: anywhere; }
+    .tmd-addr a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
+      text-underline-offset: 3px; }
+    .tmd-addr a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    /* Same PC Light Blue pill treatment as the map close button and the blog share row:
+       fill and border are the same colour, so hover swaps fill without the box reflowing. */
+    .tmd-social{ display: flex; gap: 8px; }
+    .tmd-social a{ display: inline-flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px; border-radius: var(--radius-pill);
+      background: var(--pc-light-blue); border: 1px solid var(--pc-light-blue);
+      color: var(--pc-navy); transition: background-color .15s ease, color .15s ease; }
+    .tmd-social a:hover{ background: var(--pc-medium-blue); border-color: var(--pc-medium-blue);
+      color: var(--pc-white); }
+    .tmd-social a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .tmd-social svg{ width: 17px; height: 17px; fill: currentColor; display: block; }
+
+    /* ---- more from the team ---- */
+    .tmd-more{ padding: var(--space-7) 0 var(--space-9);
+      border-top: 1px solid var(--color-border); }
+    .tmd-more-head{ display: flex; flex-wrap: wrap; align-items: baseline;
+      justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); }
+    .tmd-more-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 30px;
+      color: var(--pc-black); margin: 0; }
+    .tmd-viewall{ font-family: var(--font-sans); font-size: 13.5px; font-weight: 700;
+      color: var(--pc-navy); text-decoration: none; white-space: nowrap; }
+    .tmd-viewall:hover{ color: var(--pc-medium-blue); }
+    .tmd-viewall:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    /* ---- .tm-card / .tm-grid: DUPLICATED from team.html (see the note above) ---- */
+    .tm-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+    .tm-card{ display: flex; flex-direction: column; background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-md);
+      overflow: hidden; transition: box-shadow .18s ease, transform .18s ease; }
+    .tm-card:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
+    @media (prefers-reduced-motion: reduce){ .tm-card:hover{ transform: none; } }
+    .tm-ph{ position: relative; aspect-ratio: 4 / 5; overflow: hidden;
+      background: linear-gradient(135deg, var(--pc-black), var(--pc-navy)); }
+    .tm-ph img{ display: block; width: 100%; height: 100%; object-fit: cover;
+      object-position: center top; }
+    .tm-cardbody{ display: flex; flex-direction: column; gap: 3px; flex: 1;
+      padding: var(--space-4) var(--space-4) var(--space-5); }
+    .tm-name{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      line-height: 1.2; margin: 0; }
+    .tm-name a{ color: var(--pc-black); text-decoration: none; }
+    .tm-name a:hover{ color: var(--pc-medium-blue); }
+    .tm-name a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .tm-role{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45;
+      color: var(--pc-black); margin: 2px 0 0; }
+    .tm-office{ font-family: var(--font-sans); font-size: 12px; line-height: 1.4;
+      color: var(--pc-navy); margin: 0; }
+    .tm-contact{ display: flex; flex-direction: column; gap: 4px; margin-top: auto;
+      padding-top: var(--space-4); }
+    .tm-contact a{ font-family: var(--font-sans); font-size: 13px; color: var(--pc-navy);
+      text-decoration: none; overflow-wrap: anywhere; }
+    .tm-contact a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
+      text-underline-offset: 3px; }
+    .tm-contact a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    /* ---- responsive: steps sit on the shared --site ladder ---- */
+    @media (max-width: 1279px){
+      .tmd-head{ grid-template-columns: 320px minmax(0, 1fr); gap: var(--space-7); }
+      .tmd-id h1{ font-size: 44px; }
+      .tmd-layout{ grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-7); }
+      .tm-grid{ grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 1023px){
+      .tmd-layout{ grid-template-columns: 1fr; gap: var(--space-7); }
+      /* Sidebar boxes run two-up below the article so the stack doesn't add a screen. */
+      .tmd-side{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);
+        align-items: start; }
+    }
+    @media (max-width: 899px){
+      /* Portrait goes full width above the identity block. Capped so a 4:5 crop does not
+         become a 700px-tall wall on a tablet. */
+      .tmd-head{ grid-template-columns: 1fr; gap: var(--space-6); }
+      .tmd-portrait{ max-width: 320px; }
+      .tmd-id h1{ font-size: 38px; }
+      .tm-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 767px){
+      .tmd-side{ grid-template-columns: 1fr; }
+      .tmd-facts > div{ grid-template-columns: 1fr; gap: 4px; }
+    }
+    @media (max-width: 639px){
+      .tmd-id h1{ font-size: 32px; }
+      .tmd-main p{ font-size: 16px; }
+      .tmd-sec > h2, .tmd-more-head h2{ font-size: 26px; }
+      .tm-grid{ grid-template-columns: 1fr; }
+      .tmd-actions .btn{ flex: 1 1 auto; }
+    }
+  </style>
+</head>
+
+
+<body>
+  <!-- ================= HEADER ================= -->
+  <header class="pcf">
+    <div class="pcf-inner">
+      <div class="pcf-brandrow">
+        <!-- Hamburger: left edge, shown only <=1023 where the inline menus don't fit.
+             Opens #navDrawer, which is built from the same NAV array as the mega panels. -->
+        <button class="pcf-burger" id="navBurger" type="button"
+                aria-label="Menu" aria-expanded="false" aria-controls="navDrawer">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="pcf-brandcell">
+          <a href="./index.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+          </a>
+        </div>
+        <div class="pcf-stack">
+          <div class="pcf-util">
+            <span class="sp"></span>
+            <a href="./internal.html">Create An Account</a>
+            <span class="sep">|</span>
+            <a href="./internal.html">Login</a>
+          </div>
+          <nav class="pcf-row" aria-label="Primary">
+            <ul class="pcf-menus" id="pcfMenus"></ul>
+            <div class="pcf-searchwrap">
+              <button class="pcf-search" id="searchToggle" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+              </button>
+              <div class="pcf-searchpanel" id="searchPanel">
+                <form class="pcf-searchform" role="search" action="#" onsubmit="return false;">
+                  <input type="search" id="searchInput" placeholder="Search Peoples Company…" aria-label="Search the site" />
+                  <button type="submit" class="pcf-searchgo" aria-label="Submit search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hamburger drawer (<=1023). Sits under the sticky header; content injected from NAV. -->
+  <div class="pcf-drawer-backdrop" hidden></div>
+  <div class="pcf-drawer" id="navDrawer" role="region" aria-label="Menu" hidden>
+    <div class="pcf-drawer-in"></div>
+  </div>
+
+  <!-- ============ INTERACTIVE MAP pull-down tab → map layer ============ -->
+  <div class="md-tabwrap">
+    <button class="md-tab" type="button" aria-expanded="false" aria-controls="md-layer">Interactive Map <span class="md-chev" aria-hidden="true">▾</span></button>
+  </div>
+  <div class="md-backdrop" hidden></div>
+  <div class="md-layer" id="md-layer" role="region" aria-label="Interactive map" aria-hidden="true" hidden>
+    <div class="md-layer-bar"><button class="md-close" type="button" aria-label="Close">✕</button></div>
+    <div class="md-layer-body">
+      <img class="md-mapimg" src="../assets/find-properties-map.png" alt="Interactive FarmWorth map (placeholder)"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<p class=\'md-placeholder\'>Interactive FarmWorth Map</p>');this.onerror=null;" />
+    </div>
+  </div>
+
+  <!-- ================= PAGE CONTENT — team member (skeleton) ================= -->
+  <main class="tmd-body" aria-label="Page content">
+    <div class="tmd-wrap">
+
+      <nav class="tmd-crumb" aria-label="Breadcrumb">
+        <a href="./index.html">Home</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <a href="./internal.html">The Company</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <a href="./team.html">Our Team</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <span class="here" aria-current="page">Steve Bruere</span>
+      </nav>
+
+      <!-- ===== IDENTITY HEADER: portrait + name, role, contact, actions ===== -->
+      <header class="tmd-head reveal">
+        <div class="tmd-portrait">
+          <img src="../assets/team/steve-bruere.jpg" alt="Steve Bruere"
+               onerror="this.style.display='none';this.onerror=null;" />
+        </div>
+
+        <div class="tmd-id">
+          <p class="hp-eyebrow">Land Professional</p>
+          <h1>Steve Bruere</h1>
+          <p class="tmd-role">President</p>
+
+          <!-- Definition list, not a table: these are label/value pairs, and a <dl> keeps
+               the pairing for a screen reader without pretending to be tabular data. -->
+          <dl class="tmd-facts">
+            <div><dt>Office</dt><dd>Cumming, IA</dd></div>
+            <div><dt>Direct</dt><dd><a href="tel:+15152221347">515.222.1347</a></dd></div>
+            <div><dt>Email</dt><dd><a href="mailto:SBruere@PeoplesCompany.com">SBruere@PeoplesCompany.com</a></dd></div>
+            <div><dt>Licensed in</dt><dd>Iowa, Nebraska, Missouri</dd></div>
+          </dl>
+
+          <div class="tmd-actions">
+            <a class="btn btn-primary" href="mailto:SBruere@PeoplesCompany.com">Email</a>
+            <a class="btn btn-white" href="tel:+15152221347">Call</a>
+          </div>
+        </div>
+      </header>
+
+      <div class="tmd-layout">
+
+        <!-- ===== MAIN COLUMN ===== -->
+        <div class="tmd-main reveal">
+
+          <section class="tmd-sec">
+            <h2>About</h2>
+            <!-- PLACEHOLDER COPY. Kiron owns all copy; this is structural filler sized to
+                 roughly the length a real bio runs. Do not ship it. -->
+            <p>Placeholder biography. Two to four paragraphs describing the person&#8217;s
+              background, the clients they work with, and the kind of land decisions they
+              handle. This first paragraph runs slightly larger than the rest as a standfirst.</p>
+            <p>Placeholder biography continued. A second paragraph covering experience,
+              transaction history, and the geography they cover. Real copy will vary in
+              length from person to person, which is why nothing on this page assumes a
+              fixed bio height.</p>
+            <p>Placeholder biography continued. A third paragraph covering community
+              involvement, board seats, or industry participation.</p>
+          </section>
+
+          <section class="tmd-sec">
+            <h2>Areas of focus</h2>
+            <ul class="tmd-taglist">
+              <li>Land Brokerage &amp; Auctions</li>
+              <li>Capital Markets</li>
+              <li>Transitional Land</li>
+              <li>Institutional Clients</li>
+            </ul>
+          </section>
+
+          <section class="tmd-sec">
+            <h2>Designations &amp; affiliations</h2>
+            <!-- PLACEHOLDER. Real designations (AFM, ARA, CAI, ALC…) come from the CMS.
+                 Do not invent credentials for a named person. -->
+            <ul class="tmd-list">
+              <li>Placeholder designation</li>
+              <li>Placeholder professional association</li>
+              <li>Placeholder licence or certification</li>
+            </ul>
+          </section>
+
+          <!-- LISTINGS ARE OUT OF SCOPE for this project (/listings exclusion), so this is
+               a labelled placeholder, not a real feed. The live page shows this agent's
+               active listings here. Sizing it now means the page does not need re-laying
+               out when the CMS module drops in. -->
+          <section class="tmd-sec">
+            <h2>Current listings</h2>
+            <div class="tmd-slot">
+              <p>Agent listings module</p>
+              <p class="note">Out of scope for this project. The CMS supplies this agent&#8217;s
+                active listings and auctions here.</p>
+            </div>
+          </section>
+        </div>
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="tmd-side reveal" aria-label="Office and contact">
+
+          <section class="tmd-box">
+            <h2>Office</h2>
+            <p class="tmd-addr">
+              <span>1108 S. 44th Street, Suite 102</span><br />
+              <span>Cumming, IA 50061</span>
+            </p>
+            <p class="tmd-addr">
+              <a href="tel:+18558005263">855.800.LAND</a><br />
+              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+            </p>
+            <a class="btn btn-white" href="./internal.html">Find an Office</a>
+          </section>
+
+          <section class="tmd-box">
+            <h2>Connect</h2>
+            <div class="tmd-social">
+              <a href="./internal.html" aria-label="LinkedIn profile">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.94 8.5a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44zM5.4 9.9h3.08V19H5.4V9.9zm5.02 0h2.95v1.24h.04c.41-.78 1.42-1.6 2.92-1.6 3.12 0 3.7 2.05 3.7 4.72V19h-3.08v-4.2c0-1-.02-2.29-1.4-2.29-1.4 0-1.62 1.09-1.62 2.22V19h-3.51V9.9z"/></svg>
+              </a>
+              <a href="./internal.html" aria-label="Facebook profile">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.988H7.898V12h2.54V9.797c0-2.506 1.493-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+              </a>
+              <a href="./internal.html" aria-label="X profile">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 2H22.58l-8.03 9.177L24 22h-7.406l-5.8-6.592L4.96 22H1.277l8.59-9.818L0 2h7.594l5.243 5.966L18.901 2zm-1.292 17.8h2.042L6.485 4.083H4.294L17.61 19.8z"/></svg>
+              </a>
+            </div>
+          </section>
+
+          <section class="tmd-box">
+            <h2>Request an assessment</h2>
+            <p>Have a question about your land? Send a note and this team member will follow up
+              directly.</p>
+            <a class="btn btn-primary" href="./internal.html">Start a conversation</a>
+          </section>
+
+        </aside>
+      </div>
+
+      <!-- ===== MORE FROM THE TEAM ===== -->
+      <section class="tmd-more reveal" aria-labelledby="more-h">
+        <div class="tmd-more-head">
+          <h2 id="more-h">More from the team</h2>
+          <a class="tmd-viewall" href="./team.html">View all &rarr;</a>
+        </div>
+        <div class="tm-grid">
+
+        <article class="tm-card">
+          <div class="tm-ph">
+            <img src="../assets/team/eric-sarff.jpg" alt="Eric Sarff" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Eric Sarff</a></h2>
+            <p class="tm-role">Land Agent</p>
+            <p class="tm-office">Champaign, IL</p>
+            <p class="tm-contact">
+              <a href="tel:+15152221347">515.222.1347</a>
+              <a href="mailto:ESarff@PeoplesCompany.com">ESarff@PeoplesCompany.com</a>
+            </p>
+          </div>
+        </article>
+
+        <article class="tm-card">
+          <div class="tm-ph">
+            <img src="../assets/team/jared-chambers.jpg" alt="Jared Chambers" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Jared Chambers</a></h2>
+            <p class="tm-role">Land Agent, CAI</p>
+            <p class="tm-office">Cumming, IA</p>
+            <p class="tm-contact">
+              <a href="tel:+15152221347">515.222.1347</a>
+              <a href="mailto:JChambers@PeoplesCompany.com">JChambers@PeoplesCompany.com</a>
+            </p>
+          </div>
+        </article>
+
+        <article class="tm-card">
+          <div class="tm-ph">
+            <img src="../assets/team/george-baird.jpg" alt="George Baird" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">George Baird</a></h2>
+            <p class="tm-role">Senior Land Manager</p>
+            <p class="tm-office">Cumming, IA</p>
+            <p class="tm-contact">
+              <a href="tel:+15152221347">515.222.1347</a>
+              <a href="mailto:GBaird@PeoplesCompany.com">GBaird@PeoplesCompany.com</a>
+            </p>
+          </div>
+        </article>
+
+        <article class="tm-card">
+          <div class="tm-ph">
+            <img src="../assets/team/eric-bohnenkamp.jpg" alt="Eric Bohnenkamp" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Eric Bohnenkamp</a></h2>
+            <p class="tm-role">Land Agent</p>
+            <p class="tm-office">Cumming, IA</p>
+            <p class="tm-contact">
+              <a href="tel:+15152221347">515.222.1347</a>
+              <a href="mailto:EBohnenkamp@PeoplesCompany.com">EBohnenkamp@PeoplesCompany.com</a>
+            </p>
+          </div>
+        </article>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="pff">
+    <div class="pff-main">
+      <!-- connect band on top: logo · newsletter line · subscribe pill -->
+      <div class="pff-inner pff-connect">
+        <a class="pff-connect-logo" href="./internal.html" aria-label="Peoples Company home">
+          <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+        </a>
+        <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
+             Keeps one line where it fits (>=1536) instead of a hard <br> everywhere. -->
+        <p class="pff-connect-line">Stay Connected and Subscribe to&nbsp;Our&nbsp;Newsletter.</p>
+        <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
+          <input type="email" placeholder="Email Address" aria-label="Email address" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+
+      <div class="pff-inner pff-grid">
+        <div class="pff-brand pff-col">
+          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
+               design puts it between the rule and "Corporate Office". Exactly one footer
+               lockup is visible at any width. -->
+          <a class="pff-brand-logo" href="./internal.html" aria-label="Peoples Company home">
+            <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+          </a>
+          <h3>Corporate Office</h3>
+          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
+               row separated by "|" (CSS can't attach a separator to a bare text node). The
+               <br>s are kept for every other width, where the block still stacks. -->
+          <p class="pff-contact">
+            <span>1108 S. 44th Street, Suite 102</span><br />
+            <span>Cumming, IA 50061</span><br />
+            <span><b><a href="tel:+18558005263">855.800.LAND</a></b></span><br />
+            <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
+          </p>
+          <div class="pff-cta">
+            <a class="btn btn-subscribe" href="./internal.html">Find an Office</a>
+          </div>
+        </div>
+
+        <nav class="pff-col" aria-label="Real Estate">
+          <h3>Real Estate</h3>
+          <ul>
+            <li><a href="./internal.html">Traditional Search</a></li>
+            <li><a href="./internal.html">AI Search</a></li>
+            <li><a href="./internal.html">Interactive Map</a></li>
+            <li><a href="./internal.html">Auctions</a></li>
+            <li><a href="./internal.html">Prior Transactions</a></li>
+            <li><a href="./internal.html">Find An Agent</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="The Company">
+          <h3>The Company</h3>
+          <ul>
+            <li><a href="./internal.html">Overview</a></li>
+            <li><a href="./internal.html">Regions</a></li>
+            <li><a href="./internal.html">Industry Collaboration</a></li>
+            <li><a href="./internal.html">Our Team</a></li>
+            <li><a href="./internal.html">Offices</a></li>
+            <li><a href="./internal.html">Culture</a></li>
+            <li><a href="./internal.html">Careers</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="What We Do">
+          <h3>What We Do</h3>
+          <ul>
+            <li><a href="./internal.html">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="./internal.html">Agricultural Appraisal</a></li>
+            <li><a href="./internal.html">Land Management</a></li>
+            <li><a href="./internal.html">Energy Management</a></li>
+            <li><a href="./internal.html">Crop Insurance</a></li>
+            <li><a href="./internal.html">Capital Markets</a></li>
+            <li><a href="./internal.html">Corporate Services</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="Insights &amp; News">
+          <h3>Insights &amp; News</h3>
+          <ul>
+            <li><a href="./internal.html">Industry Research</a></li>
+            <li><a href="./internal.html">National Land Values</a></li>
+            <li><a href="./internal.html">Case Studies</a></li>
+            <li><a href="./internal.html">Newsletters</a></li>
+            <li><a href="./internal.html">Blog</a></li>
+            <li><a href="./internal.html">In the News</a></li>
+            <li><a href="./internal.html">Industry Recognition</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="pff-bottom">
+      <div class="pff-bottom-inner">
+        <span class="copy">© 2026 Peoples Company</span>
+
+        <span class="legal-links">
+          <a href="./internal.html">Privacy Notice</a>
+          <a href="./internal.html">Disclaimer</a>
+          <a href="./internal.html">Equal Opportunity</a>
+        </span>
+
+        <span class="pff-social">
+          <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </span>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
+       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
+       The open card carries the same alert icon as the handle. -->
+  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
+    <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <div class="pc-toast-body">
+      <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
+        <a href="./internal.html">136.57 Acres M/L in Wayne County IA</a><br>
+        <a href="./internal.html"><em>WATCH</em></a><br>
+        <a href="./internal.html">804 Acres M/L in Juneau County WI</a><br>
+        <a href="./internal.html"><em>WATCH</em></a>
+      </p>
+    </div>
+    <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
+  </aside>
+
+  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
+       open; at <=1279px the JS starts minimized and this handle shows instead. -->
+  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <span>Auction Alerts</span>
+  </button>
+
+  <script>
+    // Mega-menu nav built from the real IA. "The Company" panel carries three
+    // affiliation badges on the right (this tab only).
+    (function(){
+      var IAA_SVG = '<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.6"/><ellipse cx="32" cy="26" rx="6" ry="14" fill="none" stroke="currentColor" stroke-width="1.1"/><line x1="18" y1="26" x2="46" y2="26" stroke="currentColor" stroke-width="1.1"/><path d="M20 19 Q32 23 44 19" fill="none" stroke="currentColor" stroke-width="1"/><path d="M20 33 Q32 29 44 33" fill="none" stroke="currentColor" stroke-width="1"/><path d="M32 45 C24 43 18 47 15 55 C24 55 30 52 32 45Z" fill="currentColor"/><path d="M32 45 C40 43 46 47 49 55 C40 55 34 52 32 45Z" fill="currentColor"/><line x1="32" y1="43" x2="32" y2="55" stroke="currentColor" stroke-width="1.3"/></svg>';
+      var EXPO_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5"/><circle cx="12" cy="10" r="2.6"/><path d="M7.5 19c0-2.5 2-4.4 4.5-4.4s4.5 1.9 4.5 4.4"/><path d="M4.5 8l2 1M19.5 8l-2 1"/></svg>';
+
+      var NAV = [
+        { label: "Real Estate", cols: [
+          { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
+          { h: "Auctions", items: ["Upcoming Auctions","Auction Results"] },
+          { h: "Prior Transactions", items: [] }
+        ]},
+        { label: "The Company", cols: [
+          { h: "The Company", items: ["Overview","Regions"] },
+          { spacer: true, items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
+          { badges: [
+            { type: "expo", label: "Land Investment Expo" },
+            { type: "afo",  label: "American Farmland Owner" },
+            { type: "iaa",  label: "International Ag Alliance" }
+          ]}
+        ]},
+        { label: "What We Do", cols: [
+          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] } ]},
+          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] } ]},
+          { svc: [ { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
+          { svc: [ { name: "Energy Management" }, { name: "Crop Insurance" }, { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+        ]},
+        { label: "Insights & News", cols: [
+          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
+        ]}
+      ];
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+      function badgeHTML(b){
+        var emb;
+        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="./internal.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
+        if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="./internal.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
+        // american farmland owner — real horizontal logo (assets/afo.png)
+        return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
+      }
+      function colHTML(c){
+        if(c.badges){
+          return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
+        }
+        if(c.svc){
+          var blocks = c.svc.map(function(s){
+            var sub = (s.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+            return '<div class="pcf-svcblock">'+
+              '<div class="pcf-svc"><a href="./internal.html">'+esc(s.name)+'</a></div>'+
+              (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
+            '</div>';
+          }).join("");
+          return '<div class="pcf-col">'+blocks+'</div>';
+        }
+        if(c.h && (!c.items || !c.items.length) && !c.note){
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+        }
+        var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+        // spacer:true → an invisible h4 so a continuation column's first link lines up
+        // with the neighbouring column's first link (see .pcf-h4-ghost in pc.css).
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
+                       : (c.spacer ? '<h4 class="pcf-h4-ghost" aria-hidden="true">&nbsp;</h4>' : '');
+        var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
+        return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
+      }
+      // Top level is a TRIGGER, not a destination: a <button>, so clicking opens the panel
+      // instead of navigating. It must not be an <a href>, which would reload the page on
+      // click and leave the panel reachable only by hovering.
+      function itemHTML(n){
+        return '<li><button class="pcf-menu-btn" type="button" aria-haspopup="true" aria-expanded="false">'+
+            esc(n.label)+
+          '</button>'+
+          '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
+            '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
+          '</div></li>';
+      }
+      var mount = document.getElementById("pcfMenus");
+      if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+
+      // Hamburger drawer content — SAME colHTML() as the mega panels, so the two can never
+      // drift apart. Each top-level section becomes a heading with its columns beneath.
+      var drawer = document.querySelector("#navDrawer .pcf-drawer-in");
+      if(drawer){
+        // Each section carries a slug class ("sec-the-company") so per-section drawer
+        // layout can be targeted BY NAME rather than by nth-of-type — reordering NAV must
+        // not silently move a layout override onto a different section.
+        function slug(s){
+          return s.toLowerCase().replace(/&/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+        }
+        drawer.innerHTML = NAV.map(function(n){
+          return '<section class="pcf-drawer-sec sec-'+slug(n.label)+'">'+
+                   '<h3>'+esc(n.label)+'</h3>'+
+                   '<div class="pcf-drawer-cols">'+n.cols.map(colHTML).join("")+'</div>'+
+                 '</section>';
+        }).join("");
+      }
+    })();
+
+    // SHARED PAGE SCROLL LOCK for the overlays (map layer, hamburger drawer).
+    // `overscroll-behavior: contain` only stops a scroll gesture INSIDE an overlay from
+    // chaining to the page; a wheel over the backdrop still scrolled the document. This
+    // locks the document itself.
+    //
+    // Reference-counted on purpose: the map layer and the drawer can be open at the same
+    // time, and closing one must not unlock the page while the other is still open.
+    //
+    // Uses overflow:hidden on <html> (which preserves scroll position, so nothing needs
+    // restoring) and pads the right by the scrollbar's width, otherwise removing the
+    // scrollbar shifts the whole page sideways as the overlay opens.
+    var pcScrollLock = (function(){
+      var count = 0;
+      var root = document.documentElement;
+      return {
+        on: function(){
+          if(count++ > 0) return;
+          var sbw = window.innerWidth - root.clientWidth;
+          root.style.overflow = "hidden";
+          if(sbw > 0) root.style.paddingRight = sbw + "px";
+        },
+        off: function(){
+          if(count === 0 || --count > 0) return;   // never go negative
+          root.style.overflow = "";
+          root.style.paddingRight = "";
+        }
+      };
+    })();
+
+    // Hamburger open/close — same contract as the search popover and the map layer:
+    // click toggles, Esc closes and returns focus, backdrop/outside click closes.
+    (function(){
+      var btn = document.getElementById("navBurger"),
+          drawer = document.getElementById("navDrawer"),
+          backdrop = document.querySelector(".pcf-drawer-backdrop");
+      if(!btn || !drawer) return;
+
+      function open(){
+        drawer.hidden = false;
+        if(backdrop) backdrop.hidden = false;
+        pcScrollLock.on();
+        btn.setAttribute("aria-expanded", "true");
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        drawer.hidden = true;
+        if(backdrop) backdrop.hidden = true;
+        pcScrollLock.off();
+        btn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus) btn.focus();
+      }
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(true); }
+
+      btn.addEventListener("click", function(){
+        if(btn.getAttribute("aria-expanded") === "true") close(false); else open();
+      });
+      if(backdrop) backdrop.addEventListener("click", function(){ close(false); });
+      // Close on resize past the collapse point, so the drawer can't be left open and
+      // unreachable once the burger is hidden and the inline menus return.
+      // MUST MATCH the hamburger's media query in pc.css — it is 899px. This was left at
+      // 720 when the breakpoint moved and the drawer then closed itself the moment any
+      // resize event fired at 721-899, i.e. it appeared not to open at all.
+      var COLLAPSE_AT = 899;
+      window.addEventListener("resize", function(){
+        if(window.innerWidth > COLLAPSE_AT && btn.getAttribute("aria-expanded") === "true") close(false);
+      });
+    })();
+
+    // Mega-menu open/close — same interaction contract as the search popover:
+    // click toggles, Esc closes and returns focus, clicking outside closes.
+    // Hover is re-implemented here (not left to CSS) because the CSS :focus-within rule
+    // would otherwise pin the panel open after a click and defeat click-to-close.
+    (function(){
+      var ul = document.getElementById("pcfMenus");
+      if(!ul) return;
+      var items = [].slice.call(ul.children);
+      if(!items.length) return;
+      ul.classList.add("nav-js");        // hands control to JS — see .nav-js rules in pc.css
+      var locked = null;                 // opened by CLICK: stays open when the pointer leaves
+
+      function btnOf(li){ return li.querySelector(".pcf-menu-btn"); }
+      function setOpen(li){
+        items.forEach(function(x){
+          var on = (x === li);
+          x.classList.toggle("is-open", on);
+          var b = btnOf(x);
+          if(b) b.setAttribute("aria-expanded", on ? "true" : "false");
+        });
+      }
+      function closeAll(returnFocus){
+        var was = locked;
+        locked = null; setOpen(null);
+        if(returnFocus && was){ var b = btnOf(was); if(b) b.focus(); }
+      }
+
+      items.forEach(function(li){
+        var btn = btnOf(li);
+        if(!btn) return;
+        // A click LOCKS this panel open; clicking the same trigger again closes it.
+        // `locked` must only ever be set by a click — if hover also moved it, then moving
+        // the pointer from one title to another would pre-lock the second one, and the
+        // click that followed would read as a second click and close it instead of opening.
+        btn.addEventListener("click", function(){
+          if(locked === li){ locked = null; setOpen(null); }
+          else { locked = li; setOpen(li); }
+        });
+        // Hover previews any panel without taking the lock. On leave, fall back to whatever
+        // is locked (setOpen(null) closes everything when nothing is).
+        li.addEventListener("mouseenter", function(){ setOpen(li); });
+        li.addEventListener("mouseleave", function(){ setOpen(locked); });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" || e.key === "Esc"){
+          if(locked) closeAll(true); else setOpen(null);
+        }
+      });
+      document.addEventListener("click", function(e){
+        if(!ul.contains(e.target)) closeAll(false);
+      });
+    })();
+
+    // Interactive Map pull-down → slide-down map layer (map module drops in later)
+    (function(){
+      var tab = document.querySelector(".md-tab"),
+          layer = document.getElementById("md-layer"),
+          backdrop = document.querySelector(".md-backdrop"),
+          closeBtn = document.querySelector(".md-close"),
+          header = document.querySelector("header.pcf");
+      if(!tab || !layer || !backdrop) return;
+      function syncNavH(){ if(header) document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      syncNavH(); window.addEventListener("resize", syncNavH); window.addEventListener("load", syncNavH);
+      var logoImg = header && header.querySelector("img");
+      if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
+      function open(){
+        if(tab.getAttribute("aria-expanded") === "true") return;   // already open
+        pcScrollLock.on();
+        syncNavH(); backdrop.hidden = false; layer.hidden = false;
+        requestAnimationFrame(function(){ backdrop.classList.add("is-open"); layer.classList.add("is-open"); });
+        tab.setAttribute("aria-expanded", "true"); layer.setAttribute("aria-hidden", "false");
+        closeBtn.focus(); document.addEventListener("keydown", onKey);
+      }
+      function close(){
+        // Guarded so close() is idempotent: it is wired to the close button, the backdrop
+        // and Esc, and a double call would unbalance the shared scroll-lock count.
+        if(tab.getAttribute("aria-expanded") !== "true") return;
+        pcScrollLock.off();
+        backdrop.classList.remove("is-open"); layer.classList.remove("is-open");
+        tab.setAttribute("aria-expanded", "false"); layer.setAttribute("aria-hidden", "true");
+        document.removeEventListener("keydown", onKey);
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var after = function(){ backdrop.hidden = true; layer.hidden = true; };
+        if(reduce) after();
+        else layer.addEventListener("transitionend", function te(e){ if(e.propertyName === "transform"){ layer.removeEventListener("transitionend", te); after(); } });
+        tab.focus();
+      }
+      tab.addEventListener("click", function(){ if(tab.getAttribute("aria-expanded") === "true") close(); else open(); });
+      closeBtn.addEventListener("click", close); backdrop.addEventListener("click", close);
+    })();
+
+    // Search: magnifier toggles a text field + submit icon below it
+    (function(){
+      var toggle = document.getElementById("searchToggle");
+      var panel  = document.getElementById("searchPanel");
+      var input  = document.getElementById("searchInput");
+      if(!toggle || !panel) return;
+      function open(){
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        if(input){ input.focus(); }
+        document.addEventListener("mousedown", onOutside);
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutside);
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus){ toggle.focus(); }
+      }
+      function onOutside(e){
+        if(!panel.contains(e.target) && !toggle.contains(e.target)){ close(false); }
+      }
+      function onKey(e){
+        if(e.key === "Escape" || e.key === "Esc"){ close(true); }
+      }
+      toggle.addEventListener("click", function(){
+        if(panel.classList.contains("open")){ close(true); } else { open(); }
+      });
+    })();
+
+    // Scroll-reveal (must-have) — reduced-motion safe
+    (function(){
+      var els = document.querySelectorAll(".reveal");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce || !("IntersectionObserver" in window)){
+        els.forEach(function(el){ el.classList.add("in"); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+
+    // Announcement toast: bottom-right floating card that MINIMIZES to a
+    // right-edge handle (instead of vanishing) so it can be reopened.
+    (function(){
+      var t = document.getElementById("pcToast");
+      if(!t) return;
+      var reopen = document.getElementById("pcToastReopen");
+      var x = t.querySelector(".pc-toast-x");
+      // moveFocus is false for the automatic narrow-viewport minimize below — focusing
+      // the handle on page load would steal focus and jump the page to the right edge.
+      function setMinimized(min, moveFocus){
+        t.hidden = min;
+        if(reopen){ reopen.hidden = !min; }
+        if(moveFocus){
+          var target = min ? reopen : x;
+          if(target){ target.focus(); }
+        }
+      }
+      function minimize(){ setMinimized(true, true); }
+      function restore(){ userChose = true; setMinimized(false, true); }
+      if(x){ x.addEventListener("click", minimize); }
+      if(reopen){ reopen.addEventListener("click", restore); }
+
+      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
+         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
+         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
+         never auto-restores, so once the visitor opens the handle it stays open, and a
+         toast never pops itself back open mid-resize. */
+      var TOAST_NARROW = 1279, userChose = false;
+      function narrowCheck(){
+        if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
+      }
+      narrowCheck();
+      window.addEventListener("resize", narrowCheck);
+    })();
+  </script>
+</body>
+</html>
