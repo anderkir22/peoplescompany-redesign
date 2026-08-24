@@ -437,7 +437,14 @@
     /* height: 100% so a card fills the equal-height row it sits in rather than sitting short at
        the top of it. Grid items stretch by default, but the premium cards need a definite height
        for their `height: 100%` photo to resolve against, and `stretch` alone is not definite. */
-    .lc{ height: 100%; background: var(--pc-white); border-radius: var(--radius-md);
+    /* position: relative IS LOAD-BEARING (added 2026-08-24 with the place/agent move). The card
+       link's stretched ::after is `position: absolute`, so it resolves against the nearest
+       POSITIONED ancestor. While the anchor lived in .lc-over that was the overlay; now that it
+       sits in the static .lc-body, without this the containing block would be the initial one —
+       a 1000px-inset box sized to the viewport, unclipped by .lc's overflow, swallowing clicks
+       across the whole page. Positioning the card puts the overlay back inside the clip. */
+    .lc{ position: relative; height: 100%; background: var(--pc-white);
+      border-radius: var(--radius-md);
       overflow: hidden; box-shadow: 0 2px 10px rgba(7,22,44,.12);
       transition: box-shadow .18s ease, transform .18s ease; }
 
@@ -450,8 +457,8 @@
 
        THE inset: -1000px IS DELIBERATE, NOT A HACK LEFT IN — and `inset: 0` is the version that
        looks right and is wrong.
-       The anchor lives inside .lc-over / .lc-pover, and BOTH of those are `position: absolute`, so
-       they — not the card, and not even .lc-media — are the anchor's containing block. `inset: 0`
+       On a PREMIUM card the anchor lives inside .lc-pover, which is `position: absolute`, so it —
+       not the card, and not even .lc-media — is the anchor's containing block. `inset: 0`
        therefore covers only the small block of overlay text: measured with elementFromPoint, the
        centre of the photograph returned the <img>, not the link. Overflowing in one direction only
        (`bottom: -1000px`) fixed the body but still left the whole photograph unclickable.
@@ -465,8 +472,11 @@
     /* Focus is drawn on the TEXT, not the stretched overlay: an outline on a 1000px-tall box would
        be a ring around the whole card and off the bottom of it. The card also lifts on
        :focus-within, so there are two indications. */
-    .lc-link:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 3px;
+    /* PC Navy, because the name now sits on the white body. The premium cards keep the white ring
+       below — their name is still over a photograph. */
+    .lc-link:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px;
       border-radius: 2px; }
+    .lc-pic .lc-link:focus-visible{ outline-color: var(--pc-white); }
     /* NO hover underline on the name (Kiron, 2026-08-24). The card already answers the pointer:
        the whole tile lifts and its shadow deepens, which is the affordance for a card link. An
        underline on top of that was a second signal for the same thing, and it drew a line across a
@@ -503,11 +513,13 @@
     .lc-media{ position: relative; aspect-ratio: 4 / 3; background: var(--pc-light-blue); }
     .lc-media img{ position: absolute; inset: 0; width: 100%; height: 100%;
       object-fit: cover; display: block; }
-    /* Scrim carries the white overlay type. PC Black at 88% under the text, clearing by
-       58% up so the photo still reads. */
-    .lc-media::after{ content: ""; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(to top, rgba(7,22,44,.88) 0%, rgba(7,22,44,.55) 28%,
-        rgba(7,22,44,0) 58%); }
+    /* The scrim existed ONLY to carry the white overlay type, and on a standard card that type has
+       moved into the body (see .lc-place). An 88% black wash over the bottom half of a photograph
+       with nothing written on it is not a style, it is a leftover — so the standard card now shows
+       the photograph clean and the pseudo-element is kept purely as the hook the premium cards
+       fill in below. The pill and the save star are the only things still on the picture, and both
+       carry their own contrast (a solid fill and a drop-shadow). */
+    .lc-media::after{ content: ""; position: absolute; inset: 0; pointer-events: none; }
 
     /* Corner pill, top-left. OPTIONAL — see the three-slot note below. Two variants so far:
        .is-new (PC Navy / white) and .is-auction (PC Blue / PC Black, 8.6:1). Both are readable
@@ -547,7 +559,7 @@
     .lc-pill.is-reduced{ background: var(--pc-medium-blue); color: var(--pc-white); }
 
     /* Save/favourite star, top-right. Filled = saved (aria-pressed="true"). */
-    /* z-index 4, ABOVE the card link's stretched overlay (z-3 inside .lc-over, itself z-2).
+    /* z-index 4, ABOVE the card link's stretched overlay (z-3).
        The star is the one control in a card that is not the link, and it stops being pressable the
        moment the overlay covers it — measured: at z-index 2 elementFromPoint returned the LINK at
        the star's own centre. Nesting the button inside the anchor is not the alternative; that is
@@ -565,32 +577,51 @@
     .lc-fav:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px;
       border-radius: var(--radius-sm); }
 
-    /* Overlay copy, bottom-left of the photo. */
-    .lc-over{ position: absolute; left: var(--space-4); right: var(--space-4);
-      bottom: var(--space-3); z-index: 2; }
-    /* nowrap here too. It sits over the photo so it does not affect card height, but a county
-       name breaking across two lines next to cards where it does not is the sort of raggedness
-       locking the height was meant to remove. */
-    .lc-place{ font-family: var(--font-serif); font-weight: 500; font-size: 26px;
-      line-height: 1.15; color: var(--pc-white); margin: 0; white-space: nowrap; }
-    /* The agent line is the only thing left on this row — the listing number MOVED OUT of the
-       photo and into the body's status row (Kiron, 2026-08-24), so .lc-agentrow no longer has a
-       second child to space against. Kept as a row rather than collapsed into .lc-agent because
-       the agent line is the one that will gain a link and a tel: (see developer-listing.md §4),
-       and it will want a row to sit in when it does. */
-    .lc-agentrow{ display: flex; align-items: baseline; margin: 6px 0 0; }
+    /* ---- PLACE + AGENT ARE IN THE WHITE BODY NOW (Kiron, 2026-08-24) ----
+       "Bring the County, State and the agent name down inside the white section and off the
+       image." Both used to sit on the photo scrim inside .lc-over; that wrapper is retired, and
+       the photograph now carries only the pill and the save star. Consequences, all handled:
+         COLOUR. Both were white-on-scrim and would have been invisible on white. The place is PC
+         Black and the agent name PC Black; the AGENT tag steps down to PC Medium Blue (5.5:1)
+         rather than the PC Light Blue it wore on the scrim (~1.1:1 on white).
+         HEIGHT. On the photo these two lines cost nothing; in the body they add ~76px to every
+         card. That is uniform, so grid-auto-rows: 1fr still resolves to one number and the grid
+         stays a rectangle — see the .lc-grid note.
+         THE LINK. .lc-link now sits in a static parent, which is why .lc had to become
+         `position: relative`. Read the note on .lc before touching either.
+       The PREMIUM cards are unchanged: their copy is still over the photograph in .lc-pover, by
+       design — the picture is the card there. */
+    /* Sits under the status row as the card's title line. 24px against the 27px headline keeps
+       the price/date the loudest thing on the card while the place still reads as the name of the
+       listing. nowrap for the reason every other line in this card has it: one place name breaking
+       to two lines next to cards where it does not is the raggedness the locked height removes.
+       "Champaign County, IL" is the longest string here and wants ~205px in a 411px measure, so
+       there is room to spare at every band. */
+    .lc-place{ font-family: var(--font-serif); font-weight: 500; font-size: 24px;
+      line-height: 1.15; color: var(--pc-black); margin: 0 0 var(--space-2);
+      white-space: nowrap; }
+    /* The agent is the LAST line in the body and gets a hairline above it, which is new: on the
+       scrim it was separated from the place by nothing but 6px, and in a body full of facts it
+       needs to read as a footer rather than a fourth fact. Kept as a row rather than collapsed
+       into .lc-agent because the agent line is the one that will gain a link and a tel: (see
+       developer-listing.md §4), and it will want a row to sit in when it does. */
+    .lc-agentrow{ display: flex; align-items: baseline;
+      margin: var(--space-3) 0 0; padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border); }
     .lc-agent{ font-family: var(--font-sans); font-size: 13px; line-height: 1.4;
-      color: var(--pc-white); margin: 0; }
+      color: var(--pc-black); margin: 0; }
     /* "AGENT" label before the name (Kiron, 2026-08-24: "something to signify who this property is
        being represented by"). A WORD rather than an icon: a small person glyph over a photograph has
        to be guessed at, and it would need a text alternative anyway to mean anything to a screen
        reader — at which point the word is simply the shorter route to the same result.
-       Smaller and lighter than the name so the NAME still reads first; PC Light Blue on the scrim
-       keeps it clearly secondary without dropping out. The premium cards already say this a
-       different way, with the role on its own line under the name (.lc-pagent span). */
+       Smaller and lighter than the name so the NAME still reads first. PC Medium Blue since the
+       line moved to white (5.5:1); it was PC Light Blue when it sat on the scrim, which is ~1.1:1
+       here. Bumped 9px -> 10px in the same move: 9px was a corner label on a photograph, and next
+       to 13px body text on white it just looked like a mistake. The premium cards already say this
+       a different way, with the role on its own line under the name (.lc-pagent span). */
     .lc-agent-tag{ display: inline-block; margin-right: 7px;
-      font-size: 9px; font-weight: 600; letter-spacing: .11em; text-transform: uppercase;
-      color: var(--pc-light-blue); vertical-align: 1px; }
+      font-size: 10px; font-weight: 600; letter-spacing: .11em; text-transform: uppercase;
+      color: var(--pc-medium-blue); vertical-align: 1px; }
 
     /* ---- body: status row, headline, meta ---- */
     .lc-body{ padding: var(--space-4); }
@@ -658,21 +689,23 @@
     .lc-pic .lc-dot{ background: #4FC47E; }
     .lc-pic .lc-status.is-pending .lc-dot{ background: #FFC24D; }
     .lc-pic .lc-status.is-sold .lc-dot{ background: #FF7A6B; }
-    /* NEVER WRAPS (Kiron, 2026-08-24). This is the line that decides the card's height, and it is
-       polymorphic: a price on a listing, "September 24, 2026 - 10:00 AM CT" on an auction. Allowed
-       to wrap, the auction cards take a second line, their row becomes the tallest, and
-       grid-auto-rows:1fr then stretches EVERY row on the page to match — so one wrapped date would
-       add ~30px to all six rows.
-       IT IS ALLOWED TO WRAP AS A LAST RESORT, and that is a deliberate reversal. `nowrap` was tried
-       and it does not wrap — it CLIPS, because .lc has overflow:hidden. Measured at the 1216px box:
-       six auction headlines cut off mid-string, "September 24, 2026 - 10:00 AM CT" wanting 425px in
-       a 357px column. A silently truncated auction time is worse than a second line.
-       So the height is kept deterministic the OTHER way round: the size steps below are set so the
-       longest string fits on one line at every band, and if one ever does wrap anyway — longer real
-       copy, a different font, a zoomed page — `grid-auto-rows: 1fr` grows EVERY row together, so the
-       grid stays a rectangle instead of one card standing taller than its neighbours. That is the
-       behaviour Kiron asked for: when it has to change, all the cards change at once. */
-    .lc-headline{ font-family: var(--font-serif); font-weight: 500; font-size: 27px;
+    /* THE POLYMORPHIC LINE: a price on a listing, a date on an auction. It is the line that decides
+       the card's height, so it must not wrap — allowed to, one auction card takes a second line, its
+       row becomes the tallest, and grid-auto-rows:1fr stretches EVERY row on the page to match.
+       IT IS ALLOWED TO WRAP AS A LAST RESORT, and that is deliberate. `nowrap` does not wrap — it
+       CLIPS, because .lc has overflow: hidden, and a silently truncated headline is worse than a
+       second line. The size is set so the longest string fits on one line, and if one ever wraps
+       anyway (longer real copy, a different font, a zoomed page) `grid-auto-rows: 1fr` grows every
+       row together, so the grid stays a rectangle rather than one card standing taller.
+       THE TIME CAME OFF THE DATE (Kiron, 2026-08-24: "remove the dash and time ... and shift the
+       font size for that row down some"). "September 24, 2026 - 10:00 AM CT" is now "September 24,
+       2026", and at 22px it wants ~183px against the tightest measure on the page (273px at a 768px
+       viewport). THAT IS WHY THE PER-BREAKPOINT SIZE STEPS ARE GONE. They existed only because the
+       old string needed 425px in a 357px column, so the size had to be tuned band by band and went
+       down and back UP as the grid lost columns — 27 / 23 / 27 / 21 / 26 / 21. One value now clears
+       every band with room to spare, and the size no longer changes as the window moves.
+       ⚠ If the time ever comes back, the steps have to come back with it. */
+    .lc-headline{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
       line-height: 1.1; color: var(--pc-black); margin: 0; }
     .lc-headline sup{ font-size: .55em; vertical-align: super; line-height: 0; }
     /* Also nowrap, for the same reason: "480 Acres · 465 Tillable Acres · Pivot Irrigated" is the
@@ -685,8 +718,9 @@
     /* ================= PREMIUM CARDS =================
        A promoted listing, PICTURE-LED: the whole card is one photograph, a gradient covers the
        bottom half, and all the copy sits over the gradient. There is deliberately NO .lc-body —
-       the card IS .lc-media and the copy lives in .lc-pover, which is exactly how .lc-over works on
-       a standard card. So this is the standard card's own pattern, not a second pattern.
+       the card IS .lc-media and the copy lives in .lc-pover. The standard card used to do the same
+       thing with .lc-over; since 2026-08-24 its copy has moved into the white body, so the premium
+       cards are now the ONLY place copy sits on the photograph. That is the promotion.
 
        TWO SIZES, ONE TREATMENT (Kiron, 2026-08-24):
          .lc-premium      — spans the whole row, 3/1 banner, 44px display type.
@@ -852,23 +886,15 @@
          >=1536  1376 box  3 up  443     1024-1279  960 box  2 up  468
          1280-1535 1216 box 3 up 389      768-1023   704 box  2 up  340
          640-767  576 box  1 up  576      <640  viewport-40  1 up  fills          */
-    /* 1535 is a rung on the shared ladder (DEVELOPER-NOTES.md §5a) and this is the only rule that
-       needs it. THE 3-COLUMN CARD IS AT ITS NARROWEST HERE, not at the bottom of the range: the
-       --site box drops 1376 -> 1216 while the column count stays at 3, so the card goes 443 -> 389
-       and the text column 411 -> 357. The auction date needs ~425px at 27px, so this is the one
-       band where the headline has to come down. It goes back UP to 27px at <=1279, where the grid
-       drops to 2 columns and the card widens to 468 — the sizes follow the CARD, not the viewport,
-       which is why they do not decrease monotonically. */
-    @media (max-width: 1535px){
-      .lc-headline{ font-size: 23px; }
-    }
+    /* THE 1535 BAND HAS NO RULE ANY MORE. It carried exactly one declaration — the headline
+       stepping 27 -> 23px — because the 3-COLUMN CARD IS AT ITS NARROWEST HERE, not at the bottom
+       of the range: the --site box drops 1376 -> 1216 while the column count stays at 3, so the
+       card goes 443 -> 389 and the text column 411 -> 357, and the old auction string
+       "September 24, 2026 - 10:00 AM CT" wanted ~425px in that 357px column. With the time off the
+       date, one size clears every band, so the query is deleted rather than left empty.
+       See .lc-headline for the rest of that reasoning. */
     @media (max-width: 1279px){
       .lc-grid{ grid-template-columns: repeat(2, 1fr); }
-      /* HEADLINE SIZE STEPS EXIST BECAUSE OF nowrap, and they follow the CARD width, not the
-         viewport — which is why the sizes go down and then back UP as the grid loses columns.
-         Widest string is the auction date. A 2-column card here is 468px wide, wider than the
-         389px 3-column card just above this breakpoint, so 27px fits again. */
-      .lc-headline{ font-size: 27px; }
       /* Below 1280 the five filters alone need more than the content box, so the bar is
          honestly two rows: filters, then the two actions right-aligned beneath them.
          Letting it wrap on its own leaves SORT + the view switch orphaned at the left. */
@@ -883,17 +909,14 @@
       .ls-pop-2col .ls-checks{ grid-template-columns: 1fr; }
     }
     @media (max-width: 1023px){
-      /* The tightest band on the page: 2 columns of a FLUID box, so at 768px the card is ~340px and
-         the text column ~308px. 21px is what keeps the auction date on one line there. */
-      .lc-headline{ font-size: 21px; }
+      /* The tightest band on the page: 2 columns of a FLUID box, so at 768px the card is ~340px
+         and the text column ~273px. The headline no longer steps down here - at 22px the longest
+         string wants ~183px, which clears it. */
       .ls-checks{ grid-template-columns: repeat(2, 1fr); }
       .ls-mapview img, .ls-mapview .md-placeholder{ height: 520px; }
     }
     @media (max-width: 767px){
       .lc-grid{ grid-template-columns: 1fr; }
-      /* One column, so the card is the full content box (576px+) and the headline gets its size
-         back. This is the "sizes follow the card, not the viewport" point made at 1279. */
-      .lc-headline{ font-size: 26px; }
       /* FULL-ROW PREMIUM: nothing to stack — it is one photograph with the copy over it, so what
          changes is the SHAPE, not the layout. 3/1 is a banner ratio that only works while the card
          is wide; at 704px it would be a 235px letterbox carrying 44px display type. 4/3 with a
@@ -921,8 +944,8 @@
       .ls-mapview img, .ls-mapview .md-placeholder{ height: 420px; }
     }
     @media (max-width: 639px){
-      /* Still one column, but the box is now viewport-40: ~335px at a 375px phone. */
-      .lc-headline{ font-size: 21px; }
+      /* Still one column, but the box is now viewport-40: ~335px at a 375px phone - and 22px still
+         fits, so the headline is not touched here either. */
       /* 44px in a ~295px measure wraps "Stanley County, SD" to three lines and starts to look like
          a mistake rather than emphasis. 32px keeps it clearly the largest thing on the card while
          holding two. The price follows it down so the gap between them stays proportional — at 30px
@@ -1314,8 +1337,8 @@
            and the pager's readout follows from it. -->
       <p class="ls-count" id="lsCount"><b>22</b> properties</p>
 
-      <!-- Each card is one <article>. The photo, the two overlay lines and the three body
-           rows are the whole pattern; everything else is styling. -->
+      <!-- Each card is one <article>. A clean photograph, then five body rows — status/number,
+           place, headline, meta, agent — are the whole pattern; everything else is styling. -->
       <div class="ls-panel" id="panelGrid" role="tabpanel" aria-labelledby="viewGrid">
       <div class="lc-grid">
 
@@ -1325,11 +1348,10 @@
              both spans the row and swaps the layout from vertical to a photo-left / detail-right
              split. Reuses .lc-media, .lc-statusrow, .lc-status, .lc-id, .lc-meta, .lc-fav
              unchanged; only the pieces that genuinely differ get a .lc-p* class.
-             Two structural differences from a standard card, both because there is room here:
-               - The PLACE moves off the photograph into the detail panel, where it becomes the
-                 card's real headline at 38px. On a standard card it has to sit on the photo.
-               - The AGENT moves into the panel too, on PC Black instead of white-on-scrim, which
-                 makes it the most legible agent line on the page rather than the least.
+             The structural difference from a standard card, and it inverted on 2026-08-24: the
+             standard card now keeps ALL its copy in the white body and its photograph clean, while
+             this one keeps every line on the picture. Where the place is a 24px title under the
+             status row on a standard card, here it is the 44px headline of the whole banner.
              It counts as ONE of the 21 listings, so page 1 is this plus 17 standard cards. -->
         <article class="lc lc-pic lc-premium">
           <div class="lc-media">
@@ -1339,8 +1361,9 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <!-- All the copy sits OVER the photograph, on the gradient — same pattern as .lc-over
-                 on a standard card, one level deeper. There is deliberately no .lc-body on this
+            <!-- All the copy sits OVER the photograph, on the gradient. Since the standard cards
+                 moved their place and agent into the white body, this is the only place on the page
+                 where copy is on a picture. There is deliberately no .lc-body on this
                  card: the picture is the card. -->
             <div class="lc-pover">
               <div class="lc-statusrow">
@@ -1405,20 +1428,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Champaign County, IL</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19551</p>
             </div>
-            <p class="lc-headline">August 22, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Champaign County, IL</a></p>
+            <p class="lc-headline">August 22, 2026</p>
             <p class="lc-meta"><span>160 Acres</span><span>158 Tillable Acres</span><span>Two Tracts</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
+            </div>
           </div>
         </article>
 
@@ -1430,20 +1451,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Kossuth County, IA</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19563</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Kossuth County, IA</a></p>
             <p class="lc-headline">$2,450,000</p>
             <p class="lc-meta"><span>240 Acres</span><span>236 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
+            </div>
           </div>
         </article>
 
@@ -1454,20 +1473,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Buffalo County, NE</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19570</p>
             </div>
-            <p class="lc-headline">August 6, 2026 - 1:00&nbsp;PM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Buffalo County, NE</a></p>
+            <p class="lc-headline">August 6, 2026</p>
             <p class="lc-meta"><span>480 Acres</span><span>465 Tillable Acres</span><span>Pivot Irrigated</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
+            </div>
           </div>
         </article>
 
@@ -1479,20 +1496,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Wayne County, IA</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19282</p>
             </div>
-            <p class="lc-headline">September 24, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Wayne County, IA</a></p>
+            <p class="lc-headline">September 24, 2026</p>
             <p class="lc-meta"><span>136.57 Acres</span><span>80.31 Tillable Acres</span><span>Two Tracts</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
+            </div>
           </div>
         </article>
 
@@ -1503,20 +1518,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Story County, IA</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19584</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Story County, IA</a></p>
             <p class="lc-headline">$1,875,000</p>
             <p class="lc-meta"><span>152 Acres</span><span>149 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
+            </div>
           </div>
         </article>
 
@@ -1528,20 +1541,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Juneau County, WI</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19591</p>
             </div>
-            <p class="lc-headline">October 8, 2026 - 11:00&nbsp;AM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Juneau County, WI</a></p>
+            <p class="lc-headline">October 8, 2026</p>
             <p class="lc-meta"><span>804 Acres</span><span>612 Tillable Acres</span><span>Six Tracts</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
+            </div>
           </div>
         </article>
 
@@ -1553,20 +1564,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Moody County, SD</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19597</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Moody County, SD</a></p>
             <p class="lc-headline">$3,120,000</p>
             <p class="lc-meta"><span>320 Acres</span><span>311 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
+            </div>
           </div>
         </article>
 
@@ -1577,20 +1586,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Hamilton County, IA</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status is-pending"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19602</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Hamilton County, IA</a></p>
             <p class="lc-headline">$4,680,000</p>
             <p class="lc-meta"><span>400 Acres</span><span>396 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
+            </div>
           </div>
         </article>
 
@@ -1616,20 +1623,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Cass County, ND</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19608</p>
             </div>
-            <p class="lc-headline">October 22, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Cass County, ND</a></p>
+            <p class="lc-headline">October 22, 2026</p>
             <p class="lc-meta"><span>640 Acres</span><span>618 Tillable Acres</span><span>Four Tracts</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
+            </div>
           </div>
         </article>
 
@@ -1641,20 +1646,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Brookings County, SD</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19615</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Brookings County, SD</a></p>
             <p class="lc-headline">$2,980,000</p>
             <p class="lc-meta"><span>280 Acres</span><span>274 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
+            </div>
           </div>
         </article>
 
@@ -1666,20 +1669,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">McLean County, IL</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19621</p>
             </div>
-            <p class="lc-headline">November 5, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">McLean County, IL</a></p>
+            <p class="lc-headline">November 5, 2026</p>
             <p class="lc-meta"><span>200 Acres</span><span>197 Tillable Acres</span><span>Two Tracts</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
+            </div>
           </div>
         </article>
 
@@ -1690,20 +1691,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Webster County, IA</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status is-pending"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19627</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Webster County, IA</a></p>
             <p class="lc-headline">$3,640,000</p>
             <p class="lc-meta"><span>312 Acres</span><span>305 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
+            </div>
           </div>
         </article>
 
@@ -1715,20 +1714,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Saline County, KS</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19634</p>
             </div>
-            <p class="lc-headline">November 19, 2026 - 1:00&nbsp;PM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Saline County, KS</a></p>
+            <p class="lc-headline">November 19, 2026</p>
             <p class="lc-meta"><span>560 Acres</span><span>512 Tillable Acres</span><span>Three Tracts</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
+            </div>
           </div>
         </article>
 
@@ -1740,20 +1737,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Renville County, MN</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19640</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Renville County, MN</a></p>
             <p class="lc-headline">$5,250,000</p>
             <p class="lc-meta"><span>440 Acres</span><span>432 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
+            </div>
           </div>
         </article>
 
@@ -1765,20 +1760,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Carroll County, MO</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19648</p>
             </div>
-            <p class="lc-headline">December 3, 2026 - 10:00&nbsp;AM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Carroll County, MO</a></p>
+            <p class="lc-headline">December 3, 2026</p>
             <p class="lc-meta"><span>368 Acres</span><span>344 Tillable Acres</span><span>Two Tracts</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
+            </div>
           </div>
         </article>
 
@@ -1789,20 +1782,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Benton County, IN</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19655</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Benton County, IN</a></p>
             <p class="lc-headline">$4,120,000</p>
             <p class="lc-meta"><span>336 Acres</span><span>330 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Steve Bruere</p>
+            </div>
           </div>
         </article>
 
@@ -1814,20 +1805,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Yuma County, CO</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19663</p>
             </div>
-            <p class="lc-headline">December 10, 2026 - 11:00&nbsp;AM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Yuma County, CO</a></p>
+            <p class="lc-headline">December 10, 2026</p>
             <p class="lc-meta"><span>1,280 Acres</span><span>1,190 Tillable Acres</span><span>Pivot Irrigated</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
+            </div>
           </div>
         </article>
 
@@ -1844,20 +1833,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Adams County, IL</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19671</p>
             </div>
-            <p class="lc-headline">January 14, 2027 - 10:00&nbsp;AM&nbsp;CT</p>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Adams County, IL</a></p>
+            <p class="lc-headline">January 14, 2027</p>
             <p class="lc-meta"><span>296 Acres</span><span>288 Tillable Acres</span><span>Two Tracts</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Sarff</p>
+            </div>
           </div>
         </article>
 
@@ -1869,20 +1856,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Clay County, IA</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19678</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Clay County, IA</a></p>
             <p class="lc-headline">$2,240,000</p>
             <p class="lc-meta"><span>200 Acres</span><span>195 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> George Baird</p>
+            </div>
           </div>
         </article>
 
@@ -1893,20 +1878,18 @@
               <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
               <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
             </button>
-            <div class="lc-over">
-              <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Platte County, NE</a></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
-              </div>
-            </div>
           </div>
           <div class="lc-body">
             <div class="lc-statusrow">
               <p class="lc-status is-pending"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
               <p class="lc-id"><span class="sr-only">Listing </span>#19685</p>
             </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-detail.html">Platte County, NE</a></p>
             <p class="lc-headline">$3,880,000</p>
             <p class="lc-meta"><span>344 Acres</span><span>332 Tillable Acres</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
+            </div>
           </div>
         </article>
 
