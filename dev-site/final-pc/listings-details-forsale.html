@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Final (PC) — Listing Detail: For Sale (#19651, Palo Alto County IA)</title>
+  <meta name="description" content="Listing detail page for a FOR SALE listing in the final PC direction, populated with the real content of listing #19651: photo gallery, sticky sub nav, property overview, downloads, terms, and a rail carrying the enquiry form, listing facts and both land agents." />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Single source of truth for the final PC direction -->
+  <link href="pc.css?v=20260824a" rel="stylesheet" />
+
+  <!-- ===========================================================================
+       LISTING DETAIL — "LISTING FOR SALE"  (Kiron, 2026-08-25)
+       ---------------------------------------------------------------------------
+       ONE PAGE PER LISTING TYPE is the agreed structure. This is the FOR SALE page;
+       the auction / sealed bid / premium / sold pages are separate files and will
+       be built from this one, so keep the shared parts (hero, jump nav, gallery,
+       downloads, aside, similar) generic and let the TYPE-SPECIFIC parts live in
+       clearly marked blocks:
+         · the hero CTA          — here "Request Information", an auction bids
+         · the aside facts card  — here PRICE, an auction shows date/time/venue
+         · the terms section     — here sale terms, an auction has auction terms
+       Structure is taken from dev-site/pre/listing-detail-a.html ("Classic +
+       Sticky Aside"), rebuilt on pc.css, then reworked against a realtor.com detail
+       page: media + thumbnails → listing headline → pinned sub nav → two columns
+       (prose left, enquiry form over a pinned facts + agent rail) → similar.
+
+         · Colour comes only from the pc.css palette. No red, no green, except the
+           one recorded status-dot exception noted at .ld-status below.
+         · NO Interactive Map tab. The carve-out that used to be listings.html alone
+           now covers the detail pages too — see the note above the page content.
+         · Per-tract stacking is NOT built here. A For Sale listing is normally one
+           parcel, and per the field spec the tract accordion is an AUCTION feature.
+           "Property Details" is written so a second <article class="ld-tract"> can
+           be added without touching anything else.
+
+       CONTENT IS REAL (Kiron, 2026-08-25). Everything on this page except the three
+       Similar Properties cards is the actual content of listing #19651 —
+       peoplescompany.com/listings/land-palo-alto-county-iowa-19651 — 161.03 acres
+       m/l in Palo Alto County, Iowa. The description is verbatim. The ten
+       photographs, the six PDF attachments and both agent headshots are hotlinked
+       from the Peoples Company DigitalOcean Spaces bucket rather than copied into
+       this repo, and all eighteen URLs were verified to resolve on 2026-08-25.
+       Andrew Zellmer and Matt Adams are the real listing agents, with their real
+       numbers, addresses and state licence numbers.
+
+       TWO THINGS THAT FOLLOW FROM THE CONTENT BEING REAL:
+         · The Terms of Sale section states ONLY what the listing publishes. An
+           earlier draft invented earnest money percentages, closing windows and
+           title clauses; against a real property with two named agents that is not
+           something a layout mockup should do. The rest comes from the CMS.
+         · There is no Video section and no video link in the sub nav, because
+           #19651 has no video. That is the field spec's rule working as intended:
+           an empty field means the section is absent, not empty.
+
+       Page-local classes are prefixed ld- (listing detail); the lightbox keeps the
+       xlb- prefix it has in the pre/ pages.
+       The full field spec for every listing type is in developer-listing-detail.md.
+       =========================================================================== -->
+  <style>
+    /* ---- utility that does not live in pc.css yet -------------------------
+       Copied from listings.html, which carries the same note: promote .sr-only to
+       pc.css rather than declaring a third copy the next time a page needs it. */
+    .sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+      border: 0; }
+
+    .listing-body{ background: var(--pc-white); }
+
+    /* Every rail-aligned block on this page reads --site/--rail, so the hero, the
+       jump nav, the two columns and the similar-properties row all stack on the
+       one vertical line the header lockup and footer columns sit on. */
+    .ld-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+
+    /* ---- back to results -------------------------------------------------
+       Sits in the band between the sticky nav and the hero. The Interactive Map
+       tab floats over the middle of that band (centred, 340px); this link is
+       left-aligned, so the two never meet. */
+    .ld-back{ display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 500;
+      letter-spacing: .04em; text-transform: uppercase; color: var(--pc-navy);
+      text-decoration: none; padding: var(--space-5) 0 0; }
+    .ld-back:hover{ color: var(--pc-black); }
+    .ld-back svg{ width: 14px; height: 14px; }
+
+    /* =======================================================================
+       TOP OF PAGE — media, then the listing headline beneath it
+       (Kiron, 2026-08-25, working from a realtor.com listing as the reference)
+       -----------------------------------------------------------------------
+       NOTHING SITS ON THE PHOTOGRAPH ANY MORE. The status, address, price and
+       specs were an overlay panel on a full-bleed carousel; they are now plain
+       copy below the media. The only things left on the picture are CONTROLS —
+       the arrows, the photo count and the "View all" button — which is what the
+       reference does too. The point is that a land photograph is mostly texture
+       and horizon, so a scrim dark enough to carry 42px type destroyed the very
+       thing a buyer opened the page to look at.
+
+       THE MEDIA IS ALSO SMALLER, and mostly for free: it now lives inside the
+       left column of the page grid rather than spanning --site. At --site 1440
+       the left column is 932px, so the main photograph lands at about 700x394 —
+       close to the reference — and the lightbox is there for anyone who wants
+       it bigger. No max-width is needed to achieve that; the grid does it.
+       ======================================================================= */
+
+    /* ---- media: one main frame + a column of three thumbnails ----
+       The thumbnail column is a fixed width and the main frame takes the rest, so
+       the thumbnails keep a sane size as the column narrows instead of collapsing
+       to slivers. Three rows of 1fr means they always exactly fill the main frame's
+       height, whatever ratio it resolves to. */
+    .ld-media{ display: grid; grid-template-columns: minmax(0, 1fr) 210px;
+      gap: var(--space-2); }
+    /* The wrapper is what the overlay controls position against — see the note in the
+       markup on why they cannot live inside .ld-frame. */
+    .ld-mainwrap{ position: relative; }
+    /* 4:3, because EVERY listing photograph is 800x600 at most (Kiron, 2026-08-25).
+       Matching the frame to the source ratio is what stops the CMS's own crop being
+       re-cropped by the layout. The arithmetic that keeps it from being upscaled: at
+       --site 1440 the left column is 932px, the thumbnail column takes 210 + an 8px
+       gap, so the frame lands at 714 x 535 — inside 800 x 600 with room to spare.
+       If the thumbnail column is ever narrowed, check this again: the frame must stay
+       under 800px wide or an 800px source starts being enlarged. */
+    .ld-frame{ overflow: hidden; border-radius: var(--radius-md);
+      aspect-ratio: 4 / 3; background: var(--pc-light-blue);
+      border: 1px solid var(--color-border); padding: 0; cursor: zoom-in; display: block; width: 100%; }
+    .ld-frame img{ width: 100%; height: 100%; object-fit: cover; }
+    .ld-frame:focus-visible{ outline: 3px solid var(--pc-medium-blue); outline-offset: 2px; }
+
+    /* Three rows of 1fr, so the column always ends exactly level with the bottom of the
+       main frame. That makes each thumbnail about 210x173, which is slightly squarer
+       than the 4:3 source, so a thumbnail crops a little top and bottom. That is the
+       right trade at this size — a ragged bottom edge beside the main photograph reads
+       as a mistake, and nobody judges a 210px thumbnail's framing. */
+    .ld-thumbs{ display: grid; grid-template-rows: repeat(3, 1fr); gap: var(--space-2); }
+    .ld-thumb{ position: relative; overflow: hidden; border-radius: var(--radius-md);
+      background: var(--pc-light-blue); border: 1px solid var(--color-border);
+      padding: 0; cursor: pointer; display: block; }
+    .ld-thumb img{ width: 100%; height: 100%; object-fit: cover; }
+    .ld-thumb:focus-visible{ outline: 3px solid var(--pc-medium-blue); outline-offset: 2px; }
+    /* The last thumbnail carries the "+N more" veil, so the set reads as a way in
+       to the whole gallery rather than as three loose pictures. */
+    .ld-more{ position: absolute; inset: 0; display: flex; align-items: center;
+      justify-content: center; background: rgba(7,22,44,.62); color: var(--pc-white);
+      font-family: var(--font-sans); font-size: 15px; font-weight: 600; }
+    .ld-thumb:hover .ld-more{ background: rgba(7,22,44,.72); }
+
+    /* ---- controls ON the photograph — the only things allowed there ---- */
+    .ld-cbtn{ position: absolute; top: 50%; transform: translateY(-50%); z-index: 4;
+      width: 40px; height: 40px; border-radius: var(--radius-pill); border: 0; cursor: pointer;
+      background: rgba(7,22,44,.55); color: var(--pc-white); font-size: 20px; line-height: 1;
+      display: flex; align-items: center; justify-content: center; transition: background-color .15s ease; }
+    .ld-cbtn:hover{ background: var(--pc-black); }
+    .ld-cbtn:focus-visible{ outline: 3px solid var(--pc-white); outline-offset: 2px; }
+    .ld-cbtn.prev{ left: 12px; }
+    .ld-cbtn.next{ right: 12px; }
+    .ld-count{ position: absolute; right: 12px; bottom: 12px; z-index: 4; margin: 0;
+      font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--pc-white);
+      background: rgba(7,22,44,.62); border-radius: var(--radius-pill); padding: 5px 12px; }
+    .ld-viewall{ position: absolute; left: 12px; bottom: 12px; z-index: 4;
+      display: inline-flex; align-items: center; gap: 7px; border: 0; cursor: pointer;
+      font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--pc-black);
+      background: var(--pc-white); border-radius: var(--radius-pill); padding: 8px 14px; }
+    .ld-viewall:hover{ background: var(--pc-light-blue); }
+    .ld-viewall:focus-visible{ outline: 3px solid var(--pc-white); outline-offset: 2px; }
+    .ld-viewall svg{ width: 15px; height: 15px; }
+
+    /* ---- the listing headline, now plain copy under the media ---- */
+    .ld-head{ margin-top: var(--space-5); }
+    .ld-statusline{ display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3);
+      margin-bottom: var(--space-3); }
+    .ld-status{ display: inline-flex; align-items: center; gap: 8px; margin: 0;
+      font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 500;
+      color: var(--color-text-muted); }
+    /* THE ONE COLOUR EXCEPTION ON THIS PAGE. Same scoped override Kiron recorded for
+       listings.html on 2026-08-24: Active green / Pending amber / Sold red, on the
+       understanding that THE WORD CARRIES THE MEANING and the dot only reinforces it.
+       These are the on-white values from that page (4.6 / 3.4 / 4.7 to 1), not the
+       brighter on-dark siblings, because this line now sits on white. Do not
+       generalise the exception. */
+    .ld-status .ld-dot{ width: 9px; height: 9px; border-radius: 50%; flex: none;
+      background: #1E7D46; }
+    .ld-status.is-pending .ld-dot{ background: #B07400; }
+    .ld-status.is-sold .ld-dot{ background: #C0342B; }
+    .ld-flag{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--pc-white);
+      background: var(--pc-medium-blue); border-radius: var(--radius-pill); padding: 5px 12px; }
+
+    /* Price left, address right, on one baseline — the reference's arrangement.
+       They swap to a stack at 767, where the address can no longer sit beside a
+       40px price without one of them wrapping mid-phrase. */
+    .ld-pricerow{ display: flex; align-items: flex-end; justify-content: space-between;
+      gap: var(--space-6); flex-wrap: wrap; }
+    .ld-price{ font-family: var(--font-serif); font-size: 44px; font-weight: 600;
+      color: var(--color-text); line-height: 1; margin: 0; }
+    .ld-perac{ font-family: var(--font-sans); font-size: 14px; color: var(--pc-navy);
+      margin: var(--space-2) 0 0; }
+    .ld-addr{ font-family: var(--font-sans); font-size: 16px; line-height: 1.5;
+      color: var(--color-text-muted); margin: 0; text-align: right; }
+    .ld-addr span{ display: block; font-size: var(--body-sm); color: var(--pc-navy); }
+
+    /* h1 is the property, and it is BELOW the price on purpose: the price is what a
+       visitor's eye goes to first, but the county and acreage are what names the page. */
+    .ld-head h1{ font-size: 30px; margin: var(--space-5) 0 0; }
+
+    /* ---- Property Overview icon stats ----
+       Moved here out of the headline (Kiron, 2026-08-25). Icon + text, per the field
+       spec. A wrapping grid rather than a divided strip: the set is variable — Farmland
+       shows four, Residential swaps in Lot Size, Bedrooms and Bathrooms, an auction adds
+       Tracts — and a row of rules between items only looks right at one item count. */
+    .ld-ovstats{ display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: var(--space-4) var(--space-5); list-style: none;
+      margin: 0 0 var(--space-6); padding: var(--space-5) 0;
+      border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+    .ld-ovstats li{ display: flex; align-items: center; gap: var(--space-3); }
+    .ld-ovstats svg{ width: 26px; height: 26px; flex: none; color: var(--pc-medium-blue); }
+    .ld-ovstats .n{ display: block; font-family: var(--font-serif); font-size: 22px;
+      font-weight: 600; color: var(--color-text); line-height: 1.1; }
+    .ld-ovstats .l{ display: block; font-family: var(--font-sans); font-size: 11px;
+      font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--pc-navy); margin-top: 3px; }
+
+
+    /* ======================= JUMP NAV =======================
+       DELIBERATELY NOT STICKY, and this is a decision for Kiron rather than an
+       oversight. Two things are already pinned at the top of every page in this
+       build: the header (z 45) and the Interactive Map tab, which hangs from it
+       at top:var(--navH), centred, 340px wide. A third sticky bar at that offset
+       would sit directly under the tab and the tab would cover its middle links.
+       Options if it should stick: drop the map tab on this page only (breaks the
+       site rule that listings.html is the sole exception), or move the tab. */
+    /* Now lives INSIDE the left column rather than spanning --site, because the media
+       and headline moved into the column above it and a full-bleed bar between them
+       and the prose would cut the page in half.
+
+       IT LOCKS AS YOU SCROLL, the way design A had it (Kiron, 2026-08-25), and it now
+       pins FLUSH TO THE HEADER at exactly --navH. It could not before: the Interactive
+       Map tab used to hang off the header at that same offset, centred and 340px wide,
+       so a bar pinned there had its middle links covered. Dropping the tab from the
+       listing pages is what freed the position, and this bar is what the top of the
+       page is for here.
+       z-index 20 keeps it over the prose and under the header (45). --navH is measured
+       by JS on load and resize — see the sync near the top of the script block; without
+       it this bar would pin to a stale height and leave a gap or overlap the nav. */
+    .ld-jump{ position: sticky; top: var(--navH); z-index: 20;
+      border-bottom: 1px solid var(--color-border);
+      margin-top: var(--space-6); background: var(--pc-white); }
+    .ld-jump-inner{ display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 12px;
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+      color: var(--pc-navy); text-decoration: none; border-bottom: 3px solid transparent; }
+    .ld-jump a:hover, .ld-jump a:focus-visible{ color: var(--pc-black); border-bottom-color: var(--pc-medium-blue); }
+    .ld-jump a:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: -2px; }
+    .ld-jump svg{ width: 17px; height: 17px; flex: none; }
+
+    /* ======================= BODY: main + sticky aside =======================
+       ONE grid for the whole page now, starting at the media. It used to start below
+       the jump nav, which meant the contact rail began two screens down — past the
+       point where a visitor decides whether to get in touch. The reference puts the
+       enquiry form level with the photograph, and that is the arrangement being
+       copied. */
+    .ld-body{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail);
+      display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8);
+      align-items: start; }
+
+    /* Anchor targets clear the header AND the sub nav pinned beneath it. Miss the
+       second and every jump link lands its own section heading underneath the bar that
+       sent you there. --ld-jump-h is the bar's own height (14px padding x2 + 20px line
+       + 1px border); keep it in step if the bar's padding or type size changes. */
+    :root{ --ld-jump-h: 49px; }
+    /* details as well as section: the accordions below are <details>, and a jump link
+       has to land one of those the same way it lands a plain section. */
+    .ld-main > section, .ld-main > details{
+      scroll-margin-top: calc(var(--navH) + var(--ld-jump-h) + var(--space-4)); }
+    .ld-main h2{ margin: 0 0 var(--space-4); }
+
+    /* ======================= ACCORDIONS =======================
+       BUILT ON <details>/<summary>, not on a div and a click handler. The browser gives
+       the open/closed state, the keyboard behaviour, the correct role and the
+       find-in-page reveal for free, and it still works if the JS on this page fails.
+       There is no aria bookkeeping to get wrong and no state for a script to lose.
+
+       THEY START CLOSED (Kiron, 2026-08-25). All of them, for now.
+
+       THE ANCHOR SITS ON THE <details>, i.e. on the accordion's header — which is the
+       whole reason the sub nav needs no special handling. Kiron, 2026-08-25: "The sub
+       nav will jump to the header of the accordion. Should never need to jump to a
+       section within an accordion." The header exists whether the section is open or
+       shut, so a jump link resolves either way and never has to open anything. */
+    .ld-acc{ padding-top: var(--space-8); margin-top: var(--space-8);
+      border-top: 1px solid var(--color-border); }
+    .ld-acc > summary{ display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4); cursor: pointer; list-style: none; padding: 0; }
+    /* Safari draws its own triangle through ::-webkit-details-marker; list-style:none
+       alone does not remove it. */
+    .ld-acc > summary::-webkit-details-marker{ display: none; }
+    .ld-acc > summary h2{ margin: 0; }
+    .ld-acc > summary:hover h2{ color: var(--pc-medium-blue); }
+    .ld-acc > summary:focus-visible{ outline: 2px solid var(--pc-medium-blue);
+      outline-offset: 4px; border-radius: var(--radius-sm); }
+    .ld-acc-chev{ flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill);
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--color-border); color: var(--pc-navy);
+      transition: transform .2s ease, background-color .15s ease, border-color .15s ease; }
+    .ld-acc-chev svg{ width: 16px; height: 16px; }
+    .ld-acc > summary:hover .ld-acc-chev{ background: var(--pc-light-blue); border-color: var(--pc-light-blue); }
+    .ld-acc[open] > summary .ld-acc-chev{ transform: rotate(180deg); }
+    /* The open panel needs its own top gap; summary has none of its own. */
+    .ld-acc-body{ padding-top: var(--space-5); }
+    @media (prefers-reduced-motion: reduce){ .ld-acc-chev{ transition: none; } }
+    .ld-eyebrow{ font-family: var(--font-sans); font-size: var(--label); font-weight: 400;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-subtle);
+      margin: 0 0 var(--space-3); }
+    /* NO MEASURE CAP (Kiron, 2026-08-25: "fully fill the proper space with text").
+       This is a deliberate exception to the build's 45-75ch rule, and it is a real
+       trade: at the 932px column width a 16px line runs to roughly 95 characters, past
+       the band where the eye reliably finds the start of the next line. It is Kiron's
+       call and it is recorded here rather than quietly reverted. If it is ever revisited,
+       the fix is a cap here, not a narrower column — the column width is doing other work. */
+    .ld-copy{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.7;
+      color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+
+    /* .ld-sec (the old section separator) is gone: every section below the overview is
+       an accordion now, and .ld-acc carries the same hairline and spacing. */
+
+    /* ---- property detail unit. Repeat this <article> to add a second tract. ---- */
+    .ld-tract h3{ margin: 0 0 var(--space-2); }
+    .ld-tract-sub{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase; color: var(--pc-navy);
+      margin: 0 0 var(--space-5); }
+    /* .ld-chips is gone: every stat it carried is in .ld-ovstats under Property
+       Overview now. Do not reintroduce a second stat treatment here. */
+    .ld-tract p{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.7;
+      color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+    .ld-parcels{ font-size: var(--body-sm) !important; }
+
+    /* ---- photo gallery → lightbox ---- */
+    .ld-gallery{ display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2);
+      margin: 0 0 var(--space-5); }
+    .ld-shot{ aspect-ratio: 4 / 3; overflow: hidden; cursor: pointer; padding: 0;
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+      background: var(--pc-light-blue); }
+    .ld-shot img{ width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+    .ld-shot:hover img{ transform: scale(1.05); }
+    .ld-shot:focus-visible{ outline: 3px solid var(--pc-medium-blue); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce){ .ld-shot img{ transition: none; } .ld-shot:hover img{ transform: none; } }
+
+    /* ---- downloads: a clean text list, no file-type icon tiles ---- */
+    .ld-dl-head{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--pc-navy);
+      margin: var(--space-6) 0 var(--space-2); }
+    /* TWO COLUMNS (Kiron, 2026-08-25). Six documents in one narrow column left a lot of
+       empty page beside them; in two they fill the width and the list is half as tall.
+       The row was also mis-aligned: it was three flex children under space-between, so
+       "PDF" landed in the middle of the row instead of sitting with its arrow. Now the
+       NAME takes up the slack and the file type and arrow stay together on the right. */
+    .ld-dl{ list-style: none; margin: 0 0 var(--space-4); padding: 0;
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-7); }
+    .ld-dl li{ border-bottom: 1px solid var(--color-border); }
+    .ld-dl a{ display: flex; align-items: baseline; gap: var(--space-3);
+      padding: 12px 2px; font-family: var(--font-sans); font-size: 15px;
+      color: var(--color-text); text-decoration: none; }
+    .ld-dl .n{ flex: 1; }                    /* takes the slack, so .m and the arrow stay right */
+    .ld-dl a::after{ content: "\2193"; color: var(--pc-medium-blue); font-weight: 700; }
+    .ld-dl a:hover .n, .ld-dl a:focus-visible .n{ text-decoration: underline; }
+    .ld-dl .m{ font-size: var(--body-sm); color: var(--pc-navy); white-space: nowrap; }
+
+    /* ---- video / map ---- */
+    /* 16/9, NOT 4:3. The 4:3 rule is for photographs; video is served at 16:9 and
+       forcing it square would letterbox it inside its own frame. */
+    .ld-video{ position: relative; aspect-ratio: 16 / 9; overflow: hidden;
+      border-radius: var(--radius-md); background: var(--pc-black); border: 1px solid var(--color-border); }
+    .ld-video iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .ld-mapbox{ height: 420px; border-radius: var(--radius-md); background: var(--pc-soft-white);
+      border: 1px solid var(--color-border); display: flex; align-items: center;
+      justify-content: center; text-align: center; padding: var(--space-5);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; color: var(--pc-navy); }
+
+    /* ---- terms: fine print, wider measure because it is reference text ---- */
+    #ld-terms .ld-copy{ font-size: 13px; line-height: 1.65; margin-bottom: var(--space-3); }
+    #ld-terms .ld-copy b{ font-weight: 600; }
+    #ld-terms a{ color: var(--pc-medium-blue); }
+
+    /* ======================= RAIL: form scrolls, card + agent lock =======================
+       (Kiron, 2026-08-25) The whole rail used to be one sticky block. Now it is split:
+       the enquiry form scrolls away like normal content, and the listing card and the
+       agent below it lock and follow you down the page.
+
+       TWO THINGS MAKE THAT WORK, and both are easy to miss:
+       1. .ld-aside is NO LONGER sticky itself — a sticky element cannot contain another
+          sticky element that outlives it.
+       2. align-self: stretch. The grid sets align-items:start, which sizes the aside to
+          its own content — roughly a screen and a half. A sticky child can only travel
+          inside its parent's box, so the card would have unstuck partway down the terms
+          section and scrolled off. Stretching the aside to the full row height gives it
+          the whole page to travel. */
+    .ld-aside{ align-self: stretch; display: flex; flex-direction: column; gap: var(--space-5); }
+    .ld-sticky{ position: sticky; top: calc(var(--navH) + var(--space-5));
+      display: flex; flex-direction: column; gap: var(--space-5); }
+
+    /* ---- listing card. TYPE-SPECIFIC: For Sale shows price and per-acre; the auction
+       page swaps this whole card for date / time / venue / method and a bid button.
+       It does NOT repeat the big price from under the photograph as a headline — it
+       carries the figure inside the fact list, where it reads as one fact among the
+       others rather than as the same number twice on one screen. ---- */
+    .ld-factcard{ background: var(--pc-black); color: var(--pc-white);
+      border-radius: var(--radius-lg); padding: var(--space-6); }
+    .ld-factcard h2{ color: var(--pc-white); font-size: var(--h4-size); margin: 0 0 var(--space-4); }
+    .ld-facts{ list-style: none; margin: 0; padding: 0; }
+    .ld-facts li{ display: flex; justify-content: space-between; gap: var(--space-4);
+      font-family: var(--font-sans); font-size: 14px; padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.16); }
+    .ld-facts li:last-child{ border-bottom: 0; }
+    .ld-facts .k{ color: var(--pc-light-blue); }
+    .ld-facts .v{ font-weight: 600; text-align: right; }
+    /* The card carried "Request Information" and "Schedule a Showing"; both came off it
+       on 2026-08-25. The card is a fact list now, and the enquiry form directly above it
+       in the rail is the action. Their rules (.ld-asidebtns / .ld-btn-bright /
+       .ld-btn-outline) went with them rather than being left as dead weight. */
+
+    /* ---- "More about this property" enquiry form ----
+       Replaces the dark price card that used to head the rail. The price moved under
+       the photograph where the reference puts it, so a second copy in the rail would
+       be the same number twice on one screen; what the rail is for is getting in
+       touch. Outlined white card, not a filled dark one, so it reads as a form rather
+       than a banner. */
+    /* scroll-margin because the card's "Request Information" button scrolls back UP to
+       this form. Only the header has to be cleared, not the map tab or the jump bar:
+       the tab is centred over the left column and neither reaches this one. */
+    .ld-form{ border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+      background: var(--pc-white); padding: var(--space-5);
+      scroll-margin-top: calc(var(--navH) + var(--space-5)); }
+    .ld-form h2{ font-size: var(--h3-size); margin: 0 0 var(--space-4); }
+    .ld-field{ margin-bottom: var(--space-3); }
+    /* Labels are visible, not placeholder-only: a placeholder disappears the moment
+       someone types, which leaves a filled form with no way to check what a field was.
+       The two name fields sit side by side, everything else is full width. */
+    .ld-field label{ display: block; font-family: var(--font-sans); font-size: 12px;
+      font-weight: 500; letter-spacing: .04em; color: var(--pc-navy); margin-bottom: 6px; }
+    .ld-field input, .ld-field textarea{ width: 100%; font-family: var(--font-sans);
+      font-size: var(--body); color: var(--color-text); background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+      padding: 11px 13px; }
+    .ld-field textarea{ min-height: 96px; resize: vertical; line-height: 1.6; }
+    .ld-field input::placeholder, .ld-field textarea::placeholder{ color: var(--pc-navy); opacity: .65; }
+    .ld-field input:focus-visible, .ld-field textarea:focus-visible{
+      outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
+    .ld-names{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+    .ld-form .btn{ width: 100%; margin-top: var(--space-2); }
+    .ld-formnote{ font-family: var(--font-sans); font-size: 12px; line-height: 1.55;
+      color: var(--pc-navy); margin: var(--space-3) 0 0; }
+    .ld-formnote a{ color: var(--pc-medium-blue); }
+
+    /* ---- agent card ---- */
+    .ld-agentcard{ border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+      background: var(--pc-white); padding: var(--space-5); }
+    .ld-agent{ display: flex; gap: var(--space-4); padding: var(--space-4) 0 0; }
+    .ld-agent + .ld-agent{ border-top: 1px solid var(--color-border); margin-top: var(--space-4); }
+    .ld-agent img{ width: 68px; height: 68px; border-radius: 50%; object-fit: cover; flex: none;
+      background: var(--pc-light-blue); }
+    .ld-agent-role{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); margin: 0 0 2px; }
+    .ld-agent h4{ margin: 0 0 var(--space-2); }
+    .ld-agent p{ font-family: var(--font-sans); font-size: 13px; line-height: 1.7;
+      color: var(--color-text-muted); margin: 0; }
+    /* State licence number, per the field spec. ONLY THE STATE THE LISTING IS IN
+       (Kiron, 2026-08-25) — both agents are licensed in several, and listing all of them
+       is noise on a page about one Iowa farm. The CMS picks the row matching the
+       listing's state. Smaller and quieter than the contact lines above it: required
+       information, not something anyone came here to read. */
+    .ld-agent-lic{ font-size: 11px !important; line-height: 1.5 !important;
+      color: var(--pc-navy) !important; margin-top: var(--space-2) !important; }
+    .ld-agent a{ color: var(--pc-medium-blue); text-decoration: none; }
+    .ld-agent a:hover{ text-decoration: underline; }
+
+    /* ======================= SIMILAR PROPERTIES ======================= */
+    .ld-similar{ max-width: var(--site); margin: var(--space-9) auto 0;
+      padding: var(--space-8) var(--rail) 0; border-top: 1px solid var(--color-border); }
+    .ld-similar h2{ margin: 0 0 var(--space-5); }
+    .ld-scards{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+    .ld-scard{ display: block; text-decoration: none; overflow: hidden;
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+      background: var(--pc-white); transition: border-color .15s ease, box-shadow .15s ease; }
+    .ld-scard:hover{ border-color: var(--pc-medium-blue); box-shadow: 0 8px 22px rgba(7,22,44,.10); }
+    .ld-scard:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 2px; }
+    /* 4:3 like every other photograph on the page — all sources are 800x600. */
+    .ld-scard-img{ aspect-ratio: 4 / 3; background: var(--pc-light-blue); }
+    .ld-scard-img img{ width: 100%; height: 100%; object-fit: cover; }
+    .ld-scard-body{ padding: var(--space-4) var(--space-5) var(--space-5); }
+    .ld-scard-price{ font-family: var(--font-serif); font-size: 22px; font-weight: 600;
+      color: var(--color-text); margin: 0 0 2px; }
+    .ld-scard-loc{ font-family: var(--font-sans); font-size: 14px; color: var(--color-text-muted);
+      margin: 0 0 var(--space-3); }
+    .ld-scard-more{ font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+      color: var(--pc-medium-blue); }
+    .ld-note{ font-family: var(--font-sans); font-size: var(--body-sm); color: var(--pc-navy);
+      margin: var(--space-5) 0 0; }
+
+    /* ======================= LIGHTBOX ======================= */
+    .xlb[hidden]{ display: none; }
+    .xlb{ position: fixed; inset: 0; z-index: 200; display: flex; align-items: center;
+      justify-content: center; background: rgba(7,22,44,.94); padding: var(--space-5); }
+    /* Capped at the native size: sources are 800x600, so letting the viewer stretch one
+       to 88vw on a wide monitor would only show it soft. It sits at 1:1 and centres. */
+    .xlb-img{ max-width: min(800px, 88vw); max-height: min(600px, 80vh);
+      object-fit: contain; border-radius: var(--radius-sm); margin: 0 auto; }
+    .xlb-cap{ font-family: var(--font-sans); font-size: 13px; color: var(--pc-light-blue);
+      text-align: center; margin-top: var(--space-3); }
+    .xlb-x, .xlb-prev, .xlb-next{ position: absolute; width: 48px; height: 48px; border: 0;
+      cursor: pointer; border-radius: var(--radius-pill); background: rgba(255,255,255,.14);
+      color: var(--pc-white); font-size: 22px; line-height: 1; }
+    .xlb-x:hover, .xlb-prev:hover, .xlb-next:hover{ background: rgba(255,255,255,.28); }
+    .xlb-x{ top: 20px; right: 20px; }
+    .xlb-prev{ left: 20px; top: 50%; transform: translateY(-50%); }
+    .xlb-next{ right: 20px; top: 50%; transform: translateY(-50%); }
+    .xlb-x:focus-visible, .xlb-prev:focus-visible, .xlb-next:focus-visible{ outline: 3px solid var(--pc-white); outline-offset: 2px; }
+    .xlb-count{ position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-sans); font-size: 13px; color: var(--pc-light-blue); }
+
+    /* ======================= RESPONSIVE =======================
+       Breakpoints sit on --site steps (1279 / 1023 / 767 / 639), the rule
+       established in the 2026-08-13 responsive pass. Do not add one between them. */
+    @media (max-width: 1279px){
+      .ld-body{ grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-6); }
+      .ld-media{ grid-template-columns: minmax(0, 1fr) 170px; }
+      .ld-gallery{ grid-template-columns: repeat(4, 1fr); }
+      .ld-price{ font-size: 38px; }
+    }
+    @media (max-width: 1023px){
+      /* One column. The rail stops being pinned, and the ENQUIRY FORM DROPS BELOW the
+         prose rather than jumping above it. That is the opposite of what this page did
+         before, and deliberately: when the rail was a price card it belonged at the top,
+         but a form pushed above the photograph would put a name field between a visitor
+         and the property they came to look at. The agent card goes with it. */
+      .ld-body{ grid-template-columns: 1fr; }
+      .ld-aside{ align-self: auto; margin-top: var(--space-8); }
+      /* Nothing locks in one column: there is no second column for it to sit beside,
+         so a pinned card would just cover the prose. */
+      .ld-sticky{ position: static; }
+      .ld-scards{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 767px){
+      .ld-gallery{ grid-template-columns: repeat(3, 1fr); }
+      /* Price and address can no longer share a line without one wrapping mid-phrase. */
+      .ld-pricerow{ flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+      .ld-addr{ text-align: left; }
+      .ld-price{ font-size: 34px; }
+      .ld-head h1{ font-size: 26px; }
+      .ld-scards{ grid-template-columns: 1fr; }
+      .ld-mapbox{ height: 320px; }
+    }
+    @media (max-width: 639px){
+      /* The thumbnail column would be under 90px here, which is not a picture. The
+         three thumbnails move under the main frame as a row instead, and the main
+         frame goes to 4:3 so the photograph keeps some height on a phone. */
+      .ld-media{ grid-template-columns: 1fr; }
+      .ld-thumbs{ grid-template-rows: none; grid-template-columns: repeat(3, 1fr); }
+      .ld-thumb{ aspect-ratio: 4 / 3; }
+      .ld-gallery{ grid-template-columns: repeat(2, 1fr); }
+      .ld-jump-inner{ flex-wrap: nowrap; overflow-x: auto; }
+      .ld-jump a{ white-space: nowrap; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ================= HEADER ================= -->
+  <header class="pcf">
+    <div class="pcf-inner">
+      <div class="pcf-brandrow">
+        <!-- Hamburger: left edge, shown only <=1023 where the inline menus don't fit.
+             Opens #navDrawer, which is built from the same NAV array as the mega panels. -->
+        <button class="pcf-burger" id="navBurger" type="button"
+                aria-label="Menu" aria-expanded="false" aria-controls="navDrawer">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="pcf-brandcell">
+          <a href="./index.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+          </a>
+        </div>
+        <div class="pcf-stack">
+          <div class="pcf-util">
+            <span class="sp"></span>
+            <a href="./internal.html">Create An Account</a>
+            <span class="sep">|</span>
+            <a href="./internal.html">Login</a>
+          </div>
+          <nav class="pcf-row" aria-label="Primary">
+            <ul class="pcf-menus" id="pcfMenus"></ul>
+            <div class="pcf-searchwrap">
+              <button class="pcf-search" id="searchToggle" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+              </button>
+              <div class="pcf-searchpanel" id="searchPanel">
+                <form class="pcf-searchform" role="search" action="#" onsubmit="return false;">
+                  <input type="search" id="searchInput" placeholder="Search Peoples Company…" aria-label="Search the site" />
+                  <button type="submit" class="pcf-searchgo" aria-label="Submit search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hamburger drawer (<=1023). Sits under the sticky header; content injected from NAV. -->
+  <div class="pcf-drawer-backdrop" hidden></div>
+  <div class="pcf-drawer" id="navDrawer" role="region" aria-label="Menu" hidden>
+    <div class="pcf-drawer-in"></div>
+  </div>
+
+  <!-- NO INTERACTIVE MAP TAB ON THE LISTING PAGES (Kiron, 2026-08-25).
+       The old rule was that every page carried the pull-down map tab except
+       listings.html. That exception now covers the listing DETAIL pages too: a
+       visitor already inside one listing is not looking for the map, and the tab was
+       taking the top of the page away from the page's own sub nav, which has to pin
+       there instead. Kiron may bring it back -- restore the markup and the script from
+       any other page in this directory if so, and move the --navH sync back inside it. -->
+
+  <!-- ================= PAGE CONTENT ================= -->
+  <main class="listing-body" aria-label="Listing detail">
+
+    <div class="ld-wrap">
+      <a class="ld-back" href="./listings.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/></svg>
+        Back to Listings
+      </a>
+    </div>
+
+    <!-- ===================== TWO-COLUMN BODY =====================
+         The grid starts at the media, so the enquiry form in the rail sits level
+         with the photograph. -->
+    <div class="ld-body">
+
+      <!-- ---------------- MAIN COLUMN ---------------- -->
+      <div class="ld-main">
+
+        <!-- No "Listed by" strip: the PC lockup is already in the header a few pixels
+             above it, and the agents are named in the rail (Kiron, 2026-08-25).
+
+             ---- MEDIA: main frame + three thumbnails, both built by JS from the
+             PHOTOS array so a listing's photo set is one list to edit. Clicking
+             anything here opens the lightbox. ---- -->
+        <section class="ld-media reveal" aria-label="Listing photographs">
+          <!-- The arrows, the counter and "View all" are SIBLINGS of .ld-frame, not
+               children of it, and are positioned over it from this wrapper. .ld-frame
+               is itself a <button> (the whole photograph opens the gallery) and a
+               button may not contain other buttons. -->
+          <div class="ld-mainwrap">
+            <button class="ld-frame" type="button" id="ldFrame" aria-label="Open photograph gallery">
+              <img id="ldFrameImg" src="" alt="" />
+            </button>
+            <button class="ld-cbtn prev" type="button" id="ldPrev" aria-label="Previous photograph">&#8249;</button>
+            <button class="ld-cbtn next" type="button" id="ldNext" aria-label="Next photograph">&#8250;</button>
+            <button class="ld-viewall" type="button" id="ldViewAll">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              <span id="ldViewAllLabel">View all photos</span>
+            </button>
+            <p class="ld-count" id="ldCount"></p>
+          </div>
+          <div class="ld-thumbs" id="ldThumbs"></div>
+        </section>
+
+        <!-- ---- LISTING HEADLINE ----
+             NO BADGE on this listing. The badge slot (New Listing / Featured / Price
+             Reduced / New Construction / Absolute Auction) is optional and #19651
+             carries none, so nothing is invented to fill it. The .ld-flag rule stays
+             in the CSS for the listings that do have one. -->
+        <div class="ld-head reveal">
+          <div class="ld-statusline">
+            <p class="ld-status"><span class="ld-dot" aria-hidden="true"></span>Active &middot; Land for sale</p>
+          </div>
+
+          <div class="ld-pricerow">
+            <div>
+              <p class="ld-price">$2,334,935</p>
+              <p class="ld-perac">$14,500 per acre</p>
+            </div>
+            <p class="ld-addr">2848 370th Avenue, Graettinger, IA 51342
+              <span>Listing #19651 &middot; MLS 747609</span></p>
+          </div>
+
+          <h1>161.03 Acres M/L &middot; Palo Alto County, IA</h1>
+        </div>
+
+        <!-- ---- JUMP NAV — inside the column, under the headline. ---- -->
+        <nav class="ld-jump" aria-label="Jump to section">
+          <div class="ld-jump-inner">
+            <a href="#ld-overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Overview</a>
+            <a href="#ld-details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Property Details</a>
+            <a href="#ld-map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/></svg>Map</a>
+            <a href="#ld-downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Downloads</a>
+            <a href="#ld-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Video</a>
+            <a href="#ld-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Terms of Sale</a>
+          </div>
+        </nav>
+
+        <section id="ld-overview" class="reveal">
+          <!-- NOT AN ACCORDION, and the only section on the page that is not
+               (Kiron, 2026-08-25). The overview is what the page is for: the stats
+               and the description should never be a click away. -->
+          <h2>Property Overview</h2>
+          <!-- No eyebrow above this heading (Kiron, 2026-08-25): the county and the
+               listing type are both already in the headline block above. -->
+
+          <!-- ICON STATS. Which of these appear is driven by PROPERTY type, not by sale
+               type: Total Acres and Tillable Acres are Farmland / Building Site /
+               Acreage / Recreational; Commercial and Residential swap Total Acres for
+               Lot Size; Soil Productivity is Farmland / Recreational; Tracts appears on
+               auctions; Bedrooms and Bathrooms on Residential. See section 3.4 of
+               developer-listing-detail.md — this markup shows the Farmland set.
+
+               SOIL PRODUCTIVITY IS TWO PIECES OF DATA, not one label with a number in
+               it: the rating system varies by listing (CSR2 in Iowa, PI, CPI elsewhere),
+               so the type is a field the CMS supplies and the value is another. Do NOT
+               hardcode "CSR2" back into the label. -->
+          <ul class="ld-ovstats">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
+              <span><span class="n">161.03</span><span class="l">Total acres M/L</span></span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
+              <span><span class="n">149.72</span><span class="l">FSA cropland acres</span></span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
+              <span><span class="n">84.6</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M5 8c3 0 5 1.5 7 4"/><path d="M19 8c-3 0-5 1.5-7 4"/><path d="M7 15c2 0 3.5 1 5 3"/></svg>
+              <span><span class="n">Farmland</span><span class="l">Listing type</span></span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.2 1.2-4.2 3s1.6 2.6 4.4 3.2c2.9.6 4.6 1.5 4.6 3.4 0 2-1.9 3.4-4.8 3.4-2.4 0-4.2-1-4.9-2.7"/></svg>
+              <span><span class="n">$14,500</span><span class="l">Per acre</span></span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+              <span><span class="n">$5,038</span><span class="l">Net taxes</span></span>
+            </li>
+          </ul>
+
+          <p class="ld-copy">Peoples Company is pleased to offer 161.03 gross acres m/l of high-quality Palo Alto County farmland located approximately five miles west of Graettinger, Iowa, in Section 10 of Lost Island Township. This productive tract offers a strong combination of proven soils, drainage improvements, and a desirable location in one of Palo Alto County's most well-regarded farming areas.</p>
+          <p class="ld-copy">The farm includes 149.72 FSA cropland acres classified as NHEL (Non-Highly Erodible Land). The tillable acres carry an impressive CSR2 soil rating of 84.6, including high producing soil types of Clarion loam, Nicollet clay loam, and Webster clay loam. The farm's favorable topography promotes strong natural drainage, carrying water off the property without taking on runoff from neighboring fields. The farm falls just outside and to the north of Drainage District 89 and just outside and to the west of Drainage District 147. Please see the "Drainage Map" attachment for more information. No county tile is found on the farm, but private tile has been installed. Contact the Listing Agents for more details.</p>
+          <p class="ld-copy">Also included within the sale of this farm is an approximately 6-acre wooded acreage site that includes a 48' x 72' steel utility shed in good condition.</p>
+          <p class="ld-copy">Access to the farm is provided from the west off paved 370th Avenue/County Highway N26, from the east off 375th Avenue, and also through a private field road labeled as 290th Street, which bisects the farm into a north and south half. Local grain markets are located nearby with Pro Cooperatives in Wallingford and Terril, and a POET Bioprocessing Plant in Emmetsburg.</p>
+          <p class="ld-copy">The property is leased for the 2026 growing season. The current farm lease has been terminated, and the farm will be available for the 2027 growing season.</p>
+          <p class="ld-copy">Whether you are an investor seeking a dependable land asset, a buyer completing a 1031 exchange, or a producer looking to expand your operation, this tract presents an excellent opportunity to acquire productive farmland with established improvements in a sought-after Palo Alto County location.</p>
+        </section>
+
+        <!-- PROPERTY DETAIL. One <article class="ld-tract"> here because a For Sale
+             listing is normally a single parcel. Add a second article, with its own
+             heading, photographs and download list, for a multi-tract listing —
+             nothing outside this section has to change.
+             NO STAT CHIPS HERE AT ALL (Kiron, 2026-08-25). Every figure that used to
+             sit in this section is in the Property Overview icon row: it was the same
+             numbers twice, a screen apart. This section is prose and documents. -->
+        <details id="ld-details" class="reveal ld-acc" open>
+          <summary><h2>Property Details</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <article class="ld-tract">
+              <h3>The Farm</h3>
+              <p class="ld-tract-sub">161.03 Acres M/L &middot; Section 10, Lost Island Township</p>
+              <p class="ld-copy"><b>Legal description:</b> The South Half of the Northwest Quarter, and the North Half of the Southwest Quarter of Section 10, Township 97 North, Range 34 West of the 5th P.M., Palo Alto County, Iowa. Exact legal description to be taken from Abstract.</p>
+              <p class="ld-copy ld-parcels"><b>Parcel numbers:</b> 270010002030, 270010002040, 270010003020, 270010003010 &nbsp;&middot;&nbsp; <b>Net taxes:</b> $5,038.00 &nbsp;&middot;&nbsp; <b>Zoning:</b> Agricultural &nbsp;&middot;&nbsp; <b>School district:</b> Graettinger-Terril</p>
+
+              <div class="ld-gallery" id="ldGallery"></div>
+            </article>
+  </div>
+        </details>
+
+        <details id="ld-map" class="reveal ld-acc">
+          <summary><h2>Location</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <div class="ld-mapbox">Property map placeholder — the FarmWorth map module drops in here. See DEVELOPER-NOTES.md for the window spec.</div>
+            <p class="ld-dl-head">Directions</p>
+            <p class="ld-copy">Access to the farm is provided from the west off paved 370th Avenue / County Highway N26, from the east off 375th Avenue, and through a private field road labeled 290th Street, which bisects the farm into a north and south half. The farm lies approximately five miles west of Graettinger, Iowa.</p>
+          </div>
+        </details>
+
+        <!-- REAL DOCUMENTS. These six PDFs are the listing's own attachments, hotlinked
+             from the Peoples Company DigitalOcean Spaces bucket — all six verified to
+             resolve on 2026-08-25. target=_blank because they are files, not pages. -->
+        <details id="ld-downloads" class="reveal ld-acc" open>
+          <summary><h2>Downloads</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <ul class="ld-dl">
+              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Aerial.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
+              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Total.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
+              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Tillable.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
+              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Topo.pdf" target="_blank" rel="noopener"><span class="n">Topography Map</span><span class="m">PDF</span></a></li>
+              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_19651%20Drainage%20Map.pdf" target="_blank" rel="noopener"><span class="n">Drainage Map</span><span class="m">PDF</span></a></li>
+              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Plat.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
+            </ul>
+  </div>
+        </details>
+
+        <!-- VIDEO. #19651 HAS NO VIDEO of its own — this is a real Peoples Company
+             property video standing in, at Kiron's request, so the section can be seen
+             (2026-08-25). It is the one piece of borrowed content on the page.
+             The field spec's real rule is that an empty video field means NO SECTION and
+             no sub-nav link, which is how the page stood before this. -->
+        <details id="ld-video" class="reveal ld-acc">
+          <summary><h2>Property Video</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <!-- The iframe only loads once the accordion is first opened: a closed
+                 <details> does not render its contents, so a collapsed video costs
+                 nothing. That is a real advantage of <details> over a CSS-hidden div,
+                 which would load and start buffering YouTube on every page view. -->
+            <div class="ld-video">
+              <iframe src="https://www.youtube.com/embed/BWOnAtdCcu8" title="Peoples Company property video (representative example)"
+                      loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+          </div>
+        </details>
+
+        <!-- TERMS — ONLY WHAT THE LISTING ACTUALLY PUBLISHES. An earlier draft of this
+             page carried a full set of INVENTED sale terms: earnest money percentages,
+             closing windows, title, financing and mineral rights clauses. Those are
+             gone. This is a real property with two real agents named on it, and
+             inventing contract terms against it is not something a layout mockup should
+             do. The fields below are the ones #19651 states. The rest come from the CMS
+             — see section 3.7 of developer-listing-detail.md for the full field list. -->
+        <details id="ld-terms" class="reveal ld-acc">
+          <summary><h2>Terms of Sale</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <p class="ld-copy"><b>Possession:</b> The property is leased for the 2026 growing season. The current farm lease has been terminated and the farm will be available for the 2027 growing season.</p>
+            <p class="ld-copy"><b>Zoning:</b> Agricultural.</p>
+            <p class="ld-copy"><b>Property taxes:</b> Net taxes of $5,038.00.</p>
+            <p class="ld-copy"><b>Legal description:</b> Exact legal description to be taken from the Abstract.</p>
+            <p class="ld-copy"><b>Tile:</b> No county tile is found on the farm; private tile has been installed. Contact the listing agents for more detail.</p>
+            <p class="ld-note">Remaining terms and conditions are supplied per listing by the CMS.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- ---------------- STICKY ASIDE ---------------- -->
+      <aside class="ld-aside" aria-label="Contact about this property">
+
+        <!-- ENQUIRY FORM. Non-functional, like every other form in this build: it does
+             not submit anywhere. The onsubmit return false is what keeps a stray Enter
+             from reloading the page mid-review. -->
+        <div class="ld-form reveal" id="ld-contact">
+          <h2 class="h3-sans">More about this property</h2>
+          <form action="#" onsubmit="return false;" aria-label="Ask about this property">
+            <div class="ld-names">
+              <div class="ld-field">
+                <label for="ldFirst">First name</label>
+                <input type="text" id="ldFirst" name="first" autocomplete="given-name" required />
+              </div>
+              <div class="ld-field">
+                <label for="ldLast">Last name</label>
+                <input type="text" id="ldLast" name="last" autocomplete="family-name" required />
+              </div>
+            </div>
+            <div class="ld-field">
+              <label for="ldEmail">Email</label>
+              <input type="email" id="ldEmail" name="email" autocomplete="email" required />
+            </div>
+            <div class="ld-field">
+              <label for="ldComments">Comments</label>
+              <!-- DELIBERATELY EMPTY (Kiron, 2026-08-25). The field spec asks for the
+                   listing number, state and county to be prefilled here; Kiron wants the
+                   box blank instead, so the visitor writes their own question. If the
+                   prefill ever comes back it belongs as a real value, not a placeholder,
+                   so that it survives typing and gets submitted. -->
+              <textarea id="ldComments" name="comments"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Request Information</button>
+          </form>
+          <p class="ld-formnote">A Peoples Company land agent will follow up by email or phone. We do not share your details with anyone else.</p>
+        </div>
+
+        <!-- Everything below this point LOCKS and follows the page down. See the
+             .ld-sticky note in the CSS for the two rules that make it work. -->
+        <div class="ld-sticky">
+
+        <div class="ld-factcard reveal">
+          <h2 class="h4-sans">Listing Facts</h2>
+          <ul class="ld-facts">
+            <li><span class="k">Price</span><span class="v">$2,334,935</span></li>
+            <li><span class="k">Per acre</span><span class="v">$14,500</span></li>
+            <li><span class="k">Status</span><span class="v">Active</span></li>
+            <li><span class="k">Total acres</span><span class="v">161.03 M/L</span></li>
+            <li><span class="k">FSA cropland</span><span class="v">149.72 NHEL</span></li>
+            <!-- Label is data, like the one in Property Overview: CSR2 / PI / CPI by listing. -->
+            <li><span class="k">Average <span data-field="productivity-type">CSR2</span></span><span class="v">84.6</span></li>
+            <li><span class="k">Land type</span><span class="v">Farmland</span></li>
+            <li><span class="k">Net taxes</span><span class="v">$5,038.00</span></li>
+            <li><span class="k">Available</span><span class="v">2027 crop year</span></li>
+            <li><span class="k">Listing</span><span class="v">#19651</span></li>
+            <li><span class="k">MLS</span><span class="v">747609</span></li>
+          </ul>
+        </div>
+
+        <!-- TWO AGENTS on this listing. The field spec allows up to three — primary,
+             secondary, tertiary — each with name, photo, number, email and state
+             licence numbers. Photographs are the agents' real headshots, hotlinked. -->
+        <div class="ld-agentcard reveal" id="ld-agent">
+          <p class="ld-eyebrow" style="margin-bottom:0;">Contact the Land Agents</p>
+          <div class="ld-agent">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/andrew-zellmer.jpg"
+                 alt="Andrew Zellmer, ALC" loading="lazy"
+                 onerror="this.removeAttribute('src');this.alt='';" />
+            <div>
+              <p class="ld-agent-role">Senior Land Agent</p>
+              <h4>Andrew Zellmer, ALC</h4>
+              <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
+                 Mobile <a href="tel:+17128985913">712.898.5913</a><br />
+                 <a href="mailto:AndrewZ@PeoplesCompany.com">AndrewZ@PeoplesCompany.com</a></p>
+              <p class="ld-agent-lic">Iowa license S61625000</p>
+            </div>
+          </div>
+          <div class="ld-agent">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/matt-adams-2020-01-15-193747.jpg"
+                 alt="Matt Adams" loading="lazy"
+                 onerror="this.removeAttribute('src');this.alt='';" />
+            <div>
+              <p class="ld-agent-role">Senior Land Agent</p>
+              <h4>Matt Adams</h4>
+              <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
+                 Mobile <a href="tel:+15154239235">515.423.9235</a><br />
+                 <a href="mailto:Matt@PeoplesCompany.com">Matt@PeoplesCompany.com</a></p>
+              <p class="ld-agent-lic">Iowa license S59699000</p>
+            </div>
+          </div>
+        </div>
+
+        </div><!-- /.ld-sticky -->
+      </aside>
+    </div>
+
+    <!-- ===================== SIMILAR PROPERTIES =====================
+         THE ONLY INVENTED CONTENT LEFT ON THE PAGE. Everything above comes from
+         listing #19651; these three cards do not correspond to real listings and say
+         so underneath. The CMS picks them by county, state and acreage. -->
+    <section class="ld-similar reveal" aria-label="Similar properties">
+      <h2>Similar Properties</h2>
+      <div class="ld-scards">
+        <a class="ld-scard" href="./listings-details-forsale.html">
+          <div class="ld-scard-img"><img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" loading="lazy" /></div>
+          <div class="ld-scard-body">
+            <p class="ld-scard-price">$1,880,000</p>
+            <p class="ld-scard-loc">Emmet County, IA &middot; 128 Acres</p>
+            <span class="ld-scard-more">View listing &rarr;</span>
+          </div>
+        </a>
+        <a class="ld-scard" href="./listings-details-forsale.html">
+          <div class="ld-scard-img"><img src="../assets/pc-hero6.jpg" alt="Corn rows at sunrise" loading="lazy" /></div>
+          <div class="ld-scard-body">
+            <p class="ld-scard-price">$3,120,000</p>
+            <p class="ld-scard-loc">Clay County, IA &middot; 212 Acres</p>
+            <span class="ld-scard-more">View listing &rarr;</span>
+          </div>
+        </a>
+        <a class="ld-scard" href="./listings-details-forsale.html">
+          <div class="ld-scard-img"><img src="../assets/pc-hero8.jpg" alt="Farm field under open sky" loading="lazy" /></div>
+          <div class="ld-scard-body">
+            <p class="ld-scard-price">$994,000</p>
+            <p class="ld-scard-loc">Kossuth County, IA &middot; 74 Acres</p>
+            <span class="ld-scard-more">View listing &rarr;</span>
+          </div>
+        </a>
+      </div>
+      <p class="ld-note">Sample listings, shown for layout. The CMS selects these by county, acreage and price.</p>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="pff">
+    <div class="pff-main">
+      <!-- connect band on top: logo · newsletter line · subscribe pill -->
+      <div class="pff-inner pff-connect">
+        <a class="pff-connect-logo" href="./internal.html" aria-label="Peoples Company home">
+          <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+        </a>
+        <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
+             Keeps one line where it fits (>=1536) instead of a hard <br> everywhere. -->
+        <p class="pff-connect-line">Stay Connected and Subscribe to&nbsp;Our&nbsp;Newsletter.</p>
+        <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
+          <input type="email" placeholder="Email Address" aria-label="Email address" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+
+      <div class="pff-inner pff-grid">
+        <div class="pff-brand pff-col">
+          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
+               design puts it between the rule and "Corporate Office". Exactly one footer
+               lockup is visible at any width. -->
+          <a class="pff-brand-logo" href="./internal.html" aria-label="Peoples Company home">
+            <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+          </a>
+          <h3>Corporate Office</h3>
+          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
+               row separated by "|" (CSS can't attach a separator to a bare text node). The
+               <br>s are kept for every other width, where the block still stacks. -->
+          <p class="pff-contact">
+            <span>1108 S. 44th Street, Suite 102</span><br />
+            <span>Cumming, IA 50061</span><br />
+            <span><b><a href="tel:+18558005263">855.800.LAND</a></b></span><br />
+            <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
+          </p>
+          <div class="pff-cta">
+            <a class="btn btn-subscribe" href="./internal.html">Find an Office</a>
+          </div>
+        </div>
+
+        <nav class="pff-col" aria-label="Real Estate">
+          <h3>Real Estate</h3>
+          <ul>
+            <li><a href="./internal.html">Traditional Search</a></li>
+            <li><a href="./internal.html">AI Search</a></li>
+            <li><a href="./internal.html">Interactive Map</a></li>
+            <li><a href="./internal.html">Auctions</a></li>
+            <li><a href="./internal.html">Prior Transactions</a></li>
+            <li><a href="./internal.html">Find An Agent</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="The Company">
+          <h3>The Company</h3>
+          <ul>
+            <li><a href="./internal.html">Overview</a></li>
+            <li><a href="./internal.html">Regions</a></li>
+            <li><a href="./internal.html">Industry Collaboration</a></li>
+            <li><a href="./internal.html">Our Team</a></li>
+            <li><a href="./internal.html">Offices</a></li>
+            <li><a href="./internal.html">Culture</a></li>
+            <li><a href="./internal.html">Careers</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="What We Do">
+          <h3>What We Do</h3>
+          <ul>
+            <li><a href="./internal.html">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="./internal.html">Agricultural Appraisal</a></li>
+            <li><a href="./internal.html">Land Management</a></li>
+            <li><a href="./internal.html">Energy Management</a></li>
+            <li><a href="./internal.html">Crop Insurance</a></li>
+            <li><a href="./internal.html">Capital Markets</a></li>
+            <li><a href="./internal.html">Corporate Services</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="Insights &amp; News">
+          <h3>Insights &amp; News</h3>
+          <ul>
+            <li><a href="./internal.html">Industry Research</a></li>
+            <li><a href="./internal.html">National Land Values</a></li>
+            <li><a href="./internal.html">Case Studies</a></li>
+            <li><a href="./internal.html">Newsletters</a></li>
+            <li><a href="./internal.html">Blog</a></li>
+            <li><a href="./internal.html">In the News</a></li>
+            <li><a href="./internal.html">Industry Recognition</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="pff-bottom">
+      <div class="pff-bottom-inner">
+        <span class="copy">© 2026 Peoples Company</span>
+
+        <span class="legal-links">
+          <a href="./internal.html">Privacy Notice</a>
+          <a href="./internal.html">Disclaimer</a>
+          <a href="./internal.html">Equal Opportunity</a>
+        </span>
+
+        <span class="pff-social">
+          <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </span>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
+       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
+       The open card carries the same alert icon as the handle. -->
+  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
+    <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <div class="pc-toast-body">
+      <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
+        <a href="./internal.html">136.57 Acres M/L in Wayne County IA</a><br>
+        <a href="./internal.html"><em>WATCH</em></a><br>
+        <a href="./internal.html">804 Acres M/L in Juneau County WI</a><br>
+        <a href="./internal.html"><em>WATCH</em></a>
+      </p>
+    </div>
+    <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
+  </aside>
+
+  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
+       open; at <=1279px the JS starts minimized and this handle shows instead. -->
+  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <span>Auction Alerts</span>
+  </button>
+
+  <!-- ================= PHOTO LIGHTBOX ================= -->
+  <div class="xlb" id="xlb" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="xlb-x" type="button" aria-label="Close">&#10005;</button>
+    <button class="xlb-prev" type="button" aria-label="Previous photo">&#8249;</button>
+    <figure><img class="xlb-img" alt="" /><figcaption class="xlb-cap"></figcaption></figure>
+    <button class="xlb-next" type="button" aria-label="Next photo">&#8250;</button>
+    <div class="xlb-count"></div>
+  </div>
+
+  <script>
+    // Mega-menu nav built from the real IA. "The Company" panel carries three
+    // affiliation badges on the right (this tab only).
+    (function(){
+      var IAA_SVG = '<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.6"/><ellipse cx="32" cy="26" rx="6" ry="14" fill="none" stroke="currentColor" stroke-width="1.1"/><line x1="18" y1="26" x2="46" y2="26" stroke="currentColor" stroke-width="1.1"/><path d="M20 19 Q32 23 44 19" fill="none" stroke="currentColor" stroke-width="1"/><path d="M20 33 Q32 29 44 33" fill="none" stroke="currentColor" stroke-width="1"/><path d="M32 45 C24 43 18 47 15 55 C24 55 30 52 32 45Z" fill="currentColor"/><path d="M32 45 C40 43 46 47 49 55 C40 55 34 52 32 45Z" fill="currentColor"/><line x1="32" y1="43" x2="32" y2="55" stroke="currentColor" stroke-width="1.3"/></svg>';
+      var EXPO_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5"/><circle cx="12" cy="10" r="2.6"/><path d="M7.5 19c0-2.5 2-4.4 4.5-4.4s4.5 1.9 4.5 4.4"/><path d="M4.5 8l2 1M19.5 8l-2 1"/></svg>';
+
+      var NAV = [
+        { label: "Real Estate", cols: [
+          { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
+          { h: "Auctions", items: ["Upcoming Auctions","Auction Results"] },
+          { h: "Prior Transactions", items: [] }
+        ]},
+        { label: "The Company", cols: [
+          { h: "The Company", items: ["Overview","Regions"] },
+          { spacer: true, items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
+          { badges: [
+            { type: "expo", label: "Land Investment Expo" },
+            { type: "afo",  label: "American Farmland Owner" },
+            { type: "iaa",  label: "International Ag Alliance" }
+          ]}
+        ]},
+        { label: "What We Do", cols: [
+          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] } ]},
+          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] } ]},
+          { svc: [ { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
+          { svc: [ { name: "Energy Management" }, { name: "Crop Insurance" }, { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+        ]},
+        { label: "Insights & News", cols: [
+          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
+        ]}
+      ];
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+      function badgeHTML(b){
+        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="./internal.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
+        if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="./internal.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
+        // american farmland owner — real horizontal logo (assets/afo.png)
+        return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
+      }
+      function colHTML(c){
+        if(c.badges){
+          return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
+        }
+        if(c.svc){
+          var blocks = c.svc.map(function(s){
+            var sub = (s.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+            return '<div class="pcf-svcblock">'+
+              '<div class="pcf-svc"><a href="./internal.html">'+esc(s.name)+'</a></div>'+
+              (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
+            '</div>';
+          }).join("");
+          return '<div class="pcf-col">'+blocks+'</div>';
+        }
+        if(c.h && (!c.items || !c.items.length) && !c.note){
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+        }
+        var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+        // spacer:true → an invisible h4 so a continuation column's first link lines up
+        // with the neighbouring column's first link (see .pcf-h4-ghost in pc.css).
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
+                       : (c.spacer ? '<h4 class="pcf-h4-ghost" aria-hidden="true">&nbsp;</h4>' : '');
+        var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
+        return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
+      }
+      // Top level is a TRIGGER, not a destination: a <button>, so clicking opens the panel
+      // instead of navigating. It must not be an <a href>, which would reload the page on
+      // click and leave the panel reachable only by hovering.
+      function itemHTML(n){
+        return '<li><button class="pcf-menu-btn" type="button" aria-haspopup="true" aria-expanded="false">'+
+            esc(n.label)+
+          '</button>'+
+          '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
+            '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
+          '</div></li>';
+      }
+      var mount = document.getElementById("pcfMenus");
+      if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+
+      // Hamburger drawer content — SAME colHTML() as the mega panels, so the two can never
+      // drift apart. Each top-level section becomes a heading with its columns beneath.
+      var drawer = document.querySelector("#navDrawer .pcf-drawer-in");
+      if(drawer){
+        // Each section carries a slug class ("sec-the-company") so per-section drawer
+        // layout can be targeted BY NAME rather than by nth-of-type — reordering NAV must
+        // not silently move a layout override onto a different section.
+        function slug(s){
+          return s.toLowerCase().replace(/&/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+        }
+        drawer.innerHTML = NAV.map(function(n){
+          return '<section class="pcf-drawer-sec sec-'+slug(n.label)+'">'+
+                   '<h3>'+esc(n.label)+'</h3>'+
+                   '<div class="pcf-drawer-cols">'+n.cols.map(colHTML).join("")+'</div>'+
+                 '</section>';
+        }).join("");
+      }
+    })();
+
+    // SHARED PAGE SCROLL LOCK for the overlays (hamburger drawer, photo lightbox --
+    // the map layer is gone from this page).
+    // `overscroll-behavior: contain` only stops a scroll gesture INSIDE an overlay from
+    // chaining to the page; a wheel over the backdrop still scrolled the document. This
+    // locks the document itself.
+    //
+    // Reference-counted on purpose: the drawer and the lightbox can be open at the same
+    // time, and closing one must not unlock the page while the other still is.
+    //
+    // Uses overflow:hidden on <html> (which preserves scroll position, so nothing needs
+    // restoring) and pads the right by the scrollbar's width, otherwise removing the
+    // scrollbar shifts the whole page sideways as the overlay opens.
+    var pcScrollLock = (function(){
+      var count = 0;
+      var root = document.documentElement;
+      return {
+        on: function(){
+          if(count++ > 0) return;
+          var sbw = window.innerWidth - root.clientWidth;
+          root.style.overflow = "hidden";
+          if(sbw > 0) root.style.paddingRight = sbw + "px";
+        },
+        off: function(){
+          if(count === 0 || --count > 0) return;   // never go negative
+          root.style.overflow = "";
+          root.style.paddingRight = "";
+        }
+      };
+    })();
+
+    // Hamburger open/close — same contract as the search popover and the map layer:
+    // click toggles, Esc closes and returns focus, backdrop/outside click closes.
+    (function(){
+      var btn = document.getElementById("navBurger"),
+          drawer = document.getElementById("navDrawer"),
+          backdrop = document.querySelector(".pcf-drawer-backdrop");
+      if(!btn || !drawer) return;
+
+      function open(){
+        drawer.hidden = false;
+        if(backdrop) backdrop.hidden = false;
+        pcScrollLock.on();
+        btn.setAttribute("aria-expanded", "true");
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        drawer.hidden = true;
+        if(backdrop) backdrop.hidden = true;
+        pcScrollLock.off();
+        btn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus) btn.focus();
+      }
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(true); }
+
+      btn.addEventListener("click", function(){
+        if(btn.getAttribute("aria-expanded") === "true") close(false); else open();
+      });
+      if(backdrop) backdrop.addEventListener("click", function(){ close(false); });
+      // Close on resize past the collapse point, so the drawer can't be left open and
+      // unreachable once the burger is hidden and the inline menus return.
+      // MUST MATCH the hamburger's media query in pc.css — it is 899px.
+      var COLLAPSE_AT = 899;
+      window.addEventListener("resize", function(){
+        if(window.innerWidth > COLLAPSE_AT && btn.getAttribute("aria-expanded") === "true") close(false);
+      });
+    })();
+
+    // Mega-menu open/close — same interaction contract as the search popover:
+    // click toggles, Esc closes and returns focus, clicking outside closes.
+    // Hover is re-implemented here (not left to CSS) because the CSS :focus-within rule
+    // would otherwise pin the panel open after a click and defeat click-to-close.
+    (function(){
+      var ul = document.getElementById("pcfMenus");
+      if(!ul) return;
+      var items = [].slice.call(ul.children);
+      if(!items.length) return;
+      ul.classList.add("nav-js");        // hands control to JS — see .nav-js rules in pc.css
+      var locked = null;                 // opened by CLICK: stays open when the pointer leaves
+
+      function btnOf(li){ return li.querySelector(".pcf-menu-btn"); }
+      function setOpen(li){
+        items.forEach(function(x){
+          var on = (x === li);
+          x.classList.toggle("is-open", on);
+          var b = btnOf(x);
+          if(b) b.setAttribute("aria-expanded", on ? "true" : "false");
+        });
+      }
+      function closeAll(returnFocus){
+        var was = locked;
+        locked = null; setOpen(null);
+        if(returnFocus && was){ var b = btnOf(was); if(b) b.focus(); }
+      }
+
+      items.forEach(function(li){
+        var btn = btnOf(li);
+        if(!btn) return;
+        // A click LOCKS this panel open; clicking the same trigger again closes it.
+        // `locked` must only ever be set by a click — if hover also moved it, then moving
+        // the pointer from one title to another would pre-lock the second one, and the
+        // click that followed would read as a second click and close it instead of opening.
+        btn.addEventListener("click", function(){
+          if(locked === li){ locked = null; setOpen(null); }
+          else { locked = li; setOpen(li); }
+        });
+        // Hover previews any panel without taking the lock. On leave, fall back to whatever
+        // is locked (setOpen(null) closes everything when nothing is).
+        li.addEventListener("mouseenter", function(){ setOpen(li); });
+        li.addEventListener("mouseleave", function(){ setOpen(locked); });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" || e.key === "Esc"){
+          if(locked) closeAll(true); else setOpen(null);
+        }
+      });
+      document.addEventListener("click", function(e){
+        if(!ul.contains(e.target)) closeAll(false);
+      });
+    })();
+
+    // --navH sync. This used to ride along inside the Interactive Map script, which is
+    // gone from this page -- but --navH is NOT map-only: the hamburger drawer and its
+    // backdrop are positioned from it, and so is this page's sticky sub nav. The :root
+    // value in pc.css is only a pre-JS starting point. Measured on load, on resize, and
+    // once the logo image has loaded, since the logo is what sets the header's height.
+    (function(){
+      var header = document.querySelector("header.pcf");
+      if(!header) return;
+      function syncNavH(){ document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      syncNavH();
+      window.addEventListener("resize", syncNavH);
+      window.addEventListener("load", syncNavH);
+      var logoImg = header.querySelector("img");
+      if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+    })();
+
+    // Search: magnifier toggles a text field + submit icon below it
+    (function(){
+      var toggle = document.getElementById("searchToggle");
+      var panel  = document.getElementById("searchPanel");
+      var input  = document.getElementById("searchInput");
+      if(!toggle || !panel) return;
+      function open(){
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        if(input){ input.focus(); }
+        document.addEventListener("mousedown", onOutside);
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutside);
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus){ toggle.focus(); }
+      }
+      function onOutside(e){
+        if(!panel.contains(e.target) && !toggle.contains(e.target)){ close(false); }
+      }
+      function onKey(e){
+        if(e.key === "Escape" || e.key === "Esc"){ close(true); }
+      }
+      toggle.addEventListener("click", function(){
+        if(panel.classList.contains("open")){ close(true); } else { open(); }
+      });
+    })();
+
+    // ==========================================================================
+    // LISTING PHOTOGRAPHS — one list drives the main frame, the three thumbnails
+    // and the gallery further down the page, because they are the same photo set
+    // shown three ways. The CMS supplies this array per listing; nothing else on
+    // the page needs editing.
+    //
+    // The first four are the project's owned 2400x1000 crops; the rest are the
+    // verified Unsplash farmland set already used on index.html. NONE of them
+    // are photographs of this farm — the page is a layout mockup.
+    // ==========================================================================
+    (function(){
+      // 800x600 requested explicitly, so the placeholders arrive at the same size and ratio
+      // the CMS will serve. NOTE: the four local pc-hero*.jpg are the homepage hero crops
+      // at 2400x1000 (2.4:1) — the only images here that are NOT 4:3, so they lose their
+      // sides to object-fit. Swap them for real 800x600 listing photographs.
+      // The listing's own ten photographs, hotlinked from the Peoples Company
+      // DigitalOcean Spaces bucket. All ten verified to resolve on 2026-08-25.
+      // NOTE ON SIZE: the drone frames are 5000x3746 and the map scans 3300x2550 —
+      // far above the 800x600 the real site will serve, so this page pulls several
+      // megabytes of imagery. Everything but the first frame is lazy-loaded. Swap in
+      // the 800x600 renditions when the CMS produces them.
+      // Ratios are 1.335 (drone) and 1.294 (scans), which is why the frames are 4:3.
+      var PB = "https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/";
+      var PHOTOS = [
+        { src: PB+"19651_DJI_0160.jpg", cap: "Aerial view of the farm" },
+        { src: PB+"19651_DJI_0167.jpg", cap: "Aerial view across the tillable acres" },
+        { src: PB+"19651_DJI_0135.jpg", cap: "Aerial view of the farm from the opposite end" },
+        { src: PB+"19651_DJI_0143.jpg", cap: "Aerial view over the field road" },
+        { src: PB+"19651_DJI_0145.jpg", cap: "Aerial view toward the wooded acreage" },
+        { src: PB+"19651_731a3215-7eee-4eb2-90c2-14249dc94d2c-0.jpg", cap: "FSA aerial map" },
+        { src: PB+"19651_731a3215-7eee-4eb2-90c2-14249dc94d2c-1.jpg", cap: "Total soils map" },
+        { src: PB+"19651_731a3215-7eee-4eb2-90c2-14249dc94d2c-2.jpg", cap: "Tillable soils map" },
+        { src: PB+"19651_GC%20-%20T2%20final.jpg", cap: "Location map" },
+        { src: PB+"19651_833be60f-ca64-43f6-ae42-024483505f96-1.jpg", cap: "Drainage map" }
+      ];
+
+      /* ---- MAIN FRAME + THUMBNAILS ----
+         NO AUTOPLAY. The old hero crossfaded every 6 seconds because the copy sat on
+         it and it needed to feel alive; now that the copy is below, a photograph that
+         changes on its own while someone is reading the price is just movement in the
+         corner of the eye. The arrows and the thumbnails drive it, nothing else.
+         The frame swaps ONE <img> src rather than stacking ten absolute slides — with
+         no crossfade to run there is nothing for the extra elements to do. */
+      var frame    = document.getElementById("ldFrame"),
+          frameImg = document.getElementById("ldFrameImg"),
+          thumbsEl = document.getElementById("ldThumbs"),
+          countEl  = document.getElementById("ldCount"),
+          viewAll  = document.getElementById("ldViewAll"),
+          vaLabel  = document.getElementById("ldViewAllLabel");
+      var cur = 0;
+
+      function show(n){
+        cur = (n + PHOTOS.length) % PHOTOS.length;
+        frameImg.src = PHOTOS[cur].src;
+        // The main photograph IS the content here, so it carries its caption as alt
+        // text rather than being decorative the way the old full-bleed hero was.
+        frameImg.alt = PHOTOS[cur].cap;
+        countEl.textContent = (cur + 1) + " / " + PHOTOS.length;
+      }
+      frameImg.onerror = function(){ frameImg.removeAttribute("src"); frameImg.alt = ""; };
+      show(0);
+      if(vaLabel){ vaLabel.textContent = "View all " + PHOTOS.length + " photos"; }
+
+      document.getElementById("ldNext").addEventListener("click", function(){ show(cur + 1); });
+      document.getElementById("ldPrev").addEventListener("click", function(){ show(cur - 1); });
+
+      /* THREE THUMBNAILS = photographs 2, 3 and 4, matching the reference. The third
+         carries the "+N more" veil so the set reads as a way into the whole gallery.
+         Clicking a thumbnail moves the MAIN FRAME rather than opening the lightbox:
+         it is the cheaper action, and the frame and "View all" both open the lightbox
+         for anyone who wants the photograph big. */
+      var THUMB_START = 1, THUMB_COUNT = 3;
+      PHOTOS.slice(THUMB_START, THUMB_START + THUMB_COUNT).forEach(function(p, i){
+        var idx = THUMB_START + i;
+        var btn = document.createElement("button");
+        btn.className = "ld-thumb"; btn.type = "button";
+        btn.setAttribute("aria-label", "Show photograph " + (idx + 1) + ": " + p.cap);
+        var im = document.createElement("img");
+        im.src = p.src; im.alt = ""; im.setAttribute("aria-hidden", "true");
+        im.loading = "lazy"; im.decoding = "async";
+        im.onerror = function(){ btn.style.display = "none"; };
+        btn.appendChild(im);
+
+        var remaining = PHOTOS.length - (THUMB_START + THUMB_COUNT);
+        if(i === THUMB_COUNT - 1 && remaining > 0){
+          var veil = document.createElement("span");
+          veil.className = "ld-more";
+          veil.textContent = "+" + remaining + " more";
+          btn.appendChild(veil);
+          btn.setAttribute("aria-label", "See all " + PHOTOS.length + " photographs");
+          btn.addEventListener("click", function(){ openLightboxAt(idx); });
+        } else {
+          btn.addEventListener("click", function(){ show(idx); });
+        }
+        thumbsEl.appendChild(btn);
+      });
+
+      /* The frame and "View all" open the gallery at whatever the frame is showing.
+         openLightboxAt is defined by the lightbox block below and hung on window,
+         because these two blocks are separate IIFEs and the gallery buttons the
+         lightbox binds to do not exist until the block below this one has run. */
+      frame.addEventListener("click", function(){ openLightboxAt(cur); });
+      viewAll.addEventListener("click", function(){ openLightboxAt(cur); });
+      function openLightboxAt(n){ if(window.ldOpenPhoto){ window.ldOpenPhoto(n); } }
+
+      /* ---- GALLERY: every photograph, each opening the lightbox ---- */
+      var box = document.getElementById("ldGallery");
+      PHOTOS.forEach(function(p){
+        var btn = document.createElement("button");
+        btn.className = "ld-shot xlb-open"; btn.type = "button";
+        btn.setAttribute("data-full", p.src);
+        btn.setAttribute("data-cap", p.cap);
+        btn.setAttribute("aria-label", "Open photograph: " + p.cap);
+        var im = document.createElement("img");
+        im.src = p.src; im.alt = p.cap; im.loading = "lazy"; im.decoding = "async";
+        im.onerror = function(){ btn.style.display = "none"; };
+        btn.appendChild(im);
+        box.appendChild(btn);
+      });
+    })();
+
+    // Lightbox — shares pcScrollLock with the map layer and the drawer, so an open
+    // lightbox cannot unlock the page underneath one of the others.
+    (function(){
+      var items = [].slice.call(document.querySelectorAll(".xlb-open"));
+      if(!items.length) return;
+      var box = document.getElementById("xlb"),
+          img = box.querySelector(".xlb-img"),
+          cap = box.querySelector(".xlb-cap"),
+          cnt = box.querySelector(".xlb-count");
+      var i = 0, last = null;
+      function show(n){
+        i = (n + items.length) % items.length;
+        var el = items[i];
+        img.src = el.getAttribute("data-full");
+        img.alt = el.getAttribute("data-cap") || "";
+        cap.textContent = el.getAttribute("data-cap") || "";
+        cnt.textContent = (i + 1) + " / " + items.length;
+      }
+      function open(n, trig){
+        last = trig || null; show(n);
+        box.hidden = false; pcScrollLock.on();
+        box.querySelector(".xlb-x").focus();
+        document.addEventListener("keydown", key);
+      }
+      function close(){
+        if(box.hidden) return;                 // idempotent, like the map layer's close()
+        box.hidden = true; pcScrollLock.off();
+        document.removeEventListener("keydown", key);
+        if(last) last.focus();
+      }
+      function key(e){
+        if(e.key === "Escape" || e.key === "Esc") close();
+        else if(e.key === "ArrowRight") show(i + 1);
+        else if(e.key === "ArrowLeft") show(i - 1);
+      }
+      items.forEach(function(el, n){ el.addEventListener("click", function(){ open(n, el); }); });
+
+      /* Opened from OUTSIDE this block too: the main photograph, the "+N more"
+         thumbnail and "View all" all open the gallery, and none of them is one of the
+         .xlb-open gallery tiles. The index maps straight across because the gallery is
+         built from the same PHOTOS array, in the same order. `last` stays null so focus
+         returns nowhere in particular on close — the caller is not a gallery tile. */
+      window.ldOpenPhoto = function(n){ open(n, null); };
+
+      box.querySelector(".xlb-x").addEventListener("click", close);
+      box.querySelector(".xlb-prev").addEventListener("click", function(){ show(i - 1); });
+      box.querySelector(".xlb-next").addEventListener("click", function(){ show(i + 1); });
+      box.addEventListener("click", function(e){ if(e.target === box) close(); });
+    })();
+
+    // Scroll-reveal (must-have) — reduced-motion safe
+    (function(){
+      var els = document.querySelectorAll(".reveal");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce || !("IntersectionObserver" in window)){
+        els.forEach(function(el){ el.classList.add("in"); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+
+    // Announcement toast: bottom-right floating card that MINIMIZES to a
+    // right-edge handle (instead of vanishing) so it can be reopened.
+    (function(){
+      var t = document.getElementById("pcToast");
+      if(!t) return;
+      var reopen = document.getElementById("pcToastReopen");
+      var x = t.querySelector(".pc-toast-x");
+      // moveFocus is false for the automatic narrow-viewport minimize below — focusing
+      // the handle on page load would steal focus and jump the page to the right edge.
+      function setMinimized(min, moveFocus){
+        t.hidden = min;
+        if(reopen){ reopen.hidden = !min; }
+        if(moveFocus){
+          var target = min ? reopen : x;
+          if(target){ target.focus(); }
+        }
+      }
+      function minimize(){ setMinimized(true, true); }
+      function restore(){ userChose = true; setMinimized(false, true); }
+      if(x){ x.addEventListener("click", minimize); }
+      if(reopen){ reopen.addEventListener("click", restore); }
+
+      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
+         1279 down it lands on top of the footer's right-hand nav columns. Auto-minimize
+         only — never auto-restores, so once the visitor opens the handle it stays open,
+         and a toast never pops itself back open mid-resize. */
+      var TOAST_NARROW = 1279, userChose = false;
+      function narrowCheck(){
+        if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
+      }
+      narrowCheck();
+      window.addEventListener("resize", narrowCheck);
+    })();
+  </script>
+</body>
+</html>
