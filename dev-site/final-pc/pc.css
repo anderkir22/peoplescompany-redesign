@@ -6,8 +6,10 @@
    pull rules in from any stylesheet outside this directory.
 
    Pages that link it: index.html (homepage), internal.html (interior shell),
-   style-guide.html, brand-color.html, hero.html. Bump the ?v= cache-buster on
-   each of them when deploying a change here.
+   style-guide.html, brand-color.html, hero.html, blog.html, blog-story.html,
+   team.html, team-member.html, listings.html, listings-details.html and the three
+   listings-details-* pages. Bump the ?v= cache-buster on ALL of them when deploying
+   a change here — `sed -i` across *.html is the reliable way, not editing by hand.
 
    PALETTE — the final PC blue brand set (see ./brand-color.html). NO red, NO
    green. Plain black (rgba(0,0,0,…)) is reserved for drop-shadows / overlays.
@@ -1734,4 +1736,488 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .hp-hero h1{ font-size: 34px; }
   .hp-serve-grid, .hp-svc-grid{ grid-template-columns: 1fr; }
   .hp-hero-stats{ gap: 20px; }
+}
+
+/* =============================================================================
+ LISTING CARD  (.lc-*)  — THE SHARED COMPONENT
+ -----------------------------------------------------------------------------
+ PROMOTED OUT OF listings.html ON 2026-08-26, at Kiron's instruction, because the
+ For Sale detail page's "View Similar Properties" section needed the same card and
+ a second copy of these rules would have drifted the moment either page was tweaked.
+ THERE IS NOW EXACTLY ONE COPY AND IT IS THIS ONE. Do not re-declare any .lc-*
+ rule inside a page's <style> block: a page-local copy loads AFTER this file and
+ silently wins, which is the drift this move exists to prevent. If a page needs the
+ card to differ, that is a variant class defined here, not an override there.
+
+ USED BY: listings.html (the results grid) and listings-details-forsale.html
+ (View Similar Properties). The auction and residential detail pages will use it
+ too — they should link it, not copy it.
+
+ WHAT THE PAGES STILL OWN: listings.html keeps .lc-pager / .lc-pg* (results-page
+ chrome, not the card) and all .ls-* filter-bar rules. The detail page keeps the
+ .ld-similar band the cards sit in.
+
+ THE MARKUP THIS EXPECTS (standard card):
+   <article class="lc">
+     <div class="lc-media">  img · optional .lc-pill · .lc-fav star
+     <div class="lc-body">   .lc-statusrow (.lc-status + .lc-id) · .lc-place > .lc-link
+                             .lc-headline · .lc-meta > span* · .lc-agentrow > .lc-agent
+ The premium variants (.lc-pic + .lc-premium / .lc-premium-alt) put their copy over
+ the photograph in .lc-pover instead and carry no .lc-body.
+
+ THE SAVE STAR NEEDS THREE LINES OF JS on any page that uses it — the click handler
+ that flips aria-pressed. It is not in this file because this file is CSS; copy it
+ from either page's script block.
+
+ Rules below are verbatim from listings.html, comments and all. The one edit: the
+ --st-* status tokens moved from .listings-body to :root, since the card now appears
+ on pages that are not the results page.
+ ============================================================================= */
+
+/* ---- grid: 3 across on desktop ---- */
+/* grid-auto-rows: 1fr IS WHAT MAKES EVERY ROW THE SAME HEIGHT (Kiron, 2026-08-24: the premium
+   card must match the exact height of a standard card, and the alt premium must match it too).
+   In a grid whose own height is indefinite, `1fr` rows resolve to the tallest row's content and
+   then all share it — so the STANDARD cards, which are the only ones with intrinsic height
+   (a 4/3 photo plus a body), set the number, and the premium rows are stretched to it.
+   This is deliberately not a calc(). The alternative was computing the premium's height from
+   the column formula, e.g. `(100% - 2*gap)/3 * 0.75 + <body height>`, which needs a different
+   expression per breakpoint AND a hard-coded body height that silently goes wrong the moment
+   the type scale, the padding or the line-height changes. One `1fr` cannot drift.
+   It only works because the card text CANNOT WRAP (see .lc-headline): if a headline could take
+   a second line, that one card would make its row the tallest and stretch every other row on
+   the page to match it. The two rules are a pair. */
+.lc-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5);
+  grid-auto-rows: 1fr; }
+
+/* ---- card shell ---- */
+/* height: 100% so a card fills the equal-height row it sits in rather than sitting short at
+   the top of it. Grid items stretch by default, but the premium cards need a definite height
+   for their `height: 100%` photo to resolve against, and `stretch` alone is not definite. */
+/* position: relative IS LOAD-BEARING (added 2026-08-24 with the place/agent move). The card
+   link's stretched ::after is `position: absolute`, so it resolves against the nearest
+   POSITIONED ancestor. While the anchor lived in .lc-over that was the overlay; now that it
+   sits in the static .lc-body, without this the containing block would be the initial one —
+   a 1000px-inset box sized to the viewport, unclipped by .lc's overflow, swallowing clicks
+   across the whole page. Positioning the card puts the overlay back inside the clip. */
+.lc{ position: relative; height: 100%; background: var(--pc-white);
+  border-radius: var(--radius-md);
+  overflow: hidden; box-shadow: 0 2px 10px rgba(7,22,44,.12);
+  transition: box-shadow .18s ease, transform .18s ease; }
+
+/* ---- THE CARD LINK ---- (Kiron, 2026-08-24: every card links to listings-details.html)
+   ONE link per card, and it is the property name — not a bare "Read more" and not a second
+   link on the price. A screen reader listing the page's links then reads a list of property
+   names, which is the useful thing; two links per card would read every property twice.
+   The whole card is the click target via a stretched pseudo-element, so the pointer behaves the
+   way the hover lift promises.
+
+   THE inset: -1000px IS DELIBERATE, NOT A HACK LEFT IN — and `inset: 0` is the version that
+   looks right and is wrong.
+   On a PREMIUM card the anchor lives inside .lc-pover, which is `position: absolute`, so it —
+   not the card, and not even .lc-media — is the anchor's containing block. `inset: 0`
+   therefore covers only the small block of overlay text: measured with elementFromPoint, the
+   centre of the photograph returned the <img>, not the link. Overflowing in one direction only
+   (`bottom: -1000px`) fixed the body but still left the whole photograph unclickable.
+   Blowing the overlay out on ALL FOUR sides and letting .lc's existing `overflow: hidden` clip
+   it gives exactly the card, whatever its height, from wherever inside it the anchor happens to
+   sit. Verified with elementFromPoint at the photo centre, both bottom corners and the body.
+   ⚠ .lc's `overflow: hidden` and this rule are A PAIR. Drop the clip and every card grows a
+   1000px invisible click-catcher in all directions, swallowing clicks on its neighbours. */
+.lc-link{ color: inherit; text-decoration: none; }
+.lc-link::after{ content: ""; position: absolute; inset: -1000px; z-index: 3; }
+/* Focus is drawn on the TEXT, not the stretched overlay: an outline on a 1000px-tall box would
+   be a ring around the whole card and off the bottom of it. The card also lifts on
+   :focus-within, so there are two indications. */
+/* PC Navy, because the name now sits on the white body. The premium cards keep the white ring
+   below — their name is still over a photograph. */
+.lc-link:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px;
+  border-radius: 2px; }
+.lc-pic .lc-link:focus-visible{ outline-color: var(--pc-white); }
+/* NO hover underline on the name (Kiron, 2026-08-24). The card already answers the pointer:
+   the whole tile lifts and its shadow deepens, which is the affordance for a card link. An
+   underline on top of that was a second signal for the same thing, and it drew a line across a
+   photograph.
+   Note this is a hover-only decision. The FOCUS ring above stays — hover is a pointer nicety,
+   but focus is the only thing telling a keyboard user where they are, so the two are not
+   interchangeable and removing one does not imply removing the other. */
+/* HOVER LIFT on every card (Kiron, 2026-08-24) — a deeper shadow plus a 2px rise, which is
+   what makes it read as lifting rather than just darkening.
+   :focus-within is paired with :hover deliberately. The card holds real focusable controls
+   (the save star today, a card link later), so a keyboard user tabbing into a card gets the
+   same affordance a mouse user gets on hover. Hover-only styling is the usual way this
+   component quietly excludes keyboard users.
+   ⚠ THIS IMPLIES CLICKABILITY THAT DOES NOT EXIST YET. Nothing in the card is a link — see
+   developer-listing.md §4 item 1, the biggest gap on the page. A lift on hover is the standard
+   signal for "this whole tile is a target", so wiring the card link matters more now than it
+   did before this hover existed. */
+.lc:hover, .lc:focus-within{ box-shadow: 0 10px 28px rgba(7,22,44,.22);
+  transform: translateY(-2px); }
+/* The premium card starts from a heavier resting shadow and lifts further, so it stays ahead of
+   the standard cards at both states instead of being caught up with on hover. */
+.lc-premium{ box-shadow: 0 6px 22px rgba(7,22,44,.16); }
+.lc-premium:hover, .lc-premium:focus-within{ box-shadow: 0 16px 40px rgba(7,22,44,.30);
+  transform: translateY(-3px); }
+/* Reduced motion keeps the shadow — it is the information — and drops the movement, which is
+   the decoration. Removing both would leave no hover feedback at all. */
+@media (prefers-reduced-motion: reduce){
+    .lc{ transition: box-shadow .18s ease; }
+    .lc:hover, .lc:focus-within,
+    .lc-premium:hover, .lc-premium:focus-within{ transform: none; }
+  }
+
+/* ---- media: photo + scrim + overlays ---- */
+.lc-media{ position: relative; aspect-ratio: 4 / 3; background: var(--pc-light-blue); }
+.lc-media img{ position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block; }
+/* The scrim existed ONLY to carry the white overlay type, and on a standard card that type has
+   moved into the body (see .lc-place). An 88% black wash over the bottom half of a photograph
+   with nothing written on it is not a style, it is a leftover — so the standard card now shows
+   the photograph clean and the pseudo-element is kept purely as the hook the premium cards
+   fill in below. The pill and the save star are the only things still on the picture, and both
+   carry their own contrast (a solid fill and a drop-shadow). */
+.lc-media::after{ content: ""; position: absolute; inset: 0; pointer-events: none; }
+
+/* Corner pill, top-left. OPTIONAL — see the three-slot note below. Two variants so far:
+   .is-new (PC Navy / white) and .is-auction (PC Blue / PC Black, 8.6:1). Both are readable
+   without relying on hue.
+
+   THE TWO SLOTS AND WHAT EACH IS FOR — settled by Kiron, 2026-08-24.
+   LISTING-ELEMENTS-master-list.md §1 describes three separate fields; this card carries two,
+   and the split is now decided rather than open:
+     1. STATUS — the lifecycle state, in the body beside the listing number. **Exactly three
+        values: Active, Pending, Sold.** Every listing always has one. This is DELIBERATELY
+        narrower than the master list, which also names Available, Auction Upcoming, Bidding
+        Open, Auction Ended and Off Market — Kiron cut it to three, so the master list is
+        SUPERSEDED for the card and the three match the filter panel's Status list exactly.
+     2. FLAGS — this pill. New Listing, Price Reduced, or NOTHING. Transient, and a listing may
+        have none, which is why the pill is optional. "Upcoming Auction" also lives here for
+        now, which is the one place the two fields still blur: it is really a sale method, not
+        a flag. Sale method otherwise rides in the meta row or is implied by the headline, since
+        an auction card shows a date where a listing shows a price.
+   THE RULE THAT KEEPS THE TWO SLOTS HONEST: a card whose status is not Active carries no pill.
+   "Upcoming Auction" on a sold property is the contradiction this prevents. Six cards in this
+   grid have no pill, so the empty case is visible next to the others.
+   Any new variant needs its own contrast check — the two that exist were chosen to clear
+   WCAG 2.2 SC 1.4.3 against white text and PC Black text respectively. */
+.lc-pill{ position: absolute; top: var(--space-3); left: var(--space-3); z-index: 2;
+  font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 600;
+  line-height: 1; padding: 8px 14px; border-radius: var(--radius-pill); }
+/* THE FOUR PILL STATES (Kiron, 2026-08-24): Upcoming Auction, New Listing, Price Reduced, or
+   NOTHING. The blank is a real state, not a fallback — six of the 18 cards have no pill.
+   Each variant carries its own WORDS, which is what conveys the state; the fills only help it
+   stand off the photograph, so no two states are told apart by hue.
+   Contrast against the fill, all clearing WCAG 2.2 SC 1.4.3 for the 12px semibold label:
+     is-new      PC Navy        + white      ~12.6:1
+     is-auction  PC Blue        + PC Black    ~8.6:1
+     is-reduced  PC Medium Blue + white       ~5.5:1  */
+.lc-pill.is-new{ background: var(--pc-navy); color: var(--pc-white); }
+.lc-pill.is-auction{ background: var(--pc-blue); color: var(--pc-black); }
+.lc-pill.is-reduced{ background: var(--pc-medium-blue); color: var(--pc-white); }
+
+/* Save/favourite star, top-right. Filled = saved (aria-pressed="true"). */
+/* z-index 4, ABOVE the card link's stretched overlay (z-3).
+   The star is the one control in a card that is not the link, and it stops being pressable the
+   moment the overlay covers it — measured: at z-index 2 elementFromPoint returned the LINK at
+   the star's own centre. Nesting the button inside the anchor is not the alternative; that is
+   invalid HTML (interactive content inside <a>), which is why the overlay pattern exists.
+   ⚠ This value must stay HERE rather than in a later override block: an earlier attempt set it
+   up beside .lc-link and lost on source order to this very rule. */
+.lc-fav{ position: absolute; top: var(--space-2); right: var(--space-2); z-index: 4;
+  width: 40px; height: 40px; display: grid; place-items: center;
+  background: none; border: 0; padding: 0; cursor: pointer; color: var(--pc-white);
+  filter: drop-shadow(0 1px 3px rgba(7,22,44,.5)); }
+.lc-fav svg{ width: 26px; height: 26px; }
+.lc-fav .lc-star-fill{ display: none; }
+.lc-fav[aria-pressed="true"] .lc-star-fill{ display: block; }
+.lc-fav[aria-pressed="true"] .lc-star-line{ display: none; }
+.lc-fav:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px;
+  border-radius: var(--radius-sm); }
+
+/* ---- PLACE + AGENT ARE IN THE WHITE BODY NOW (Kiron, 2026-08-24) ----
+   "Bring the County, State and the agent name down inside the white section and off the
+   image." Both used to sit on the photo scrim inside .lc-over; that wrapper is retired, and
+   the photograph now carries only the pill and the save star. Consequences, all handled:
+     COLOUR. Both were white-on-scrim and would have been invisible on white. The place is PC
+     Black and the agent name PC Black; the AGENT tag steps down to PC Medium Blue (5.5:1)
+     rather than the PC Light Blue it wore on the scrim (~1.1:1 on white).
+     HEIGHT. On the photo these two lines cost nothing; in the body they add ~76px to every
+     card. That is uniform, so grid-auto-rows: 1fr still resolves to one number and the grid
+     stays a rectangle — see the .lc-grid note.
+     THE LINK. .lc-link now sits in a static parent, which is why .lc had to become
+     `position: relative`. Read the note on .lc before touching either.
+   The PREMIUM cards are unchanged: their copy is still over the photograph in .lc-pover, by
+   design — the picture is the card there. */
+/* Sits under the status row as the card's title line. 24px against the 27px headline keeps
+   the price/date the loudest thing on the card while the place still reads as the name of the
+   listing. nowrap for the reason every other line in this card has it: one place name breaking
+   to two lines next to cards where it does not is the raggedness the locked height removes.
+   "Champaign County, IL" is the longest string here and wants ~205px in a 411px measure, so
+   there is room to spare at every band. */
+.lc-place{ font-family: var(--font-serif); font-weight: 500; font-size: 24px;
+  line-height: 1.15; color: var(--pc-black); margin: 0 0 var(--space-2);
+  white-space: nowrap; }
+/* The agent is the LAST line in the body and gets a hairline above it, which is new: on the
+   scrim it was separated from the place by nothing but 6px, and in a body full of facts it
+   needs to read as a footer rather than a fourth fact. Kept as a row rather than collapsed
+   into .lc-agent because the agent line is the one that will gain a link and a tel: (see
+   developer-listing.md §4), and it will want a row to sit in when it does. */
+.lc-agentrow{ display: flex; align-items: baseline;
+  margin: var(--space-3) 0 0; padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border); }
+.lc-agent{ font-family: var(--font-sans); font-size: 13px; line-height: 1.4;
+  color: var(--pc-black); margin: 0; }
+/* "AGENT" label before the name (Kiron, 2026-08-24: "something to signify who this property is
+   being represented by"). A WORD rather than an icon: a small person glyph over a photograph has
+   to be guessed at, and it would need a text alternative anyway to mean anything to a screen
+   reader — at which point the word is simply the shorter route to the same result.
+   Smaller and lighter than the name so the NAME still reads first. PC Medium Blue since the
+   line moved to white (5.5:1); it was PC Light Blue when it sat on the scrim, which is ~1.1:1
+   here. Bumped 9px -> 10px in the same move: 9px was a corner label on a photograph, and next
+   to 13px body text on white it just looked like a mistake. The premium cards already say this
+   a different way, with the role on its own line under the name (.lc-pagent span). */
+.lc-agent-tag{ display: inline-block; margin-right: 7px;
+  font-size: 10px; font-weight: 600; letter-spacing: .11em; text-transform: uppercase;
+  color: var(--pc-medium-blue); vertical-align: 1px; }
+
+/* ---- body: status row, headline, meta ---- */
+.lc-body{ padding: var(--space-4); }
+/* STATUS and the LISTING NUMBER share this row (Kiron, 2026-08-24): status left, number right.
+   A wrapping <div>, not a modifier on .lc-status, for one blunt reason — .lc-status is a <p>
+   and .lc-id is a <p>, and a <p> cannot contain a <p>. The alternative was demoting the number
+   to a <span> inside the status paragraph, which would have read as part of the status.
+   baseline alignment, not center: the two have different sizes and letter-spacing, so matching
+   their baselines is what makes them look like one line. The bottom margin moved here off
+   .lc-status, since this row is now what the headline spaces away from. */
+.lc-statusrow{ display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--space-3); margin: 0 0 var(--space-2); }
+.lc-status{ display: flex; align-items: center; gap: 7px;
+  font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--pc-navy);
+  margin: 0; }
+/* The listing number, now on WHITE instead of over the photo scrim. That move forced two
+   changes, and both were required, not cosmetic:
+     COLOUR. It was PC Light Blue (#D7EFFB), which is right on an 88% PC Black scrim and
+     effectively invisible on white (~1.1:1). PC Medium Blue is 5.5:1 on white, so it clears
+     WCAG 2.2 SC 1.4.3 for small text with room to spare, and stays a clear step quieter than
+     the PC Navy status beside it.
+     SIZE. 10px was defensible as a corner reference on a photograph; sat next to an 11px
+     status line it just looked like a mistake, and 10px is below where any text should sit in
+     a body. 11px matches the status exactly so the row reads as one line.
+   Still deliberately the quietest thing in the card — it is a reference number, not content. */
+.lc-id{ font-family: var(--font-sans); font-size: 11px; font-weight: 500; line-height: 1.4;
+  white-space: nowrap; color: var(--pc-medium-blue); margin: 0; flex: none; }
+/* The word "Listing" was dropped from this line so the space reads as just "#19548" (Kiron,
+   2026-08-24) — but it is kept for ASSISTIVE TECH, because on its own "#19548" is a bare number
+   with nothing saying what it counts. Sighted readers get the context from the card around it;
+   a screen reader announcing the card in sequence does not.
+   Hidden the standard way rather than with display:none or visibility:hidden, which would
+   remove it from the accessibility tree along with the display — that would defeat the point.
+   1px + clip + nowrap is the pattern that survives every engine without the old
+   "position off-canvas at -9999px" side effects (which can force horizontal scroll in RTL).
+   No .sr-only utility existed anywhere in this build, so this is page-local; PROMOTE IT TO
+   pc.css if anything else needs it, rather than declaring a second copy. */
+/* Renamed from .lc-sronly 2026-08-24: it now serves the page <h1> as well as the card's
+   listing-number label, so a .lc- (listing card) prefix was misleading. Still page-local —
+   promote to pc.css the first time a second page needs it. */
+.sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  border: 0; }
+/* ---- STATUS: three states, and a DELIBERATE EXCEPTION TO THE NO-RED-GREEN RULE ----
+   Kiron, 2026-08-24, in his own words: "Status should only be ACTIVE (green dot), Sold (red dot)
+   and Pending (yellow dot) ... I know this breaks the red-green color-blind policy, but just do
+   it here." Auction Ended is gone; its two cards became Sold.
+   THIS IS A SCOPED OVERRIDE, NOT A CHANGE OF POLICY. The build-wide rule (no red, nothing
+   carried by hue) still holds everywhere else — this is the same kind of explicit, recorded
+   exception Kiron made for the FarmWorth map's status pins on 2026-06-09. Do not generalise it.
+   What keeps it defensible: THE WORD IS STILL THERE AND STILL DOES THE WORK. "Active",
+   "Pending" and "Sold" are written out beside every dot, so the colour is redundant
+   reinforcement rather than the signal, which is what SC 1.4.1 actually asks. Nothing on this
+   page is understood by hue alone. The previous hollow-ring shape cue is retired as redundant.
+   Values are darkened off the pure hues so each still reads on white: green 4.6:1, red 4.7:1,
+   amber 3.4:1 as a 9px dot. */
+:root{ --st-active: #1E7D46; --st-sold: #C0342B; --st-pending: #B07400; }
+.lc-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--st-active);
+  flex: none; }
+.lc-status.is-pending .lc-dot{ background: var(--st-pending); }
+.lc-status.is-sold .lc-dot{ background: var(--st-sold); }
+/* On the premium cards the dot sits on a 94%-black scrim, where those three would go muddy.
+   Brighter siblings of the same hues, same meaning. */
+.lc-pic .lc-dot{ background: #4FC47E; }
+.lc-pic .lc-status.is-pending .lc-dot{ background: #FFC24D; }
+.lc-pic .lc-status.is-sold .lc-dot{ background: #FF7A6B; }
+/* THE POLYMORPHIC LINE: a price on a listing, a date on an auction. It is the line that decides
+   the card's height, so it must not wrap — allowed to, one auction card takes a second line, its
+   row becomes the tallest, and grid-auto-rows:1fr stretches EVERY row on the page to match.
+   IT IS ALLOWED TO WRAP AS A LAST RESORT, and that is deliberate. `nowrap` does not wrap — it
+   CLIPS, because .lc has overflow: hidden, and a silently truncated headline is worse than a
+   second line. The size is set so the longest string fits on one line, and if one ever wraps
+   anyway (longer real copy, a different font, a zoomed page) `grid-auto-rows: 1fr` grows every
+   row together, so the grid stays a rectangle rather than one card standing taller.
+   THE TIME CAME OFF THE DATE (Kiron, 2026-08-24: "remove the dash and time ... and shift the
+   font size for that row down some"). "September 24, 2026 - 10:00 AM CT" is now "September 24,
+   2026", and at 22px it wants ~183px against the tightest measure on the page (273px at a 768px
+   viewport). THAT IS WHY THE PER-BREAKPOINT SIZE STEPS ARE GONE. They existed only because the
+   old string needed 425px in a 357px column, so the size had to be tuned band by band and went
+   down and back UP as the grid lost columns — 27 / 23 / 27 / 21 / 26 / 21. One value now clears
+   every band with room to spare, and the size no longer changes as the window moves.
+   ⚠ If the time ever comes back, the steps have to come back with it. */
+.lc-headline{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+  line-height: 1.1; color: var(--pc-black); margin: 0; }
+.lc-headline sup{ font-size: .55em; vertical-align: super; line-height: 0; }
+/* Also nowrap, for the same reason: "480 Acres · 465 Tillable Acres · Pivot Irrigated" is the
+   longest meta row and would take two lines on a narrow card, moving the card's height. */
+.lc-meta{ font-family: var(--font-sans); font-size: 12px; line-height: 1.5;
+  color: var(--pc-black); margin: var(--space-3) 0 0; white-space: nowrap; }
+/* Middot separators come from CSS so the markup stays a clean list of facts. */
+.lc-meta span + span::before{ content: "·"; margin: 0 6px; color: var(--pc-medium-blue); }
+
+/* ================= PREMIUM CARDS =================
+   A promoted listing, PICTURE-LED: the whole card is one photograph, a gradient covers the
+   bottom half, and all the copy sits over the gradient. There is deliberately NO .lc-body —
+   the card IS .lc-media and the copy lives in .lc-pover. The standard card used to do the same
+   thing with .lc-over; since 2026-08-24 its copy has moved into the white body, so the premium
+   cards are now the ONLY place copy sits on the photograph. That is the promotion.
+
+   TWO SIZES, ONE TREATMENT (Kiron, 2026-08-24):
+     .lc-premium      — spans the whole row, 3/1 banner, 44px display type.
+     .lc-premium-alt  — ONE grid cell like a standard card, 4/3, 30px type. This is the layout
+                        the full-row card collapses to on a phone, promoted to a card of its own
+                        so the same treatment can appear inside the normal grid flow.
+   Everything they SHARE lives on .lc-pic, so the two can never drift apart. Both carry the
+   class: <article class="lc lc-pic lc-premium">. Only size-dependent values are overridden. */
+
+/* ---- shared by both premium sizes ---- */
+/* Border went ONE STEP DARKER at Kiron's request: PC Blue -> PC Medium Blue #316F96. Palette by
+   luminance is Light Blue -> Blue -> Medium Blue -> Navy -> Black, so the next step is PC Navy.
+   Side effect worth keeping: PC Blue was 2.5:1 on white and Medium Blue is 5.5:1, so the border
+   now clears WCAG 2.2 SC 1.4.11 (3:1 for a UI boundary) on its own rather than leaning on the
+   size and the word to excuse it.
+   THE HIGHLIGHT IS STILL NOT THE BORDER ALONE — the pill says "Premium Listing" and (on the
+   full-row card) the size says it too. Both survive greyscale; the border does not. */
+.lc-pic{ border: 3px solid var(--pc-medium-blue);
+  box-shadow: 0 6px 22px rgba(7,22,44,.16); }
+.lc-pic:hover, .lc-pic:focus-within{ box-shadow: 0 16px 40px rgba(7,22,44,.30);
+  transform: translateY(-3px); }
+/* The gradient IS the bottom half, per Kiron. Deliberately deeper and taller than the standard
+   card's scrim (.88, clear by 58%): these cards carry up to five lines including display type,
+   so the dark reaches further up and holds more density at the base. Clear by 62%, so the top
+   ~38% of the photograph is untouched. Same PC Black the standard scrim uses, so the two look
+   related rather than merely both dark. */
+.lc-pic .lc-media::after{
+  background: linear-gradient(to top, rgba(7,22,44,.94) 0%, rgba(7,22,44,.82) 24%,
+    rgba(7,22,44,.42) 46%, rgba(7,22,44,0) 62%); }
+/* PC Navy on white. Deliberately NOT PC Blue: the pill sits over a photograph where a 2.5:1
+   fill could vanish into a bright sky, and this is the one place the word must stay readable. */
+.lc-pill.is-premium{ background: var(--pc-navy); color: var(--pc-white);
+  letter-spacing: .04em; }
+/* right: is set as well as left: so a long name wraps instead of running under the save star. */
+.lc-pover{ position: absolute; left: var(--space-6); right: var(--space-6);
+  bottom: var(--space-6); z-index: 2; }
+/* Status and listing number pack LEFT as a pair above the name, rather than being pushed to
+   opposite ends — across 1376px, space-between would leave them looking unrelated. */
+.lc-pic .lc-statusrow{ justify-content: flex-start; gap: var(--space-4);
+  margin-bottom: var(--space-2); }
+/* EVERY text colour flips for the dark ground, and two of these are easy to miss: .lc-status is
+   PC Navy and .lc-id is PC Medium Blue on a standard card — both would be near-invisible here.
+   Note this puts .lc-id back on a photograph, which is where its original PC Light Blue was
+   correct all along. */
+.lc-pic .lc-status, .lc-pic .lc-id{ color: var(--pc-light-blue); }
+.lc-pic .lc-headline{ color: var(--pc-white); }
+.lc-pic .lc-meta{ color: var(--pc-light-blue); margin-top: var(--space-2); }
+/* The middot separators are PC Medium Blue on a standard card — too dark to see here. */
+.lc-pic .lc-meta span + span::before{ color: var(--pc-blue); }
+/* The place name is the real headline on these cards, and the hierarchy is PLACE first, price
+   second — the reverse of a standard card. At this size the property is being sold, not the
+   number. Size is set per variant below. */
+.lc-pplace{ font-family: var(--font-serif); font-weight: 500; line-height: 1.08;
+  color: var(--pc-white); margin: 0 0 var(--space-3); }
+.lc-prow{ display: flex; gap: var(--space-5); }
+.lc-pagent{ font-family: var(--font-sans); font-weight: 600; color: var(--pc-white);
+  margin: 0; flex: none; }
+.lc-pagent span{ display: block; font-weight: 400; font-size: 12px;
+  color: var(--pc-light-blue); margin-top: 2px; }
+
+/* ---- FULL-ROW premium ----
+   grid-column: 1 / -1 rather than "span 3" — it means "every column there is", so the card
+   still fills the row when the grid drops to 2 columns at 1279 and to 1 at 767. "span 3" would
+   invent a phantom third track and overflow a 2-column grid. */
+.lc-premium{ grid-column: 1 / -1; }
+/* NO ratio and NO min-height any more — the row is already exactly as tall as a standard card
+   (grid-auto-rows:1fr), so the photo just fills it. It used to be `aspect-ratio: 3/1` with a
+   420px floor, which made row 1 taller than row 2 at some widths and SHORTER at others: at the
+   1216px box it measured 426px against the standard card's 439px, so the promoted card was the
+   smaller of the two. Kiron's call is that they match exactly.
+   The old `width: 100%` note about aspect-ratio inflating the inline size no longer applies,
+   because there is no aspect-ratio left to resolve — but width:100% is harmless and kept so the
+   box cannot be sized by anything but the card. */
+.lc-premium .lc-media{ width: 100%; height: 100%; aspect-ratio: auto; min-height: 0; }
+/* 3/1 is the shape that makes this read as a BANNER rather than a very wide card — at 1376px
+   that is a 459px-tall image. min-height is the floor for narrower bands where 3/1 would
+   collapse to a letterbox: at 960px the ratio wants 320px and the floor holds it at 420.
+   ⚠ width: 100% IS LOAD-BEARING — do not remove it as redundant on a block element.
+   `aspect-ratio` plus a BINDING `min-height` resolves the OTHER axis from the ratio, so once
+   min-height won, the box computed its width as height x 3 and blew past the card: measured
+   1260px wide inside a 797px card (clipped by .lc overflow:hidden, so it looked fine on screen
+   while the overlay was being positioned against a box half again too wide). Pinning the inline
+   size makes width definite, so the ratio and then min-height resolve the height instead. */
+.lc-premium .lc-pplace{ font-size: 44px; }
+.lc-premium .lc-headline{ font-size: 30px; }
+.lc-premium .lc-meta{ font-size: 13px; }
+/* Facts left, agent right on one baseline, so the full width earns its keep instead of leaving
+   a long empty gap beside the price. */
+.lc-premium .lc-prow{ align-items: flex-end; justify-content: space-between; }
+.lc-premium .lc-pagent{ font-size: 15px; text-align: right; }
+
+/* ---- ALT premium: the same card in ONE grid cell ----
+   Placed as the first card of row 2 (Kiron, 2026-08-24) so the promoted treatment also appears
+   inside the normal grid flow. It is the phone layout of the full-row card, which is why the
+   ratio, the type sizes and the stacked facts row all match what .lc-premium does at <=767.
+   No grid-column: it takes one cell like any standard card, so it needs no span at all. */
+/* Same as the full-row card: fill the row. Without this the alt card kept a 4/3 photo inside a
+   449px-tall row and left ~122px of bare white card below the picture — measured 436x327 in a
+   449px box. Because its copy sits ON the photo, that gap was empty, not padding. */
+.lc-premium-alt .lc-media{ width: 100%; height: 100%; aspect-ratio: auto; }
+/* Tighter insets than the full-row card: 32px each side out of a ~443px card would leave the
+   44px-equivalent name almost no measure. */
+.lc-premium-alt .lc-pover{ left: var(--space-4); right: var(--space-4);
+  bottom: var(--space-4); }
+.lc-premium-alt .lc-pplace{ font-size: 30px; margin-bottom: var(--space-2); }
+.lc-premium-alt .lc-headline{ font-size: 23px; }
+.lc-premium-alt .lc-meta{ font-size: 12px; }
+/* Stacked, not side-by-side: there is no spare width here, so the agent sits under the price
+   and everything reads off one left edge. */
+.lc-premium-alt .lc-prow{ flex-direction: column; align-items: flex-start;
+  gap: var(--space-3); }
+.lc-premium-alt .lc-pagent{ font-size: 13px; text-align: left; }
+
+/* ---- LISTING CARD: responsive. Same ladder as the rest of this file. ---- */
+@media (max-width: 1279px){
+  .lc-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 767px){
+  .lc-grid{ grid-template-columns: 1fr; }
+  /* FULL-ROW PREMIUM: nothing to stack — it is one photograph with the copy over it, so what
+     changes is the SHAPE, not the layout. 3/1 is a banner ratio that only works while the card
+     is wide; at 704px it would be a 235px letterbox carrying 44px display type. 4/3 with a
+     460px floor gives the copy room at phone widths. In other words, at this width the full-row
+     card becomes what .lc-premium-alt already is — which is exactly why the alt exists.
+     EVERY SELECTOR HERE IS SCOPED TO .lc-premium, and it has to be. The base rules it is
+     overriding are two-class (`.lc-premium .lc-prow`, `.lc-premium .lc-pagent`), so a bare
+     `.lc-prow` would lose on specificity no matter that it sits in a later media query:
+     flex-direction would flip to column while align-items stayed flex-end, giving a
+     right-aligned stack, and the agent would stay right-aligned. Scoping is not tidiness. */
+  .lc-premium .lc-pover{ left: var(--space-4); right: var(--space-4);
+    bottom: var(--space-4); }
+  .lc-premium .lc-prow{ flex-direction: column; align-items: flex-start;
+    justify-content: flex-start; gap: var(--space-3); }
+  .lc-premium .lc-pagent{ text-align: left; }
+}
+@media (max-width: 639px){
+  /* 44px in a ~295px measure wraps "Stanley County, SD" to three lines and starts to look like
+     a mistake rather than emphasis. 32px keeps it clearly the largest thing on the card while
+     holding two. The price follows it down so the gap between them stays proportional — at 30px
+     against a 32px place name the two would read as the same level. */
+  .lc-pplace{ font-size: 32px; }
+  .lc-premium .lc-headline{ font-size: 24px; }
 }

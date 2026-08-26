@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Peoples Company · Final (PC) — Listing Detail: For Sale (#19651, Palo Alto County IA)</title>
-  <meta name="description" content="Listing detail page for a FOR SALE listing in the final PC direction, populated with the real content of listing #19651: photo gallery, sticky sub nav, property overview, downloads, terms, and a rail carrying the enquiry form, listing facts and both land agents." />
+  <meta name="description" content="Listing detail page for a FOR SALE listing in the final PC direction, built on listing #19651: photo gallery, sticky sub nav, property overview, accordions for details, location, downloads, videos and terms, and a rail carrying both land agents and the enquiry form. The figures, photographs, documents and agents are the listing's real content; the prose in Overview, Property Details and Terms is Lorem Ipsum placeholder." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Single source of truth for the final PC direction -->
-  <link href="pc.css?v=20260824a" rel="stylesheet" />
+  <link href="pc.css?v=20260826a" rel="stylesheet" />
 
   <!-- ===========================================================================
        LISTING DETAIL — "LISTING FOR SALE"  (Kiron, 2026-08-25)
@@ -63,12 +63,8 @@
        The full field spec for every listing type is in developer-listing-detail.md.
        =========================================================================== -->
   <style>
-    /* ---- utility that does not live in pc.css yet -------------------------
-       Copied from listings.html, which carries the same note: promote .sr-only to
-       pc.css rather than declaring a third copy the next time a page needs it. */
-    .sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
-      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
-      border: 0; }
+    /* .sr-only lives in pc.css as of 2026-08-26 — it was promoted there with the
+       listing card. Do not re-declare it here. */
 
     .listing-body{ background: var(--pc-white); }
 
@@ -170,11 +166,18 @@
 
     /* ---- the listing headline, now plain copy under the media ---- */
     .ld-head{ margin-top: var(--space-5); }
-    .ld-statusline{ display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3);
-      margin-bottom: var(--space-3); }
+    /* Status on the left, listing number right-aligned on the SAME line (Kiron,
+       2026-08-26). The status text is now the status ALONE — "Active", "Pending" —
+       with no listing type after it: the type is already in the h1 and in Property
+       Overview, and reading "Active · Land for sale" made the status the smaller half
+       of its own line. */
+    .ld-statusline{ display: flex; align-items: baseline; flex-wrap: wrap;
+      justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
     .ld-status{ display: inline-flex; align-items: center; gap: 8px; margin: 0;
       font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 500;
       color: var(--color-text-muted); }
+    .ld-listingid{ font-family: var(--font-sans); font-size: var(--body-sm);
+      color: var(--pc-navy); margin: 0; text-align: right; }
     /* THE ONE COLOUR EXCEPTION ON THIS PAGE. Same scoped override Kiron recorded for
        listings.html on 2026-08-24: Active green / Pending amber / Sold red, on the
        understanding that THE WORD CARRIES THE MEANING and the dot only reinforces it.
@@ -189,32 +192,106 @@
       letter-spacing: .1em; text-transform: uppercase; color: var(--pc-white);
       background: var(--pc-medium-blue); border-radius: var(--radius-pill); padding: 5px 12px; }
 
-    /* Price left, address right, on one baseline — the reference's arrangement.
-       They swap to a stack at 767, where the address can no longer sit beside a
-       40px price without one of them wrapping mid-phrase. */
-    .ld-pricerow{ display: flex; align-items: flex-end; justify-content: space-between;
-      gap: var(--space-6); flex-wrap: wrap; }
+    /* PRICE LEFT, PROPERTY RIGHT, ONE BASELINE (Kiron, 2026-08-26). The h1 moved up
+       from its own line under the price into the slot the street address used to hold
+       before the address moved out. Everything else that once shared this row is gone:
+       the per-acre line (the figure is in the icon row), the address (now in Location)
+       and the MLS number (off the page entirely).
+       align-items: baseline, NOT center — a 44px figure and a 30px heading centred
+       against each other look misaligned, because their optical weight sits at
+       different heights. Sitting them on a shared baseline is what makes the row read
+       as one line. flex-wrap so the heading drops under the price rather than
+       compressing it when the column is narrow. */
+    .ld-pricerow{ display: flex; align-items: baseline; justify-content: space-between;
+      gap: var(--space-5); flex-wrap: wrap; }
     .ld-price{ font-family: var(--font-serif); font-size: 44px; font-weight: 600;
-      color: var(--color-text); line-height: 1; margin: 0; }
-    .ld-perac{ font-family: var(--font-sans); font-size: 14px; color: var(--pc-navy);
-      margin: var(--space-2) 0 0; }
-    .ld-addr{ font-family: var(--font-sans); font-size: 16px; line-height: 1.5;
-      color: var(--color-text-muted); margin: 0; text-align: right; }
-    .ld-addr span{ display: block; font-size: var(--body-sm); color: var(--pc-navy); }
+      color: var(--color-text); line-height: 1; margin: 0; flex: none; }
+    /* 30px against the price's 44px, deliberately: the price is what the eye goes to
+       first, and the county and acreage are what NAME the page. Right-aligned so it
+       grows leftward off the rail rather than pushing the price around. */
+    .ld-head h1{ font-size: 30px; line-height: 1.15; margin: 0; text-align: right; }
 
-    /* h1 is the property, and it is BELOW the price on purpose: the price is what a
-       visitor's eye goes to first, but the county and acreage are what names the page. */
-    .ld-head h1{ font-size: 30px; margin: var(--space-5) 0 0; }
+    /* ---- the street address ----
+       IT LIVES IN THE LOCATION ACCORDION (Kiron, 2026-08-26), beside the map and the
+       directions — which is what an address is for on a listing page. It has been in
+       three places in two days: opposite the price, then the top of Property Overview
+       per field spec §3.4, now here. §3.4 is superseded on this point.
+       The class name still says "ov" (overview) from the middle stop. Left as-is
+       rather than renamed mid-session; rename it if this section is ever rebuilt. */
+    .ld-ovaddr{ font-family: var(--font-sans); font-size: 16px; line-height: 1.5;
+      color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+
+    /* ---- SAVE + SHARE ----
+       (Kiron, 2026-08-26) Field spec §3.1 puts both at the top of the photo carousel.
+       They are here instead, on their own right-aligned row between the sub nav and the
+       stat strip. §3.1 is superseded on placement; the two fields themselves are
+       unchanged.
+
+       WHY NOT ON THE PHOTOGRAPH, given the standing rule allows controls there: the
+       Browse Similar Properties cards at the foot of the page each carry a save star in
+       their photo's top-right corner. A fourth star in that same relative position, on
+       the big photograph, would have read as one more card rather than as the control
+       for THIS listing. Off the photo, the two are unambiguous.
+
+       THEY RIDE IN THE SUB NAV'S ROW, pinned right, and therefore travel with it — so
+       Save is reachable from anywhere on the page instead of only at the top. They were
+       briefly given their own row above the stat strip; sharing the pinned bar is
+       better and costs no height at all.
+       NOT AT THE END OF THE STAT STRIP, which is the space that looks free: that strip
+       is a column grid which always fills the width, so the "gap" after the last stat is
+       slack INSIDE that cell, about 60px — not room for two controls. More importantly
+       its item count is driven by PROPERTY TYPE: five for Farmland, seven for
+       Residential (Lot Size, Bedrooms, Bathrooms), plus Tracts on an auction. Anything
+       occupying a leftover cell works here and breaks on the next listing.
+
+       LABELLED, NOT BARE ICONS. The card's star is unlabelled because it repeats
+       eighteen times on the results page and the pattern gets learned; here there is one
+       of each, on the page where the decision actually happens. The word also settles
+       the saved state without relying on the fill — see below. */
+    .ld-actions{ display: flex; align-items: center; gap: var(--space-2); flex: none; }
+    .ld-action{ display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+      color: var(--pc-navy); background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-pill);
+      padding: 9px 16px; transition: background-color .15s ease, border-color .15s ease; }
+    .ld-action:hover{ background: var(--pc-light-blue); border-color: var(--pc-light-blue); }
+    .ld-action:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 2px; }
+    .ld-action svg{ width: 16px; height: 16px; flex: none; }
+    /* THE SAVED STATE IS CARRIED THREE WAYS, none of them hue: the star fills (a shape
+       change), the label changes word, and the pill takes the light-blue fill. Kiron is
+       red-green colourblind and the build's rule is that nothing is understood by colour
+       alone — here colour is the third signal, not the only one. Same filled/outline
+       star pair as .lc-fav on listings.html, so the two pages mean the same thing. */
+    .ld-action .star-fill{ display: none; }
+    .ld-action[aria-pressed="true"]{ background: var(--pc-light-blue);
+      border-color: var(--pc-light-blue); color: var(--pc-black); }
+    .ld-action[aria-pressed="true"] .star-fill{ display: block; }
+    .ld-action[aria-pressed="true"] .star-line{ display: none; }
+    @media (prefers-reduced-motion: reduce){ .ld-action{ transition: none; } }
 
     /* ---- Property Overview icon stats ----
        Moved here out of the headline (Kiron, 2026-08-25). Icon + text, per the field
-       spec. A wrapping grid rather than a divided strip: the set is variable — Farmland
-       shows four, Residential swaps in Lot Size, Bedrooms and Bathrooms, an auction adds
-       Tracts — and a row of rules between items only looks right at one item count. */
-    .ld-ovstats{ display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: var(--space-4) var(--space-5); list-style: none;
+       spec. These are now the FIRST VISIBLE THING in the section, since the "Property
+       Overview" heading above them is .sr-only as of 2026-08-26.
+       FIVE ACROSS, ONE ROW (Kiron, 2026-08-26). This was an auto-fit grid that wrapped
+       to whatever fitted; it is now an explicit five-column track. The count is not
+       arbitrary — Listing Type came off the row the same day, which left exactly five
+       for Farmland. OTHER PROPERTY TYPES CARRY A DIFFERENT NUMBER (Residential swaps
+       Total Acres for Lot Size and adds Bedrooms and Bathrooms; an auction adds
+       Tracts), so a template that can produce four or seven items needs this track
+       count driven by the item count rather than hardcoded at 5. */
+    .ld-ovstats{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-4); list-style: none;
       margin: 0 0 var(--space-6); padding: var(--space-5) 0;
-      border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+      /* NO BORDER-TOP (2026-08-26). This strip used to be ruled top and bottom, which
+         was right while a visible "Property Overview" heading sat between it and the
+         jump nav. That heading is .sr-only now, and .sr-only is position: absolute, so
+         it takes NO SPACE IN FLOW — the strip's top rule landed directly against the
+         jump nav's border-bottom and read as a doubled hairline. The nav's rule came off
+         too, later the same day, so the strip is now open at the top by design and only
+         its bottom rule is drawn.
+         ⚠ If the heading is ever made visible again, put this border back with it. */
+      border-bottom: 1px solid var(--color-border); }
     .ld-ovstats li{ display: flex; align-items: center; gap: var(--space-3); }
     .ld-ovstats svg{ width: 26px; height: 26px; flex: none; color: var(--pc-medium-blue); }
     .ld-ovstats .n{ display: block; font-family: var(--font-serif); font-size: 22px;
@@ -245,9 +322,23 @@
        z-index 20 keeps it over the prose and under the header (45). --navH is measured
        by JS on load and resize — see the sync near the top of the script block; without
        it this bar would pin to a stale height and leave a gap or overlap the nav. */
-    .ld-jump{ position: sticky; top: var(--navH); z-index: 20;
-      border-bottom: 1px solid var(--color-border);
-      margin-top: var(--space-6); background: var(--pc-white); }
+    /* NO BORDER-BOTTOM (Kiron, 2026-08-26, for consistency with the rules removed
+       elsewhere on the page). The bar still needs its opaque background: it is sticky,
+       so without a fill the prose would scroll THROUGH the links rather than under them.
+       Losing the rule costs the pinned bar its only edge against the content passing
+       beneath it — the white fill is now the whole separation. If that ever reads as
+       ambiguous while scrolling, a shadow rather than a rule is the way back
+       (box-shadow: 0 1px 0 var(--color-border) applied only once the page is scrolled). */
+    /* THE STICKY LIVES ON .ld-subbar, not on the nav — the bar is the nav PLUS the
+       Save/Share pair, and both have to pin together. --ld-jump-h below is still the
+       right height: the buttons are 37px and the links are taller, so the links set the
+       bar's height and the pair centres inside it. */
+    .ld-subbar{ position: sticky; top: var(--navH); z-index: 20;
+      margin-top: var(--space-6); background: var(--pc-white);
+      display: flex; align-items: center; gap: var(--space-4); }
+    /* Takes the slack so the buttons pin right. min-width: 0 lets the link list shrink
+       rather than forcing the bar wider than the column. */
+    .ld-jump{ flex: 1 1 auto; min-width: 0; }
     .ld-jump-inner{ display: flex; flex-wrap: wrap; gap: var(--space-2); }
     .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 12px;
       font-family: var(--font-sans); font-size: 14px; font-weight: 500;
@@ -266,11 +357,14 @@
       display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8);
       align-items: start; }
 
-    /* Anchor targets clear the header AND the sub nav pinned beneath it. Miss the
+    /* Anchor targets clear the header AND the sub bar pinned beneath it. Miss the
        second and every jump link lands its own section heading underneath the bar that
-       sent you there. --ld-jump-h is the bar's own height (14px padding x2 + 20px line
-       + 1px border); keep it in step if the bar's padding or type size changes. */
-    :root{ --ld-jump-h: 49px; }
+       sent you there.
+       THIS VALUE IS A PRE-JS FALLBACK ONLY — the script block measures the bar on load
+       and resize and overwrites it, exactly as it does for --navH. Do not tune it by
+       hand: it was 49px against a 53px bar, which is the kind of drift measuring fixes
+       permanently. */
+    :root{ --ld-jump-h: 53px; }
     /* details as well as section: the accordions below are <details>, and a jump link
        has to land one of those the same way it lands a plain section. */
     .ld-main > section, .ld-main > details{
@@ -283,14 +377,25 @@
        find-in-page reveal for free, and it still works if the JS on this page fails.
        There is no aria bookkeeping to get wrong and no state for a script to lose.
 
-       THEY START CLOSED (Kiron, 2026-08-25). All of them, for now.
+       THEY ALL START CLOSED. Stated 2026-08-25, actually true from 2026-08-26 — Property
+       Details and Downloads still carried the `open` attribute until Kiron asked for the
+       page to load with every section shut. Do not re-add `open` to one of them without
+       deciding it for all five; a single pre-opened section reads as the important one.
 
        THE ANCHOR SITS ON THE <details>, i.e. on the accordion's header — which is the
        whole reason the sub nav needs no special handling. Kiron, 2026-08-25: "The sub
        nav will jump to the header of the accordion. Should never need to jump to a
        section within an accordion." The header exists whether the section is open or
        shut, so a jump link resolves either way and never has to open anything. */
-    .ld-acc{ padding-top: var(--space-8); margin-top: var(--space-8);
+    /* SPACING HALVED (Kiron, 2026-08-26: "a lot of white space there"). This was
+       64px + 64px, so two closed accordions sat 128px apart with a hairline floating in
+       the middle of the gap — on a page with five of them that is most of a screen of
+       nothing. Now 32 + 32 = 64px.
+       THE TWO VALUES MUST STAY EQUAL. The margin is above the rule and the padding
+       below it, so the rule only reads as a divider between two sections while they
+       match; make one larger and the hairline drifts toward one heading and starts
+       looking like it belongs to that section rather than separating them. */
+    .ld-acc{ padding-top: var(--space-6); margin-top: var(--space-6);
       border-top: 1px solid var(--color-border); }
     .ld-acc > summary{ display: flex; align-items: center; justify-content: space-between;
       gap: var(--space-4); cursor: pointer; list-style: none; padding: 0; }
@@ -311,9 +416,6 @@
     /* The open panel needs its own top gap; summary has none of its own. */
     .ld-acc-body{ padding-top: var(--space-5); }
     @media (prefers-reduced-motion: reduce){ .ld-acc-chev{ transition: none; } }
-    .ld-eyebrow{ font-family: var(--font-sans); font-size: var(--label); font-weight: 400;
-      letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-subtle);
-      margin: 0 0 var(--space-3); }
     /* NO MEASURE CAP (Kiron, 2026-08-25: "fully fill the proper space with text").
        This is a deliberate exception to the build's 45-75ch rule, and it is a real
        trade: at the 932px column width a 16px line runs to roughly 95 characters, past
@@ -338,15 +440,21 @@
     .ld-parcels{ font-size: var(--body-sm) !important; }
 
     /* ---- photo gallery → lightbox ---- */
-    .ld-gallery{ display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2);
-      margin: 0 0 var(--space-5); }
-    .ld-shot{ aspect-ratio: 4 / 3; overflow: hidden; cursor: pointer; padding: 0;
-      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
-      background: var(--pc-light-blue); }
-    .ld-shot img{ width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
-    .ld-shot:hover img{ transform: scale(1.05); }
-    .ld-shot:focus-visible{ outline: 3px solid var(--pc-medium-blue); outline-offset: 2px; }
-    @media (prefers-reduced-motion: reduce){ .ld-shot img{ transition: none; } .ld-shot:hover img{ transform: none; } }
+/* THE .ld-gallery / .ld-shot PHOTOGRAPH GRID IS GONE (Kiron, 2026-08-26) — it
+       repeated the carousel's ten images inside Property Details. Its rules are deleted
+       rather than left dead. Note the LIGHTBOX used to build its photo list by querying
+       those tiles (.xlb-open); it now reads the PHOTOS array directly, so the carousel
+       still opens a full gallery with nothing on the page to source it from. */
+
+    /* Label/value pairs, one per line. A <dl> rather than paragraphs because that is
+       what these are — a term and its value — and it gives the label column something
+       to align on without a table. */
+    .ld-fields{ display: grid; grid-template-columns: max-content minmax(0, 1fr);
+      gap: var(--space-2) var(--space-4); margin: 0; font-family: var(--font-sans);
+      font-size: var(--body-sm); line-height: 1.6; }
+    .ld-fields dt{ font-weight: 600; color: var(--pc-black); }
+    .ld-fields dt::after{ content: ":"; }
+    .ld-fields dd{ margin: 0; color: var(--color-text-muted); }
 
     /* ---- downloads: a clean text list, no file-type icon tiles ---- */
     .ld-dl-head{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
@@ -361,6 +469,16 @@
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
       column-gap: var(--space-7); }
     .ld-dl li{ border-bottom: 1px solid var(--color-border); }
+    /* THE LAST ROW DRAWS NO RULE (2026-08-26). With Downloads open, the final row's
+       border sat 48px above the next accordion's border-top and read as a doubled line.
+       A trailing rule under the last item of a list is redundant anyway — the section
+       divider immediately below it is already the boundary.
+       ⚠ THIS ASSUMES AN EVEN NUMBER OF DOWNLOADS in the two-column grid: -n+2 strips the
+       last TWO items, which is the last ROW only while the count is even (six here). On
+       an ODD count the second-to-last item sits in the row ABOVE and would lose its rule
+       wrongly. A CMS-driven list needs the last row marked in the markup — a class on
+       the final row's items, or a :nth-child rule generated from the count. */
+    .ld-dl li:nth-last-child(-n+2){ border-bottom: 0; }
     .ld-dl a{ display: flex; align-items: baseline; gap: var(--space-3);
       padding: 12px 2px; font-family: var(--font-sans); font-size: 15px;
       color: var(--color-text); text-decoration: none; }
@@ -385,54 +503,65 @@
     #ld-terms .ld-copy b{ font-weight: 600; }
     #ld-terms a{ color: var(--pc-medium-blue); }
 
-    /* ======================= RAIL: form scrolls, card + agent lock =======================
-       (Kiron, 2026-08-25) The whole rail used to be one sticky block. Now it is split:
-       the enquiry form scrolls away like normal content, and the listing card and the
-       agent below it lock and follow you down the page.
+    /* ======================= RAIL: agents scroll, form locks =======================
+       (Kiron, 2026-08-26) THE RAIL IS NOW TWO BLOCKS, AGENTS FIRST. The dark Listing
+       Facts card came off this page entirely — see the note where its rules used to be
+       — and the agent card and the enquiry form swapped places, so the rail reads
+       agents → form instead of form → facts → agents.
 
-       TWO THINGS MAKE THAT WORK, and both are easy to miss:
-       1. .ld-aside is NO LONGER sticky itself — a sticky element cannot contain another
-          sticky element that outlives it.
-       2. align-self: stretch. The grid sets align-items:start, which sizes the aside to
-          its own content — roughly a screen and a half. A sticky child can only travel
-          inside its parent's box, so the card would have unstuck partway down the terms
-          section and scrolled off. Stretching the aside to the full row height gives it
-          the whole page to travel. */
+       ONLY THE FORM LOCKS (Kiron, 2026-08-26). Locking the WHOLE rail was tried and
+       reverted the same day, and the reason is worth keeping so it is not tried again:
+       sticky pins an element's TOP, so a rail taller than the window stops moving with
+       its lower part below the fold and unreachable. Measured, this rail is 862px and
+       needs a 1027px viewport; a 1080p screen gives about 981px, so it never quite
+       fitted, and capping it with `overflow-y: auto` bought reachability at the price of
+       a scrollbar inside the rail. Kiron's call: let the agent card scroll away and lock
+       the form.
+
+       WHY THE FORM AND NOT THE AGENTS: it is the LOWER of the two blocks, and that is
+       the whole constraint. A sticky element does not take its siblings with it, so if
+       the agent card pinned, the form would scroll up underneath it. The bottom block is
+       the only one that can lock without colliding. (It is also the better half to keep
+       on screen — the form is the action — but that is a bonus, not the reason.)
+
+       TWO THINGS MAKE IT WORK, both easy to break:
+       1. align-self: STRETCH. The grid sets align-items: start, which would size the
+          aside to its own content — roughly a screen. A sticky child can only travel
+          inside its parent's box, so the form would unstick partway down the page and
+          scroll off. Stretching the aside to the full row height gives it the whole
+          column to travel. ⚠ This is the OPPOSITE of what a sticky aside would need
+          (start), which is exactly what the reverted version used. Changing one without
+          the other silently kills the lock.
+       2. The form has to stay shorter than the viewport — it is ~480px, so it does, with
+          room to spare. No height cap is needed here and none should be added; that was
+          only required when the whole rail locked. */
     .ld-aside{ align-self: stretch; display: flex; flex-direction: column; gap: var(--space-5); }
-    .ld-sticky{ position: sticky; top: calc(var(--navH) + var(--space-5));
-      display: flex; flex-direction: column; gap: var(--space-5); }
 
-    /* ---- listing card. TYPE-SPECIFIC: For Sale shows price and per-acre; the auction
-       page swaps this whole card for date / time / venue / method and a bid button.
-       It does NOT repeat the big price from under the photograph as a headline — it
-       carries the figure inside the fact list, where it reads as one fact among the
-       others rather than as the same number twice on one screen. ---- */
-    .ld-factcard{ background: var(--pc-black); color: var(--pc-white);
-      border-radius: var(--radius-lg); padding: var(--space-6); }
-    .ld-factcard h2{ color: var(--pc-white); font-size: var(--h4-size); margin: 0 0 var(--space-4); }
-    .ld-facts{ list-style: none; margin: 0; padding: 0; }
-    .ld-facts li{ display: flex; justify-content: space-between; gap: var(--space-4);
-      font-family: var(--font-sans); font-size: 14px; padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,.16); }
-    .ld-facts li:last-child{ border-bottom: 0; }
-    .ld-facts .k{ color: var(--pc-light-blue); }
-    .ld-facts .v{ font-weight: 600; text-align: right; }
-    /* The card carried "Request Information" and "Schedule a Showing"; both came off it
-       on 2026-08-25. The card is a fact list now, and the enquiry form directly above it
-       in the rail is the action. Their rules (.ld-asidebtns / .ld-btn-bright /
-       .ld-btn-outline) went with them rather than being left as dead weight. */
+    /* ---- THE DARK "LISTING FACTS" CARD IS GONE FROM THIS PAGE ----
+       (Kiron, 2026-08-26) Removed FOR SALE LISTINGS ONLY. It is still wanted on the
+       AUCTION pages, where the rail card is the auction detail card of field spec
+       §3.10 — type, method, date, venue, bid button — and carries information that
+       exists nowhere else on the page. On a For Sale listing it was a second copy of
+       Property Overview: price, per acre, acres, cropland, productivity and taxes were
+       all already in the icon row a screen above it.
+       Its rules (.ld-factcard / .ld-facts / .k / .v) were deleted rather than left
+       commented out. Rebuild them on the auction page against that card's own content;
+       do not copy this page's fact list back in. Note this also decides §6.2 of
+       developer-listing-detail.md, which had kept the card on non-auction listings. */
 
-    /* ---- "More about this property" enquiry form ----
-       Replaces the dark price card that used to head the rail. The price moved under
-       the photograph where the reference puts it, so a second copy in the rail would
-       be the same number twice on one screen; what the rail is for is getting in
-       touch. Outlined white card, not a filled dark one, so it reads as a form rather
-       than a banner. */
-    /* scroll-margin because the card's "Request Information" button scrolls back UP to
-       this form. Only the header has to be cleared, not the map tab or the jump bar:
+    /* ---- "Have A Question?" enquiry form ----
+       PC SOFT WHITE FILL (Kiron, 2026-08-26), matching the agent card above it, so the
+       two rail cards read as one column of panels lifted off the white page rather than
+       as two outlines drawn on it. The 1px border stays: #f3fbfe against #fff is about
+       a 1.03:1 step, which is a tint rather than an edge, and the border is what
+       actually bounds the card. The INPUTS stay pure white for the same reason in
+       reverse — a field has to look recessed against the card it sits in.
+       scroll-margin because "Request Information" elsewhere on the page scrolls back UP
+       to this form. Only the header has to be cleared, not the map tab or the jump bar:
        the tab is centred over the left column and neither reaches this one. */
-    .ld-form{ border: 1px solid var(--color-border); border-radius: var(--radius-lg);
-      background: var(--pc-white); padding: var(--space-5);
+    .ld-form{ position: sticky; top: calc(var(--navH) + var(--space-5));
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+      background: var(--pc-soft-white); padding: var(--space-5);
       scroll-margin-top: calc(var(--navH) + var(--space-5)); }
     .ld-form h2{ font-size: var(--h3-size); margin: 0 0 var(--space-4); }
     .ld-field{ margin-bottom: var(--space-3); }
@@ -445,26 +574,52 @@
       font-size: var(--body); color: var(--color-text); background: var(--pc-white);
       border: 1px solid var(--color-border); border-radius: var(--radius-sm);
       padding: 11px 13px; }
+    /* Back to 96px. It was briefly 80px to squeeze the whole-rail lock onto a 1080p
+       screen; that lock is gone, so the reason for the squeeze is gone with it. */
     .ld-field textarea{ min-height: 96px; resize: vertical; line-height: 1.6; }
     .ld-field input::placeholder, .ld-field textarea::placeholder{ color: var(--pc-navy); opacity: .65; }
     .ld-field input:focus-visible, .ld-field textarea:focus-visible{
       outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
     .ld-names{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
     .ld-form .btn{ width: 100%; margin-top: var(--space-2); }
+    /* THE NOTE UNDER THE BUTTON STAYS (Kiron, 2026-08-26). It came off briefly and went
+       straight back: it is a PRIVACY COMMITMENT on a form that collects a name and an
+       email, and that belongs at the point of collection, not only in a policy page
+       nobody opens. Wording tightened to one sentence by Kiron the same day. Do not
+       quietly drop it in the live build — if the wording changes again, the commitment
+       still has to be stated here. */
     .ld-formnote{ font-family: var(--font-sans); font-size: 12px; line-height: 1.55;
       color: var(--pc-navy); margin: var(--space-3) 0 0; }
     .ld-formnote a{ color: var(--pc-medium-blue); }
 
-    /* ---- agent card ---- */
+    /* ---- agent card ----
+       (Kiron, 2026-08-26) Three things came off this card and one changed shape.
+       OFF: the "Contact the Land Agents" eyebrow above it, and each agent's role line
+       ("Senior Land Agent"). The card is in a rail headed by a contact form, next to two
+       photographs and two phone numbers — it did not need a label saying what it was,
+       and the role was the same string twice.
+       SHAPE: the NAME NOW SPANS THE CARD, with the photograph left and the contact
+       details right BENEATH it, instead of the name being trapped in the narrow column
+       beside the photo. That column was ~180px, which is why the name had to be small;
+       across the full card it has ~290px and can carry real size. Built as a two-column
+       grid with the name set to `grid-column: 1 / -1` rather than as a separate flex row,
+       so the photo and the details still share one alignment context.
+       FILL: PC Soft White, matching the form below it. */
     .ld-agentcard{ border: 1px solid var(--color-border); border-radius: var(--radius-lg);
-      background: var(--pc-white); padding: var(--space-5); }
-    .ld-agent{ display: flex; gap: var(--space-4); padding: var(--space-4) 0 0; }
-    .ld-agent + .ld-agent{ border-top: 1px solid var(--color-border); margin-top: var(--space-4); }
-    .ld-agent img{ width: 68px; height: 68px; border-radius: 50%; object-fit: cover; flex: none;
+      background: var(--pc-soft-white); padding: var(--space-5); }
+    /* 68px photo + 16px gap; the details take whatever is left. minmax(0,1fr) rather than
+       1fr so a long email wraps instead of forcing the track wider than the card. */
+    .ld-agent{ display: grid; grid-template-columns: 68px minmax(0, 1fr);
+      gap: var(--space-2) var(--space-4); align-items: start; }
+    .ld-agent + .ld-agent{ border-top: 1px solid var(--color-border);
+      margin-top: var(--space-5); padding-top: var(--space-5); }
+    .ld-agent img{ width: 68px; height: 68px; border-radius: 50%; object-fit: cover;
       background: var(--pc-light-blue); }
-    .ld-agent-role{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
-      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); margin: 0 0 2px; }
-    .ld-agent h4{ margin: 0 0 var(--space-2); }
+    /* THE NAME SPANS BOTH TRACKS — this is the rule that does it. 22px serif: large
+       enough to be the card's title now that it has the width, and a step below the
+       24px .lc-place so it does not compete with the headings on the page. */
+    .ld-agent h4{ grid-column: 1 / -1; font-family: var(--font-serif); font-weight: 500;
+      font-size: 22px; line-height: 1.2; margin: 0; }
     .ld-agent p{ font-family: var(--font-sans); font-size: 13px; line-height: 1.7;
       color: var(--color-text-muted); margin: 0; }
     /* State licence number, per the field spec. ONLY THE STATE THE LISTING IS IN
@@ -477,28 +632,51 @@
     .ld-agent a{ color: var(--pc-medium-blue); text-decoration: none; }
     .ld-agent a:hover{ text-decoration: underline; }
 
-    /* ======================= SIMILAR PROPERTIES ======================= */
-    .ld-similar{ max-width: var(--site); margin: var(--space-9) auto 0;
-      padding: var(--space-8) var(--rail) 0; border-top: 1px solid var(--color-border); }
+    /* ====================== BROWSE SIMILAR PROPERTIES ======================
+       (Kiron, 2026-08-26) The bespoke .ld-scard is gone. This section used to carry
+       its own small card — photo, price, county, "View listing →" — a second, simpler
+       listing card living three clicks from the real one. It now uses THE listing card.
+
+       THE CARD'S RULES ARE NOT HERE. Every .lc-* rule lives in pc.css, promoted out of
+       listings.html on 2026-08-26 so the two pages share one copy instead of two that
+       drift. ⚠ DO NOT ADD A .lc-* RULE TO THIS BLOCK: this <style> loads after pc.css
+       and would silently win, which is the drift the move exists to prevent. Change the
+       card in pc.css, and put any page-specific difference there too, as a variant.
+       What is below is only the BAND the cards sit in.
+
+       The premium variants (.lc-pic / .lc-premium) are in pc.css but deliberately
+       unused here: a promoted listing is a results-page concept, and three similar
+       properties at the foot of a detail page are peers — one wearing the premium
+       border would claim a ranking this section does not have.
+
+       THE BAND. Kiron asked for colour behind this section to separate it from the
+       listing itself, starting with PC Light Blue. It is FULL-BLEED, because a tinted
+       panel stopping at the content rail would read as a fourth card rather than as a
+       change of subject. The cards stay white on the tint, which is why their resting
+       shadow matters more here than it did on white.
+
+       NO 100vw TRICK IS NEEDED, and that is worth knowing before anyone adds one:
+       <main class="listing-body"> has no max-width of its own — every section inside it
+       constrains ITSELF — so this section is already the full window. It bleeds simply
+       by not constraining itself, and the inner wrapper carries the rail instead. The
+       usual `margin: calc(50% - 50vw); width: 100vw` pair would have looked the same and
+       introduced a horizontal scrollbar, since 100vw includes the vertical scrollbar's
+       width and 100% does not.
+       The border-top the section used to carry is gone: the colour change is the
+       separation now, and a rule on top of it would be a second one.
+
+       PADDING HALVED (Kiron, 2026-08-26): the tint carried 48px above the heading and
+       64px below the cards, which read as a gap with cards in it rather than a band.
+       Both figures are literally halved — 24px / 32px, the next two steps down the
+       spacing scale. They are deliberately NOT equal: the top measures to the heading's
+       box, which has its own line-height above the cap, while the bottom measures to a
+       hard card edge, so matching numbers would look top-heavy. */
+    .ld-similar{ background: var(--pc-light-blue);
+      margin-top: var(--space-9); padding: var(--space-5) 0 var(--space-6); }
+    /* The band bleeds; its CONTENTS stay on the same rail as everything above them. */
+    .ld-similar-in{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
     .ld-similar h2{ margin: 0 0 var(--space-5); }
-    .ld-scards{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
-    .ld-scard{ display: block; text-decoration: none; overflow: hidden;
-      border: 1px solid var(--color-border); border-radius: var(--radius-lg);
-      background: var(--pc-white); transition: border-color .15s ease, box-shadow .15s ease; }
-    .ld-scard:hover{ border-color: var(--pc-medium-blue); box-shadow: 0 8px 22px rgba(7,22,44,.10); }
-    .ld-scard:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 2px; }
-    /* 4:3 like every other photograph on the page — all sources are 800x600. */
-    .ld-scard-img{ aspect-ratio: 4 / 3; background: var(--pc-light-blue); }
-    .ld-scard-img img{ width: 100%; height: 100%; object-fit: cover; }
-    .ld-scard-body{ padding: var(--space-4) var(--space-5) var(--space-5); }
-    .ld-scard-price{ font-family: var(--font-serif); font-size: 22px; font-weight: 600;
-      color: var(--color-text); margin: 0 0 2px; }
-    .ld-scard-loc{ font-family: var(--font-sans); font-size: 14px; color: var(--color-text-muted);
-      margin: 0 0 var(--space-3); }
-    .ld-scard-more{ font-family: var(--font-sans); font-size: 14px; font-weight: 500;
-      color: var(--pc-medium-blue); }
-    .ld-note{ font-family: var(--font-sans); font-size: var(--body-sm); color: var(--pc-navy);
-      margin: var(--space-5) 0 0; }
+
 
     /* ======================= LIGHTBOX ======================= */
     .xlb[hidden]{ display: none; }
@@ -527,7 +705,6 @@
     @media (max-width: 1279px){
       .ld-body{ grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-6); }
       .ld-media{ grid-template-columns: minmax(0, 1fr) 170px; }
-      .ld-gallery{ grid-template-columns: repeat(4, 1fr); }
       .ld-price{ font-size: 38px; }
     }
     @media (max-width: 1023px){
@@ -539,18 +716,15 @@
       .ld-body{ grid-template-columns: 1fr; }
       .ld-aside{ align-self: auto; margin-top: var(--space-8); }
       /* Nothing locks in one column: there is no second column for it to sit beside,
-         so a pinned card would just cover the prose. */
-      .ld-sticky{ position: static; }
-      .ld-scards{ grid-template-columns: repeat(2, 1fr); }
+         so a pinned form would just cover the prose. */
+      .ld-form{ position: static; }
     }
     @media (max-width: 767px){
-      .ld-gallery{ grid-template-columns: repeat(3, 1fr); }
-      /* Price and address can no longer share a line without one wrapping mid-phrase. */
-      .ld-pricerow{ flex-direction: column; align-items: flex-start; gap: var(--space-4); }
-      .ld-addr{ text-align: left; }
+      /* Five 26px icons and five uppercase labels do not fit across a tablet. Three
+         and two beats five columns of one word each. */
+      .ld-ovstats{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .ld-price{ font-size: 34px; }
       .ld-head h1{ font-size: 26px; }
-      .ld-scards{ grid-template-columns: 1fr; }
       .ld-mapbox{ height: 320px; }
     }
     @media (max-width: 639px){
@@ -560,9 +734,9 @@
       .ld-media{ grid-template-columns: 1fr; }
       .ld-thumbs{ grid-template-rows: none; grid-template-columns: repeat(3, 1fr); }
       .ld-thumb{ aspect-ratio: 4 / 3; }
-      .ld-gallery{ grid-template-columns: repeat(2, 1fr); }
       .ld-jump-inner{ flex-wrap: nowrap; overflow-x: auto; }
       .ld-jump a{ white-space: nowrap; }
+      .ld-ovstats{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
 </head>
@@ -675,41 +849,99 @@
              carries none, so nothing is invented to fill it. The .ld-flag rule stays
              in the CSS for the listings that do have one. -->
         <div class="ld-head reveal">
+          <!-- Status left, listing number right, one line. The status is the status
+               only — no listing type after it (Kiron, 2026-08-26). -->
           <div class="ld-statusline">
-            <p class="ld-status"><span class="ld-dot" aria-hidden="true"></span>Active &middot; Land for sale</p>
+            <p class="ld-status"><span class="ld-dot" aria-hidden="true"></span>Active</p>
+            <p class="ld-listingid">Listing #19651</p>
           </div>
 
+          <!-- PRICE AND H1 SHARE A LINE (Kiron, 2026-08-26) — price left, the property
+               right, on one baseline. The h1 used to sit on its own line under the price;
+               it takes the slot the address used to occupy before the address moved.
+               STILL AN <h1> and still the page's heading despite being second in the
+               visual row: the DOM order is price then heading, which is what the old
+               stacked version had too, so nothing changed for a screen reader. -->
           <div class="ld-pricerow">
-            <div>
-              <p class="ld-price">$2,334,935</p>
-              <p class="ld-perac">$14,500 per acre</p>
-            </div>
-            <p class="ld-addr">2848 370th Avenue, Graettinger, IA 51342
-              <span>Listing #19651 &middot; MLS 747609</span></p>
-          </div>
+            <p class="ld-price">$2,334,935</p>
+            <!-- COUNTY AND STATE ONLY (Kiron, 2026-08-26). The acreage came off: 161.03
+                 is the first figure in the icon row a few lines below, so the h1 was
+                 leading with a number the page repeats immediately.
 
-          <h1>161.03 Acres M/L &middot; Palo Alto County, IA</h1>
+                 ⚠ THIS IS NOT THE PRODUCTION H1 (Kiron, 2026-08-26). "Palo Alto County,
+                 IA" is what the LAYOUT wants in this slot; it is not what the h1 should
+                 SAY on the live site. The h1 is the strongest on-page signal a listing
+                 has, and a bare county-and-state string is close to worthless for it —
+                 it is not what anyone searches, and every listing in the county would
+                 ship the same one. The live h1 needs a CMS-generated title built for
+                 search, and the visible text and the SEO title are the SAME ELEMENT
+                 here — do not solve this by hiding a second h1 or stuffing keywords into
+                 a <meta>. See developer-listing-detail.md for what the title has to
+                 carry. -->
+            <h1>Palo Alto County, IA</h1>
+          </div>
         </div>
 
-        <!-- ---- JUMP NAV — inside the column, under the headline. ---- -->
+        <!-- ---- SUB BAR: jump nav + Save/Share, pinned together ----
+             (Kiron, 2026-08-26) The two controls SHARE THE SUB NAV'S ROW and travel with
+             it, so Save is reachable from anywhere on the page rather than only at the
+             top. That is the whole point of the move: on a page this long, a save
+             control that scrolls away is one you have to hunt for.
+
+             THE WRAPPER IS WHY THE NAV IS STILL A <nav>. Save and Share are not
+             navigation, so they must not sit inside <nav aria-label="Jump to section"> —
+             a screen reader listing that landmark would announce two buttons that jump
+             nowhere. .ld-subbar is a plain div that carries the sticky, the background
+             and the margin; the <nav> is now just the link list inside it. Do not
+             "simplify" this by moving the buttons into the nav. -->
+        <div class="ld-subbar">
         <nav class="ld-jump" aria-label="Jump to section">
           <div class="ld-jump-inner">
             <a href="#ld-overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Overview</a>
-            <a href="#ld-details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Property Details</a>
-            <a href="#ld-map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/></svg>Map</a>
+            <a href="#ld-details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Details</a>
+            <a href="#ld-map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/></svg>Location</a>
             <a href="#ld-downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Downloads</a>
-            <a href="#ld-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Video</a>
-            <a href="#ld-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Terms of Sale</a>
+            <a href="#ld-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Videos</a>
+            <a href="#ld-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Terms</a>
           </div>
         </nav>
+        <!-- SAVE: aria-pressed, not a link and not a checkbox. A toggle button is the
+             correct role for "on/off, applies immediately", and it is what the results
+             cards already use, so assistive tech announces the two the same way.
+             ⚠ VISUAL ONLY. The pressed state is the whole behaviour here. Per field
+             spec §3.1 the real control writes to customer preferences and prompts the
+             login screen when nobody is signed in — so the live build must NOT let
+             this look saved to a logged-out visitor, and the state has to match the
+             same listing's star on listings.html. -->
+        <div class="ld-actions">
+          <button class="ld-action" type="button" id="ldSave" aria-pressed="false">
+            <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            <svg class="star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            <span id="ldSaveLabel">Save</span>
+          </button>
+          <!-- SHARE opens a Facebook / LinkedIn / Email sheet per §3.1. That panel is
+               NOT BUILT — this button is inert, like every other form control in this
+               mockup. It is here so the pair can be judged together: placing Save on
+               its own would mean rebuilding this row when Share arrives. -->
+          <button class="ld-action" type="button" id="ldShare">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+            <span>Share</span>
+          </button>
+        </div>
+        </div>
 
         <section id="ld-overview" class="reveal">
           <!-- NOT AN ACCORDION, and the only section on the page that is not
                (Kiron, 2026-08-25). The overview is what the page is for: the stats
                and the description should never be a click away. -->
-          <h2>Property Overview</h2>
-          <!-- No eyebrow above this heading (Kiron, 2026-08-25): the county and the
-               listing type are both already in the headline block above. -->
+          <!-- THE HEADING IS VISUALLY HIDDEN, NOT DELETED (Kiron, 2026-08-26: remove
+               "Property Overview" as a header). It stays in the accessibility tree for
+               two reasons that both still apply: the jump nav has an "Overview" link
+               pointing at this section, and without an h2 the page would run h1 -> h3
+               (the tract heading inside Details), skipping a level. Sighted readers get
+               the same result — no visible heading — and nothing else is lost. -->
+          <h2 class="sr-only">Property Overview</h2>
+
 
           <!-- ICON STATS. Which of these appear is driven by PROPERTY type, not by sale
                type: Total Acres and Tillable Acres are Farmland / Building Site /
@@ -729,19 +961,28 @@
             </li>
             <li>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-              <span><span class="n">149.72</span><span class="l">FSA cropland acres</span></span>
+              <!-- "Tillable acres" (Kiron, 2026-08-26), which is also the field spec's
+                   name for this slot (§3.4). The figure itself is #19651's FSA cropland
+                   number — the listing's description still says so in full, so the page
+                   is not claiming a different measurement, just labelling it the way the
+                   rest of the site does. -->
+              <span><span class="n">149.72</span><span class="l">Tillable acres</span></span>
             </li>
-            <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
-              <span><span class="n">84.6</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M5 8c3 0 5 1.5 7 4"/><path d="M19 8c-3 0-5 1.5-7 4"/><path d="M7 15c2 0 3.5 1 5 3"/></svg>
-              <span><span class="n">Farmland</span><span class="l">Listing type</span></span>
-            </li>
+            <!-- PER ACRE AND SOIL PRODUCTIVITY SWAPPED (Kiron, 2026-08-26): the two
+                 money figures now sit together in the middle-and-right of the row
+                 (per acre, then net taxes) with the two acreages on the left, so the
+                 rating is not wedged between them. -->
             <li>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.2 1.2-4.2 3s1.6 2.6 4.4 3.2c2.9.6 4.6 1.5 4.6 3.4 0 2-1.9 3.4-4.8 3.4-2.4 0-4.2-1-4.9-2.7"/></svg>
               <span><span class="n">$14,500</span><span class="l">Per acre</span></span>
+            </li>
+            <!-- NO "LISTING TYPE" ITEM (Kiron, 2026-08-26). It was the one entry here
+                 whose value was a word rather than a figure, and the type is already
+                 stated in the h1 and in the breadcrumb above it. Removing it is what
+                 leaves exactly five for a Farmland listing. -->
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
+              <span><span class="n">84.6</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
             </li>
             <li>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
@@ -749,12 +990,20 @@
             </li>
           </ul>
 
-          <p class="ld-copy">Peoples Company is pleased to offer 161.03 gross acres m/l of high-quality Palo Alto County farmland located approximately five miles west of Graettinger, Iowa, in Section 10 of Lost Island Township. This productive tract offers a strong combination of proven soils, drainage improvements, and a desirable location in one of Palo Alto County's most well-regarded farming areas.</p>
-          <p class="ld-copy">The farm includes 149.72 FSA cropland acres classified as NHEL (Non-Highly Erodible Land). The tillable acres carry an impressive CSR2 soil rating of 84.6, including high producing soil types of Clarion loam, Nicollet clay loam, and Webster clay loam. The farm's favorable topography promotes strong natural drainage, carrying water off the property without taking on runoff from neighboring fields. The farm falls just outside and to the north of Drainage District 89 and just outside and to the west of Drainage District 147. Please see the "Drainage Map" attachment for more information. No county tile is found on the farm, but private tile has been installed. Contact the Listing Agents for more details.</p>
-          <p class="ld-copy">Also included within the sale of this farm is an approximately 6-acre wooded acreage site that includes a 48' x 72' steel utility shed in good condition.</p>
-          <p class="ld-copy">Access to the farm is provided from the west off paved 370th Avenue/County Highway N26, from the east off 375th Avenue, and also through a private field road labeled as 290th Street, which bisects the farm into a north and south half. Local grain markets are located nearby with Pro Cooperatives in Wallingford and Terril, and a POET Bioprocessing Plant in Emmetsburg.</p>
-          <p class="ld-copy">The property is leased for the 2026 growing season. The current farm lease has been terminated, and the farm will be available for the 2027 growing season.</p>
-          <p class="ld-copy">Whether you are an investor seeking a dependable land asset, a buyer completing a 1031 exchange, or a producer looking to expand your operation, this tract presents an excellent opportunity to acquire productive farmland with established improvements in a sought-after Palo Alto County location.</p>
+          <!-- LOREM IPSUM PLACEHOLDER (Kiron, 2026-08-26). This was #19651's real
+               six-paragraph description, verbatim from the listing. It is filler now
+               because what this block is here to show is how a long description SITS in
+               the column, not what it says.
+               ⚠ The figures around it are still REAL — 161.03 acres, 149.72 tillable,
+               CSR2 84.6, $14,500 an acre, the price and the address all come from the
+               listing. So the page now mixes real data with placeholder prose, which is
+               fine for a layout review and is exactly the kind of thing that has to be
+               swept before anyone outside the team sees it. See the pre-launch checklist
+               in DEVELOPER-NOTES.md. -->
+          <p class="ld-copy">Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Donec ullamcorper nulla non metus auctor fringilla. Maecenas sed diam eget risus varius blandit sit amet non magna. Aenean lacinia bibendum nulla sed consectetur, nullam quis risus eget urna mollis ornare vel eu leo.</p>
+          <p class="ld-copy">Curabitur blandit tempus porttitor. Nulla vitae elit libero, a pharetra augue. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Etiam porta sem malesuada magna mollis euismod, donec id elit non mi porta gravida at eget metus.</p>
+          <p class="ld-copy">Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Sed posuere consectetur est at lobortis. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+          <p class="ld-copy">Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam quis risus eget urna mollis ornare vel eu leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed odio dui. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum, cras mattis consectetur purus sit amet fermentum.</p>
         </section>
 
         <!-- PROPERTY DETAIL. One <article class="ld-tract"> here because a For Sale
@@ -764,16 +1013,35 @@
              NO STAT CHIPS HERE AT ALL (Kiron, 2026-08-25). Every figure that used to
              sit in this section is in the Property Overview icon row: it was the same
              numbers twice, a screen apart. This section is prose and documents. -->
-        <details id="ld-details" class="reveal ld-acc" open>
+        <details id="ld-details" class="reveal ld-acc">
           <summary><h2>Property Details</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
             <article class="ld-tract">
-              <h3>The Farm</h3>
-              <p class="ld-tract-sub">161.03 Acres M/L &middot; Section 10, Lost Island Township</p>
-              <p class="ld-copy"><b>Legal description:</b> The South Half of the Northwest Quarter, and the North Half of the Southwest Quarter of Section 10, Township 97 North, Range 34 West of the 5th P.M., Palo Alto County, Iowa. Exact legal description to be taken from Abstract.</p>
-              <p class="ld-copy ld-parcels"><b>Parcel numbers:</b> 270010002030, 270010002040, 270010003020, 270010003010 &nbsp;&middot;&nbsp; <b>Net taxes:</b> $5,038.00 &nbsp;&middot;&nbsp; <b>Zoning:</b> Agricultural &nbsp;&middot;&nbsp; <b>School district:</b> Graettinger-Terril</p>
-
-              <div class="ld-gallery" id="ldGallery"></div>
+              <!-- NO "The Farm" HEADING and no acreage/section sub-line (Kiron,
+                   2026-08-26). On a single-parcel For Sale listing they named the one
+                   thing the whole page is about, and the acreage was already in the h1
+                   and the icon row.
+                   ⚠ A MULTI-TRACT LISTING NEEDS THEM BACK. Repeat this <article> per
+                   tract and each one has to say which tract it is — that is what the
+                   <h3> and .ld-tract-sub are for, and their CSS is left in place for it.
+                   The auction pages are where that will bite first. -->
+              <!-- LOREM IPSUM PLACEHOLDER (Kiron, 2026-08-26). This carried #19651's
+                   real legal description. The FIELD LIST below is still real data. -->
+              <p class="ld-copy">Nulla facilisi. Etiam vel tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac leo mollis blandit, donec neque quam, dignissim in, mollis nec, sagittis eu wisi. Phasellus lacus. Etiam laoreet quam sed arcu, phasellus at dui in ligula mollis ultricies. Integer placerat tristique nisl, praesent augue, aliquam adipiscing, lacus ut bibendum vestibulum.</p>
+              <!-- ONE FIELD PER LINE (Kiron, 2026-08-26). These were a single paragraph
+                   with middot separators; the parcel numbers alone ran the width of the
+                   column, so the three labels after them were hard to pick out. Net
+                   taxes came off entirely — the figure is in the Property Overview icon
+                   row and in Terms. -->
+              <dl class="ld-fields">
+                <dt>Parcel(s)</dt><dd>270010002030, 270010002040, 270010003020, 270010003010</dd>
+                <dt>Zoning</dt><dd>Agricultural</dd>
+                <dt>School district</dt><dd>Graettinger-Terril</dd>
+              </dl>
+              <!-- NO PHOTOGRAPH GRID (Kiron, 2026-08-26): every one of these ten images
+                   is already in the carousel at the top of the page, so this was the same
+                   set twice. See the lightbox script — removing the grid meant the
+                   lightbox had to stop sourcing its photo list from these tiles. -->
             </article>
   </div>
         </details>
@@ -781,6 +1049,12 @@
         <details id="ld-map" class="reveal ld-acc">
           <summary><h2>Location</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
+            <!-- ADDRESS (Kiron, 2026-08-26). It has now been in three places in two days
+                 — beside the price, then top of Property Overview per field spec §3.4,
+                 now here. This is the one that reads best: it sits with the map and the
+                 directions, which is what an address is FOR on a listing page. §3.4 of
+                 developer-listing-detail.md is superseded on this point. -->
+            <p class="ld-ovaddr">2848 370th Avenue, Graettinger, IA 51342</p>
             <div class="ld-mapbox">Property map placeholder — the FarmWorth map module drops in here. See DEVELOPER-NOTES.md for the window spec.</div>
             <p class="ld-dl-head">Directions</p>
             <p class="ld-copy">Access to the farm is provided from the west off paved 370th Avenue / County Highway N26, from the east off 375th Avenue, and through a private field road labeled 290th Street, which bisects the farm into a north and south half. The farm lies approximately five miles west of Graettinger, Iowa.</p>
@@ -790,7 +1064,7 @@
         <!-- REAL DOCUMENTS. These six PDFs are the listing's own attachments, hotlinked
              from the Peoples Company DigitalOcean Spaces bucket — all six verified to
              resolve on 2026-08-25. target=_blank because they are files, not pages. -->
-        <details id="ld-downloads" class="reveal ld-acc" open>
+        <details id="ld-downloads" class="reveal ld-acc">
           <summary><h2>Downloads</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
             <ul class="ld-dl">
@@ -810,7 +1084,7 @@
              The field spec's real rule is that an empty video field means NO SECTION and
              no sub-nav link, which is how the page stood before this. -->
         <details id="ld-video" class="reveal ld-acc">
-          <summary><h2>Property Video</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <summary><h2>Videos</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
             <!-- The iframe only loads once the accordion is first opened: a closed
                  <details> does not render its contents, so a collapsed video costs
@@ -824,34 +1098,88 @@
           </div>
         </details>
 
-        <!-- TERMS — ONLY WHAT THE LISTING ACTUALLY PUBLISHES. An earlier draft of this
-             page carried a full set of INVENTED sale terms: earnest money percentages,
-             closing windows, title, financing and mineral rights clauses. Those are
-             gone. This is a real property with two real agents named on it, and
-             inventing contract terms against it is not something a layout mockup should
-             do. The fields below are the ones #19651 states. The rest come from the CMS
-             — see section 3.7 of developer-listing-detail.md for the full field list. -->
+        <!-- TERMS — LOREM IPSUM PLACEHOLDER (Kiron, 2026-08-26). This section is here to
+             be SIZED, not read: what it needs to show is how a long block of fine print
+             sits in the accordion. The four paragraphs below are Lorem Ipsum and say
+             nothing.
+             THIS REPLACED REAL CONTENT, which is the thing to know. Until today the
+             section carried #19651's actual published terms — possession, zoning, net
+             taxes, legal description and tile. Those five facts are not lost: possession
+             and tile are in the description paragraphs under Property Overview, zoning is
+             in the Property Details field list, net taxes is in the icon row, and the
+             legal description is the first paragraph of Property Details. Nothing that
+             was only stated here has gone missing.
+             ⚠ AND IT MUST NOT SHIP LIKE THIS. Placeholder prose where a buyer expects
+             sale terms is the one section on this page where filler is genuinely
+             misleading, so it belongs on the pre-launch checklist. The real field list
+             is section 3.7 of developer-listing-detail.md — auction terms, possession,
+             covenants, reserved items, and the HOA fields for the types that have them.
+             An earlier draft of this page INVENTED plausible-sounding terms (earnest
+             money percentages, closing windows, title and financing clauses); Lorem
+             Ipsum is deliberately used instead, because filler that cannot be mistaken
+             for a real clause is safer than filler that can. -->
         <details id="ld-terms" class="reveal ld-acc">
-          <summary><h2>Terms of Sale</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <summary><h2>Terms</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <p class="ld-copy"><b>Possession:</b> The property is leased for the 2026 growing season. The current farm lease has been terminated and the farm will be available for the 2027 growing season.</p>
-            <p class="ld-copy"><b>Zoning:</b> Agricultural.</p>
-            <p class="ld-copy"><b>Property taxes:</b> Net taxes of $5,038.00.</p>
-            <p class="ld-copy"><b>Legal description:</b> Exact legal description to be taken from the Abstract.</p>
-            <p class="ld-copy"><b>Tile:</b> No county tile is found on the farm; private tile has been installed. Contact the listing agents for more detail.</p>
-            <p class="ld-note">Remaining terms and conditions are supplied per listing by the CMS.</p>
+            <p class="ld-copy">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident.</p>
+            <p class="ld-copy">Sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</p>
+            <p class="ld-copy">Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur.</p>
+            <p class="ld-copy">Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint.</p>
           </div>
         </details>
       </div>
 
-      <!-- ---------------- STICKY ASIDE ---------------- -->
+      <!-- ---------------- RAIL ----------------
+           AGENTS FIRST, FORM SECOND (Kiron, 2026-08-26) — the reverse of how this rail
+           was built, and the reverse of field spec §3.10, which puts the form under the
+           agent cards. The dark Listing Facts card that used to sit between them is off
+           the page on For Sale listings; see the CSS note where its rules were.
+           THE FORM LOCKS and follows the page down; the agent card scrolls away above
+           it. See the .ld-aside note in the CSS for why it has to be that way round. -->
       <aside class="ld-aside" aria-label="Contact about this property">
+
+        <!-- TWO AGENTS on this listing. The field spec allows up to three — primary,
+             secondary, tertiary — each with name, photo, number, email and state
+             licence numbers. Photographs are the agents' real headshots, hotlinked.
+             alt="" IS CORRECT HERE, not an omission: each name is a visible <h4> directly
+             above its photograph, so alt text would make a screen reader read every agent
+             twice. It became decorative the moment the name moved out of the column
+             beside it. -->
+        <div class="ld-agentcard reveal" id="ld-agent">
+          <!-- No "Contact the Land Agents" heading (Kiron, 2026-08-26): two headshots
+               and two phone numbers in a rail headed by a contact form do not need a
+               label saying what they are. -->
+          <div class="ld-agent">
+            <h4>Andrew Zellmer, ALC</h4>
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/andrew-zellmer.jpg"
+                 alt="" loading="lazy"
+                 onerror="this.removeAttribute('src');this.alt='';" />
+            <div>
+              <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
+                 Mobile <a href="tel:+17128985913">712.898.5913</a><br />
+                 <a href="mailto:AndrewZ@PeoplesCompany.com">AndrewZ@PeoplesCompany.com</a></p>
+              <p class="ld-agent-lic">Iowa license S61625000</p>
+            </div>
+          </div>
+          <div class="ld-agent">
+            <h4>Matt Adams</h4>
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/matt-adams-2020-01-15-193747.jpg"
+                 alt="" loading="lazy"
+                 onerror="this.removeAttribute('src');this.alt='';" />
+            <div>
+              <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
+                 Mobile <a href="tel:+15154239235">515.423.9235</a><br />
+                 <a href="mailto:Matt@PeoplesCompany.com">Matt@PeoplesCompany.com</a></p>
+              <p class="ld-agent-lic">Iowa license S59699000</p>
+            </div>
+          </div>
+        </div>
 
         <!-- ENQUIRY FORM. Non-functional, like every other form in this build: it does
              not submit anywhere. The onsubmit return false is what keeps a stray Enter
              from reloading the page mid-review. -->
         <div class="ld-form reveal" id="ld-contact">
-          <h2 class="h3-sans">More about this property</h2>
+          <h2 class="h3-sans">Have A Question?</h2>
           <form action="#" onsubmit="return false;" aria-label="Ask about this property">
             <div class="ld-names">
               <div class="ld-field">
@@ -878,101 +1206,102 @@
             </div>
             <button class="btn btn-primary" type="submit">Request Information</button>
           </form>
-          <p class="ld-formnote">A Peoples Company land agent will follow up by email or phone. We do not share your details with anyone else.</p>
+          <!-- Kept deliberately: this is a privacy commitment, and a form asking for a
+               name and an email needs one where the asking happens. -->
+          <p class="ld-formnote">We will follow up by email or phone and do not share your details with anyone else.</p>
         </div>
 
-        <!-- Everything below this point LOCKS and follows the page down. See the
-             .ld-sticky note in the CSS for the two rules that make it work. -->
-        <div class="ld-sticky">
-
-        <div class="ld-factcard reveal">
-          <h2 class="h4-sans">Listing Facts</h2>
-          <ul class="ld-facts">
-            <li><span class="k">Price</span><span class="v">$2,334,935</span></li>
-            <li><span class="k">Per acre</span><span class="v">$14,500</span></li>
-            <li><span class="k">Status</span><span class="v">Active</span></li>
-            <li><span class="k">Total acres</span><span class="v">161.03 M/L</span></li>
-            <li><span class="k">FSA cropland</span><span class="v">149.72 NHEL</span></li>
-            <!-- Label is data, like the one in Property Overview: CSR2 / PI / CPI by listing. -->
-            <li><span class="k">Average <span data-field="productivity-type">CSR2</span></span><span class="v">84.6</span></li>
-            <li><span class="k">Land type</span><span class="v">Farmland</span></li>
-            <li><span class="k">Net taxes</span><span class="v">$5,038.00</span></li>
-            <li><span class="k">Available</span><span class="v">2027 crop year</span></li>
-            <li><span class="k">Listing</span><span class="v">#19651</span></li>
-            <li><span class="k">MLS</span><span class="v">747609</span></li>
-          </ul>
-        </div>
-
-        <!-- TWO AGENTS on this listing. The field spec allows up to three — primary,
-             secondary, tertiary — each with name, photo, number, email and state
-             licence numbers. Photographs are the agents' real headshots, hotlinked. -->
-        <div class="ld-agentcard reveal" id="ld-agent">
-          <p class="ld-eyebrow" style="margin-bottom:0;">Contact the Land Agents</p>
-          <div class="ld-agent">
-            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/andrew-zellmer.jpg"
-                 alt="Andrew Zellmer, ALC" loading="lazy"
-                 onerror="this.removeAttribute('src');this.alt='';" />
-            <div>
-              <p class="ld-agent-role">Senior Land Agent</p>
-              <h4>Andrew Zellmer, ALC</h4>
-              <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
-                 Mobile <a href="tel:+17128985913">712.898.5913</a><br />
-                 <a href="mailto:AndrewZ@PeoplesCompany.com">AndrewZ@PeoplesCompany.com</a></p>
-              <p class="ld-agent-lic">Iowa license S61625000</p>
-            </div>
-          </div>
-          <div class="ld-agent">
-            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/matt-adams-2020-01-15-193747.jpg"
-                 alt="Matt Adams" loading="lazy"
-                 onerror="this.removeAttribute('src');this.alt='';" />
-            <div>
-              <p class="ld-agent-role">Senior Land Agent</p>
-              <h4>Matt Adams</h4>
-              <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
-                 Mobile <a href="tel:+15154239235">515.423.9235</a><br />
-                 <a href="mailto:Matt@PeoplesCompany.com">Matt@PeoplesCompany.com</a></p>
-              <p class="ld-agent-lic">Iowa license S59699000</p>
-            </div>
-          </div>
-        </div>
-
-        </div><!-- /.ld-sticky -->
       </aside>
     </div>
 
-    <!-- ===================== SIMILAR PROPERTIES =====================
+    <!-- ==================== BROWSE SIMILAR PROPERTIES ====================
          THE ONLY INVENTED CONTENT LEFT ON THE PAGE. Everything above comes from
          listing #19651; these three cards do not correspond to real listings and say
-         so underneath. The CMS picks them by county, state and acreage. -->
-    <section class="ld-similar reveal" aria-label="Similar properties">
-      <h2>Similar Properties</h2>
-      <div class="ld-scards">
-        <a class="ld-scard" href="./listings-details-forsale.html">
-          <div class="ld-scard-img"><img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" loading="lazy" /></div>
-          <div class="ld-scard-body">
-            <p class="ld-scard-price">$1,880,000</p>
-            <p class="ld-scard-loc">Emmet County, IA &middot; 128 Acres</p>
-            <span class="ld-scard-more">View listing &rarr;</span>
+         so underneath. The CMS picks them by county, state and acreage.
+
+         THE CARD IS LISTINGS.HTML'S CARD (Kiron, 2026-08-26) — same .lc markup, same
+         rules, same hover lift. The old bespoke .ld-scard is gone. See the CSS note:
+         the rules are a COPY of listings.html's and will drift until the .lc block is
+         promoted into pc.css.
+
+         Each card carries the full card's content, not a reduced version of it: status
+         + listing number, place, the polymorphic headline (a price here, a date on an
+         auction), three meta facts, and the listing agent. The save star is the same
+         visual-only control, wired by the same script at the foot of this page. -->
+    <section class="ld-similar reveal" aria-labelledby="ldSimilarHead">
+      <div class="ld-similar-in">
+      <h2 id="ldSimilarHead">Browse Similar Properties</h2>
+      <div class="lc-grid">
+        <article class="lc">
+          <div class="lc-media">
+            <img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" loading="lazy" />
+            <span class="lc-pill is-new">New Listing</span>
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
           </div>
-        </a>
-        <a class="ld-scard" href="./listings-details-forsale.html">
-          <div class="ld-scard-img"><img src="../assets/pc-hero6.jpg" alt="Corn rows at sunrise" loading="lazy" /></div>
-          <div class="ld-scard-body">
-            <p class="ld-scard-price">$3,120,000</p>
-            <p class="ld-scard-loc">Clay County, IA &middot; 212 Acres</p>
-            <span class="ld-scard-more">View listing &rarr;</span>
+          <div class="lc-body">
+            <div class="lc-statusrow">
+              <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19648</p>
+            </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Emmet County, IA</a></p>
+            <p class="lc-headline">$1,880,000</p>
+            <p class="lc-meta"><span>128 Acres</span><span>119 Tillable Acres</span><span>CSR2 78.4</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Andrew Zellmer</p>
+            </div>
           </div>
-        </a>
-        <a class="ld-scard" href="./listings-details-forsale.html">
-          <div class="ld-scard-img"><img src="../assets/pc-hero8.jpg" alt="Farm field under open sky" loading="lazy" /></div>
-          <div class="ld-scard-body">
-            <p class="ld-scard-price">$994,000</p>
-            <p class="ld-scard-loc">Kossuth County, IA &middot; 74 Acres</p>
-            <span class="ld-scard-more">View listing &rarr;</span>
+        </article>
+        <article class="lc">
+          <div class="lc-media">
+            <img src="../assets/pc-hero6.jpg" alt="Corn rows at sunrise" loading="lazy" />
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
           </div>
-        </a>
+          <div class="lc-body">
+            <div class="lc-statusrow">
+              <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19602</p>
+            </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Clay County, IA</a></p>
+            <p class="lc-headline">$3,120,000</p>
+            <p class="lc-meta"><span>212 Acres</span><span>204 Tillable Acres</span><span>CSR2 81.9</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Matt Adams</p>
+            </div>
+          </div>
+        </article>
+        <article class="lc">
+          <div class="lc-media">
+            <img src="../assets/pc-hero8.jpg" alt="Farm field under open sky" loading="lazy" />
+            <span class="lc-pill is-reduced">Price Reduced</span>
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
+          </div>
+          <div class="lc-body">
+            <div class="lc-statusrow">
+              <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19577</p>
+            </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Kossuth County, IA</a></p>
+            <p class="lc-headline">$994,000</p>
+            <p class="lc-meta"><span>74 Acres</span><span>71 Tillable Acres</span><span>CSR2 76.2</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Andrew Zellmer</p>
+            </div>
+          </div>
+        </article>
       </div>
-      <p class="ld-note">Sample listings, shown for layout. The CMS selects these by county, acreage and price.</p>
+      <!-- No visible "sample listings" note (Kiron, 2026-08-26): review captions do
+           not belong on the page. The CMS selects these three by county, acreage and
+           price; the invented content is flagged in the comment above instead. -->
+      </div>
     </section>
   </main>
 
@@ -1352,7 +1681,17 @@
     (function(){
       var header = document.querySelector("header.pcf");
       if(!header) return;
-      function syncNavH(){ document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      /* --ld-jump-h IS MEASURED TOO, for the same reason --navH is. Every jump link's
+         scroll-margin-top is navH + ld-jump-h, so a stale value lands each heading
+         underneath the very bar that sent you there. It was hardcoded at 49px and the
+         bar is 53px — a 4px error that grew the moment Save/Share joined the row, and
+         would grow again if the links' padding or type size changed. Measuring it costs
+         one line and cannot go stale. */
+      var subbar = document.querySelector(".ld-subbar");
+      function syncNavH(){
+        document.documentElement.style.setProperty("--navH", header.offsetHeight + "px");
+        if(subbar) document.documentElement.style.setProperty("--ld-jump-h", subbar.offsetHeight + "px");
+      }
       syncNavH();
       window.addEventListener("resize", syncNavH);
       window.addEventListener("load", syncNavH);
@@ -1413,8 +1752,12 @@
       // megabytes of imagery. Everything but the first frame is lazy-loaded. Swap in
       // the 800x600 renditions when the CMS produces them.
       // Ratios are 1.335 (drone) and 1.294 (scans), which is why the frames are 4:3.
+      /* PHOTOS is hung on window because the LIGHTBOX block below needs it too. It used
+         to build its list by querying the .xlb-open gallery tiles in Property Details;
+         that grid was removed on 2026-08-26 (it repeated these same ten images), so the
+         array itself is now the single source both blocks read. */
       var PB = "https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/";
-      var PHOTOS = [
+      var PHOTOS = window.LD_PHOTOS = [
         { src: PB+"19651_DJI_0160.jpg", cap: "Aerial view of the farm" },
         { src: PB+"19651_DJI_0167.jpg", cap: "Aerial view across the tillable acres" },
         { src: PB+"19651_DJI_0135.jpg", cap: "Aerial view of the farm from the opposite end" },
@@ -1496,26 +1839,18 @@
       viewAll.addEventListener("click", function(){ openLightboxAt(cur); });
       function openLightboxAt(n){ if(window.ldOpenPhoto){ window.ldOpenPhoto(n); } }
 
-      /* ---- GALLERY: every photograph, each opening the lightbox ---- */
-      var box = document.getElementById("ldGallery");
-      PHOTOS.forEach(function(p){
-        var btn = document.createElement("button");
-        btn.className = "ld-shot xlb-open"; btn.type = "button";
-        btn.setAttribute("data-full", p.src);
-        btn.setAttribute("data-cap", p.cap);
-        btn.setAttribute("aria-label", "Open photograph: " + p.cap);
-        var im = document.createElement("img");
-        im.src = p.src; im.alt = p.cap; im.loading = "lazy"; im.decoding = "async";
-        im.onerror = function(){ btn.style.display = "none"; };
-        btn.appendChild(im);
-        box.appendChild(btn);
-      });
     })();
 
     // Lightbox — shares pcScrollLock with the map layer and the drawer, so an open
     // lightbox cannot unlock the page underneath one of the others.
     (function(){
-      var items = [].slice.call(document.querySelectorAll(".xlb-open"));
+      /* SOURCED FROM THE PHOTOS ARRAY, NOT FROM THE PAGE. This block used to do
+         `document.querySelectorAll(".xlb-open")` and read data-full / data-cap off each
+         gallery tile. That grid was removed on 2026-08-26, which would have left `items`
+         empty and returned early — killing the lightbox for the carousel as well, since
+         the main photograph and "View all photos" both open through here. Reading the
+         array directly decouples the lightbox from whether any thumbnail grid exists. */
+      var items = window.LD_PHOTOS || [];
       if(!items.length) return;
       var box = document.getElementById("xlb"),
           img = box.querySelector(".xlb-img"),
@@ -1524,10 +1859,10 @@
       var i = 0, last = null;
       function show(n){
         i = (n + items.length) % items.length;
-        var el = items[i];
-        img.src = el.getAttribute("data-full");
-        img.alt = el.getAttribute("data-cap") || "";
-        cap.textContent = el.getAttribute("data-cap") || "";
+        var p = items[i];
+        img.src = p.src;
+        img.alt = p.cap || "";
+        cap.textContent = p.cap || "";
         cnt.textContent = (i + 1) + " / " + items.length;
       }
       function open(n, trig){
@@ -1547,13 +1882,12 @@
         else if(e.key === "ArrowRight") show(i + 1);
         else if(e.key === "ArrowLeft") show(i - 1);
       }
-      items.forEach(function(el, n){ el.addEventListener("click", function(){ open(n, el); }); });
-
-      /* Opened from OUTSIDE this block too: the main photograph, the "+N more"
-         thumbnail and "View all" all open the gallery, and none of them is one of the
-         .xlb-open gallery tiles. The index maps straight across because the gallery is
-         built from the same PHOTOS array, in the same order. `last` stays null so focus
-         returns nowhere in particular on close — the caller is not a gallery tile. */
+      /* EVERY opener is now outside this block: the main photograph, the thumbnails and
+         "View all photos". There are no gallery tiles left to bind a click to, so the
+         only entry point is this one. `last` stays null, so focus returns nowhere in
+         particular on close — there is no tile to send it back to.
+         ⚠ If a thumbnail grid is ever reinstated, give it buttons that call
+         window.ldOpenPhoto(index) rather than reviving the data-attribute scrape. */
       window.ldOpenPhoto = function(n){ open(n, null); };
 
       box.querySelector(".xlb-x").addEventListener("click", close);
@@ -1608,6 +1942,31 @@
       }
       narrowCheck();
       window.addEventListener("resize", narrowCheck);
+    })();
+
+    // SAVE THIS LISTING. Same visual-only contract as the cards' star below: the
+    // pressed state is the whole behaviour, and persisting it is the CMS's job. The
+    // LABEL changes with the state as well as the icon, so the control does not rely on
+    // the fill alone to say which way it is set.
+    (function(){
+      var b = document.getElementById("ldSave"), l = document.getElementById("ldSaveLabel");
+      if(!b) return;
+      b.addEventListener("click", function(){
+        var on = b.getAttribute("aria-pressed") !== "true";
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+        l.textContent = on ? "Saved" : "Save";
+      });
+    })();
+
+    // Listing card save/favourite star, on the Similar Properties cards. Copied from
+    // listings.html: visual only — the pressed state is the whole behaviour, and
+    // persisting it is the CMS's job.
+    (function(){
+      document.querySelectorAll(".lc-fav").forEach(function(b){
+        b.addEventListener("click", function(){
+          b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+        });
+      });
     })();
   </script>
 </body>
