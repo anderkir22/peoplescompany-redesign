@@ -2241,6 +2241,42 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .ld-similar .lc.ld-4th{ display: block; }
 }
 
+/* FOUR CARDS AT EVERY WIDTH — the auction page's Similar Properties (Kiron, 2026-08-27).
+   .ld-similar-4up is on the <section>, so it is opt-in per page: the For Sale page keeps three
+   cards and reveals a fourth only in the 768-899 band, and this rule set does not touch it.
+
+   THE GRID RUNS 4 → 2×2 → 1, never 3, so no width leaves a card alone on its own row — which
+   is the whole reason the count changes shape at all. The steps are measured, not chosen:
+     4 across needs ~286px a card, which the 1216px content box gives at 1280 and the 1376px box
+     gives at 1536 (326px). At 1279 the box drops to 960 and four would be 228px — the meta row
+     ("128 Acres · 119 Tillable Acres · CSR2 78.4") needs 229px at 11px type, and every line in
+     this card is nowrap, so it would overflow rather than wrap. Hence 2×2 from 1279 down.
+   THE GAP IS 24px AT EVERY STEP (Kiron: "the same padding once you have resized the cards").
+   The cards resize; the spacing between them does not. The band's own vertical padding is
+   unchanged too — 24px above the heading, 32px below the cards.
+   TYPE STEPS WITH THE CARD, not with the viewport: at 4 across the cards are 286-326px, which
+   is the size the 900-1279 three-across step was tuned for, so the same 20/19/11 sizes and 12px
+   body padding apply. In the 2×2 band the cards are 406-468px — wider than the base 3-across
+   card at 1536 — so they take the base type and padding back. */
+/* ⚠ TWO CLASSES ON THE SECTION IN EVERY SELECTOR HERE (.ld-similar.ld-similar-4up), not just
+   the 4up one. The three-across rule below is `.ld-similar .lc-grid` — same specificity as
+   `.ld-similar-4up .lc-grid` and LATER in the file, so it would win at 900-1279 and quietly put
+   three cards on the auction page. Do not simplify these selectors. */
+@media (min-width: 1280px){
+  .ld-similar.ld-similar-4up .lc-grid{ grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+  .ld-similar.ld-similar-4up .lc-body{ padding: var(--space-3); }
+  .ld-similar.ld-similar-4up .lc-place{ font-size: 20px; }
+  .ld-similar.ld-similar-4up .lc-headline{ font-size: 19px; }
+  .ld-similar.ld-similar-4up .lc-meta{ font-size: 11px; }
+}
+@media (min-width: 768px) and (max-width: 1279px){
+  .ld-similar.ld-similar-4up .lc-grid{ grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+}
+/* The fourth card is display:none by default (see .ld-4th above) so the For Sale page can hide
+   it; on a 4-up section it is always shown. Three classes deep to beat that rule, which is
+   two-class and sits in a later media query. */
+.ld-similar.ld-similar-4up .lc.ld-4th{ display: block; }
+
 @media (min-width: 900px) and (max-width: 1279px){
   .ld-similar .lc-grid{ grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
   .ld-similar .lc-body{ padding: var(--space-3); }
