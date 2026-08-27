@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Single source of truth for the final PC direction -->
-  <link href="pc.css?v=20260826a" rel="stylesheet" />
+  <link href="pc.css?v=20260827a" rel="stylesheet" />
 
   <!-- ===========================================================================
        LISTING DETAIL — "LISTING FOR SALE"  (Kiron, 2026-08-25)
@@ -68,15 +68,16 @@
 
     .listing-body{ background: var(--pc-white); }
 
-    /* Every rail-aligned block on this page reads --site/--rail, so the hero, the
-       jump nav, the two columns and the similar-properties row all stack on the
-       one vertical line the header lockup and footer columns sit on. */
-    .ld-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+    /* .ld-wrap is gone (2026-08-27). Its only user was the "All Listings" band above
+       .ld-body; the link now lives inside .ld-main, which is already on the same rail via
+       .ld-body's padding, so the wrapper had nothing left to do. Every other rail-aligned
+       block on this page reads --site/--rail directly, so they all still stack on the one
+       vertical line the header lockup and footer columns sit on. */
 
     /* ---- back to results -------------------------------------------------
-       Sits in the band between the sticky nav and the hero. The Interactive Map
-       tab floats over the middle of that band (centred, 340px); this link is
-       left-aligned, so the two never meet. */
+       The first thing in the main column, directly above the photograph. It is
+       left-aligned on the rail; the Interactive Map tab is not on this page, so nothing
+       floats over this band. */
     .ld-back{ display: inline-flex; align-items: center; gap: 8px;
       font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 500;
       letter-spacing: .04em; text-transform: uppercase; color: var(--pc-navy);
@@ -127,15 +128,30 @@
     .ld-frame:focus-visible{ outline: 3px solid var(--pc-medium-blue); outline-offset: 2px; }
 
     /* Three rows of 1fr, so the column always ends exactly level with the bottom of the
-       main frame. That makes each thumbnail about 210x173, which is slightly squarer
-       than the 4:3 source, so a thumbnail crops a little top and bottom. That is the
-       right trade at this size — a ragged bottom edge beside the main photograph reads
+       main frame. That makes each thumbnail about 210x173 at --site 1440, which is slightly
+       squarer than the 4:3 source, so a thumbnail crops a little top and bottom. That is
+       the right trade at this size — a ragged bottom edge beside the main photograph reads
        as a mistake, and nobody judges a 210px thumbnail's framing. */
     .ld-thumbs{ display: grid; grid-template-rows: repeat(3, 1fr); gap: var(--space-2); }
     .ld-thumb{ position: relative; overflow: hidden; border-radius: var(--radius-md);
       background: var(--pc-light-blue); border: 1px solid var(--color-border);
       padding: 0; cursor: pointer; display: block; }
-    .ld-thumb img{ width: 100%; height: 100%; object-fit: cover; }
+    /* THE IMAGE IS ABSOLUTELY POSITIONED, and this is load-bearing (Kiron, 2026-08-27) —
+       it is what makes the "1fr fills the frame's height" claim above actually true.
+       `1fr` can only divide a height the row already has, and a grid row is as tall as its
+       tallest item. In flow, each thumbnail image contributed its own natural height —
+       210px wide at 4:3 is 157px, so three of them plus the gaps came to 488px. At --site
+       1440 the main frame is 535px tall, so the frame won and the thumbnails divided into
+       it, exactly as intended. From 1535 down the frame is only 445px, so the THUMBNAIL
+       COLUMN became the taller item and stretched the row: .ld-mainwrap stretched with it
+       and the controls pinned to its bottom — "View all photos" and the counter — landed
+       43px BELOW the photograph, on white.
+       Out of flow, the images contribute no height at all, so the row is always the frame's
+       height and the two columns always end level. Fixes it at every width rather than at
+       the one where it was noticed.
+       ⚠ Do not move these back into flow to "simplify". If they must be in flow, the row
+       needs an explicit height instead, and there is no good source for that number. */
+    .ld-thumb img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .ld-thumb:focus-visible{ outline: 3px solid var(--pc-medium-blue); outline-offset: 2px; }
     /* The last thumbnail carries the "+N more" veil, so the set reads as a way in
        to the whole gallery rather than as three loose pictures. */
@@ -226,9 +242,8 @@
 
     /* ---- SAVE + SHARE ----
        (Kiron, 2026-08-26) Field spec §3.1 puts both at the top of the photo carousel.
-       They are here instead, on their own right-aligned row between the sub nav and the
-       stat strip. §3.1 is superseded on placement; the two fields themselves are
-       unchanged.
+       They are here instead, on their own right-aligned row between the headline and the
+       sub nav. §3.1 is superseded on placement; the two fields themselves are unchanged.
 
        WHY NOT ON THE PHOTOGRAPH, given the standing rule allows controls there: the
        Browse Similar Properties cards at the foot of the page each carry a save star in
@@ -236,10 +251,18 @@
        the big photograph, would have read as one more card rather than as the control
        for THIS listing. Off the photo, the two are unambiguous.
 
-       THEY RIDE IN THE SUB NAV'S ROW, pinned right, and therefore travel with it — so
-       Save is reachable from anywhere on the page instead of only at the top. They were
-       briefly given their own row above the stat strip; sharing the pinned bar is
-       better and costs no height at all.
+       THEY CAME OUT OF THE SUB NAV'S ROW (Kiron, 2026-08-27) — this reverses the
+       2026-08-26 decision to pin them inside it, and the reason is the RESPONSIVE PASS
+       rather than a change of mind about the look. Measured, the bar needs 823px: the six
+       links are 616, this pair is 191, plus the 16px gap between them. The left column is
+       772px at --site 1280 and 588px at 1024, so from 1535 down the bar wrapped to two
+       rows and stood 115px tall instead of 53 — a pinned bar that tall is a shelf. Giving
+       the pair its own row hands the whole column width back to the links, which is what
+       lets the bar keep squeezing as the page narrows.
+       WHAT IT COSTS, stated plainly: Save no longer travels with the sticky bar, so it is
+       only reachable at the top of the page rather than from anywhere in it. That was the
+       best thing about the old placement. The trade is one control needing a scroll up
+       against a 62px sticky bar on every screen narrower than 1536.
        NOT AT THE END OF THE STAT STRIP, which is the space that looks free: that strip
        is a column grid which always fills the width, so the "gap" after the last stat is
        slack INSIDE that cell, about 60px — not room for two controls. More importantly
@@ -251,6 +274,11 @@
        eighteen times on the results page and the pattern gets learned; here there is one
        of each, on the page where the decision actually happens. The word also settles
        the saved state without relying on the fill — see below. */
+    /* The row the pair sits on. Right-aligned so it reads as belonging to the headline
+       block above it rather than to the sub nav below, and so the two pills line up on
+       the same rail as the listing number and the h1. 16px above, against the sub bar's
+       own 32px below, keeps it attached to the headline. */
+    .ld-actionrow{ display: flex; justify-content: flex-end; margin-top: var(--space-4); }
     .ld-actions{ display: flex; align-items: center; gap: var(--space-2); flex: none; }
     .ld-action{ display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
       font-family: var(--font-sans); font-size: 13px; font-weight: 600;
@@ -332,12 +360,16 @@
        beneath it — the white fill is now the whole separation. If that ever reads as
        ambiguous while scrolling, a shadow rather than a rule is the way back
        (box-shadow: 0 1px 0 var(--color-border) applied only once the page is scrolled). */
-    /* THE STICKY LIVES ON .ld-subbar, not on the nav — the bar is the nav PLUS the
-       Save/Share pair, and both have to pin together. --ld-jump-h below is still the
-       right height: the buttons are 37px and the links are taller, so the links set the
-       bar's height and the pair centres inside it. */
+    /* THE STICKY LIVES ON .ld-subbar, not on the nav. It held the nav PLUS the Save/Share
+       pair until 2026-08-27; the pair moved to its own row, so the bar is now the links
+       alone and its height is theirs. --ld-jump-h is measured by JS either way, so nothing
+       had to be retuned when the pair left. */
+    /* MARGIN 32 → 4px (Kiron, 2026-08-27). This gap used to separate the bar from the
+       headline block; now it separates it from the Save/Share row, and the two rows read
+       as one control strip, so it wants to be tight. The links carry 14px of padding of
+       their own above the label, so the visible gap is ~18px, not 4. */
     .ld-subbar{ position: sticky; top: var(--navH); z-index: 20;
-      margin-top: var(--space-6); background: var(--pc-white);
+      margin-top: var(--space-1); background: var(--pc-white);
       display: flex; align-items: center; gap: var(--space-4); }
     /* Takes the slack so the buttons pin right. min-width: 0 lets the link list shrink
        rather than forcing the bar wider than the column. */
@@ -611,7 +643,10 @@
        across the full card it has ~290px and can carry real size. Built as a two-column
        grid with the name set to `grid-column: 1 / -1` rather than as a separate flex row,
        so the photo and the details still share one alignment context.
-       FILL: PC Soft White, matching the form below it. */
+       FILL: PC Soft White, matching the form below it.
+       ⚠ THIS TWO-COLUMN SHAPE IS THE 1536+ SHAPE ONLY. From 1535 down the card stacks —
+       name, then details, then the photograph — because the photo's 68px + 16px was what
+       held the rail's minimum width. See the rule in the 1535 block. */
     .ld-agentcard{ border: 1px solid var(--color-border); border-radius: var(--radius-lg);
       background: var(--pc-soft-white); padding: var(--space-5); }
     /* 68px photo + 16px gap; the details take whatever is left. minmax(0,1fr) rather than
@@ -707,43 +742,407 @@
       font-family: var(--font-sans); font-size: 13px; color: var(--pc-light-blue); }
 
     /* ======================= RESPONSIVE =======================
-       Breakpoints sit on --site steps (1279 / 1023 / 767 / 639), the rule
+       Breakpoints sit on --site steps (1535 / 1279 / 1023 / 767 / 639), the rule
        established in the 2026-08-13 responsive pass. Do not add one between them. */
-    @media (max-width: 1279px){
-      .ld-body{ grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-6); }
-      .ld-media{ grid-template-columns: minmax(0, 1fr) 170px; }
-      .ld-price{ font-size: 38px; }
+
+    /* ---- 1280-1535: NARROW THE RAIL, LEAVE THE MAIN COLUMN ALONE (Kiron, 2026-08-27).
+       --site drops 1440 → 1280 here, so the content box loses 160px and, with a fixed
+       380px rail, every one of those pixels came off the main column: the photograph went
+       714 → 554 while the form lost nothing. The rail's share rose 28% → 31% precisely
+       because it was the one thing that did not shrink.
+       Taking it to 340 hands 40px back — main 772 → 812, photo 554 → 594. Nothing inside
+       the main column is touched; the grid does it.
+
+       ⚠ 340 IS ALMOST THE FLOOR, and the constraint is the AGENT CARD, not the form.
+       Measured: the widest contact line ("Office 855.800.LAND") is 205px of ink, and the
+       card gives it (rail − 48px padding − 68px headshot − 16px gap). At rail 340 that is
+       206px against 205px needed — ONE PIXEL of slack. At 320 the card overflows its own
+       box (270 available, 289 needed), which is why the rail stops here and not lower.
+       So: a longer agent phone label, a wider headshot or more card padding all overflow
+       this rail. If any of those change, either buy the width back (padding 24 → 20, photo
+       68 → 60) or let the contact lines wrap.
+       The old 340 declaration lived in the 1279 block; it is here now and inherits down,
+       so 1279 only has to change the gap. */
+    @media (max-width: 1535px){
+      .ld-body{ grid-template-columns: minmax(0, 1fr) 340px; }
+
+      /* AGENT CARD STACKS: name → contact details → headshot (Kiron, 2026-08-27).
+         The two-column card is what set the rail's floor — the headshot and its 16px gap
+         took 84px off every contact line, so "Office 855.800.LAND" had 206px in a 340px
+         rail and one pixel to spare. Stacked, every line gets the card's full inner
+         width (292px at rail 340), which is 86px of real slack instead of 1px, and the
+         rail is no longer the thing holding the card up.
+         THE PHOTOGRAPH SITS BETWEEN THE NAME AND THE PHONE NUMBERS (Kiron, 2026-08-27),
+         which is the DOM order — name, photo, details — so the single column needs no
+         `order` at all. The headshot stays attached to the name it belongs to, and the
+         block reads as one person: who, face, how to reach them.
+         Vertical space is the cheap axis in a rail this tall, which is the trade Kiron
+         called; the horizontal gain is the same wherever the photo sits in the stack,
+         since it is out of the contact lines' way either way. */
+      .ld-agent{ grid-template-columns: minmax(0, 1fr); row-gap: var(--space-3); }
     }
+
+    /* ---- 1024-1279: the biggest step on the ladder ----
+       --site goes 1280 → 1024, so the content box loses 256px and, the rail being fixed,
+       all of it comes off the main column: 812 → 588. Everything below is a consequence
+       of that one number. */
+    @media (max-width: 1279px){
+      /* Rail stays 340 from the band above. Gap 64 → 32 buys the main column another 32px. */
+      .ld-body{ gap: var(--space-6); }
+      .ld-price{ font-size: 38px; }
+
+      /* SUB BAR: TWO ROWS, TIGHTENED (Kiron, 2026-08-27). The links need 656px and the
+         column is 588, so the bar wraps. Kiron's call is to let it wrap rather than spend
+         the rail or drop the icons to avoid it — but a wrapped bar was 115px tall, which is
+         a shelf rather than a bar, so the space between the two rows comes out instead:
+           · row-gap 8 → 0. The links carry their own padding, so 0 is not two rows touching.
+           · vertical padding 14 → 10px. This is the bigger saving of the two (8px per row).
+         Result: 115px → ~89px, and the anchor offsets follow automatically because
+         --ld-jump-h is measured by JS rather than written here.
+         ⚠ The 12px HORIZONTAL padding is deliberately untouched. It is what separates one
+         link from the next, and tightening it is what would make the wrapped rows read as
+         one run of words. WCAG 2.2 SC 2.5.8: each link is still ~41px tall, well over the
+         24px minimum, so this stays a compliant target after the trim. */
+      .ld-jump-inner{ row-gap: 0; }
+      /* 14 → 6px (Kiron, 2026-08-27, in two passes: 10, then 6). The gap between the two
+         rows IS this padding, twice over — 12px now, from 28px before the trim — so the bar
+         stands ~75px instead of 115. Each link is still 37px tall, comfortably over the 24px
+         WCAG 2.2 SC 2.5.8 floor; that floor is what stops this going lower. */
+      .ld-jump a{ padding-top: 6px; padding-bottom: 6px; }
+
+      /* ICON STATS LOSE THEIR ICONS (Kiron, 2026-08-27) — figure over label, nothing else.
+         At five across the cells are 105px here, of which the 26px icon and its 12px gap
+         took 38, leaving 67px for a 22px figure and its label: four of the five labels were
+         wrapping to two lines and "Per acre" overflowed its cell by 5px. Dropping the icon
+         hands the full 105px to the text, which is what the cell is actually for.
+         KEPT AT FIVE ACROSS because that now fits. The alternative on the table was 3+2,
+         which reads as a grid of tiles rather than a strip.
+         display: none on the svg, not removal from the markup: the icons are correct and
+         wanted at 1280+, and they are aria-hidden decoration either way. */
+      .ld-ovstats svg{ display: none; }
+
+      /* CELLS SIZE TO THEIR CONTENT, THEY ARE NOT EQUAL FIFTHS (Kiron, 2026-08-27: get
+         "TOTAL ACRES M/L" onto one line so the row stays aligned).
+         MEASURED, which is what decided this: the label needs 117px on one line and an equal
+         fifth of 588 is 105 — 12px short, so it alone wrapped to two lines and dragged the
+         strip out of alignment. But the five labels END TO END are only 427px, and the column
+         is 588. The width was there; the equal-column track was what withheld it.
+         So: max-content tracks and space-between. Each cell takes exactly the wider of its
+         figure and its label (117 / 100 / 72 / 67 / 72), and the 161px of slack is shared out
+         between them as ~40px gaps. Nothing shrinks and nothing wraps.
+         WHY NOT SMALLER TYPE, the obvious other route: 11 → 10px buys about 10px and the
+         label needs 12, so it would have been a whole step of type for a result that still
+         did not quite fit — and it would have made this the one strip on the page with its own
+         label size. This way the type is identical at every width and only the tracks change.
+         nowrap is the second half of the rule: max-content tracks give the label room, and
+         nowrap is what stops it breaking anyway if a longer field name arrives. A label that
+         genuinely cannot fit will push the row wide rather than wrap, so keep an eye on the
+         total when the CMS starts supplying these — 588px is the budget here. */
+      .ld-ovstats{ grid-template-columns: repeat(5, max-content);
+        justify-content: space-between; }
+      .ld-ovstats .l{ white-space: nowrap; }
+      /* FIGURE CENTRED OVER ITS LABEL (Kiron, 2026-08-27). Only possible now that the cells
+         are max-content: each one is exactly as wide as the wider of the two lines, so
+         centring the shorter one inside it is a real relationship rather than centring
+         within leftover slack. Left-aligned, the figures sat at five different distances
+         from the middle of their own labels — "84.6" under "AVERAGE CSR2" was the obvious
+         one — because each pair has a different length difference.
+         BOTH lines get the rule, not just the figure: whichever is narrower is the one that
+         moves, and which of the two that is varies by cell ($14,500 is wider than PER ACRE,
+         84.6 is much narrower than AVERAGE CSR2). Setting only .n would leave the label
+         off-centre in the cells where the label is the shorter line. */
+      .ld-ovstats .n, .ld-ovstats .l{ text-align: center; }
+
+      /* TWO THUMBNAILS, NOT THREE (Kiron, 2026-08-27). At 170px wide and 97px tall the third
+         thumbnail was a 1.75:1 sliver of a 4:3 photograph. Two of them in the same column
+         height are 170 × 150 each — near the source ratio, and actually legible.
+         THE COUNT LIVES IN THE SCRIPT, not here: the last thumbnail carries the "+N more"
+         veil and opens the lightbox, so hiding one in CSS would have taken the gallery's
+         entry point with it and left the "+6 more" count wrong. See THUMB_COUNT and the
+         matchMedia rebuild at the foot of the page — this rule only sets the track count. */
+      .ld-thumbs{ grid-template-rows: repeat(2, 1fr); }
+      .ld-media{ grid-template-columns: minmax(0, 1fr) 170px; }
+    }
+    /* ---- 768-1023: ONE COLUMN ----
+       --site becomes 100%, the two-column grid collapses, and the rail's contents rejoin the
+       page's single flow. That one change is what everything in this block responds to. */
     @media (max-width: 1023px){
       /* One column. The rail stops being pinned, and the ENQUIRY FORM DROPS BELOW the
          prose rather than jumping above it. That is the opposite of what this page did
          before, and deliberately: when the rail was a price card it belonged at the top,
          but a form pushed above the photograph would put a name field between a visitor
-         and the property they came to look at. The agent card goes with it. */
+         and the property they came to look at. */
       .ld-body{ grid-template-columns: 1fr; }
       .ld-aside{ align-self: auto; margin-top: var(--space-8); }
       /* Nothing locks in one column: there is no second column for it to sit beside,
          so a pinned form would just cover the prose. */
       .ld-form{ position: static; }
+
+      /* THUMBNAILS MOVE UNDER THE PHOTOGRAPH, THREE ACROSS (Kiron, 2026-08-27).
+         In one column the frame is 658px wide at a 900px viewport and therefore 494px tall,
+         and two thumbnails dividing that height were 170 × 243 each — a PORTRAIT slot for a
+         landscape photograph, the worst crop anywhere on the ladder. The side column only
+         ever worked because its height was borrowed from a frame that was roughly as tall as
+         three thumbnails are; once the frame grew, the arithmetic inverted.
+         As a row they are 273 × 205 at 900px — 4:3, the source ratio, no crop at all.
+         The count goes back to THREE here (see the script): with the strip full-width there
+         is no reason to show fewer, and three is what the reference does.
+         This is the same shape ≤639 already used; those declarations were removed from that
+         block since they now arrive from here. */
+      .ld-media{ grid-template-columns: 1fr; }
+      .ld-thumbs{ grid-template-rows: none; grid-template-columns: repeat(3, 1fr); }
+      /* The thumbs no longer inherit a height from the frame, so each one states its own
+         ratio. Without this they would collapse — their images are absolutely positioned. */
+      .ld-thumb{ aspect-ratio: 4 / 3; }
+
+      /* AGENT CARD MOVES UP, ABOVE THE SUB NAV (Kiron, 2026-08-27), and goes back to the
+         horizontal shape — photo left, details right — with the TWO AGENTS SIDE BY SIDE.
+         WHY IT MOVES AT ALL: stacked at the foot of the page it sat below four accordions
+         and the enquiry form, which is a long way from the listing it belongs to. Above the
+         sub nav it is the first thing after the price, which is where "who is selling this"
+         belongs once there is no rail to hold it.
+         WHY HORIZONTAL AGAIN: the card is 788px wide inside here rather than 292. The stack
+         existed to buy horizontal room in a 340px rail; with 382px per agent the photo costs
+         nothing, so the 1536 shape comes back and the two agents read as a pair.
+         ⚠ THE MOVE IS A DOM MOVE, done in the script by matchMedia — CSS cannot do it. The
+         card lives inside <aside>, and its destination is midway inside .ld-main's flow
+         (between the Save/Share row and the sub bar); no amount of `order` reaches across
+         from one grid item into the middle of a sibling. See the mover at the foot of the
+         page. It moves the real node both ways, so the reading order and the visual order
+         stay the same thing. */
+      .ld-agentslot .ld-agentcard{ margin: var(--space-5) 0; }
+      .ld-agentcard{ display: grid; grid-template-columns: 1fr 1fr;
+        gap: var(--space-5); align-items: start; }
+      /* Back to the two-track shape the 1535 block flattened. */
+      .ld-agent{ grid-template-columns: 68px minmax(0, 1fr); row-gap: var(--space-2); }
+      /* The divider turns 90°: side by side, a border-TOP would draw a line above the second
+         agent instead of between the two. Padding on the same side as the border so the rule
+         sits in the middle of the gap rather than against the second agent's photograph. */
+      .ld-agent + .ld-agent{ border-top: 0; margin-top: 0; padding-top: 0;
+        border-left: 1px solid var(--color-border); padding-left: var(--space-5); }
+
+      /* ---- AND THE ORDER CHANGES: HEADLINE FIRST, THEN THE CONTROL ROW, THEN THE PHOTO ----
+         Approved at 900-1023 first and extended to every narrower size (Kiron, 2026-08-27:
+         "that should carry on through the remaining sizes"). It applies wherever the page is
+         one column, which is the condition the arrangement actually depends on — which is why
+         it now shares this block with the collapse itself rather than repeating the query.
+
+         Visual order: headline → [All Listings · Save/Share] → photograph → agents → nav.
+         BACK AND SAVE/SHARE SHARE ONE ROW (Kiron, 2026-08-27), directly above the
+         BACK AND SAVE/SHARE SHARE ONE ROW (Kiron, 2026-08-27), directly above the
+         photograph: back on the left, the pair on the right. They were stacked, which spent
+         two rows and about 90px on four small controls and left the visible gap under the
+         county that Kiron flagged. Together they cost one 37px row.
+
+         GRID, NOT FLEX COLUMN, and that is the whole reason for the switch. A flex column
+         gives each child its own line; a two-track grid lets these two sit side by side while
+         every other block still spans the full width. The mechanism:
+           · every child spans both tracks by default (.ld-main > *),
+           · the two that share a row opt out, one per track,
+           · `order` puts the headline above them, as before.
+         ⚠ row-gap is deliberately NOT set. It would add to EVERY gap in the column,
+         including between the five accordions, which have their own carefully halved
+         spacing. The gaps here are margins, as they are at every other width. */
+      .ld-main{ display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+      .ld-main > *{ grid-column: 1 / -1; }
+
+      /* 24px ABOVE THE STATUS ROW (Kiron, 2026-08-27: "don't want them to be that close").
+         This was margin-top: 0, which put "Active" and the listing number hard against the
+         header's bottom edge — the header is sticky and in flow, so there is nothing else
+         between them. It reads as flush rather than as the top of the page.
+         24px is not a new value: it is exactly the padding-top the "ALL LISTINGS" link
+         carries, and that link is what provides this gap at 1024 and above where it comes
+         first. So the space above the first line of content is now the same at every width. */
+      .ld-head{ order: -2; margin-top: var(--space-5); margin-bottom: var(--space-4); }
+      /* padding-top off: the gap above this row is now the headline's margin-bottom, so the
+         link does not need to carry one, and without it the two halves of the row centre on
+         each other instead of the text sitting low against the buttons. */
+      .ld-back{ order: -1; grid-column: 1; padding-top: 0; align-self: center; }
+      .ld-actionrow{ order: -1; grid-column: 2; margin-top: 0; align-self: center; }
+      /* 12px under the control row. The photograph used to inherit the back link's 24px
+         padding as its gap; halving it is the second half of Kiron's "decrease the height
+         white space" — 94px between the county and the picture becomes ~69. */
+      .ld-media{ margin-top: var(--space-3); }
     }
+    /* ---- 640-767 ---- */
     @media (max-width: 767px){
-      /* Five 26px icons and five uppercase labels do not fit across a tablet. Three
-         and two beats five columns of one word each. */
-      .ld-ovstats{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      /* SUB NAV: TWO ROWS OF THREE, FROM 767 ALL THE WAY DOWN (Kiron, 2026-08-27).
+         Left to itself the bar wrapped 5 + 1 — the links need 656px and the column is 636 at
+         a 700px viewport — and a lone "Terms" on its own row read as a mistake rather than a
+         second row. It was briefly 4 + 2, forced with a full-width flex item; Kiron's call is
+         3 + 3, which is the same shape the band below already used, so the two merged into
+         this one rule and the break element came out of the markup entirely.
+         GRID, NOT A FLEX BREAK: three equal columns wrap six items into 2 x 3 with nothing to
+         place, the two rows align in columns, and the cells stay even as the column narrows.
+         At 767 each cell is 229px and the widest link ("Downloads", icon included) needs 100.
+         ⚠ THE COST, stated because it is real: at 720-767 all six links still FIT on one line
+         (the column is 656-703 there), and this puts them in two rows anyway. The alternative
+         was a breakpoint at 719, which is not a --site step and would be the first off-ladder
+         breakpoint in the file. Kiron chose the consistent shape over the extra row of 48px. */
+      .ld-jump-inner{ display: grid; grid-template-columns: repeat(3, 1fr);
+        overflow-x: visible; }
+      .ld-jump a{ justify-content: center; white-space: nowrap; }
+
+      /* ICON STATS BECOME A TABLE (Kiron, 2026-08-27: "a full format adjustment here, where we
+         have these all stacked, with the value sitting to the right of the description" —
+         first built at 639, then moved up to start here).
+         Five rows, description left, figure right, a hairline under each. The strip is a
+         horizontal row of cells at every width ABOVE this; from 767 down it is a list.
+         WHAT IT REPLACES: a centred 3 + 2 grid, built earlier the same day. Two rows of
+         uneven cells was the best a horizontal strip could do at this width, and it still
+         left the row wrapping mid-set. A label/figure pair per line is what the data actually
+         is, and it is the one format that cannot go ragged: the description starts on the
+         left rail, the figure ends on the right one, however long either gets.
+
+         THE DESCRIPTION NOW MATCHES THE FIGURE'S TYPE (Kiron, 2026-08-27). It was 11px Inter,
+         uppercase, letterspaced — a LABEL, which is right when it sits under a figure in a
+         strip of cells. In a table row the two halves are peers, so the description takes the
+         same serif at the same size and drops the uppercasing and tracking with it. The one
+         thing NOT matched is colour: the figure stays PC Black and the description takes PC
+         Navy (#12406A), which is what keeps a hierarchy now that size and family no longer
+         provide one. Say the word if they should be identical.
+
+         ⚠ display: BLOCK, deliberately, and it is load-bearing: the 1279 band sets
+         `grid-template-columns: repeat(5, max-content)` and `justify-content: space-between`
+         on this element. As a block, both are inert — no reset needed and nothing can leak
+         down from that band.
+         The wrapper <span> inside each <li> becomes the flex row that does the spacing: the
+         figure and description are ITS children, so it has to be the flex container, and
+         `order: -1` on the description puts it before the value it belongs to without
+         touching the markup. */
+      .ld-ovstats{ display: block; padding: var(--space-3) 0 0; }
+      .ld-ovstats li{ display: flex; align-items: baseline;
+        border-bottom: 1px solid var(--color-border); padding: 10px 0; }
+      /* The last row's rule would sit directly on the strip's own bottom border. */
+      .ld-ovstats li:last-child{ border-bottom: 0; padding-bottom: 0; }
+      .ld-ovstats li > span{ display: flex; flex: 1; align-items: baseline;
+        justify-content: space-between; gap: var(--space-4); }
+      .ld-ovstats .l{ order: -1; text-align: left; margin-top: 0;
+        font-family: var(--font-serif); font-size: 20px; font-weight: 500;
+        line-height: 1.2; letter-spacing: normal; text-transform: none;
+        color: var(--pc-navy); }
+      .ld-ovstats .n{ text-align: right; font-size: 20px; }
       .ld-price{ font-size: 34px; }
       .ld-head h1{ font-size: 26px; }
       .ld-mapbox{ height: 320px; }
+
+      /* THE TWO AGENTS STOP SITTING SIDE BY SIDE (added 2026-08-27 with the 1023 change,
+         and PROVISIONAL — this band has not been reviewed yet).
+         Measured: side by side, each agent needs 289px for its contact lines (205px of ink
+         plus the 68px photo and its 16px gap), so the card needs 674px and the viewport
+         needs ~738. That break point falls INSIDE this 640-767 band, so at 640 the card
+         overflowed its own box. One agent per row here; each keeps the horizontal photo +
+         details shape, which has 572px to play with.
+         The divider turns back through 90° with them: between stacked agents it is a
+         border-top again, not a border-left. */
+      .ld-agentcard{ grid-template-columns: minmax(0, 1fr); }
+      .ld-agent + .ld-agent{ border-left: 0; padding-left: 0;
+        border-top: 1px solid var(--color-border);
+        margin-top: var(--space-5); padding-top: var(--space-5); }
     }
+    /* ---- 504-639: --rail drops 32 → 20px, and two blocks change format outright ---- */
     @media (max-width: 639px){
-      /* The thumbnail column would be under 90px here, which is not a picture. The
-         three thumbnails move under the main frame as a row instead, and the main
-         frame goes to 4:3 so the photograph keeps some height on a phone. */
-      .ld-media{ grid-template-columns: 1fr; }
-      .ld-thumbs{ grid-template-rows: none; grid-template-columns: repeat(3, 1fr); }
-      .ld-thumb{ aspect-ratio: 4 / 3; }
-      .ld-jump-inner{ flex-wrap: nowrap; overflow-x: auto; }
-      .ld-jump a{ white-space: nowrap; }
-      .ld-ovstats{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      /* THE THUMBNAIL STRIP IS ALREADY A ROW HERE — it moved under the photograph at 1023
+         (Kiron, 2026-08-27), so the three declarations this block used to carry
+         (.ld-media single column, .ld-thumbs as columns, .ld-thumb aspect-ratio) were
+         duplicates of that band's and have been removed rather than left to be maintained
+         twice. Nothing about the strip changes at 639 any more. */
+
+      /* THE SUB NAV IS ALREADY 3 + 3 — that moved up to the 767 band (Kiron, 2026-08-27),
+         so this band inherits it whole. What used to be here (a horizontal scroll strip with
+         `flex-wrap: nowrap; overflow-x: auto`) is gone for good: it hid half the navigation
+         behind a gesture with no visible affordance, and on a page whose point is these six
+         sections that cost more than the 37px of height it saved. */
+
+      /* THE STAT TABLE IS ALREADY IN FORCE — it starts at 767 (Kiron moved it up there the
+         same day it was built here), so this band inherits it whole. The rules that used to
+         be duplicated here are gone rather than maintained twice. */
+
+      /* PRICE AND HEADING STEP DOWN (Kiron, 2026-08-27). They had held 34/26px since 767
+         while the column lost 240px, so the price was taking a third of the line on its own.
+         34 → 30 and 26 → 22, one step each. */
+      .ld-price{ font-size: 30px; }
+      .ld-head h1{ font-size: 22px; }
+    }
+
+    /* ---- 480-503 ---- */
+    @media (max-width: 503px){
+      /* DOWNLOADS TO ONE COLUMN (Kiron, 2026-08-27). Six PDFs in two columns had each link at
+         about 205px, carrying a name, the "PDF" file-type tag and the download arrow — the
+         tightest thing left in the band.
+         THIS ALSO RETIRES A RULE THAT WAS WAITING TO BREAK. The base list strips the bottom
+         border from the last TWO items (`nth-last-child(-n+2)`), which is the last ROW only
+         while the count is even and the grid has two columns; its own comment flags that. In
+         one column the last two items are two separate rows, so the border comes back here and
+         only the true last item loses it. A CMS-driven list should mark the last row in the
+         markup instead — the note on .ld-dl says so. */
+      .ld-dl{ grid-template-columns: 1fr; }
+      .ld-dl li:nth-last-child(-n+2){ border-bottom: 1px solid var(--color-border); }
+      .ld-dl li:last-child{ border-bottom: 0; }
+    }
+
+    /* ---- 320-479: THE PHONE BAND. Two real overflows are fixed here. ---- */
+    @media (max-width: 479px){
+      /* NO THUMBNAILS AT ALL (Kiron, 2026-08-27). Three of them in a row under a 280px photo
+         were 88 x 66 each — the right ratio, but too small to tell one aerial field from
+         another, which is the only job a thumbnail has. Two would have been 137 x 103 and
+         still not much of a picture.
+         WHAT REPLACES THEM: nothing new. The gallery already has three ways in that do not
+         depend on the strip — the arrows step through the ten photographs in place, the
+         photograph itself opens the lightbox, and "View all 10 photos" sits on it. On a phone
+         those are better affordances than a row of stamps.
+         THE STRIP IS NOT BUILT, not merely hidden: the script's count goes to 0 in this band,
+         so no thumbnail markup exists and no thumbnail images are requested. This rule then
+         removes the empty container, which would otherwise still add a grid row and its 8px
+         gap under the photograph. Both halves are needed. */
+      .ld-thumbs{ display: none; }
+
+      /* AGENT CARD: HEADSHOT ABOVE THE CONTACT LINES (Kiron, 2026-08-27) — the same stack the
+         rail uses from 1535 down, for the same reason and the third time this constraint has
+         come up. The contact lines need 205px of ink; beside a 68px photograph and its 16px
+         gap the details column had 201px at a 375 viewport, 186 at 360 and 166 at 320, so the
+         card overflowed its own box and pushed .ld-main wide enough to give the WHOLE PAGE a
+         horizontal scrollbar at 320 (334px of content in a 320px window). Stacked, the lines
+         get the card's full inner width — 240px at 320 — and the page stops scrolling
+         sideways.
+         Name, then photo, then details, which is the DOM order, so no `order` is needed. */
+      .ld-agent{ grid-template-columns: minmax(0, 1fr); }
+
+      /* SUB NAV: SMALLER TYPE, SMALLER ICONS, TIGHTER GAPS (Kiron, 2026-08-27).
+         Three columns of 95px could not hold "Downloads" with its icon — that link needs
+         about 125px at 14px type with a 17px icon, an 8px gap and 12px of side padding, so
+         the longest two links overflowed their cells from 375 down.
+         Every one of the four values comes down rather than any one of them a long way:
+         type 14 → 12, icon 17 → 14, icon-to-label gap 8 → 6, side padding 12 → 6, and the
+         grid's own gap 8 → 6. That buys ~37px per cell, which is what the overflow was.
+         ⚠ The VERTICAL padding is deliberately left at the 6px the 1279 band set. Each link
+         is ~30px tall with it, and WCAG 2.2 SC 2.5.8 wants 24px minimum — there is no room
+         to take height out of these targets, only width. */
+      .ld-jump-inner{ gap: 6px; }
+      .ld-jump a{ font-size: 12px; gap: 6px; padding-left: 6px; padding-right: 6px; }
+      .ld-jump svg{ width: 14px; height: 14px; }
+
+      /* ACCORDION CONTENT STEPS DOWN (Kiron, 2026-08-27). The body copy has been 16px since
+         1536, where it sits in a 932px column; here the column is 280-439px, so 16px was
+         running 30-46 characters a line and the accordions read as large type in a narrow
+         box. 16 → 14 for prose, and the smaller members of the set come down with it so the
+         relationships inside a section hold:
+           prose and tract copy   16 → 14
+           the address line       16 → 14
+           the field list (dl)    12 → 11
+           download names         15 → 13   (the "PDF" tag and its arrow follow at 11)
+           terms fine print       13 → 12
+         HEADINGS AND LABELS ARE NOT TOUCHED — the accordion h2s, the "Directions" label and
+         the stat table keep their sizes. This is a content step, not a global scale-down, and
+         the section headers are what make the closed list of five readable on a phone.
+         14px is the floor: it is the smallest size in this build that is still comfortable
+         body copy, and the reason the drop is one step rather than two. */
+      .ld-copy, .ld-tract p{ font-size: 14px; }
+      .ld-ovaddr{ font-size: 14px; }
+      .ld-fields{ font-size: 11px; }
+      .ld-dl a{ font-size: 13px; }
+      .ld-dl .m{ font-size: 11px; }
+      #ld-terms .ld-copy{ font-size: 12px; }
     }
   </style>
 </head>
@@ -809,13 +1208,6 @@
   <!-- ================= PAGE CONTENT ================= -->
   <main class="listing-body" aria-label="Listing detail">
 
-    <div class="ld-wrap">
-      <a class="ld-back" href="./listings.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/></svg>
-        Back to Listings
-      </a>
-    </div>
-
     <!-- ===================== TWO-COLUMN BODY =====================
          The grid starts at the media, so the enquiry form in the rail sits level
          with the photograph. -->
@@ -823,6 +1215,27 @@
 
       <!-- ---------------- MAIN COLUMN ---------------- -->
       <div class="ld-main">
+
+        <!-- "ALL LISTINGS" LIVES INSIDE THE MAIN COLUMN (moved 2026-08-27). It used to
+             sit in its own .ld-wrap above .ld-body, which LOOKED identical — both are on the
+             same rail, so the link landed in the same place to the pixel. The move is for the
+             900-1023 band, where the headline is ordered above the photograph: Kiron wants
+             this link to stay attached to the top of the MAIN IMAGE rather than to the top of
+             the page, and flex `order` can only reorder siblings. Inside the column it is a
+             sibling of the media and the headline, so it can travel with the picture.
+             .ld-wrap went with it — it had no other user. -->
+        <!-- "ALL LISTINGS" AT EVERY WIDTH, with the arrow (Kiron, 2026-08-27). One label on
+             the whole ladder — the responsive swap built earlier the same day ("Back to
+             Listings" down to 504, "Back" below it) is gone, and so is the aria-label that
+             held the long name: the visible text IS the accessible name again, which is the
+             arrangement with nothing to keep in sync.
+             "All Listings" over "Back to Listings" also says where the link GOES rather than
+             where the visitor came from, which is truer — the page can be arrived at from a
+             search result or a shared URL, not only from the results page. -->
+        <a class="ld-back" href="./listings.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/></svg>
+          All Listings
+        </a>
 
         <!-- No "Listed by" strip: the PC lockup is already in the header a few pixels
              above it, and the agents are named in the rail (Kiron, 2026-08-25).
@@ -889,18 +1302,57 @@
           </div>
         </div>
 
-        <!-- ---- SUB BAR: jump nav + Save/Share, pinned together ----
-             (Kiron, 2026-08-26) The two controls SHARE THE SUB NAV'S ROW and travel with
-             it, so Save is reachable from anywhere on the page rather than only at the
-             top. That is the whole point of the move: on a page this long, a save
-             control that scrolls away is one you have to hunt for.
+        <!-- ---- SAVE + SHARE: their own right-aligned row ----
+             (Kiron, 2026-08-27) They used to ride inside .ld-subbar, pinned right. The
+             responsive pass moved them out: the bar needs 823px for the links plus this
+             pair, and the left column is 772px from --site 1280 down, so the bar wrapped
+             to two rows. See the .ld-actions note in the CSS for the full trade.
 
-             THE WRAPPER IS WHY THE NAV IS STILL A <nav>. Save and Share are not
-             navigation, so they must not sit inside <nav aria-label="Jump to section"> —
-             a screen reader listing that landmark would announce two buttons that jump
-             nowhere. .ld-subbar is a plain div that carries the sticky, the background
-             and the margin; the <nav> is now just the link list inside it. Do not
-             "simplify" this by moving the buttons into the nav. -->
+             THE SUB NAV IS STILL A <nav> AND THIS IS STILL OUTSIDE IT. Save and Share are
+             not navigation, so they must not sit inside <nav aria-label="Jump to section">
+             — a screen reader listing that landmark would announce two buttons that jump
+             nowhere. That was true when they shared the bar and it is true here. -->
+        <div class="ld-actionrow">
+          <!-- SAVE: aria-pressed, not a link and not a checkbox. A toggle button is the
+               correct role for "on/off, applies immediately", and it is what the results
+               cards already use, so assistive tech announces the two the same way.
+               ⚠ VISUAL ONLY. The pressed state is the whole behaviour here. Per field
+               spec §3.1 the real control writes to customer preferences and prompts the
+               login screen when nobody is signed in — so the live build must NOT let
+               this look saved to a logged-out visitor, and the state has to match the
+               same listing's star on listings.html. -->
+          <div class="ld-actions">
+            <button class="ld-action" type="button" id="ldSave" aria-pressed="false">
+              <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <span id="ldSaveLabel">Save</span>
+            </button>
+            <!-- SHARE opens a Facebook / LinkedIn / Email sheet per §3.1. That panel is
+                 NOT BUILT — this button is inert, like every other form control in this
+                 mockup. It is here so the pair can be judged together: placing Save on
+                 its own would mean rebuilding this row when Share arrives. -->
+            <button class="ld-action" type="button" id="ldShare">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+              <span>Share</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- WHERE THE AGENT CARD LANDS AT 1023 AND BELOW (Kiron, 2026-08-27).
+             Empty at 1024+, where the card sits in the rail; the script moves the real node
+             in here when the page goes to one column, so the agents sit directly under the
+             price and above the sub nav. An empty div with no rules of its own costs nothing
+             at the widths where it stays empty — the margins are set inside the 1023 block,
+             so they only exist when it is occupied. -->
+        <div class="ld-agentslot" id="ldAgentSlot"></div>
+
+        <!-- ---- SUB BAR: the jump nav, pinned ----
+             The nav is the bar's only child as of 2026-08-27 — Save and Share moved to
+             their own row above (see there for why). THE WRAPPER IS KEPT rather than
+             putting the sticky on the <nav> itself: it carries the sticky, the opaque
+             background and the margin, which leaves the <nav> to be nothing but the link
+             list. It is also what any future right-hand control would sit beside without
+             ending up inside the navigation landmark. -->
         <div class="ld-subbar">
         <nav class="ld-jump" aria-label="Jump to section">
           <div class="ld-jump-inner">
@@ -912,29 +1364,6 @@
             <a href="#ld-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Terms</a>
           </div>
         </nav>
-        <!-- SAVE: aria-pressed, not a link and not a checkbox. A toggle button is the
-             correct role for "on/off, applies immediately", and it is what the results
-             cards already use, so assistive tech announces the two the same way.
-             ⚠ VISUAL ONLY. The pressed state is the whole behaviour here. Per field
-             spec §3.1 the real control writes to customer preferences and prompts the
-             login screen when nobody is signed in — so the live build must NOT let
-             this look saved to a logged-out visitor, and the state has to match the
-             same listing's star on listings.html. -->
-        <div class="ld-actions">
-          <button class="ld-action" type="button" id="ldSave" aria-pressed="false">
-            <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-            <svg class="star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-            <span id="ldSaveLabel">Save</span>
-          </button>
-          <!-- SHARE opens a Facebook / LinkedIn / Email sheet per §3.1. That panel is
-               NOT BUILT — this button is inert, like every other form control in this
-               mockup. It is here so the pair can be judged together: placing Save on
-               its own would mean rebuilding this row when Share arrives. -->
-          <button class="ld-action" type="button" id="ldShare">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-            <span>Share</span>
-          </button>
-        </div>
         </div>
 
         <section id="ld-overview" class="reveal">
@@ -1282,6 +1711,38 @@
             <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Clay County, IA</a></p>
             <p class="lc-headline">$3,120,000</p>
             <p class="lc-meta"><span>212 Acres</span><span>204 Tillable Acres</span><span>CSR2 81.9</span></p>
+            <div class="lc-agentrow">
+              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Matt Adams</p>
+            </div>
+          </div>
+        </article>
+        <!-- THE FOURTH CARD EXISTS FOR THE 768-899 BAND ONLY (Kiron, 2026-08-27).
+             The grid is two across there, so three cards leave an orphan on a second row;
+             a fourth completes a 2x2. It is display: none everywhere else — at 900+ the grid
+             is three across and a fourth would orphan in turn, and below 768 the grid is a
+             single column where the count is arbitrary.
+             ⚠ FOR THE DEVELOPER: this is a layout device in a mockup, not a content rule.
+             The real section should ask the CMS for as many similar listings as the current
+             grid needs (3 or 4), rather than fetching four and hiding one — a hidden card is
+             still a request, still an image, and still in the accessibility tree if the
+             hiding ever breaks. The rule lives in pc.css beside the rest of this section's
+             variant; see .ld-4th there. -->
+        <article class="lc ld-4th">
+          <div class="lc-media">
+            <img src="../assets/pc-hero9.jpg" alt="Aerial view of farmland at sunset" loading="lazy" />
+            <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+            </button>
+          </div>
+          <div class="lc-body">
+            <div class="lc-statusrow">
+              <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+              <p class="lc-id"><span class="sr-only">Listing </span>#19563</p>
+            </div>
+            <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Dickinson County, IA</a></p>
+            <p class="lc-headline">$1,425,000</p>
+            <p class="lc-meta"><span>96 Acres</span><span>92 Tillable Acres</span><span>CSR2 79.6</span></p>
             <div class="lc-agentrow">
               <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Matt Adams</p>
             </div>
@@ -1812,36 +2273,107 @@
       document.getElementById("ldNext").addEventListener("click", function(){ show(cur + 1); });
       document.getElementById("ldPrev").addEventListener("click", function(){ show(cur - 1); });
 
-      /* THREE THUMBNAILS = photographs 2, 3 and 4, matching the reference. The third
-         carries the "+N more" veil so the set reads as a way into the whole gallery.
-         Clicking a thumbnail moves the MAIN FRAME rather than opening the lightbox:
-         it is the cheaper action, and the frame and "View all" both open the lightbox
-         for anyone who wants the photograph big. */
-      var THUMB_START = 1, THUMB_COUNT = 3;
-      PHOTOS.slice(THUMB_START, THUMB_START + THUMB_COUNT).forEach(function(p, i){
-        var idx = THUMB_START + i;
-        var btn = document.createElement("button");
-        btn.className = "ld-thumb"; btn.type = "button";
-        btn.setAttribute("aria-label", "Show photograph " + (idx + 1) + ": " + p.cap);
-        var im = document.createElement("img");
-        im.src = p.src; im.alt = ""; im.setAttribute("aria-hidden", "true");
-        im.loading = "lazy"; im.decoding = "async";
-        im.onerror = function(){ btn.style.display = "none"; };
-        btn.appendChild(im);
+      /* THUMBNAILS = the photographs after the first one. THREE at 1280+, TWO at 1279 and
+         below (Kiron, 2026-08-27): the column is 170px wide there and three of them are
+         97px tall, a 1.75:1 sliver of a 4:3 photograph; two are 150px tall and near the
+         source ratio. The CSS sets the track count, this sets how many exist.
 
-        var remaining = PHOTOS.length - (THUMB_START + THUMB_COUNT);
-        if(i === THUMB_COUNT - 1 && remaining > 0){
-          var veil = document.createElement("span");
-          veil.className = "ld-more";
-          veil.textContent = "+" + remaining + " more";
-          btn.appendChild(veil);
-          btn.setAttribute("aria-label", "See all " + PHOTOS.length + " photographs");
-          btn.addEventListener("click", function(){ openLightboxAt(idx); });
-        } else {
-          btn.addEventListener("click", function(){ show(idx); });
-        }
-        thumbsEl.appendChild(btn);
+         WHY THE COUNT IS HERE AND NOT A CSS `display: none` ON THE THIRD: the LAST
+         thumbnail is not interchangeable with the others. It carries the "+N more" veil,
+         its label reads "See all 10 photographs" instead of naming one, and it is the only
+         thumbnail that opens the LIGHTBOX rather than moving the main frame. Hiding it in
+         CSS would have removed the gallery's entry point and left the remaining two
+         labelled and wired as plain frame-swaps. Rebuilding is the honest way to move it.
+
+         Clicking any other thumbnail moves the MAIN FRAME rather than opening the
+         lightbox: it is the cheaper action, and the frame and "View all" both open the
+         lightbox for anyone who wants the photograph big. */
+      var THUMB_START = 1;
+      /* TWO THUMBNAILS IN ONE BAND ONLY: 1024-1279, where the strip is a 170px side column
+         beside a short frame. Three everywhere else — above 1280 the column is 210px beside a
+         taller frame, and at 1023 and below the strip is a full-width row under the
+         photograph, where three fit at the source ratio.
+         The query is CLOSED AT BOTH ENDS for the same reason the similar-cards rule in pc.css
+         is: `max-width: 1279px` alone would also match the one-column bands and leave two
+         thumbnails in a row built for three.
+         matchMedia rather than a resize handler + innerWidth: it fires only on the crossing,
+         and it reads the same media query the stylesheet does, so the two cannot drift. */
+      var thumbMQ = window.matchMedia("(min-width: 1024px) and (max-width: 1279px)");
+      /* NONE AT ALL BELOW 480 (Kiron, 2026-08-27): at 320 three thumbnails are 88 x 66, too
+         small to distinguish one field from another. The arrows, the photograph itself and
+         "View all N photos" are the gallery's way in there. Building zero rather than hiding
+         three means no thumbnail images are requested on a phone at all. */
+      var thumbNoneMQ = window.matchMedia("(max-width: 479px)");
+
+      function buildThumbs(){
+        var count = thumbNoneMQ.matches ? 0 : (thumbMQ.matches ? 2 : 3);
+        thumbsEl.innerHTML = "";
+        PHOTOS.slice(THUMB_START, THUMB_START + count).forEach(function(p, i){
+          var idx = THUMB_START + i;
+          var btn = document.createElement("button");
+          btn.className = "ld-thumb"; btn.type = "button";
+          btn.setAttribute("aria-label", "Show photograph " + (idx + 1) + ": " + p.cap);
+          var im = document.createElement("img");
+          im.src = p.src; im.alt = ""; im.setAttribute("aria-hidden", "true");
+          im.loading = "lazy"; im.decoding = "async";
+          im.onerror = function(){ btn.style.display = "none"; };
+          btn.appendChild(im);
+
+          /* The veil's count is derived from how many are SHOWN, so it stays truthful when
+             the count changes: +6 with three thumbnails, +7 with two. */
+          var remaining = PHOTOS.length - (THUMB_START + count);
+          if(i === count - 1 && remaining > 0){
+            var veil = document.createElement("span");
+            veil.className = "ld-more";
+            veil.textContent = "+" + remaining + " more";
+            btn.appendChild(veil);
+            btn.setAttribute("aria-label", "See all " + PHOTOS.length + " photographs");
+            btn.addEventListener("click", function(){ openLightboxAt(idx); });
+          } else {
+            btn.addEventListener("click", function(){ show(idx); });
+          }
+          thumbsEl.appendChild(btn);
+        });
+      }
+      buildThumbs();
+      /* addEventListener, with addListener as the fallback: Safari only gained the modern
+         form on MediaQueryList in 14. */
+      [thumbMQ, thumbNoneMQ].forEach(function(mq){
+        if(mq.addEventListener){ mq.addEventListener("change", buildThumbs); }
+        else if(mq.addListener){ mq.addListener(buildThumbs); }
       });
+
+      /* ---- AGENT CARD: RAIL AT 1024+, ABOVE THE SUB NAV AT 1023 AND BELOW ----
+         (Kiron, 2026-08-27) A DOM MOVE, and it has to be. The card's two homes are inside
+         different grid items — the <aside> in one, the middle of .ld-main's flow in the
+         other — and no CSS property moves an element from one parent's flow into a point
+         partway through a sibling's. `order` only reorders within a single container.
+
+         THE REAL NODE MOVES BOTH WAYS. There is no second copy and nothing is hidden, so:
+           · the reading order always matches the visual order,
+           · the Save/Share and lightbox scripts keep working, since they bound their
+             listeners to these elements and listeners survive a move,
+           · and the card cannot get out of sync with itself, which two copies would.
+         appendChild / insertBefore MOVE a node rather than cloning it — that is what makes
+         this safe. The card is put back before the form so the rail reads agents → form. */
+      var agentCard = document.getElementById("ld-agent"),
+          agentSlot = document.getElementById("ldAgentSlot"),
+          agentRail = document.querySelector(".ld-aside"),
+          agentForm = document.getElementById("ld-contact");
+      /* Same 1023 step the stylesheet uses. */
+      var agentMQ = window.matchMedia("(max-width: 1023px)");
+
+      function placeAgentCard(){
+        if(!agentCard || !agentSlot || !agentRail) return;
+        var wantSlot = agentMQ.matches;
+        var inSlot = agentCard.parentNode === agentSlot;
+        if(wantSlot === inSlot) return;   // already where it belongs; do not touch the DOM
+        if(wantSlot){ agentSlot.appendChild(agentCard); }
+        else { agentRail.insertBefore(agentCard, agentForm); }
+      }
+      placeAgentCard();
+      if(agentMQ.addEventListener){ agentMQ.addEventListener("change", placeAgentCard); }
+      else if(agentMQ.addListener){ agentMQ.addListener(placeAgentCard); }
 
       /* The frame and "View all" open the gallery at whatever the frame is showing.
          openLightboxAt is defined by the lightbox block below and hung on window,

@@ -2195,7 +2195,66 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 @media (max-width: 1279px){
   .lc-grid{ grid-template-columns: repeat(2, 1fr); }
 }
+
+/* BROWSE SIMILAR PROPERTIES KEEPS THREE ACROSS AT 900-1279 (Kiron, 2026-08-27).
+   A page-scoped variant of the shared card, which is where the listing-detail page's comment
+   says such a difference belongs — the page's own <style> must not carry .lc-* rules, since it
+   loads after this file and would win silently.
+
+   WHY THE DIFFERENCE IS RIGHT: on listings.html the grid is the results, and two larger cards
+   per row is a better way to read eighteen of them. Here there are exactly three, they are a
+   footer to the listing above, and dropping them to 2+1 leaves one card sitting alone under a
+   pair — which reads as a fourth card failing to load rather than as a set of three.
+   THE CARDS PAY FOR IT by getting smaller, per Kiron: 309px each at gap 16 instead of 464px at
+   two across. The type steps down with them so the card keeps its proportions rather than
+   becoming a normal card with the copy crammed in:
+     place 24 → 20, price 22 → 19, meta 12 → 11, body padding 16 → 12.
+   Every line in this card is white-space: nowrap by design (see .lc-place / .lc-meta), so a
+   line that no longer fits does not wrap — it overflows. Stepping the type is not cosmetic
+   here, it is what keeps the longest meta row inside a 285px body.
+
+   THE LOWER BOUND IS 900, AND IT IS MEASURED (Kiron, 2026-08-27). Three across survives the
+   one-column band too — the cards are 309px at 1023 and 268px at 900 — but not below it: at
+   850 the meta row ("128 Acres · 119 Tillable Acres · CSR2 78.4") overflows its card by 2px,
+   and by 768 it is over by 25. Since every line in this card is nowrap, that is an overflow,
+   not a wrap. Stepping the type to 18/17/10 carries it to 800 and still fails at 768, so the
+   honest floor is 900 — which is already a ladder point (it is where the header swaps to the
+   hamburger). 768-899 is a separate decision, not yet taken; it currently falls through to
+   the shared 2-across rule.
+
+   ⚠ THE BAND IS CLOSED AT BOTH ENDS ON PURPOSE. `max-width: 1279px` alone would also match
+   767 and below, where .lc-grid goes to a single column — and since these selectors are
+   two-class they would beat that rule and force three cards across a phone. The min-width is
+   what stops that. Outside this band the section takes the shared card's own ladder. */
+/* THE FOURTH CARD: 768-899 ONLY (Kiron, 2026-08-27).
+   Three cards in a two-across grid leave one alone on a second row — the same orphan the
+   three-across rule above exists to avoid. A fourth completes a 2x2, and at 340-406px each
+   the cards are larger here than the three-across ones are at 900.
+   Hidden by default rather than shown by default, so the card can only ever appear in the one
+   band that asked for it: at 900+ the grid is three across and a fourth orphans in turn, and
+   at 767 and below the grid is a single column where a fourth is just more scrolling.
+   ⚠ display: none takes it out of the accessibility tree as well as the layout, which is what
+   we want — but it does NOT stop the browser fetching its image. See the note in the page's
+   markup: the real build should ask the CMS for the number of cards the grid needs. */
+.ld-similar .lc.ld-4th{ display: none; }
+@media (min-width: 768px) and (max-width: 899px){
+  .ld-similar .lc.ld-4th{ display: block; }
+}
+
+@media (min-width: 900px) and (max-width: 1279px){
+  .ld-similar .lc-grid{ grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+  .ld-similar .lc-body{ padding: var(--space-3); }
+  .ld-similar .lc-place{ font-size: 20px; }
+  .ld-similar .lc-headline{ font-size: 19px; }
+  .ld-similar .lc-meta{ font-size: 11px; }
+}
 @media (max-width: 767px){
+  /* ONE FULL-WIDTH CARD PER ROW, and for Browse Similar that is Kiron's explicit call
+     (2026-08-27) rather than just the shared default falling through. Two across was measured
+     and offered — 344 / 310 / 280px cards, and it would have cut the section from 2320px tall
+     to 996 — and Kiron chose the full-width card anyway. So the height is a known, accepted
+     cost of showing the card at full size on a small screen. Do not "optimise" it back to two
+     columns without asking. */
   .lc-grid{ grid-template-columns: 1fr; }
   /* FULL-ROW PREMIUM: nothing to stack — it is one photograph with the copy over it, so what
      changes is the SHAPE, not the layout. 3/1 is a banner ratio that only works while the card
