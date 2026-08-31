@@ -43,26 +43,107 @@
     .tm-intro p:not(.hp-eyebrow){ font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: var(--space-4) 0 0; }
 
-    /* Filter row. Links, not buttons — each is a real filtered archive URL on the live
-       site. The active chip is filled AND first AND aria-current: never colour alone. */
-    .tm-filters{ display: flex; flex-wrap: wrap; gap: 8px; margin: var(--space-6) 0 0; }
+    /* ---- the finder: a search box and a row of service pills ----
+       BUTTONS, NOT LINKS (Kiron, 2026-08-31). They were anchors pointing at filtered archive
+       URLs; the page now filters IN PLACE, so they are `<button type="button">` carrying
+       `aria-pressed`. A control that changes the page under you without navigating is a button,
+       and `aria-pressed` is what tells a screen reader which filter is on.
+       ⚠ NO `aria-current="page"` ON THEM ANY MORE — that is for navigation, and these no longer
+       navigate. The active pill is filled AND aria-pressed: never colour alone. */
+    .tm-controls{ display: flex; flex-direction: column; gap: var(--space-4);
+      margin: var(--space-6) 0 0; }
+
+    /* The search box leads, because at 178 people someone who knows the name should not have to
+       read a pill row first. Capped rather than full width: it takes one short string. */
+    .tm-searchwrap{ position: relative; max-width: 340px; }
+    .tm-searchwrap svg{ position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 17px; height: 17px; color: var(--pc-navy); pointer-events: none; }
+    .tm-search{ width: 100%; font-family: var(--font-sans); font-size: 14px; line-height: 1.2;
+      color: var(--color-text); background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-pill);
+      padding: 11px 38px 11px 40px; }
+    .tm-search::placeholder{ color: var(--color-text-muted); }
+    .tm-search:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px;
+      border-color: var(--pc-navy); }
+    /* The native search-field clear is inconsistent across browsers, so it is suppressed and
+       replaced with one that can be styled, positioned and given a real accessible name. */
+    .tm-search::-webkit-search-cancel-button{ -webkit-appearance: none; appearance: none; }
+    .tm-searchclear{ position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border: 0; border-radius: 50%; background: transparent; cursor: pointer;
+      font-size: 17px; line-height: 1; color: var(--pc-navy); }
+    .tm-searchclear:hover{ background: var(--pc-light-blue); }
+    .tm-searchclear:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 1px; }
+
+    .tm-filters{ display: flex; flex-wrap: wrap; gap: 8px; }
     .tm-chip{ font-family: var(--font-sans); font-size: 13px; font-weight: 600; line-height: 1;
       color: var(--pc-navy); background: var(--pc-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-pill); padding: 9px 16px; text-decoration: none;
+      cursor: pointer;
       transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
     .tm-chip:hover{ background: var(--pc-light-blue); border-color: var(--pc-light-blue); }
     .tm-chip:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .tm-chip.is-active{ background: var(--pc-navy); border-color: var(--pc-navy); color: var(--pc-white); }
 
-    /* ---- people grid ---- */
-    .tm-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5);
+    /* THE COUNT LINE IS A LIVE REGION. It is the only thing that tells a screen-reader user the
+       grid changed under them - the cards are removed silently otherwise. `role="status"` reads
+       it politely, after whatever they were doing. */
+    .tm-count{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+      color: var(--color-text-muted); margin: var(--space-5) 0 0; }
+    .tm-count b{ color: var(--pc-black); }
+
+    /* Empty state. Not an error - a filter combination with nobody in it is a normal outcome,
+       so it explains and offers the way back rather than apologising. */
+    .tm-empty{ padding: var(--space-8) 0; }
+    .tm-empty p{ font-family: var(--font-sans); font-size: var(--body-lg);
+      color: var(--color-text-muted); margin: 0 0 var(--space-4); max-width: 52ch; }
+    .tm-reset{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+      color: var(--pc-white); background: var(--pc-navy); border: 1px solid var(--pc-navy);
+      border-radius: var(--radius-pill); padding: 10px 18px; cursor: pointer; }
+    .tm-reset:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    /* ---- people grid ----
+       FIVE ACROSS (Kiron, 2026-08-31), up from four. At 178 people the row count is what makes
+       the page read as a roster rather than a gallery, and five 4:5 portraits still hold at the
+       top rung. The ladder gains a rung at 1535 so the step down is 5 -> 4 -> 3 -> 2 -> 1 rather
+       than shedding two columns at once. */
+    .tm-grid{ display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-5);
       margin-top: var(--space-7); }
 
-    .tm-card{ display: flex; flex-direction: column; background: var(--pc-white);
+    /* `position: relative` IS LOAD-BEARING: it is what the stretched link below anchors to.
+       Without it the overlay would size itself to the nearest positioned ancestor instead. */
+    .tm-card{ position: relative; display: flex; flex-direction: column; background: var(--pc-white);
       border: 1px solid var(--color-border); border-radius: var(--radius-md);
       overflow: hidden; transition: box-shadow .18s ease, transform .18s ease; }
     .tm-card:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
     @media (prefers-reduced-motion: reduce){ .tm-card:hover{ transform: none; } }
+
+    /* ---- the entrance: cards LOAD IN when the filter changes ----
+       (Kiron, 2026-08-31: the grid was stagnant - the cards simply appeared.) Filtering used to
+       be a `hidden` toggle, so a set of twenty became a set of three between two frames with
+       nothing to say it had happened. The result set now rises and fades in, staggered, which is
+       what makes it read as the page fetching people rather than the page cutting to them.
+
+       A KEYFRAME ANIMATION, NOT A TRANSITION, and that is the whole reason this is not two lines.
+       `.tm-card` already transitions `transform` for its 3px hover lift. A transition-based
+       entrance would drive the same property from the same element, so a card entering under the
+       pointer would fight its own hover, and the two durations (.18s and .34s) would cross-fade
+       into a wobble. An animation runs on its own timeline and hands `transform` back untouched.
+       ⚠ THE CLASS IS REMOVED ON `animationend`, and it has to be: `both` holds the final frame,
+       which would keep `transform: none` pinned on the card and kill the hover lift for good.
+
+       CAPPED STAGGER. 26ms a card, but no card waits longer than 260ms however many there are -
+       at 178 an uncapped stagger would take four and a half seconds to finish drawing a page. */
+    @keyframes tm-cardin{
+      from{ opacity: 0; transform: translateY(10px) scale(.985); }
+      to{ opacity: 1; transform: none; }
+    }
+    .tm-card.is-in{ animation: tm-cardin .34s cubic-bezier(.2,.7,.3,1) both; }
+    /* The result still changes, it just changes at once. The count line is the announcement
+       either way, which is what a reduced-motion user is relying on. */
+    @media (prefers-reduced-motion: reduce){
+      .tm-card.is-in{ animation: none; }
+    }
 
     /* Portrait. 4:5 is the headshot crop — see developer-team.md for the export spec.
        The gradient is the empty state: until a real photo exists the onerror hides the
@@ -78,7 +159,31 @@
       line-height: 1.2; margin: 0; }
     .tm-name a{ color: var(--pc-black); text-decoration: none; }
     .tm-name a:hover{ color: var(--pc-medium-blue); }
-    .tm-name a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    /* ---- THE WHOLE CARD IS THE CLICK TARGET (Kiron, 2026-08-31) ----
+       A STRETCHED LINK, NOT AN ANCHOR WRAPPING THE CARD. The overlay is a pseudo-element on the
+       name's `<a>` covering the card, so the markup keeps ONE anchor whose text is the person's
+       name - which is what a screen reader reads out and what the link list shows. Wrapping the
+       <article> in an <a> would instead give every link the accessible name "Paul Anderson Land
+       Manager" and put a heading inside a link.
+       THIS ONLY BECAME SAFE WHEN THE CARD LOST ITS PHONE AND EMAIL. Interactive elements do not
+       nest, so while those were present an overlay would have covered them and stopped them
+       working. The card now holds exactly one interactive thing, so there is nothing to cover.
+       ⚠ IF A SECOND CONTROL EVER RETURNS TO THE CARD - a save star, a direct-dial link - it needs
+       `position: relative; z-index: 1` to sit above this overlay, or it stops being clickable
+       with no visible sign that anything is wrong. */
+    .tm-name a::after{ content: ""; position: absolute; inset: 0; }
+
+    /* THE FOCUS RING GOES ON THE CARD, NOT THE ANCHOR. Keyboard focus lands on a link that is now
+       the size of the card, so a ring drawn around just the name would point at the wrong shape.
+       It cannot go on the ::after either: `.tm-card` is `overflow: hidden`, which clips a
+       descendant's outline - an element's own outline is not clipped by its own overflow, so the
+       ring has to be drawn by the card itself. */
+    .tm-card:has(.tm-name a:focus-visible){ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    /* Fallback for anything without :has() - rings the name rather than nothing at all. */
+    @supports not selector(:has(*)){
+      .tm-name a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    }
     .tm-role{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45;
       color: var(--pc-black); margin: 2px 0 0; }
     .tm-office{ font-family: var(--font-sans); font-size: 12px; line-height: 1.4;
@@ -109,6 +214,7 @@
       color: var(--pc-white); }
 
     /* ---- responsive: steps sit on the shared --site ladder ---- */
+    @media (max-width: 1535px){ .tm-grid{ grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 1279px){ .tm-grid{ grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 899px){
       .tm-grid{ grid-template-columns: repeat(2, 1fr); }
@@ -192,105 +298,216 @@
       <div class="tm-intro reveal">
         <p class="hp-eyebrow">The Company</p>
         <h1>Our Team</h1>
-        <p>Land professionals across the Midwest and beyond. Filter by service to find the
-          person who works in your area, or reach any office directly.</p>
-        <nav class="tm-filters" aria-label="Filter by service">
-          <a class="tm-chip is-active" href="./team.html" aria-current="page">All</a>
-          <a class="tm-chip" href="./internal.html">Land Brokerage &amp; Auctions</a>
-          <a class="tm-chip" href="./internal.html">Agricultural Appraisal</a>
-          <a class="tm-chip" href="./internal.html">Land Management</a>
-          <a class="tm-chip" href="./internal.html">Energy Management</a>
-          <a class="tm-chip" href="./internal.html">Crop Insurance</a>
-          <a class="tm-chip" href="./internal.html">Capital Markets</a>
-          <a class="tm-chip" href="./internal.html">Corporate Services</a>
-        </nav>
+        <!-- ⚠ THE LEAD COPY USED TO PROMISE TWO THINGS THE PAGE DOES NOT DO — "find the person
+             who works in your area" (there is no area filter) and "reach any office directly"
+             (there are no office links). Rewritten to describe the two controls that exist.
+             Rewrite it again if a state or office filter is ever added. -->
+        <p>Land professionals across the Midwest and beyond. Search by name, or filter by the
+          service you need.</p>
+
+        <!-- ============ THE FINDER (Kiron, 2026-08-31) ============
+             Search and pills FILTER THE GRID IN PLACE. They do not navigate, and they COMBINE:
+             a chosen service AND a typed name narrow together, so "Agricultural Appraisal" plus
+             "ober" is appraisers whose name contains "ober". Choosing a pill does not clear the
+             search and typing does not clear the pill.
+             THE ONE THAT DOES CLEAR EVERYTHING is "All", which is both the default state and the
+             way out — plus the reset button in the empty state.
+             ⚠ NOTHING HERE IS IN THE URL. A filtered view cannot be linked or bookmarked, and
+             the back button does not step through filter states. For a mockup that is fine; for
+             the build, service and query belong in the query string so a filtered roster can be
+             shared and so the browser history behaves. -->
+        <div class="tm-controls">
+          <div class="tm-searchwrap">
+            <label class="sr-only" for="tmSearch">Search the team by name</label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+            <input class="tm-search" id="tmSearch" type="search" placeholder="Search by name"
+                   autocomplete="off" spellcheck="false" />
+            <button class="tm-searchclear" id="tmSearchClear" type="button" aria-label="Clear search" hidden>&times;</button>
+          </div>
+
+          <!-- NOT A <nav> ANY MORE. It was `<nav aria-label="Filter by service">` while the pills
+               were links; a group of buttons that filter in place is not a navigation landmark,
+               and leaving it as one would have a screen reader announce a set of links that go
+               nowhere. `role="group"` with the same label is the honest equivalent. -->
+          <div class="tm-filters" role="group" aria-label="Filter by service">
+            <button class="tm-chip is-active" type="button" data-service="all" aria-pressed="true">All</button>
+            <button class="tm-chip" type="button" data-service="brokerage" aria-pressed="false">Land Brokerage &amp; Auctions</button>
+            <button class="tm-chip" type="button" data-service="corporate" aria-pressed="false">Corporate Services</button>
+            <button class="tm-chip" type="button" data-service="management" aria-pressed="false">Land Management</button>
+            <button class="tm-chip" type="button" data-service="appraisal" aria-pressed="false">Agricultural Appraisal</button>
+            <button class="tm-chip" type="button" data-service="capital" aria-pressed="false">Capital Markets</button>
+            <button class="tm-chip" type="button" data-service="crop" aria-pressed="false">Crop Insurance</button>
+            <button class="tm-chip" type="button" data-service="energy" aria-pressed="false">Energy Management</button>
+            <button class="tm-chip" type="button" data-service="operations" aria-pressed="false">Operations</button>
+          </div>
+        </div>
+
+        <p class="tm-count" id="tmCount" role="status" aria-live="polite"></p>
       </div>
 
-      <!-- SKELETON: six sample people. The live roster is 170+, so this page will need
-           real pagination or lazy loading, plus the service/state filters wired up. -->
-      <div class="tm-grid reveal">
+      <!-- ============ SAMPLE ROSTER — 20 REAL PEOPLE ============
+           REAL NAMES AND REAL TITLES, taken from peoplescompany.com/team on 2026-08-31, so the
+           grid can be judged against the length of actual names and job titles rather than
+           invented ones. Sorted BY LAST NAME (Kiron's call), which is what someone hunting a
+           person they already know expects.
+           LEADERSHIP IS DELIBERATELY EXCLUDED (Kiron, for this exercise), so Steve Bruere and
+           Eric Sarff — who were on this page as cards — have come off. Both are Leadership on
+           the live page, and Sarff's card had him as a Land Agent when he is a Vice President.
+           TWENTY, NOT 178. The live roster is 178 and the page paginates at 28; twenty is enough
+           to exercise the grid, every pill and the search. **Every one of the nine services has
+           at least one person**, which is the property that matters — a pill that returns an
+           empty grid would be testing the empty state, not the filter.
+           CONNIE KREIKEMEIER CARRIES TWO SERVICES (`data-service="management crop"`) because the
+           live page lists her under both. That is not a demo convenience: a person genuinely
+           belongs to more than one service, so the field is a LIST and the filter has to match
+           any one of them. Several Leadership entries are double-listed the same way.
+           ⚠ THE OFFICE IS NOT PUBLISHED PER PERSON on the live team page — only the corporate
+           address. Any per-person office on this page would be invented, which is why the card
+           no longer carries one.
+           ⚠ EVERY CARD LINKS TO THE SAME `team-member.html`. Real per-person URLs are §7. -->
+      <div class="tm-grid reveal" id="tmGrid">
 
-        <article class="tm-card">
+        <article class="tm-card" data-service="management" data-name="paul anderson">
           <div class="tm-ph">
-            <img src="../assets/team/steve-bruere.jpg" alt="Steve Bruere" loading="lazy" decoding="async"
+            <img src="../assets/team/paul-anderson.jpg" alt="Paul Anderson" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Steve Bruere</a></h2>
-            <p class="tm-role">President</p>
-            <p class="tm-office">Cumming, IA</p>
-            <p class="tm-contact">
-              <a href="tel:+15152221347">515.222.1347</a>
-              <a href="mailto:SBruere@PeoplesCompany.com">SBruere@PeoplesCompany.com</a>
-            </p>
+            <h2 class="tm-name"><a href="./team-member.html">Paul Anderson</a></h2>
+            <p class="tm-role">Land Manager</p>
           </div>
         </article>
-
-        <article class="tm-card">
+        <article class="tm-card" data-service="management" data-name="mollie aronowitz">
           <div class="tm-ph">
-            <img src="../assets/team/eric-sarff.jpg" alt="Eric Sarff" loading="lazy" decoding="async"
+            <img src="../assets/team/mollie-aronowitz.jpg" alt="Mollie Aronowitz" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Eric Sarff</a></h2>
-            <p class="tm-role">Land Agent</p>
-            <p class="tm-office">Champaign, IL</p>
-            <p class="tm-contact">
-              <a href="tel:+15152221347">515.222.1347</a>
-              <a href="mailto:ESarff@PeoplesCompany.com">ESarff@PeoplesCompany.com</a>
-            </p>
+            <h2 class="tm-name"><a href="./team-member.html">Mollie Aronowitz</a></h2>
+            <p class="tm-role">Associate Director of Land Management</p>
           </div>
         </article>
-
-        <article class="tm-card">
-          <div class="tm-ph">
-            <img src="../assets/team/jared-chambers.jpg" alt="Jared Chambers" loading="lazy" decoding="async"
-                 onerror="this.style.display='none';this.onerror=null;" />
-          </div>
-          <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Jared Chambers</a></h2>
-            <p class="tm-role">Land Agent, CAI</p>
-            <p class="tm-office">Cumming, IA</p>
-            <p class="tm-contact">
-              <a href="tel:+15152221347">515.222.1347</a>
-              <a href="mailto:JChambers@PeoplesCompany.com">JChambers@PeoplesCompany.com</a>
-            </p>
-          </div>
-        </article>
-
-        <article class="tm-card">
+        <article class="tm-card" data-service="management" data-name="george baird">
           <div class="tm-ph">
             <img src="../assets/team/george-baird.jpg" alt="George Baird" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">George Baird</a></h2>
-            <p class="tm-role">Senior Land Manager</p>
-            <p class="tm-office">Cumming, IA</p>
-            <p class="tm-contact">
-              <a href="tel:+15152221347">515.222.1347</a>
-              <a href="mailto:GBaird@PeoplesCompany.com">GBaird@PeoplesCompany.com</a>
-            </p>
+            <p class="tm-role">Owner, Landmark Ag &amp; Senior Land Manager</p>
           </div>
         </article>
-
-        <article class="tm-card">
+        <article class="tm-card" data-service="appraisal" data-name="dean batie">
+          <div class="tm-ph">
+            <img src="../assets/team/dean-batie.jpg" alt="Dean Batie" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Dean Batie</a></h2>
+            <p class="tm-role">Certified General Appraiser</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="corporate" data-name="eric bohnenkamp">
           <div class="tm-ph">
             <img src="../assets/team/eric-bohnenkamp.jpg" alt="Eric Bohnenkamp" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Eric Bohnenkamp</a></h2>
-            <p class="tm-role">Land Agent</p>
-            <p class="tm-office">Cumming, IA</p>
-            <p class="tm-contact">
-              <a href="tel:+15152221347">515.222.1347</a>
-              <a href="mailto:EBohnenkamp@PeoplesCompany.com">EBohnenkamp@PeoplesCompany.com</a>
-            </p>
+            <p class="tm-role">Land Development Advisor</p>
           </div>
         </article>
-
-        <article class="tm-card">
+        <article class="tm-card" data-service="brokerage" data-name="ray brownfield">
+          <div class="tm-ph">
+            <img src="../assets/team/ray-brownfield.jpg" alt="Ray Brownfield" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Ray Brownfield</a></h2>
+            <p class="tm-role">Designated Managing Broker</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="brokerage" data-name="jared chambers">
+          <div class="tm-ph">
+            <img src="../assets/team/jared-chambers.jpg" alt="Jared Chambers" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Jared Chambers</a></h2>
+            <p class="tm-role">Land Agent &amp; Auctioneer</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="energy" data-name="jake costanzo">
+          <div class="tm-ph">
+            <img src="../assets/team/jake-costanzo.jpg" alt="Jake Costanzo" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Jake Costanzo</a></h2>
+            <p class="tm-role">Energy Analyst</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="operations" data-name="maddie coury">
+          <div class="tm-ph">
+            <img src="../assets/team/maddie-coury.jpg" alt="Maddie Coury" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Maddie Coury</a></h2>
+            <p class="tm-role">Operations Manager</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="brokerage" data-name="wendy forthun">
+          <div class="tm-ph">
+            <img src="../assets/team/wendy-forthun.jpg" alt="Wendy Forthun" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Wendy Forthun</a></h2>
+            <p class="tm-role">Land Broker</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="corporate" data-name="jaxon goedken">
+          <div class="tm-ph">
+            <img src="../assets/team/jaxon-goedken.jpg" alt="Jaxon Goedken" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Jaxon Goedken</a></h2>
+            <p class="tm-role">Corporate Services Manager</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="management crop" data-name="connie kreikemeier">
+          <div class="tm-ph">
+            <img src="../assets/team/connie-kreikemeier.jpg" alt="Connie Kreikemeier" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Connie Kreikemeier</a></h2>
+            <p class="tm-role">Land Management Administrator, UFARM &amp; Crop Insurance Manager</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="brokerage" data-name="landon larkin">
+          <div class="tm-ph">
+            <img src="../assets/team/landon-larkin.jpg" alt="Landon Larkin" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Landon Larkin</a></h2>
+            <p class="tm-role">Land Agent</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="appraisal" data-name="kim mcginnis">
+          <div class="tm-ph">
+            <img src="../assets/team/kim-mcginnis.jpg" alt="Kim McGinnis" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Kim McGinnis</a></h2>
+            <p class="tm-role">Appraisal Manager</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="brokerage" data-name="mike nelson">
           <div class="tm-ph">
             <img src="../assets/team/mike-nelson.jpg" alt="Mike Nelson" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
@@ -298,17 +515,73 @@
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Mike Nelson</a></h2>
             <p class="tm-role">Land Agent</p>
-            <p class="tm-office">Cumming, IA</p>
-            <p class="tm-contact">
-              <a href="tel:+15152221347">515.222.1347</a>
-              <a href="mailto:MNelson@PeoplesCompany.com">MNelson@PeoplesCompany.com</a>
-            </p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="capital" data-name="hunter norland">
+          <div class="tm-ph">
+            <img src="../assets/team/hunter-norland.jpg" alt="Hunter Norland" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Hunter Norland</a></h2>
+            <p class="tm-role">Director of Acquisitions</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="appraisal" data-name="emily oberbroeckling">
+          <div class="tm-ph">
+            <img src="../assets/team/emily-oberbroeckling.jpg" alt="Emily Oberbroeckling" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Emily Oberbroeckling</a></h2>
+            <p class="tm-role">Senior Certified General Appraiser</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="operations" data-name="chase rupiper">
+          <div class="tm-ph">
+            <img src="../assets/team/chase-rupiper.jpg" alt="Chase Rupiper" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Chase Rupiper</a></h2>
+            <p class="tm-role">Senior Designer</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="capital" data-name="jonathan shively">
+          <div class="tm-ph">
+            <img src="../assets/team/jonathan-shively.jpg" alt="Jonathan Shively" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Jonathan Shively</a></h2>
+            <p class="tm-role">Director of Capital Partnerships</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="brokerage" data-name="andrew zellmer">
+          <div class="tm-ph">
+            <img src="../assets/team/andrew-zellmer.jpg" alt="Andrew Zellmer" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Andrew Zellmer</a></h2>
+            <p class="tm-role">Senior Land Agent</p>
           </div>
         </article>
 
       </div>
 
-      <nav class="tm-pager" aria-label="Team pages">
+      <!-- EMPTY STATE. Hidden until a filter combination returns nobody. -->
+      <div class="tm-empty" id="tmEmpty" hidden>
+        <p>No one matches that combination. Try a different service, or clear the search.</p>
+        <button class="tm-reset" id="tmReset" type="button">Show all 20 people</button>
+      </div>
+
+      <!-- ⚠ THE PAGER IS A STATIC PLACEHOLDER, and with 20 sample people it cannot be
+           anything else: the live page holds 178 and paginates at 28, which is seven pages.
+           It is left visible so the control is on the page to be designed against, and it is
+           HIDDEN BY SCRIPT the moment a filter or search is active, because three results
+           obviously do not span three pages. Wire it to the real roster with the filters. -->
+      <nav class="tm-pager" id="tmPager" aria-label="Team pages">
         <a class="tm-page" href="./team.html" aria-current="page">1</a>
         <a class="tm-page" href="./internal.html">2</a>
         <a class="tm-page" href="./internal.html">3</a>
@@ -458,6 +731,149 @@
   </button>
 
   <script>
+    /* ================= THE TEAM FINDER =================
+       A service pill AND a name search, narrowing TOGETHER. Kiron, 2026-08-31: the cards display
+       dynamically from either control, and the two combine rather than cancelling each other.
+
+       IT FILTERS THE DOM IT WAS GIVEN. There is no roster array here and no template: the twenty
+       cards are in the HTML, each carrying `data-service` (a SPACE-SEPARATED LIST - a person can
+       belong to more than one) and `data-name` (the name, lower-cased, so matching needs no
+       per-keystroke normalising). The live page has 178 and paginates at 28, so the real build
+       filters the QUERY, not the DOM - but the matching rule below is the one to reproduce.
+
+       WHAT COUNTS AS A MATCH. Substring, case-insensitive, anywhere in the name: "and" finds
+       Paul Anderson. Not fuzzy, not initials, not reversed - "anderson paul" finds nobody. If
+       the roster ever wants "last, first" order or nickname matching, that is a decision, not an
+       oversight.
+
+       ⚠ NO DEBOUNCE, deliberately. Twenty cards is a class toggle per keystroke and imperceptible.
+       At 178 it still would be; at CMS scale, where typing hits the server, it needs one. */
+    (function(){
+      var grid   = document.getElementById("tmGrid");
+      var pills  = [].slice.call(document.querySelectorAll(".tm-chip"));
+      var search = document.getElementById("tmSearch");
+      var clear  = document.getElementById("tmSearchClear");
+      var count  = document.getElementById("tmCount");
+      var empty  = document.getElementById("tmEmpty");
+      var reset  = document.getElementById("tmReset");
+      var pager  = document.getElementById("tmPager");
+      if(!grid || !pills.length) return;
+
+      var cards = [].slice.call(grid.querySelectorAll(".tm-card"));
+      var total = cards.length;
+      var service = "all";
+      var lastSig = null;
+
+      /* Clear the entrance class the moment it finishes, so `animation-fill-mode: both` stops
+         holding `transform: none` on the card and the hover lift works again. Bound once per
+         card rather than per filter, which is why it is here and not in play(). */
+      for(var k = 0; k < cards.length; k++){
+        cards[k].addEventListener("animationend", function(){
+          this.classList.remove("is-in");
+          this.style.animationDelay = "";
+        });
+      }
+
+      /* Restart the entrance on the cards that are now showing.
+         ONE REFLOW, NOT ONE PER CARD. Removing the class from all of them, reading a layout
+         property ONCE, then adding it back is what makes the animation restart; doing the read
+         inside the loop would force twenty synchronous layouts here and 178 on the real page. */
+      function play(visible){
+        for(var i = 0; i < visible.length; i++){
+          visible[i].classList.remove("is-in");
+          visible[i].style.animationDelay = "";
+        }
+        void grid.offsetWidth;
+        for(var j = 0; j < visible.length; j++){
+          visible[j].style.animationDelay = Math.min(j * 26, 260) + "ms";
+          visible[j].classList.add("is-in");
+        }
+      }
+
+      function labelFor(key){
+        for(var i = 0; i < pills.length; i++){
+          if(pills[i].getAttribute("data-service") === key) return pills[i].textContent.trim();
+        }
+        return "";
+      }
+
+      function apply(){
+        var q = search ? search.value.trim().toLowerCase() : "";
+        var shown = 0;
+        var visible = [];
+
+        for(var i = 0; i < cards.length; i++){
+          var c = cards[i];
+          /* Padded with spaces at both ends so an indexOf cannot match across a boundary -
+             " crop " will never be found inside "cropinsurance" or a neighbouring token. */
+          var svc = " " + (c.getAttribute("data-service") || "") + " ";
+          var okSvc = service === "all" || svc.indexOf(" " + service + " ") !== -1;
+          var okQ   = !q || (c.getAttribute("data-name") || "").indexOf(q) !== -1;
+          var on    = okSvc && okQ;
+          c.hidden = !on;
+          if(on){ shown++; visible.push(c); }
+        }
+
+        /* ONLY REPLAY WHEN THE RESULT SET ACTUALLY CHANGED. Typing runs this on every keystroke,
+           and a character that does not change who matches - the "s" in "anders" - must not
+           restart twenty animations underneath the reader. The signature is the set itself, so
+           the test is exact rather than a guess from the count. */
+        var sig = visible.map(function(c){ return c.getAttribute("data-name"); }).join("|");
+        if(sig !== lastSig){ lastSig = sig; play(visible); }
+
+        /* THE COUNT LINE IS THE ONLY ANNOUNCEMENT. Cards vanish silently otherwise, so this is
+           what a screen reader hears - hence role="status" on it in the markup. It names the
+           active filters, because "3 people" alone does not say why the other 17 went. */
+        var bits = [];
+        if(service !== "all") bits.push(labelFor(service));
+        if(q) bits.push("\u201C" + q + "\u201D");
+        var scope = bits.length ? " \u00B7 " + bits.join(" \u00B7 ") : "";
+        if(count){
+          count.innerHTML = shown === total
+            ? "<b>" + total + "</b> people"
+            : "<b>" + shown + "</b> of " + total + " people" + scope;
+        }
+
+        if(empty) empty.hidden = shown !== 0;
+        if(grid)  grid.hidden  = shown === 0;
+        /* The pager is a static placeholder for the 178-person roster. A filtered set of three
+           plainly does not span three pages, so it only stands while nothing is filtered. */
+        if(pager) pager.hidden = !(service === "all" && !q);
+        if(clear) clear.hidden = !q;
+      }
+
+      for(var i = 0; i < pills.length; i++){
+        pills[i].addEventListener("click", function(){
+          service = this.getAttribute("data-service");
+          for(var j = 0; j < pills.length; j++){
+            var on = pills[j] === this;
+            pills[j].classList.toggle("is-active", on);
+            pills[j].setAttribute("aria-pressed", on ? "true" : "false");
+          }
+          apply();
+        });
+      }
+
+      if(search) search.addEventListener("input", apply);
+      if(clear) clear.addEventListener("click", function(){
+        search.value = "";
+        apply();
+        search.focus();   /* focus goes back to the field, not to nowhere */
+      });
+      if(reset) reset.addEventListener("click", function(){
+        if(search) search.value = "";
+        service = "all";
+        for(var j = 0; j < pills.length; j++){
+          var on = pills[j].getAttribute("data-service") === "all";
+          pills[j].classList.toggle("is-active", on);
+          pills[j].setAttribute("aria-pressed", on ? "true" : "false");
+        }
+        apply();
+        if(search) search.focus();
+      });
+
+      apply();
+    })();
     // Mega-menu nav built from the real IA. "The Company" panel carries three
     // affiliation badges on the right (this tab only).
     (function(){
