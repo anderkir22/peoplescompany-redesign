@@ -324,6 +324,20 @@
          ⚠ If the heading is ever made visible again, put this border back with it. */
       border-bottom: 1px solid var(--color-border); }
     .ld-ovstats li{ display: flex; align-items: center; gap: var(--space-3); }
+    /* ---- the stat card pool: same cards, set apart as a catalogue ----
+       A TINT AND A LABEL, not a dashed review box. The cards have to look EXACTLY like the live
+       ones - that is what is being judged - so the only thing separating the two blocks is the
+       ground they sit on and one line of text. Without either, ten identical cards read as a
+       ten-card design rather than five live and the rest available.
+       THE LABEL IS GONE (Kiron, 2026-08-31) - the developer notes carry the explanation. The
+       tint is all that is left, and it is enough only because this block does not ship. */
+    .ld-statpool{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
+      margin: 0 0 var(--space-6); }
+    /* Inherits .ld-ovstats' 5 columns, and loses the rule and the margin that separate the live
+       strip from the prose below it - inside a panel it is neither the top nor the bottom of
+       anything. Wraps to a second and third row on its own, which is what a pool does. */
+    .ld-ovstats-pool{ margin: 0; padding: 0; border-bottom: 0; }
     .ld-ovstats svg{ width: 26px; height: 26px; flex: none; color: var(--pc-medium-blue); }
     .ld-ovstats .n{ display: block; font-family: var(--font-serif); font-size: 22px;
       font-weight: 600; color: var(--color-text); line-height: 1.1; }
@@ -375,12 +389,63 @@
        rather than forcing the bar wider than the column. */
     .ld-jump{ flex: 1 1 auto; min-width: 0; }
     .ld-jump-inner{ display: flex; flex-wrap: wrap; gap: var(--space-2); }
-    .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 12px;
+    /* HORIZONTAL PADDING 12px -> 10px. PORTED FROM listings-details-auction.html, where it was
+       measured and settled first (Kiron, 2026-08-31: "now implement the same rules to forsale").
+       ONE COMPONENT ACROSS TWO PAGES - the sub bar must not differ between them.
+       WHAT IT BOUGHT THERE: nine links needed 937px against a 932px column, so the bar was five
+       pixels short of one row at 1536 and "Terms" wrapped alone. 2px off each side of nine links
+       is 36px, which cleared it with 31px to spare.
+       WHAT IT BUYS HERE IS DIFFERENT, because THIS PAGE HAS EIGHT LINKS, NOT NINE - there is no
+       Tracts section on a For Sale listing:
+         · 1536+ : already fitted on one row at 12px, with 94px spare. Now 126px spare.
+         · 1280-1535 : the column is 812px and eight links needed 838px, so "Terms" wrapped
+           alone. At 10px they need 806px and THE BAR IS NOW ONE ROW HERE TOO - a band the
+           auction page cannot reach, because its ninth link puts it 89px over.
+       ⚠ THAT 1280 ROW HAS ONLY 5.9px OF SLACK. A renamed section, an extra link or a different
+       font would tip it back to two rows. That is not a fault - balanceJump() would pull a
+       second link down so the wrapped row is never a lone one - but do not treat one row at
+       1280 as settled on this page the way it is at 1536.
+       VERTICAL PADDING IS UNTOUCHED at 14px, so the bar's height and --ld-jump-h are unchanged.
+       THE NINE-LINK WORST CASE IS THE AUCTION PAGE'S, NOT THIS ONE. The bar is left-justified
+       and every section is omit-if-empty, so a listing with no video and no 360 renders six
+       links that simply close up to the left. Sizing to eight is sizing to the fullest For Sale
+       page the CMS can produce. */
+    .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 10px;
       font-family: var(--font-sans); font-size: 14px; font-weight: 500;
       color: var(--pc-navy); text-decoration: none; border-bottom: 3px solid transparent; }
     .ld-jump a:hover, .ld-jump a:focus-visible{ color: var(--pc-black); border-bottom-color: var(--pc-medium-blue); }
     .ld-jump a:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: -2px; }
     .ld-jump svg{ width: 17px; height: 17px; flex: none; }
+    /* ---- .ld-jump-break: a forced wrap point, INSERTED BY SCRIPT, never written by hand ----
+       An empty flex item a full line wide and no pixels tall, so it ends the current row and
+       pushes everything after it onto the next one. It costs no height: a line holding only
+       this item is 0px tall.
+       THERE ARE NONE OF THESE IN THE MARKUP. balanceJump() creates them, and only where a row
+       would otherwise be left with a single link - see its comment for the rule. That is why
+       there is no `display: none` here and no media query around it: an element that only
+       exists when it is wanted needs neither.
+       aria-hidden and empty, so it is not in the accessibility tree and adds nothing to read. */
+    .ld-jump-break{ flex: 0 0 100%; width: 100%; height: 0; align-self: flex-start; }
+    /* ---- .ld-jump-wrapped: the tight treatment follows the WRAP, not the viewport ----
+       Set by balanceJump() whenever the bar ends up on more than one row, removed when it does
+       not. A WIDTH CANNOT STAND IN FOR THIS, which the two pages prove between them: at
+       1280-1535 the auction page's nine links wrap and the For Sale page's eight do not, so a
+       media query that tightened the band would leave the For Sale bar 37px tall against the
+       53px it is at 1536 - two heights for a bar that looks identical either side of the line.
+       Keyed to the state instead, a single-row bar is 53px at every width on both pages and a
+       wrapped one is always the tight version.
+       A WRAPPED BAR AT 14px PADDING IS 115px TALL, which is a shelf rather than a bar. The space
+       between the rows comes out instead:
+         - row-gap 8 -> 0. The links carry their own padding, so 0 is not two rows touching.
+         - vertical padding 14 -> 6px. The gap between the two rows IS this padding, twice over:
+           12px, against 36px before the trim. MEASURED: 115px -> 75px.
+       NEITHER DECLARATION CAN CHANGE WHERE THE BAR WRAPS - both are vertical, and wrapping is
+       decided on the horizontal axis. So there is no feedback loop between this class and the
+       measurement that sets it.
+       EACH LINK IS STILL 37px TALL, comfortably over the 24px WCAG 2.2 SC 2.5.8 target floor.
+       That floor is what stops this going lower. */
+    .ld-jump-inner.ld-jump-wrapped{ row-gap: 0; }
+    .ld-jump-inner.ld-jump-wrapped a{ padding-top: 6px; padding-bottom: 6px; }
 
     /* ======================= BODY: main + sticky aside =======================
        ONE grid for the whole page now, starting at the media. It used to start below
@@ -399,7 +464,9 @@
        and resize and overwrites it, exactly as it does for --navH. Do not tune it by
        hand: it was 49px against a 53px bar, which is the kind of drift measuring fixes
        permanently. */
-    :root{ --ld-jump-h: 53px; }
+    :root{ --ld-jump-h: 53px;
+      /* Pre-JS fallback only - the script measures the real height. See syncNavH. */
+      --ld-backrow-h: 41px; }
     /* details as well as section: the accordions below are <details>, and a jump link
        has to land one of those the same way it lands a plain section. */
     .ld-main > section, .ld-main > details{
@@ -494,6 +561,58 @@
     .ld-fields dt{ font-weight: 600; color: var(--pc-black); }
     .ld-fields dt::after{ content: ":"; }
     .ld-fields dd{ margin: 0; color: var(--color-text-muted); }
+    /* ---- .ld-fields-prose: the same two columns carrying PARAGRAPHS instead of figures ----
+       (Kiron, 2026-08-31, for Terms.) Three changes, and each one is because the value is now
+       prose rather than a value:
+         · ROW GAP 8px -> 16px. Eight one-line values 8px apart read as a list; two multi-line
+           clauses 8px apart read as one paragraph with bold words in it.
+         · 12px -> 13px. --body-sm is the size for a figure sitting beside a label. A whole
+           clause at 12px is fine print; the auction page's terms run at 13px and these should
+           match, since both are the same kind of reading.
+         · THE LABEL COLUMN IS STILL max-content, so it is set by the longest label in THIS list
+           ("Auction Terms & Conditions") and Terms' column is therefore wider than the tract
+           lists' - Kiron's call: size to the longest label, per section, rather than pinning one
+           width across the page.
+       TOP ALIGNMENT IS FREE and needs no rule: each label and its value share one grid row, so
+       both start at the row's top edge however many lines the value runs to. */
+    .ld-fields-prose{ font-size: 13px; row-gap: var(--space-4); }
+    /* THE LABEL COLUMN SIZES TO THE LONGEST LABEL, BUT NEVER TAKES MORE THAN A THIRD
+       (Kiron, 2026-08-31: "I am fine with the labels wrapping as the window size gets smaller
+       ... I just want the 1st column to have the width that allows for nowrap on the desktop
+       view".) fit-content(32%) is exactly that in one declaration: size to content while there
+       is room, cap at 32% of the list when there is not.
+       WHY NOT A MEDIA QUERY, which is what I tried first and what does not work: the base rule
+       pairs `max-content` with `minmax(0, 1fr)`, and a 1fr track with a zero minimum ALWAYS
+       yields first. So the label column never comes under pressure at any width - it measured
+       167px at 375px just as it did at 1600 - and swapping max-content for `auto` in a 767 block
+       changed nothing, because there was no squeeze for `auto` to respond to. The cap has to be
+       on the label track itself.
+       IT SELF-REGULATES, so there is no breakpoint to keep in step with the rest of the ladder:
+       167px is under a third of the list until the list drops below about 520px, which only
+       happens on a phone. Desktop is untouched and no label wraps there. */
+    .ld-fields-prose{ grid-template-columns: fit-content(32%) minmax(0, 1fr); }
+    /* ---- .ld-fields-2up: FOUR columns, two label/value pairs per row ----
+       (Kiron, 2026-08-31: "converting some of them to 2 column that are little text counts".)
+       For fields whose value is a word or a number. At one pair per row, "1977" sat alone
+       against 800px of empty space nineteen times over.
+       fit-content(20%) ON BOTH LABEL COLUMNS, not max-content: the same reasoning as the prose
+       list, and it matters more here because there are two of them - a long label in either
+       column would otherwise push the whole grid wider than the accordion.
+       THE TWO LABEL COLUMNS SIZE INDEPENDENTLY, so column 3's labels do not line up with
+       column 1's. That is correct: each pair is a label bound to its own value, and forcing one
+       shared width would leave a gap inside every pair in the narrower column.
+       ROW GAP DROPS BACK TO 12px from the prose list's 16px. 16px is spacing for multi-line
+       clauses that need separating; these are single lines and read as a table. */
+    .ld-fields-2up{ grid-template-columns:
+        fit-content(20%) minmax(0, 1fr) fit-content(20%) minmax(0, 1fr);
+      column-gap: var(--space-6); row-gap: var(--space-3); margin-bottom: var(--space-5); }
+    /* ONE PAIR PER ROW BELOW 767. Four tracks in a 300px column is a label and two characters.
+       This one DOES need a breakpoint - unlike the label cap, there is no self-regulating value
+       for "how many pairs fit", so the count has to change at a width. 767 is on the --site
+       ladder, where the rest of this page restructures. */
+    @media (max-width: 767px){
+      .ld-fields-2up{ grid-template-columns: fit-content(32%) minmax(0, 1fr); }
+    }
 
     /* ---- downloads: a clean text list, no file-type icon tiles ---- */
     .ld-dl-head{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
@@ -529,6 +648,33 @@
     /* ---- video / map ---- */
     /* 16/9, NOT 4:3. The 4:3 rule is for photographs; video is served at 16:9 and
        forcing it square would letterbox it inside its own frame. */
+    /* TWO VIDEOS: SIDE BY SIDE AT THE TOP RUNG ONLY, stacked everywhere below it
+       (Kiron, 2026-08-31 - asked whether they could sit together on wide windows).
+       MEASURED, because this is entirely a question of frame size:
+         · 1536+ : column 932px, so 450px each and a 16:9 frame 253px tall. A large thumbnail
+           rather than something you watch, but usable - and it saves about 800px of page.
+         · 1280-1535 : column 588px, so 278px each and a frame 156px TALL. That is below the
+           size at which YouTube's own controls stay usable, let alone the picture. Stacked.
+       So the breakpoint is min-width 1536 - the top step of the --site ladder, which is where
+       the main column reaches 932px. Below it each video takes the full column, which is the
+       size a single video has always been on this page.
+       ONE ASSET IGNORES ALL OF THIS: a lone video has nothing to sit beside, and a 1fr grid of
+       one item is the full column at every width. */
+    .ld-videos{ display: grid; gap: var(--space-6); }
+    @media (min-width: 1536px){
+      .ld-videos{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    /* The sub-heading sits tight to its own frame - space-2, not the space-6 .ld-dl-head carries
+       for the download groups, where it separates two long lists. Here it labels the thing
+       directly beneath it. */
+    .ld-videoitem .ld-dl-head{ margin: 0 0 var(--space-2); }
+    /* The 360 embed is TALLER THAN 16:9 on purpose: a tour is navigated, not watched, and a
+       letterbox crops the vertical field of view that makes it worth having. 4:3 matches the
+       Residential page, which is where this section came from. */
+    .ld-embed{ position: relative; aspect-ratio: 4 / 3; overflow: hidden;
+      border-radius: var(--radius-md); background: var(--pc-black);
+      border: 1px solid var(--color-border); }
+    .ld-embed iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .ld-video{ position: relative; aspect-ratio: 16 / 9; overflow: hidden;
       border-radius: var(--radius-md); background: var(--pc-black); border: 1px solid var(--color-border); }
     .ld-video iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -574,7 +720,21 @@
        2. The form has to stay shorter than the viewport — it is ~480px, so it does, with
           room to spare. No height cap is needed here and none should be added; that was
           only required when the whole rail locked. */
-    .ld-aside{ align-self: stretch; display: flex; flex-direction: column; gap: var(--space-5); }
+    /* THE RAIL STARTS LEVEL WITH THE PHOTOGRAPH, NOT WITH THE TOP OF THE COLUMN
+       (Kiron, 2026-08-31: the top of the right column should not touch the nav - match the
+       auction page). "ALL LISTINGS" is the first thing in the main column, so the media starts
+       one link-height lower than the rail did, and the agent card sat above the top of the
+       picture and hard against the sticky header. Offsetting the rail by exactly that height
+       lines the two columns up. Ported from listings-details-auction.html, which has had this
+       since 2026-08-27 - the two pages should differ only in the H1 figure, the auction detail
+       card and the Tracts section.
+       MEASURED, NOT TYPED: the link is 24px of padding-top plus a line of 12px uppercase sans,
+       about 41px, but it moves with the type scale, the padding, or a font that loads late. The
+       CSS token is a pre-JS fallback; syncNavH overwrites it on load and on resize.
+       ⚠ The 1023 block below replaces this margin with a plain gap - in one column the rail is
+       simply the next thing down the page and there is no second column to align to. */
+    .ld-aside{ align-self: stretch; display: flex; flex-direction: column; gap: var(--space-5);
+      margin-top: var(--ld-backrow-h); }
 
     /* ---- THE DARK "LISTING FACTS" CARD IS GONE FROM THIS PAGE ----
        (Kiron, 2026-08-26) Removed FOR SALE LISTINGS ONLY. It is still wanted on the
@@ -791,24 +951,16 @@
       .ld-body{ gap: var(--space-6); }
       .ld-price{ font-size: 38px; }
 
-      /* SUB BAR: TWO ROWS, TIGHTENED (Kiron, 2026-08-27). The links need 656px and the
-         column is 588, so the bar wraps. Kiron's call is to let it wrap rather than spend
-         the rail or drop the icons to avoid it — but a wrapped bar was 115px tall, which is
-         a shelf rather than a bar, so the space between the two rows comes out instead:
-           · row-gap 8 → 0. The links carry their own padding, so 0 is not two rows touching.
-           · vertical padding 14 → 10px. This is the bigger saving of the two (8px per row).
-         Result: 115px → ~89px, and the anchor offsets follow automatically because
-         --ld-jump-h is measured by JS rather than written here.
-         ⚠ The 12px HORIZONTAL padding is deliberately untouched. It is what separates one
-         link from the next, and tightening it is what would make the wrapped rows read as
-         one run of words. WCAG 2.2 SC 2.5.8: each link is still ~41px tall, well over the
-         24px minimum, so this stays a compliant target after the trim. */
-      .ld-jump-inner{ row-gap: 0; }
-      /* 14 → 6px (Kiron, 2026-08-27, in two passes: 10, then 6). The gap between the two
-         rows IS this padding, twice over — 12px now, from 28px before the trim — so the bar
-         stands ~75px instead of 115. Each link is still 37px tall, comfortably over the 24px
-         WCAG 2.2 SC 2.5.8 floor; that floor is what stops this going lower. */
-      .ld-jump a{ padding-top: 6px; padding-bottom: 6px; }
+      /* SUB BAR: NOTHING HERE. The tight two-row treatment is keyed to .ld-jump-wrapped,
+         which balanceJump() sets when the bar actually wraps.
+         THERE WAS A PLAIN MEDIA-QUERY COPY OF IT AT THIS BREAKPOINT, as a no-JS floor, and it
+         had to come out: a media query cannot tell a wrapped bar from a single-row one, so it
+         tightened both. It made the For Sale bar 37px at 900px, where its eight links fit on
+         one row, against the 53px the same single row is at 1280. That is the exact fault the
+         class was introduced to fix, reappearing one band lower.
+         WITHOUT JAVASCRIPT the bar now wraps where it falls and keeps its full 14px padding -
+         taller than it should be, but never two heights for the same shape. The page already
+         needs script for --ld-jump-h, so this adds no new dependency. */
 
       /* ICON STATS LOSE THEIR ICONS (Kiron, 2026-08-27) — figure over label, nothing else.
          At five across the cells are 105px here, of which the 26px icon and its 12px gap
@@ -873,6 +1025,8 @@
          but a form pushed above the photograph would put a name field between a visitor
          and the property they came to look at. */
       .ld-body{ grid-template-columns: 1fr; }
+      /* The back-link offset is a two-column alignment device only - here the rail is simply
+         the next thing down the page, so it takes a plain gap instead. */
       .ld-aside{ align-self: auto; margin-top: var(--space-8); }
       /* Nothing locks in one column: there is no second column for it to sit beside,
          so a pinned form would just cover the prose. */
@@ -1357,10 +1511,21 @@
         <nav class="ld-jump" aria-label="Jump to section">
           <div class="ld-jump-inner">
             <a href="#ld-overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Overview</a>
-            <a href="#ld-details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Details</a>
+            <!-- ⚠ SEVEN LINKS NOW, up from six: "Details" became "Land" and "Building"
+                 (2026-08-31). That lands on the open sub-nav wrap decision recorded in
+                 DEVELOPER-NOTES §3 - at 1024-1279 six links already wrapped 5 + 1, and seven
+                 will wrap differently again. The labels are deliberately SHORT ("Land",
+                 "Building", not "Land Details") for that reason: the accordion headings carry
+                 the full names and the bar does not have room for them. -->
+            <a href="#ld-land"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>Land</a>
+            <a href="#ld-building"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M10 21v-6h4v6"/></svg>Building</a>
             <a href="#ld-map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/></svg>Location</a>
             <a href="#ld-downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Downloads</a>
             <a href="#ld-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Video</a>
+            <!-- ⚠ EIGHT LINKS NOW. See the note on the Land/Building pair above: this bar
+                 was six links three edits ago and the 1024-1279 wrap was already an open
+                 decision. "360" not "360 Tour" for the same reason the others are short. -->
+            <a href="#ld-tour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 3v18"/></svg>360</a>
             <a href="#ld-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Terms</a>
           </div>
         </nav>
@@ -1424,7 +1589,121 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
               <span><span class="n">$5,038</span><span class="l">Net taxes</span></span>
             </li>
-          </ul>
+                    </ul>
+
+          <!-- ================= THE STAT CARD POOL: EVERY AVAILABLE OPTION =================
+               THE FIVE ABOVE ARE THE LIVE MODEL - how the strip ships, five cards chosen per
+               listing. THIS PANEL IS THE FULL CATALOGUE THEY ARE CHOSEN FROM (Kiron, 2026-08-31:
+               "let's put all available options in the pool area so we can fully understand what
+               is available").
+
+               IT IS A SUPERSET, NOT THE LEFTOVERS. Until now the pool held only the cards that
+               were NOT live, which meant you could not see the whole menu in one place and the
+               two pages' pools differed for reasons that had nothing to do with the menu. Every
+               card an eligible listing can offer is now here, live ones included, each marked
+               with a one-line comment in the markup. So a card that is live appears TWICE on
+               screen, once in the strip and once in the catalogue, and that is the intent.
+
+               HOW IT WORKS IN THE BUILD: the CMS user flags up to FIVE of these to surface, per
+               listing. A residential listing has no use for tillable acres and every use for
+               square feet and bed/bath; farmland is the other way round. The strip is five SLOTS
+               drawing on this catalogue, not five fixed fields.
+
+               WARNING THIS BLOCK DOES NOT SHIP. It exists so the candidate cards can be judged
+               together. Delete it and let the CMS drive the strip.
+
+               WARNING THE COLUMN COUNT IS HARDCODED `repeat(5, ...)` in .ld-ovstats. Driven by
+               the CMS it has to follow the number of CHOSEN fields, because five is the cap and
+               not the count - four chosen fields must not leave a gap in the row.
+
+               EVERY CARD IS THE SAME COMPONENT as the live strip, deliberately - .ld-ovstats
+               again, so what is being judged is the field and its value, not a mock-up of one.
+
+               THREE CARDS THAT ARE MORE THAN ONE CMS FIELD, or fewer:
+                 * BATHS is Full Bathrooms + Half Bathrooms, composed to the US convention where
+                   2 full and 1 half reads 2.5. Same join as HOA Dues.
+                 * AVERAGE CSR2 IS ONE CARD, NOT TWO. The label is the state's productivity index
+                   name - CSR2 in Iowa, PI in Illinois and Indiana - and it is driven by the
+                   data-field="productivity-type" span, not by a second card. An earlier pool
+                   listed "Average PI" separately, which read as a fourteenth option; it was the
+                   same option wearing the other label.
+                 * NON-TILLABLE ACRES is Total minus Tillable. Arithmetic on two published
+                   figures rather than a field of its own, so it can always be offered wherever
+                   those two are.
+
+               ONE CARD IS MISSING FROM THIS PAGE'S CATALOGUE ON PURPOSE: TRACTS, which the
+               auction page offers. A tract is an auction construct - a farm is subdivided into
+               tracts so it can be bid Buyer's Choice - and a For Sale listing is one parcel, so
+               the card has nothing to count.
+               PER ACRE IS THE MIRROR OF THAT: it is in this catalogue and absent from the
+               auction page's, because it is computed from an asking price and an auction has no
+               price until the gavel falls. Everything else is common to both pages. -->
+          <div class="ld-statpool">
+            <!-- NO VISIBLE LABEL (Kiron, 2026-08-31: "I am fine with the developer notes
+                 handling that"). THE TINT AND THE PANEL STAY - they are the only thing telling a
+                 reader that these cards are a catalogue rather than more of the strip above, and
+                 the whole block is non-shipping anyway. See DEVELOPER-NOTES.md SS2. -->
+            <ul class="ld-ovstats ld-ovstats-pool">
+              <li>
+                <!-- LIVE in the strip above on this page. -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
+                <span><span class="n">161.03</span><span class="l">Total acres M/L</span></span>
+              </li>
+              <li>
+                <!-- LIVE in the strip above on this page. -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
+                <span><span class="n">149.72</span><span class="l">Tillable acres</span></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
+                <span><span class="n">11.31</span><span class="l">Non-tillable acres</span></span>
+              </li>
+              <li>
+                <!-- LIVE in the strip above on this page. -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
+                <span><span class="n">84.6</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
+              </li>
+              <li>
+                <!-- LIVE in the strip above on this page. -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.2 1.2-4.2 3s1.6 2.6 4.4 3.2c2.9.6 4.6 1.5 4.6 3.4 0 2-1.9 3.4-4.8 3.4-2.4 0-4.2-1-4.9-2.7"/></svg>
+                <span><span class="n">$14,500</span><span class="l">Per acre</span></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+                <span><span class="n">$5,412</span><span class="l">Gross taxes</span></span>
+              </li>
+              <li>
+                <!-- LIVE in the strip above on this page. -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+                <span><span class="n">$5,038</span><span class="l">Net taxes</span></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V3h5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M21 16v5h-5"/><path d="M12 8v8M8 12h8"/></svg>
+                <span><span class="n">1.24 ac</span><span class="l">Lot size</span></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M8 16l8-8"/><path d="M12 8h4v4"/></svg>
+                <span><span class="n">2,480</span><span class="l">Sq ft</span></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18"/><path d="M7 10V7h6v3"/></svg>
+                <span><span class="n">4</span><span class="l">Bedrooms</span></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M7 12V6a2 2 0 0 1 4 0"/></svg>
+                <span><span class="n">2.5</span><span class="l">Baths</span></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+                <span><span class="n">1977</span><span class="l">Year built</span></span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21h16"/><path d="M6 21V10h12v11"/><path d="M6 15h12"/><path d="M9 3h6v7H9z"/></svg>
+                <span><span class="n">1.5</span><span class="l">Stories</span></span>
+              </li>
+            </ul>
+          </div>
+
 
           <!-- LOREM IPSUM PLACEHOLDER (Kiron, 2026-08-26). This was #19651's real
                six-paragraph description, verbatim from the listing. It is filler now
@@ -1449,37 +1728,147 @@
              NO STAT CHIPS HERE AT ALL (Kiron, 2026-08-25). Every figure that used to
              sit in this section is in the Property Overview icon row: it was the same
              numbers twice, a screen apart. This section is prose and documents. -->
-        <details id="ld-details" class="reveal ld-acc">
-          <summary><h2>Details</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+        <!-- ============ LAND DETAILS + BUILDING DETAILS (Kiron, 2026-08-31) ============
+             ONE "Details" ACCORDION BECAME TWO, and the split is by what the fields describe:
+             the CMS groups them as "Property Features" (the land) and "Building Features" (the
+             structures), and Kiron's names for those two groups are LAND DETAILS and BUILDING
+             DETAILS. Both use the Terms treatment - .ld-fields.ld-fields-prose, bold label in a
+             column sized to the longest label, value wrapping beside it, top aligned.
+
+             LAND FIRST, BUILDINGS SECOND, which is the CMS document's own order and the field
+             spec's page order. It is also the only order that degrades properly: on a farmland
+             listing Building Details is entirely empty and disappears, so leading with the
+             section that always populates keeps the page from opening on a gap. Kiron named
+             Building first when describing them - if that was the intended sequence rather than
+             just how they came out, swapping the two <details> blocks is the whole change.
+
+             ⚠ PLACEHOLDER VALUES. Kiron, 2026-08-31: "this is for visual approval only ... not
+             an actual listing". #19651 is a real 161-acre Palo Alto County farm and none of the
+             values below are its published data - they are format-correct stand-ins chosen to
+             exercise the layout, deliberately mixing one-word values with ones that wrap to
+             three lines, because that is what tests a two-column list. Zoning and Net taxes are
+             the exceptions: those two agree with the figures already on the page.
+
+             EVERY ROW IS CONDITIONAL IN THE BUILD. An empty field takes its whole row away,
+             label included, and a section with no populated fields takes itself away along with
+             its sub nav link. The conditions are per the CMS document:
+               · Land Details rows 1-7 populate on ALL listings; Wildlife, Water Access,
+                 Improvements, Fencing, Horse Amenities and Possible Uses only on Farmland,
+                 Recreational, Building Site or Acreage; Recreation drops Farmland from that set.
+               · BUILDING DETAILS IS RESIDENTIAL OR COMMERCIAL ONLY, so on this farmland listing
+                 the whole accordion would be absent. It is here because this page houses every
+                 possible display. Bedrooms, Full and Half Bathrooms, Style, Builder, Trim,
+                 Appliances, Family Room, Dining Room, Other Rooms, Basement, Fireplaces and
+                 Fireplace Type are RESIDENTIAL ONLY - a commercial listing shows the other 13. -->
+        <details id="ld-land" class="reveal ld-acc">
+          <summary><h2>Land Details</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <article class="ld-tract">
-              <!-- NO "The Farm" HEADING and no acreage/section sub-line (Kiron,
-                   2026-08-26). On a single-parcel For Sale listing they named the one
-                   thing the whole page is about, and the acreage was already in the h1
-                   and the icon row.
-                   ⚠ A MULTI-TRACT LISTING NEEDS THEM BACK. Repeat this <article> per
-                   tract and each one has to say which tract it is — that is what the
-                   <h3> and .ld-tract-sub are for, and their CSS is left in place for it.
-                   The auction pages are where that will bite first. -->
-              <!-- LOREM IPSUM PLACEHOLDER (Kiron, 2026-08-26). This carried #19651's
-                   real legal description. The FIELD LIST below is still real data. -->
-              <p class="ld-copy">Nulla facilisi. Etiam vel tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac leo mollis blandit, donec neque quam, dignissim in, mollis nec, sagittis eu wisi. Phasellus lacus. Etiam laoreet quam sed arcu, phasellus at dui in ligula mollis ultricies. Integer placerat tristique nisl, praesent augue, aliquam adipiscing, lacus ut bibendum vestibulum.</p>
-              <!-- ONE FIELD PER LINE (Kiron, 2026-08-26). These were a single paragraph
-                   with middot separators; the parcel numbers alone ran the width of the
-                   column, so the three labels after them were hard to pick out. Net
-                   taxes came off entirely — the figure is in the Property Overview icon
-                   row and in Terms. -->
-              <dl class="ld-fields">
-                <dt>Parcel(s)</dt><dd>270010002030, 270010002040, 270010003020, 270010003010</dd>
-                <dt>Zoning</dt><dd>Agricultural</dd>
-                <dt>School district</dt><dd>Graettinger-Terril</dd>
-              </dl>
-              <!-- NO PHOTOGRAPH GRID (Kiron, 2026-08-26): every one of these ten images
-                   is already in the carousel at the top of the page, so this was the same
-                   set twice. See the lightbox script — removing the grid meant the
-                   lightbox had to stop sourcing its photo list from these tiles. -->
-            </article>
-  </div>
+            <!-- LOREM IPSUM PLACEHOLDER (Kiron, 2026-08-26). This paragraph carried #19651's
+                 real legal description.
+                 ⚠ IT IS IN THE WRONG SECTION per the CMS document, which puts Legal Description
+                 in the LOCATION section beside the map and the directions. Left here rather than
+                 moved, because moving it is its own decision and Kiron has not made it yet. -->
+            <p class="ld-copy">Nulla facilisi. Etiam vel tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac leo mollis blandit, donec neque quam, dignissim in, mollis nec, sagittis eu wisi. Phasellus lacus. Etiam laoreet quam sed arcu, phasellus at dui in ligula mollis ultricies. Integer placerat tristique nisl, praesent augue, aliquam adipiscing, lacus ut bibendum vestibulum.</p>
+            <dl class="ld-fields ld-fields-prose">
+              <dt>Road Access &amp; Frontage</dt>
+              <dd>Gravel frontage along the north boundary, approximately 1,320 feet, with a field entrance at the northwest corner.</dd>
+              <dt>Water Source</dt>
+              <dd>Rural water available at the road.</dd>
+              <dt>Sewer</dt>
+              <dd>None. A septic system would be required for any building site.</dd>
+              <dt>Utilities</dt>
+              <dd>Electric and rural water at the road. Natural gas is approximately one mile east.</dd>
+              <dt>Zoning</dt>
+              <dd>Agricultural</dd>
+              <dt>Gross Taxes</dt>
+              <dd>$5,412.00</dd>
+              <dt>Net Taxes</dt>
+              <dd>$5,038.00</dd>
+              <dt>Wildlife</dt>
+              <dd>Whitetail deer, turkey and upland birds along the timbered draws on the south end.</dd>
+              <dt>Recreation</dt>
+              <dd>Hunting, with a private building site on the northeast corner.</dd>
+              <dt>Water Access</dt>
+              <dd>A seasonal creek crosses the southeast quarter.</dd>
+              <dt>Improvements</dt>
+              <dd>Terraces across the west half in good repair, tile outlets draining to the road ditch, and a stock pond in the southwest corner.</dd>
+              <dt>Fencing</dt>
+              <dd>Perimeter fence in serviceable condition on three sides.</dd>
+              <dt>Horse Amenities</dt>
+              <dd>None</dd>
+              <dt>Possible Uses</dt>
+              <dd>Row crop production, hay ground, hunting and recreation, or a rural building site.</dd>
+              <!-- TWO ROWS THAT ARE NOT IN THE CMS DOCUMENT'S PROPERTY FEATURES LIST, kept
+                   because they are already on the page and removing content is its own decision:
+                     · PARCEL NUMBER(S) is a CMS field, but the document places it in PROPERTY
+                       OVERVIEW, not here.
+                     · SCHOOL DISTRICT does not appear anywhere in the document. Either it is a
+                       field missing from that list, or it is invented and should come off. -->
+              <dt>Parcel(s)</dt>
+              <dd>270010002030, 270010002040, 270010003020, 270010003010</dd>
+              <dt>School district</dt>
+              <dd>Graettinger-Terril</dd>
+            </dl>
+          </div>
+        </details>
+
+        <details id="ld-building" class="reveal ld-acc">
+          <summary><h2>Building Details</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <!-- CONSOLIDATED, 26 CMS FIELDS INTO 14 ROWS (Kiron, 2026-08-31: combine some of
+                 these the way HOA Dues took HOA Frequency, and put the short ones two across).
+                 TWO LISTS, because these 26 fields are two kinds of thing:
+                   1. A SPEC GRID - counts, years, materials. Nineteen fields whose values are a
+                      word or a number. Four columns, two label/value pairs per row, so a
+                      one-word value no longer holds a whole 800px row on its own.
+                   2. DESCRIPTIONS - four fields that are sentences. Full width, one pair per
+                      row, exactly as Land Details and Terms.
+                 It reads as a specification followed by the prose that qualifies it, and it cuts
+                 the section's height by roughly a third.
+
+                 THREE PAIRS COMBINED WITH " / ", the HOA Dues pattern - two CMS fields rendered
+                 as one value by the template, NOT new fields:
+                   · Full Bathrooms + Half Bathrooms -> "Bathrooms: 2 full / 1 half"
+                   · Fireplaces + Fireplace Type     -> "Fireplaces: 1 / wood burning insert"
+                   · Heat + Cooling                  -> "Heating & Cooling: forced air, propane / central"
+                 Each join has to degrade: if the second field is empty the slash goes with it,
+                 and if both are empty the row goes. Half Bathrooms is the common case - plenty
+                 of houses have none, and "2 full /" is worse than "2 full".
+                 NOT COMBINED, though it looks tempting: Exterior and Trim. Trim may describe
+                 interior woodwork, and joining them would assert something the fields do not. -->
+            <dl class="ld-fields ld-fields-prose ld-fields-2up">
+              <dt>Year Built</dt><dd>1977</dd>
+              <dt>Square Feet</dt><dd>2,480</dd>
+              <dt>Bedrooms</dt><dd>4</dd>
+              <dt>Bathrooms</dt><dd>2 full / 1 half</dd>
+              <dt>Stories</dt><dd>1.5</dd>
+              <dt>Style</dt><dd>Raised ranch</dd>
+              <dt>Foundation</dt><dd>Poured concrete</dd>
+              <dt>Roof</dt><dd>Asphalt shingle, 2019</dd>
+              <dt>Exterior</dt><dd>Vinyl siding, brick accent</dd>
+              <dt>Trim</dt><dd>Painted pine</dd>
+              <dt>Builder</dt><dd>Unknown</dd>
+              <dt>Basement</dt><dd>Full, partially finished</dd>
+              <dt>Fireplaces</dt><dd>1 / wood burning insert</dd>
+              <dt>Heating &amp; Cooling</dt><dd>Forced air, propane / central</dd>
+              <dt>Street</dt><dd>Paved county road</dd>
+              <dt>Driveway</dt><dd>Concrete circle drive</dd>
+              <dt>Family Room</dt><dd>Lower level, walkout</dd>
+              <dt>Dining Room</dt><dd>Informal, off the kitchen</dd>
+              <dt>Other Rooms</dt><dd>Office and mud room</dd>
+            </dl>
+            <!-- The four that are sentences. Same treatment as Land Details and Terms. -->
+            <dl class="ld-fields ld-fields-prose ld-fields-desc">
+              <dt>Garage</dt>
+              <dd>Attached two car, 24&prime; x 24&prime;, with a floor drain.</dd>
+              <dt>Exterior Features</dt>
+              <dd>Covered front porch, rear deck off the dining room, and a fenced yard on the south side.</dd>
+              <dt>Interior Features</dt>
+              <dd>Main floor laundry, walk-in pantry, and original hardwood through the living and dining rooms.</dd>
+              <dt>Appliances</dt>
+              <dd>Refrigerator, range, dishwasher, washer and dryer all remain with the property.</dd>
+            </dl>
+          </div>
         </details>
 
         <details id="ld-map" class="reveal ld-acc">
@@ -1524,17 +1913,61 @@
              (2026-08-25). It is the one piece of borrowed content on the page.
              The field spec's real rule is that an empty video field means NO SECTION and
              no sub-nav link, which is how the page stood before this. -->
+        <!-- ===================== VIDEO (CMS: Video URL 1 + Video URL 2) =====================
+             TWO EMBEDS, EACH SUB-HEADED (Kiron, 2026-08-31: "accordion content should hold 2
+             assets, with sub headings for each if there are 2").
+             THE SUB-HEADINGS ARE CONDITIONAL ON THE COUNT, which is the part a template gets
+             wrong: with ONE video there is no sub-heading at all - a lone "Property video" under
+             an accordion already headed "Video" says the same word twice. With TWO they are
+             required, because the reader has to know which is which before clicking play.
+             So: one asset renders bare, two render sub-headed. Both fields are omit-if-empty,
+             so Video URL 2 empty means one bare embed, not an empty second frame.
+             THE HEADINGS ARE h3 - the accordion's own heading is the h2, so these sit under it
+             and the outline stays intact.
+             THE IFRAMES ONLY LOAD ONCE THE ACCORDION IS OPENED: a closed <details> does not
+             render its contents, so two collapsed videos cost nothing. That is a real advantage
+             over a CSS-hidden div, which would buffer both on every page view. It matters twice
+             as much now that there are two of them. -->
         <details id="ld-video" class="reveal ld-acc">
           <summary><h2>Video</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <!-- The iframe only loads once the accordion is first opened: a closed
-                 <details> does not render its contents, so a collapsed video costs
-                 nothing. That is a real advantage of <details> over a CSS-hidden div,
-                 which would load and start buffering YouTube on every page view. -->
-            <div class="ld-video">
-              <iframe src="https://www.youtube.com/embed/BWOnAtdCcu8" title="Peoples Company property video (representative example)"
-                      loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
-                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <div class="ld-videos">
+              <div class="ld-videoitem">
+                <h3 class="ld-dl-head">Property video</h3>
+                <div class="ld-video">
+                  <iframe src="https://www.youtube.com/embed/BWOnAtdCcu8" title="Peoples Company property video (representative example)"
+                          loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+              </div>
+              <div class="ld-videoitem">
+                <h3 class="ld-dl-head">Aerial tour</h3>
+                <div class="ld-video">
+                  <iframe src="https://www.youtube.com/embed/BWOnAtdCcu8" title="Peoples Company aerial tour (representative example, same source as the video above)"
+                          loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- ===================== 360 TOUR (CMS: 360 Tour, omit if empty) =====================
+             LIFTED FROM THE RESIDENTIAL PAGE, which had it first. That page was removed on
+             2026-08-31 once this one became the superset, so this is now the only copy - do not
+             go looking for the original. Omit-if-empty like both video fields: no field, no
+             accordion, and its sub nav link goes with it.
+             ⚠ THE EMBED IS THE RESIDENTIAL LISTING'S TOUR (#19482, 8311 Hidden Valley Road).
+             #19651 publishes no 360 tour, so this is a borrowed asset standing in to show the
+             section - it is a Dubuque County acreage, not this Palo Alto County farm. -->
+        <details id="ld-tour" class="reveal ld-acc">
+          <summary><h2>360 Tour</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <p class="ld-copy">Use the 360 degree interactive tour to view the property from every angle. Click a vantage point to jump to a different part of the property, then click, hold and drag to look around.</p>
+            <div class="ld-embed">
+              <iframe src="https://tours.picyourhouse.net/tours/moiGwBEjz"
+                      title="360 degree interactive tour (representative example, borrowed from listing 19482)"
+                      loading="lazy" allowfullscreen></iframe>
             </div>
           </div>
         </details>
@@ -1559,13 +1992,63 @@
              money percentages, closing windows, title and financing clauses); Lorem
              Ipsum is deliberately used instead, because filler that cannot be mistaken
              for a real clause is safer than filler that can. -->
+        <!-- ===================== TERMS (CMS field list, 2026-08-31) =====================
+             REBUILT FROM FOUR PARAGRAPHS OF LOREM INTO THE EIGHT FIELDS THE CMS ACTUALLY HAS
+             (Kiron: each field is a bold label in one column, top-aligned, with its text
+             wrapping in a second column). That is .ld-fields, the same component the tract and
+             property field lists use, so a labelled value looks the same everywhere on the page.
+
+             ALL EIGHT ARE HERE, though no single listing shows all eight:
+               · Auction Terms & Conditions - only if the listing is an auction. On the backend
+                 THIS FIELD IS CALLED "Auction Details", which is NOT the rail card of the same
+                 name. Two different things, one name; keep them apart in the template.
+               · Possession, Covenants, Reserved Items - all listings.
+               · Homeowner Association, Management Firm, HOA Dues, HOA Frequency - only if
+                 Residential or Acreage. On this farmland listing all four would be absent.
+             They are all present because this page houses every possible display for visual
+             approval. In the build each row appears only when its field is populated, and an
+             empty field takes its whole row away - label included.
+
+             ⚠ "COVENANTS" IS SPELLED CORRECTLY HERE AND MISSPELLED IN THE CMS ("Convenants").
+             The display label is Covenants; the backend field name is not. Do not "fix" this
+             page to match the field. If the field is ever renamed, this note can go.
+
+             ⚠ LOREM IPSUM ON PURPOSE, and this is the one section where that matters most. An
+             earlier draft of this page invented plausible terms - earnest money percentages,
+             closing windows, title clauses - against a real listing with named agents. Filler
+             that cannot be mistaken for a clause is safer than filler that can. The two short
+             fields carry format-correct placeholders instead, because a shape is not a claim. -->
         <details id="ld-terms" class="reveal ld-acc">
           <summary><h2>Terms</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <p class="ld-copy">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident.</p>
-            <p class="ld-copy">Sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</p>
-            <p class="ld-copy">Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur.</p>
-            <p class="ld-copy">Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint.</p>
+            <dl class="ld-fields ld-fields-prose">
+                <dt>Auction Terms &amp; Conditions</dt>
+                <dd>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</dd>
+                <dt>Possession</dt>
+                <dd>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</dd>
+                <dt>Covenants</dt>
+                <dd>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</dd>
+                <dt>Reserved Items</dt>
+                <dd>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</dd>
+                <dt>Homeowner Association</dt>
+                <dd>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</dd>
+                <dt>Management Firm</dt>
+                <dd>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur.</dd>
+              <!-- TWO CMS FIELDS, ONE ROW (Kiron, 2026-08-31). HOA Dues and HOA Frequency are
+                   separate fields in the CMS and were separate rows here; they now render as one
+                   value joined by " / " - "$450.00 / quarterly". A frequency on its own row was
+                   a label as long as its value, restating what the dues row had already said.
+                   THE JOIN IS A DISPLAY RULE, NOT A FIELD. The template composes the two; there
+                   is no "HOA Dues / Frequency" field to read. If EITHER is empty the join has to
+                   degrade rather than print a stray slash: dues alone if there is no frequency,
+                   and no row at all if there are no dues.
+                   Frequency is lower case on purpose - it reads as part of the value ("$450.00 /
+                   quarterly"), not as a second label. The CMS supplies it capitalised.
+                   This is also the row that proves the top alignment: a one-line value beside a
+                   six-line clause is the case that would expose it. -->
+                <dt>HOA Dues</dt>
+                <dd>$450.00 / quarterly</dd>
+            </dl>
           </div>
         </details>
       </div>
@@ -1669,7 +2152,13 @@
          + listing number, place, the polymorphic headline (a price here, a date on an
          auction), three meta facts, and the listing agent. The save star is the same
          visual-only control, wired by the same script at the foot of this page. -->
-    <section class="ld-similar reveal" aria-labelledby="ldSimilarHead">
+    <!-- FOUR CARDS AT EVERY WIDTH (Kiron, 2026-08-31). .ld-similar-4up is the opt-in already
+         built in pc.css for the auction page: the grid runs 4 across, then 2x2 below 1280, then
+         one column below 768, and never 3 - so no width leaves a card alone on its own row. It
+         also unhides the fourth card, which is display:none by default.
+         The two pages now match here, which is the intent: they should differ only in the H1
+         figure, the auction detail card and the Tracts section. -->
+    <section class="ld-similar ld-similar-4up reveal" aria-labelledby="ldSimilarHead">
       <div class="ld-similar-in">
       <h2 id="ldSimilarHead">Browse Similar Properties</h2>
       <div class="lc-grid">
@@ -1689,7 +2178,18 @@
             </div>
             <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Emmet County, IA</a></p>
             <p class="lc-headline">$1,880,000</p>
-            <p class="lc-meta"><span>128 Acres</span><span>119 Tillable Acres</span><span>CSR2 78.4</span></p>
+            <!-- THE ACRES / TILLABLE / CSR2 ROW IS GONE FROM THE SIMILAR CARDS
+                 (Kiron, 2026-08-31). It read "128 Acres . 119 Tillable Acres . CSR2 78.4" and
+                 it came off all four cards on this page and on the other listing detail page,
+                 which takes a line of type plus its leading out of every card and shortens the
+                 whole strip by that much.
+                 REMOVED FROM THE MARKUP ONLY. .lc-meta is still in pc.css - it is a .lc card
+                 part, not a detail-page part, and the listings grid still uses it. Do not delete
+                 the rule; putting the row back is re-adding this one <p> per card.
+                 THE TWO RESPONSIVE RULES THAT SIZE IT INSIDE THIS SECTION - `.ld-similar
+                 .lc-meta` and `.ld-similar.ld-similar-4up .lc-meta` in pc.css - now match
+                 nothing, because these two detail pages are the only .ld-similar sections on the
+                 site. They are harmless and they are what the row needs if it returns. -->
             <div class="lc-agentrow">
               <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Andrew Zellmer</p>
             </div>
@@ -1710,9 +2210,17 @@
             </div>
             <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Clay County, IA</a></p>
             <p class="lc-headline">$3,120,000</p>
-            <p class="lc-meta"><span>212 Acres</span><span>204 Tillable Acres</span><span>CSR2 81.9</span></p>
             <div class="lc-agentrow">
-              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Matt Adams</p>
+              <!-- TWO AGENTS ON THIS CARD (Kiron, 2026-08-31), so the page shows both
+                   scenarios the way the rail does with one agent and two: cards 1 and 3 carry a
+                   single agent, cards 2 and 4 carry a co-listing.
+                   THE LABEL PLURALISES with the names - "Agents" reading into "X & John Smith".
+                   One word, and leaving it singular in front of two names is the kind of detail
+                   that reads as a bug rather than a placeholder.
+                   "John Smith" is deliberately a placeholder name: the other names on these
+                   cards are real Peoples Company agents, and attaching a real second agent to
+                   an invented listing is the thing to avoid. The CMS supplies the real list. -->
+              <p class="lc-agent"><span class="lc-agent-tag">Agents</span> Matt Adams &amp; John Smith</p>
             </div>
           </div>
         </article>
@@ -1722,11 +2230,14 @@
              is three across and a fourth would orphan in turn, and below 768 the grid is a
              single column where the count is arbitrary.
              ⚠ FOR THE DEVELOPER: this is a layout device in a mockup, not a content rule.
+             SHOWN AT EVERY WIDTH SINCE 2026-08-31, because this section is now .ld-similar-4up
+             (see the note on the <section>). It is no longer the 768-899-only card it was built
+             as, so the hidden-card caveat below applies to the OTHER pages that still use the
+             three-across default, not to this one.
              The real section should ask the CMS for as many similar listings as the current
-             grid needs (3 or 4), rather than fetching four and hiding one — a hidden card is
-             still a request, still an image, and still in the accessibility tree if the
-             hiding ever breaks. The rule lives in pc.css beside the rest of this section's
-             variant; see .ld-4th there. -->
+             grid needs, rather than fetching four and hiding one — a hidden card is still a
+             request, still an image, and still in the accessibility tree if the hiding ever
+             breaks. The rules live in pc.css; see .ld-4th and .ld-similar-4up there. -->
         <article class="lc ld-4th">
           <div class="lc-media">
             <img src="../assets/pc-hero9.jpg" alt="Aerial view of farmland at sunset" loading="lazy" />
@@ -1742,7 +2253,6 @@
             </div>
             <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Dickinson County, IA</a></p>
             <p class="lc-headline">$1,425,000</p>
-            <p class="lc-meta"><span>96 Acres</span><span>92 Tillable Acres</span><span>CSR2 79.6</span></p>
             <div class="lc-agentrow">
               <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Matt Adams</p>
             </div>
@@ -1764,9 +2274,17 @@
             </div>
             <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Kossuth County, IA</a></p>
             <p class="lc-headline">$994,000</p>
-            <p class="lc-meta"><span>74 Acres</span><span>71 Tillable Acres</span><span>CSR2 76.2</span></p>
             <div class="lc-agentrow">
-              <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Andrew Zellmer</p>
+              <!-- TWO AGENTS ON THIS CARD (Kiron, 2026-08-31), so the page shows both
+                   scenarios the way the rail does with one agent and two: cards 1 and 3 carry a
+                   single agent, cards 2 and 4 carry a co-listing.
+                   THE LABEL PLURALISES with the names - "Agents" reading into "X & John Smith".
+                   One word, and leaving it singular in front of two names is the kind of detail
+                   that reads as a bug rather than a placeholder.
+                   "John Smith" is deliberately a placeholder name: the other names on these
+                   cards are real Peoples Company agents, and attaching a real second agent to
+                   an invented listing is the thing to avoid. The CMS supplies the real list. -->
+              <p class="lc-agent"><span class="lc-agent-tag">Agents</span> Andrew Zellmer &amp; John Smith</p>
             </div>
           </div>
         </article>
@@ -2161,13 +2679,108 @@
          would grow again if the links' padding or type size changed. Measuring it costs
          one line and cannot go stale. */
       var subbar = document.querySelector(".ld-subbar");
+      /* --ld-backrow-h IS MEASURED FOR THE SAME REASON: the rail has to line up with the
+         photograph, and the offset is the height of the "ALL LISTINGS" link above the media.
+         Hardcoding 41px would drift with the type scale or a late-loading font. */
+      var backLink = document.querySelector(".ld-back");
+
+      /* ---------------- balanceJump: NO SECONDARY ROW EVER HOLDS A SINGLE LINK ----------------
+         KIRON'S RULE (2026-08-31): "for any links that fall in the secondary rows, I don't want
+         a count of 1 link in any of those rows. Always bring a 2nd if needed."
+
+         WHY THIS IS SCRIPT AND NOT CSS. Two variables decide where the bar wraps and neither is
+         known when the CSS is written:
+           1. THE LINK COUNT. Every section is omit-if-empty and the bar is left-justified, so a
+              listing renders anywhere from a handful of links to the full nine, and they close
+              up to the left. Nine is the worst case, not the normal one.
+           2. THE WIDTH, continuously - not just at the four breakpoints. The wrap moves link by
+              link as the window is dragged.
+         A hardcoded break element can satisfy one pair of those. CSS has no "keep two together"
+         for flex lines, and :has() can count anchors but cannot see where they landed. Only
+         measuring after layout can.
+
+         HOW IT WORKS. Group the links by their rendered top edge, walk the rows from the BOTTOM
+         up, and for the last row still holding exactly one link, insert a break before the link
+         ABOVE it - which drops that link down to keep the orphan company, making the row two.
+         Removing a link from the row above can orphan THAT row in turn, so the whole thing runs
+         again until no secondary row has one link. Each pass adds exactly one break, so the
+         pass cap is the link count and it cannot spin.
+
+         ROW ONE IS NEVER RAIDED BELOW TWO LINKS (the `first < 2` guard). If the only way to
+         rescue an orphan is to leave the top row with a single link, the orphan stays - trading
+         one orphan for another, higher up, is worse. In practice this cannot happen above 768px.
+
+         BELOW 768 IT DOES NOTHING, AND MUST NOT. The bar is a three-column GRID there, not a
+         flex row: a break element would eat a grid cell and shove the layout sideways. The
+         display test is the guard, and any breaks left from a wider layout are stripped first.
+         WARNING THE GRID CAN STILL ORPHAN - seven links is 3 + 3 + 1. Fixing that means changing
+         the column count, not adding breaks, and it is not done here.
+
+         WITHOUT JAVASCRIPT the bar simply wraps where it falls, orphan and all. That is the same
+         bargain --ld-jump-h already makes two lines below, and it degrades to the old behaviour
+         rather than to a broken one. */
+      var jumpInner = document.querySelector(".ld-jump-inner");
+
+      function jumpRows(links){
+        var rows = [], last = null;
+        for(var i = 0; i < links.length; i++){
+          var t = Math.round(links[i].getBoundingClientRect().top);
+          if(last === null || t !== last){ rows.push([]); last = t; }
+          rows[rows.length - 1].push(i);
+        }
+        return rows;
+      }
+
+      function balanceJump(){
+        if(!jumpInner) return;
+        var olds = jumpInner.querySelectorAll(".ld-jump-break");
+        for(var i = 0; i < olds.length; i++) olds[i].parentNode.removeChild(olds[i]);
+
+        var links = [].slice.call(jumpInner.querySelectorAll("a"));
+        /* The grid layout below 768 - see above. Read AFTER the breaks are stripped, so they
+           are cleaned up even at widths where no break may be inserted. */
+        var isFlex = window.getComputedStyle(jumpInner).display === "flex";
+
+        if(isFlex && links.length >= 3){
+          for(var pass = 0; pass < links.length; pass++){
+            var rows = jumpRows(links);
+            if(rows.length < 2) break;
+            var orphan = -1;
+            for(var r = rows.length - 1; r >= 1; r--){
+              if(rows[r].length === 1){ orphan = rows[r][0]; break; }
+            }
+            if(orphan === -1) break;     // nothing left to fix
+            if(orphan < 2) break;        // would strand row one - see the guard note above
+            var br = document.createElement("span");
+            br.className = "ld-jump-break";
+            br.setAttribute("aria-hidden", "true");
+            jumpInner.insertBefore(br, links[orphan - 1]);
+          }
+        }
+
+        /* MARK THE STATE, AT EVERY WIDTH AND IN EITHER LAYOUT - the three-column grid below
+           768 wraps too, and wants the same tight rows. This is the last thing done, so it
+           reflects the split as finally balanced, not the natural one. See .ld-jump-wrapped. */
+        jumpInner.classList.toggle("ld-jump-wrapped", jumpRows(links).length > 1);
+      }
+
       function syncNavH(){
+        /* BALANCE BEFORE MEASURING. Pulling a link down can change the bar's row count, and
+           --ld-jump-h is the height every jump link's scroll-margin-top is built on. Measuring
+           first would bank a height that the very next statement invalidates. */
+        balanceJump();
         document.documentElement.style.setProperty("--navH", header.offsetHeight + "px");
         if(subbar) document.documentElement.style.setProperty("--ld-jump-h", subbar.offsetHeight + "px");
+        if(backLink) document.documentElement.style.setProperty("--ld-backrow-h", backLink.offsetHeight + "px");
       }
       syncNavH();
       window.addEventListener("resize", syncNavH);
       window.addEventListener("load", syncNavH);
+      /* THE WEBFONT IS THE THIRD THING THAT MOVES THE WRAP. Inter loads async with
+         display=swap, so the first layout is in the fallback face and every link changes width
+         when it arrives - which can add or remove a row. Without this the bar keeps whatever
+         split the fallback produced. */
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(syncNavH);
       var logoImg = header.querySelector("img");
       if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
     })();
