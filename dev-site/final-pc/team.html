@@ -45,9 +45,10 @@
     .tm-intro{ padding: var(--space-8) 0 var(--space-6); }
 
     /* ================= SEARCH / FILTER BAR =================
-       Order is SEARCH BY NAME · SERVICE · STATE · REGION, then VIEW ALL and CLEAR FILTERS hard
-       right. Region is appended after State, as it was asked for; broad-to-narrow would put it
-       BEFORE State, and that is the one thing about this order worth a second look.
+       Order is SEARCH BY NAME · SERVICE · REGION · STATE, then VIEW ALL hard right.
+       REGION LEADS STATE (Kiron, 2026-09-01: "flip the Regions and States in the search"), which
+       is also broad-to-narrow - a region contains states - so the geography now reads outside-in
+       rather than the other way round.
 
        THIS IS LISTINGS.HTML'S FILTER BAR (Kiron, 2026-09-01: "for formatting consistency, just
        the same structure that is on listings.html"). Same `ls-*` class names, same sticky band
@@ -102,7 +103,7 @@
       display: flex; align-items: center; justify-content: space-between;
       gap: var(--space-2); flex-wrap: wrap; }
     /* The four filter controls, packed LEFT at a tight --space-2 gap, so the leftover width
-       collects in ONE place - between REGION and VIEW ALL - and the bar reads as
+       collects in ONE place - between STATE and VIEW ALL - and the bar reads as
        filters-left / actions-right.
        flex-basis 0, NOT auto: a wrapping flex container decides where to break from each item's
        max-content size BEFORE any shrinking happens, so on auto this group can measure wider
@@ -111,16 +112,12 @@
        difference, which is where it belongs. */
     .ls-controls{ display: flex; align-items: center; justify-content: flex-start;
       gap: var(--space-2); flex-wrap: nowrap; flex: 1 1 0; min-width: 0; }
-    /* VIEW ALL + CLEAR FILTERS: the bar's two ACTIONS, held hard right and kept OUT of
-       .ls-controls so the filter group stays a group. Same slot listings gives SORT BY and the
-       grid/map switch.
-       ⚠ THEY DO THE SAME THING TODAY, and both were asked for (Kiron, 2026-09-01). The page's
-       entire state is the four controls to their left, so "show everybody" and "empty the
-       controls" land in the same place. They are ranked rather than merged: VIEW ALL is the
-       filled primary - the default view, the way back to the whole roster - and CLEAR FILTERS is
-       the quiet twin. If the page ever gains state that is NOT one of those three controls (a
-       page number, a sort, a saved set) they stop being synonyms, and that is the moment to give
-       them different jobs. */
+    /* VIEW ALL: the bar's one ACTION, held hard right and kept OUT of .ls-controls so the filter
+       group stays a group. Same slot listings gives SORT BY and the grid/map switch.
+       IT USED TO BE TWO. Clear Filters stood beside it for one day and came off (Kiron,
+       2026-09-01) because it did the same thing - the page's entire state is the four controls to
+       the left, so "show everybody" and "empty the controls" are one operation. See the markup
+       note for the condition under which a second button earns its place back. */
     .ls-right{ display: flex; align-items: center; gap: var(--space-4); flex: none; }
 
     /* ---- shared pill trigger: SERVICE, STATE and REGION ---- */
@@ -188,8 +185,11 @@
       font-family: var(--font-sans); font-size: 14px; line-height: 1.3; color: var(--pc-black); }
     .ls-opt input{ flex: none; width: 18px; height: 18px; accent-color: var(--pc-navy); }
     .ls-opt:hover{ color: var(--pc-navy); }
-    /* REGION sits at the right-hand end of the filter group, so its popover opens leftward.
-       Overridden back to left-anchored and viewport-wide at <=639. */
+    /* .ls-pop-right is UNUSED as of 2026-09-01 - Region gave it up when it and State swapped
+       places, and State's panel is anchored to the bar instead. It is kept because it is part of
+       the listings vocabulary this bar is a copy of (§2.4b), and because the next control added
+       to the right-hand end of the group will want it. Overridden back to left-anchored and
+       viewport-wide at <=639, as it is there. */
     .ls-pop-right{ left: auto; right: 0; }
 
     /* ---- .ls-pop-wide: the STATE popover, 50 states in 5 columns of 10 ----
@@ -372,7 +372,19 @@
     /* Portrait. 4:5 is the headshot crop — see developer-team.md for the export spec.
        The gradient is the empty state: until a real photo exists the onerror hides the
        <img> and the brand gradient shows through, so the grid never breaks. */
-    .tm-ph{ position: relative; aspect-ratio: 4 / 5; overflow: hidden;
+    /* SQUARE (Kiron, 2026-09-01). Was a 4:5 portrait; every tile is now 1:1, so the tile's height
+       is its width at every rung - 256px square at 1600, 575px square at 639 - and 154px comes
+       off the tallest card in the process.
+
+       `object-position: center top` MATTERS MORE AT 1:1, NOT LESS, and it is why this is not just
+       a ratio swap. A square crop of a portrait original throws away more of the frame than a 4:5
+       one does, and it throws it away from the BOTTOM - so a subject framed centre-frame keeps
+       their head and loses their chest, which is what a headshot wants. Anchored `center` instead,
+       the same crop would take a slice off the top of the head.
+       ⚠ THE CROP SPEC CHANGED WITH IT: 1000 x 1000, not 800 x 1000. See developer-team.md §4. A
+       4:5 master will still render correctly here - `cover` crops it - but it crops blind, so the
+       framing is only as good as the export. */
+    .tm-ph{ position: relative; aspect-ratio: 1 / 1; overflow: hidden;
       background: linear-gradient(135deg, var(--pc-black), var(--pc-navy)); }
     .tm-ph img{ display: block; width: 100%; height: 100%; object-fit: cover;
       object-position: center top; }
@@ -540,10 +552,10 @@
          one row. If a phone-sticky bar is wanted back, the fix is a collapsed
          "Filters (2)" summary row that expands - not this rule. */
       .ls-bar{ position: static; }
-      /* The bar's actions stack full width in the same order they sit in on one row. */
+      /* One action, full width. The `.ls-right .ls-clear` rule that stacked the second button
+         went with Clear Filters. */
       .ls-right{ flex-wrap: wrap; gap: var(--space-3); }
       .ls-right .ls-apply{ flex: 1 1 100%; }
-      .ls-right .ls-clear{ flex: 1 1 100%; text-align: center; }
     }
   </style>
 </head>
@@ -669,10 +681,15 @@
                plainly reachable. The consequence to know: an empty set and "any" are the same
                query, so unchecking the last box is not a dead end - it is simply back to
                unfiltered.
-               NINE services in the live team page's own section order - the eight from the pill
-               row this replaced (Kiron, 2026-09-01: "the list of services that we had on the
-               search area before we switched it up") plus LEADERSHIP at the top (Kiron, same
-               day). It differs from the What We Do mega-menu's order; that is intentional.
+               NINE services, IN KIRON'S OWN ORDER (2026-09-01), which is no longer the live team
+               page's section order and no longer alphabetical:
+                 Leadership · Corporate Services · Land Brokerage & Auctions · Agricultural
+                 Appraisal · Land Management · Energy Management · Crop Insurance ·
+                 Capital Markets · Operations
+               ⚠ IT IS A SEQUENCE HE GAVE VERBATIM. It is not derived from anything on this page or
+               the live one, so there is no rule to re-derive it from - do not "restore" it to the
+               live page's order, to the mega-menu's order, or to alphabetical. If a tenth service
+               appears, ask where it goes rather than appending it.
                ⚠ MARKETING IS FOLDED INTO OPERATIONS - the live team page lists Marketing as its
                own section and those people are Operations here. -->
           <div class="ls-f">
@@ -691,13 +708,13 @@
                        reconnected, returns an EMPTY GRID until Leadership people are put back on
                        the roster. Every other service has at least one person by design. -->
                   <label class="ls-opt"><input type="checkbox" name="tm-service" value="Leadership" data-key="leadership" /> Leadership</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Land Brokerage &amp; Auctions" data-key="brokerage" /> Land Brokerage &amp; Auctions</label>
                   <label class="ls-opt"><input type="checkbox" name="tm-service" value="Corporate Services" data-key="corporate" /> Corporate Services</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Land Management" data-key="management" /> Land Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Land Brokerage &amp; Auctions" data-key="brokerage" /> Land Brokerage &amp; Auctions</label>
                   <label class="ls-opt"><input type="checkbox" name="tm-service" value="Agricultural Appraisal" data-key="appraisal" /> Agricultural Appraisal</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Capital Markets" data-key="capital" /> Capital Markets</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Crop Insurance" data-key="crop" /> Crop Insurance</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Land Management" data-key="management" /> Land Management</label>
                   <label class="ls-opt"><input type="checkbox" name="tm-service" value="Energy Management" data-key="energy" /> Energy Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Crop Insurance" data-key="crop" /> Crop Insurance</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Capital Markets" data-key="capital" /> Capital Markets</label>
                   <label class="ls-opt"><input type="checkbox" name="tm-service" value="Operations" data-key="operations" /> Operations</label>
                 </div>
               </fieldset>
@@ -708,8 +725,57 @@
             </div>
           </div>
 
-          <!-- STATE — same control, same rules: multi-select checkboxes, no "any" option,
-               nothing checked is unfiltered. TWO things are different, both size:
+          <!-- REGION — the third control (Kiron, 2026-09-01: "flip the Regions and States in the
+               search", so Region now leads State). Same control, same rules - multi-select, no
+               "any" option.
+               IT GAVE THE RIGHT-ANCHORED POPOVER BACK when it stopped being the last pill: a
+               stock 280px popover opens left-anchored from here with room to spare (measured).
+
+               THE SEVEN REGIONS ARE KIRON'S LIST, verbatim, and they are the PC REGIONAL
+               FOOTPRINT MAP's own region names — which makes this the one geographic control on
+               the page with a real vocabulary behind it. That map also labels Mountain,
+               Appalachian, Northeast and Pacific; those are NOT here, and their absence is
+               Kiron's call rather than an oversight. Do not add them back from the map.
+
+               ⚠ REGION AND STATE OVERLAP, and it is worth deciding before either is wired. Region
+               is the broader cut of the same dimension (Iowa is Midwest), so the two can
+               contradict each other: Iowa + Pacific West is a combination with nobody in it by
+               definition, not because the roster is thin. Three ways out — constrain the State
+               list to whatever Region is chosen, treat the two as OR rather than AND, or drop one.
+               Nothing is decided here; today they are independent single-selects.
+
+               ⚠ NO CARD CARRIES A `data-region`, exactly as none carries a `data-state`. This
+               cannot be wired until the roster has the field. See developer-team.md §2.4c. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="tmRegionBtn" type="button" data-label="Region"
+                    aria-expanded="false" aria-controls="tmRegionPop">Region <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <div class="ls-pop" id="tmRegionPop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Region</legend>
+                <div class="ls-poplist">
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Delta" /> Delta</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Lake States" /> Lake States</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Midwest" /> Midwest</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Pacific Northwest" /> Pacific Northwest</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Pacific West" /> Pacific West</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Southeast" /> Southeast</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Southern Plains" /> Southern Plains</label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="region">Clear</button>
+                <button class="ls-apply" type="button" data-done="region">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE — the fourth control, and now the LAST pill in the group (Kiron,
+               2026-09-01, flipped with Region). Same control, same rules: multi-select checkboxes,
+               no "any" option, nothing checked is unfiltered.
+               ITS POSITION DOES NOT MATTER TO ITS POPOVER, which is the useful part of the flip:
+               the wide panel is anchored to the BAR, not to this pill, so moving the pill moved
+               nothing. Region, by contrast, had to hand back its right-anchor.
+               TWO things are different about this control, both size:
 
                THIRTY STATES, IN 5 COLUMNS OF 6 (Kiron, 2026-09-01), in a widened popover - see
                .ls-pop-wide and .ls-checks5 in the <style> for the 900px derivation and for why
@@ -774,59 +840,22 @@
             </div>
           </div>
 
-          <!-- REGION — the fourth control and the third picklist (Kiron, 2026-09-01). Same
-               control, same rules - multi-select, no "any" option - and it takes the
-               right-anchored popover over from STATE
-               because it is now the last pill in the group: a left-anchored 280px popover here
-               would open across VIEW ALL and CLEAR FILTERS.
-
-               THE SEVEN REGIONS ARE KIRON'S LIST, verbatim, and they are the PC REGIONAL
-               FOOTPRINT MAP's own region names — which makes this the one geographic control on
-               the page with a real vocabulary behind it. That map also labels Mountain,
-               Appalachian, Northeast and Pacific; those are NOT here, and their absence is
-               Kiron's call rather than an oversight. Do not add them back from the map.
-
-               ⚠ REGION AND STATE OVERLAP, and it is worth deciding before either is wired. Region
-               is the broader cut of the same dimension (Iowa is Midwest), so the two can
-               contradict each other: Iowa + Pacific West is a combination with nobody in it by
-               definition, not because the roster is thin. Three ways out — constrain the State
-               list to whatever Region is chosen, treat the two as OR rather than AND, or drop one.
-               Nothing is decided here; today they are independent single-selects.
-
-               ⚠ NO CARD CARRIES A `data-region`, exactly as none carries a `data-state`. This
-               cannot be wired until the roster has the field. See developer-team.md §2.4c. -->
-          <div class="ls-f">
-            <button class="ls-pill" id="tmRegionBtn" type="button" data-label="Region"
-                    aria-expanded="false" aria-controls="tmRegionPop">Region <span class="ls-chev" aria-hidden="true">▾</span></button>
-            <div class="ls-pop ls-pop-right" id="tmRegionPop" hidden>
-              <fieldset class="ls-fieldset">
-                <legend>Region</legend>
-                <div class="ls-poplist">
-                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Delta" /> Delta</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Lake States" /> Lake States</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Midwest" /> Midwest</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Pacific Northwest" /> Pacific Northwest</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Pacific West" /> Pacific West</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Southeast" /> Southeast</label>
-                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Southern Plains" /> Southern Plains</label>
-                </div>
-              </fieldset>
-              <div class="ls-actions">
-                <button class="ls-clear" type="button" data-clear="region">Clear</button>
-                <button class="ls-apply" type="button" data-done="region">Done</button>
-              </div>
-            </div>
-          </div>
-
         </div>
 
         <!-- The right-hand group. Both sit OUTSIDE .ls-controls so the filter group stays a
              group and the leftover width collects in one place - the slot listings gives SORT BY
              and the grid/map switch. See the .ls-right note in the <style> for why there are two
              buttons here doing one job, and how they are ranked. -->
+        <!-- ONE ACTION, NOT TWO. CLEAR FILTERS came off (Kiron, 2026-09-01: "remove the Clear
+             Filters since it does the same thing as View All") - which it did, exactly: the
+             page's whole state is the four controls to the left, so "show everybody" and "empty
+             the controls" were the same operation wearing two labels. VIEW ALL kept the job
+             because it names the RESULT rather than the mechanism.
+             ⚠ If the page ever gains state that is NOT one of those four controls - a page
+             number, a sort, a saved set - the two stop being synonyms and the second button has a
+             real job again. That is the condition to bring it back on, not a change of mind. -->
         <div class="ls-right">
           <button class="ls-apply" id="tmViewAll" type="button">View All</button>
-          <button class="ls-clear" id="tmClearAll" type="button">Clear Filters</button>
         </div>
       </div>
     </div>
@@ -1384,7 +1413,6 @@
       var reset  = document.getElementById("tmReset");
       var pager  = document.getElementById("tmPager");
       var viewAll  = document.getElementById("tmViewAll");
-      var clearAll = document.getElementById("tmClearAll");
       if(!grid) return;
 
       var cards = [].slice.call(grid.querySelectorAll(".tm-card"));
@@ -1516,19 +1544,18 @@
            rule to build it from. */
       }
 
-      /* Both bar actions clear all four controls: the page's whole state IS those four, so
-         "show everybody" and "empty the controls" are the same operation today. Ranked in the
-         markup rather than merged - see the .ls-right note in the <style>.
+      /* VIEW ALL empties all four controls: the page's whole state IS those four, so "show
+         everybody" and "empty the controls" are the same operation - which is why there is only
+         one button here now (§ the .ls-right note in the <style>).
          Focus goes to the search field afterwards, so the keyboard is left at the top of the bar
-         ready to start again rather than on a button that now does nothing. */
+         ready to start again rather than on a button that has just stopped doing anything. */
       function clearEverything(){
         if(search) search.value = "";
         groups.forEach(function(g){ g.clear(); });
         apply();
         if(search) search.focus();
       }
-      if(viewAll)  viewAll.addEventListener("click", clearEverything);
-      if(clearAll) clearAll.addEventListener("click", clearEverything);
+      if(viewAll) viewAll.addEventListener("click", clearEverything);
       /* The empty state's own reset, kept wired for when the cards come back. */
       if(reset) reset.addEventListener("click", clearEverything);
 
