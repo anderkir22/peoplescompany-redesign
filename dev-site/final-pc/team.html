@@ -37,57 +37,275 @@
     .tm-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
     /* ---- intro ---- */
+    /* EYEBROW AND LEAD COPY REMOVED (Kiron, 2026-09-01) - the only thing above the finder is
+       the h1. The `.tm-intro .hp-eyebrow` rule went with the eyebrow, and so did
+       `.tm-intro p:not(.hp-eyebrow)`, which had styled the lead - it was also landing on the
+       count line, more specifically than `.tm-count` itself. Nothing left in .tm-intro is a
+       plain <p>, so do not reintroduce a bare `.tm-intro p` rule. */
     .tm-intro{ padding: var(--space-8) 0 var(--space-6); }
-    .tm-intro .hp-eyebrow{ margin: 0 0 var(--space-3); }
-    /* :not() so the lead size can't land on the eyebrow, which is also a <p>. */
-    .tm-intro p:not(.hp-eyebrow){ font-size: var(--body-lg); line-height: 1.7;
-      color: var(--color-text-muted); max-width: 62ch; margin: var(--space-4) 0 0; }
 
-    /* ---- the finder: a search box and a row of service pills ----
-       BUTTONS, NOT LINKS (Kiron, 2026-08-31). They were anchors pointing at filtered archive
-       URLs; the page now filters IN PLACE, so they are `<button type="button">` carrying
-       `aria-pressed`. A control that changes the page under you without navigating is a button,
-       and `aria-pressed` is what tells a screen reader which filter is on.
-       ⚠ NO `aria-current="page"` ON THEM ANY MORE — that is for navigation, and these no longer
-       navigate. The active pill is filled AND aria-pressed: never colour alone. */
-    .tm-controls{ display: flex; flex-direction: column; gap: var(--space-4);
-      margin: var(--space-6) 0 0; }
+    /* ================= SEARCH / FILTER BAR =================
+       Order is SEARCH BY NAME · SERVICE · STATE · REGION, then VIEW ALL and CLEAR FILTERS hard
+       right. Region is appended after State, as it was asked for; broad-to-narrow would put it
+       BEFORE State, and that is the one thing about this order worth a second look.
 
-    /* The search box leads, because at 178 people someone who knows the name should not have to
-       read a pill row first. Capped rather than full width: it takes one short string. */
-    .tm-searchwrap{ position: relative; max-width: 340px; }
-    .tm-searchwrap svg{ position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      width: 17px; height: 17px; color: var(--pc-navy); pointer-events: none; }
-    .tm-search{ width: 100%; font-family: var(--font-sans); font-size: 14px; line-height: 1.2;
-      color: var(--color-text); background: var(--pc-white);
-      border: 1px solid var(--color-border); border-radius: var(--radius-pill);
-      padding: 11px 38px 11px 40px; }
-    .tm-search::placeholder{ color: var(--color-text-muted); }
-    .tm-search:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px;
-      border-color: var(--pc-navy); }
-    /* The native search-field clear is inconsistent across browsers, so it is suppressed and
-       replaced with one that can be styled, positioned and given a real accessible name. */
-    .tm-search::-webkit-search-cancel-button{ -webkit-appearance: none; appearance: none; }
-    .tm-searchclear{ position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-      border: 0; border-radius: 50%; background: transparent; cursor: pointer;
-      font-size: 17px; line-height: 1; color: var(--pc-navy); }
-    .tm-searchclear:hover{ background: var(--pc-light-blue); }
-    .tm-searchclear:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 1px; }
+       THIS IS LISTINGS.HTML'S FILTER BAR (Kiron, 2026-09-01: "for formatting consistency, just
+       the same structure that is on listings.html"). Same `ls-*` class names, same sticky band
+       under the header, same elastic text field on the left, same pill-plus-popover picklist,
+       same filters-left / actions-right split. A visitor who has used the property search meets
+       one instrument on both pages, not two that merely rhyme.
 
-    .tm-filters{ display: flex; flex-wrap: wrap; gap: 8px; }
-    .tm-chip{ font-family: var(--font-sans); font-size: 13px; font-weight: 600; line-height: 1;
-      color: var(--pc-navy); background: var(--pc-white); border: 1px solid var(--color-border);
-      border-radius: var(--radius-pill); padding: 9px 16px; text-decoration: none;
-      cursor: pointer;
-      transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
-    .tm-chip:hover{ background: var(--pc-light-blue); border-color: var(--pc-light-blue); }
-    .tm-chip:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-    .tm-chip.is-active{ background: var(--pc-navy); border-color: var(--pc-navy); color: var(--pc-white); }
+       IT REPLACED THE PILL ROW. Nine service pills laid flat could not survive a second
+       dimension: State would have meant a second flat row and no way to tell which row was
+       which. A pill-with-popover collapses each dimension to one control of fixed height, which
+       is why the listings bar is built that way and why copying it solves this page's problem
+       rather than merely matching its looks.
 
-    /* THE COUNT LINE IS A LIVE REGION. It is the only thing that tells a screen-reader user the
-       grid changed under them - the cards are removed silently otherwise. `role="status"` reads
-       it politely, after whatever they were doing. */
+       ⚠ SECOND COPY OF THESE RULES. The originals are page-local in `listings.html`, whose
+       own note says "promote them into pc.css when the pattern is adopted". IT IS NOW ADOPTED:
+       two pages use it, so this is the moment that note was written for, and until the promotion
+       happens EVERY CHANGE HERE HAS TO BE MADE TWICE. Only the subset this page uses was taken
+       - no ranges, no checkbox tree, no roll-up, no two-column popover, no MORE FILTERS panel,
+       no grid/map switch. The listings copy stays the reference; if the two ever disagree, that
+       one is right. Deliberate divergences from it are marked ≠ below and there are three.
+       See developer-team.md §2.4b. */
+
+    /* --ls-pill-w is the shared width of the SERVICE, STATE and REGION pills, and the derivation is
+       this page's own - it is NOT listings' 160px (≠ 1). The widest resting label here is
+       "Service"; the widest CHOSEN VALUE is "Land Brokerage & Auctions", which wraps to two
+       lines exactly as a listings pill does, so the pill has to hold the widest LINE wrapping
+       produces - "Brokerage &" at ~92px - not the whole string. 180px leaves ~130px of label
+       per line - "Pacific Northwest", the longest region, sits on ONE line at ~118px - and the
+       three pills plus a 240px field plus the two actions still fit one row at 1280 (measured). Two 14px lines measure 32px inside the 44px min-height, so a wrapped pill never
+       changes the height of the bar. */
+    .tm-body{ --ls-pill-w: 180px; }
+
+    /* STICKY UNDER THE HEADER, exactly as on listings, so the controls keep their place while
+       the roster scrolls. `top: var(--navH)` is the live header height, written to the DOM by
+       the sync at the foot of this page.
+       z-40 sits under the sticky header (45) and the hamburger drawer (42/41) and above the
+       announcement toast (25).
+       ⚠ THIS PAGE HAS THE INTERACTIVE MAP TAB and listings does not - the tab is z-39, so the
+       bar draws over it. That is correct: the tab overhangs the top of the page and the bar is
+       below it, so they never occupy the same band, but if the tab is ever moved the order of
+       these two numbers is the thing to check.
+       ⚠ Sticky dies inside an ancestor with overflow other than visible. Nothing between here
+       and <html> clips today. */
+    .ls-bar{ position: sticky; top: var(--navH); z-index: 40;
+      background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border); }
+    /* `position: relative` HERE IS LOAD-BEARING for the wide STATE panel only - that one panel
+       hangs off the BAR's content box rather than off its pill (see .ls-pop-wide for why it has
+       to). Every other popover is positioned by its own .ls-f and is unaffected. */
+    .ls-bar-in{ position: relative; max-width: var(--site); margin: 0 auto;
+      padding: var(--space-4) var(--rail);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-2); flex-wrap: wrap; }
+    /* The four filter controls, packed LEFT at a tight --space-2 gap, so the leftover width
+       collects in ONE place - between REGION and VIEW ALL - and the bar reads as
+       filters-left / actions-right.
+       flex-basis 0, NOT auto: a wrapping flex container decides where to break from each item's
+       max-content size BEFORE any shrinking happens, so on auto this group can measure wider
+       than its slot and throw the actions onto a second row without ever asking the text field
+       to give width back. At 0 it always fits the line and the elastic field absorbs the
+       difference, which is where it belongs. */
+    .ls-controls{ display: flex; align-items: center; justify-content: flex-start;
+      gap: var(--space-2); flex-wrap: nowrap; flex: 1 1 0; min-width: 0; }
+    /* VIEW ALL + CLEAR FILTERS: the bar's two ACTIONS, held hard right and kept OUT of
+       .ls-controls so the filter group stays a group. Same slot listings gives SORT BY and the
+       grid/map switch.
+       ⚠ THEY DO THE SAME THING TODAY, and both were asked for (Kiron, 2026-09-01). The page's
+       entire state is the four controls to their left, so "show everybody" and "empty the
+       controls" land in the same place. They are ranked rather than merged: VIEW ALL is the
+       filled primary - the default view, the way back to the whole roster - and CLEAR FILTERS is
+       the quiet twin. If the page ever gains state that is NOT one of those three controls (a
+       page number, a sort, a saved set) they stop being synonyms, and that is the moment to give
+       them different jobs. */
+    .ls-right{ display: flex; align-items: center; gap: var(--space-4); flex: none; }
+
+    /* ---- shared pill trigger: SERVICE, STATE and REGION ---- */
+    .ls-f{ position: relative; }
+    /* All three pills share --ls-pill-w so the bar reads as one rhythm, content centred.
+       A chosen VALUE is allowed to WRAP TO TWO LINES rather than spill over its neighbour -
+       hence no white-space: nowrap, and hence a min-height rather than a height. */
+    .ls-pill{ display: inline-flex; align-items: center; justify-content: center;
+      width: var(--ls-pill-w); gap: var(--space-2); text-align: center;
+      min-height: 44px; padding: 4px 16px; background: var(--pc-white);
+      /* One step down the palette from --color-border (PC Light Blue) to PC Blue - the same
+         hairline listings uses, carried over deliberately so the two bars are the same weight. */
+      border: 1px solid var(--pc-blue); border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; line-height: 1.15;
+      color: var(--pc-black); cursor: pointer; }
+    .ls-pill:hover{ border-color: var(--pc-navy); }
+    .ls-pill[aria-expanded="true"]{ border-color: var(--pc-navy);
+      box-shadow: inset 0 0 0 1px var(--pc-navy); }
+    .ls-pill:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-chev{ font-size: 10px; color: var(--pc-medium-blue); }
+    /* A pill holding a selection REPLACES ITS LABEL WITH IT, so the set state is readable as
+       words: the value itself when exactly one thing is picked, "3 services" when more than one
+       is - listings' own rule. The navy fill is reinforcement, never the signal. */
+    .ls-pill.is-set{ background: var(--pc-navy); border-color: var(--pc-navy);
+      color: var(--pc-white); }
+    .ls-pill.is-set .ls-chev{ color: var(--pc-light-blue); }
+    .ls-pill.is-set:focus-visible{ outline-color: var(--pc-black); }
+
+    /* ---- SEARCH BY NAME: a real text field, not a popover ---- */
+    /* Listings' .ls-loc, with a magnifier for its pin (≠ 2 - the field takes a person's name,
+       not a place). THE ONLY ELASTIC CONTROL IN THE BAR: it gives width back down to 200px
+       before anything is forced to wrap, and never grows past 340px because the leftover
+       belongs between the filters and the actions. */
+    .ls-loc{ display: flex; align-items: center; gap: var(--space-2); min-height: 44px;
+      padding: 0 16px; background: var(--pc-white); border: 1px solid var(--pc-blue);
+      border-radius: var(--radius-pill); flex: 0 1 340px; min-width: 200px; }
+    .ls-loc:focus-within{ border-color: var(--pc-navy); box-shadow: inset 0 0 0 1px var(--pc-navy); }
+    .ls-loc svg{ flex: none; color: var(--pc-medium-blue); }
+    .ls-loc input{ width: 100%; min-width: 0; padding: 12px 0; border: 0; background: none;
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .ls-loc input:focus{ outline: none; }
+
+    /* ---- popover shared by SERVICE, STATE and REGION ---- */
+    /* z-44 is a DESCENDANT of the z-40 bar, so it resolves inside that layer and can never beat
+       the header - which is the behaviour wanted. Raising it past 45 would have no effect; if a
+       popover ever needs to cross the header, .ls-bar's z-index is the one to change. */
+    .ls-pop{ position: absolute; top: calc(100% + 8px); left: 0; z-index: 44;
+      min-width: 280px; max-width: calc(100vw - 40px);
+      background: var(--pc-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); box-shadow: 0 8px 28px rgba(7,22,44,.18);
+      padding: var(--space-4); }
+    .ls-pop[hidden]{ display: none; }
+    /* ≠ 3: a SCROLLING option list. No listings popover needs one - its longest is nine property
+       types. It exists here as the safety on a long list: the options scroll inside the popover
+       while the Clear/Done row below stays put and reachable, so a list can never run off the
+       bottom of a laptop screen with its actions unreachable.
+       ⚠ STATE NO LONGER RELIES ON IT - 50 states in ten rows measure ~360px and fit outright.
+       It still catches a short viewport, and it is what any future list longer than ten rows will
+       land on. Bounded by the viewport minus the header and the bar, the arithmetic listings'
+       MORE FILTERS panel uses: --ls-bar-h is the bar's measured height (space-4 + 44px control +
+       space-4 + 1px border = 77, rounded to 78). */
+    .ls-poplist{ max-height: min(46vh, calc(100vh - var(--navH, 120px) - var(--ls-bar-h, 78px) - 120px));
+      overflow-y: auto; overscroll-behavior: contain; }
+    .ls-opt{ display: flex; align-items: center; gap: 10px; padding: 9px 4px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 14px; line-height: 1.3; color: var(--pc-black); }
+    .ls-opt input{ flex: none; width: 18px; height: 18px; accent-color: var(--pc-navy); }
+    .ls-opt:hover{ color: var(--pc-navy); }
+    /* REGION sits at the right-hand end of the filter group, so its popover opens leftward.
+       Overridden back to left-anchored and viewport-wide at <=639. */
+    .ls-pop-right{ left: auto; right: 0; }
+
+    /* ---- .ls-pop-wide: the STATE popover, 50 states in 5 columns of 10 ----
+       KIRON, 2026-09-01: all 50, five columns of ten. This is listings' own answer to a list that
+       will not fit one column (.ls-pop-2col there, at nine property types) taken one step further,
+       and the WIDTH is why it needs its own class: a stock .ls-pop is min-width 280px, and
+       min-width beats max-width in CSS, so a wide popover has to override the min or it can never
+       be clamped by the viewport.
+
+       ⚠ IT IS ANCHORED TO THE BAR, NOT TO ITS PILL, AND IT HAS TO BE. STATE is the third of four
+       controls, so a panel this wide cannot hang off it: LEFT-anchored it runs 48px past the
+       viewport at 1280 (measured), and RIGHT-anchored it runs 145px off the LEFT edge at 1279,
+       where the text field has given back its width and the pill has slid left. There is no
+       anchor on that pill that survives both ends of the range. Hanging it from .ls-bar-in's
+       content box instead pins it to the page's own rail, which is a line the visitor can already
+       see, and it cannot overflow at any width the bar is one row at.
+       That is what `.ls-f-static` is for: the State .ls-f gives up `position: relative` so this
+       panel resolves against .ls-bar-in. THE OTHER TWO POPOVERS STILL HANG OFF THEIR PILLS.
+       ⚠ Consequence: the panel does not visually point at the pill that opened it. `aria-controls`
+       and `aria-expanded` still tie the two together for a screen reader, and the panel's own
+       `<legend>State</legend>` names it on screen - which is why the legend is not decoration.
+
+       WHY 50 AND NOT A FOOTPRINT. The twelve-state placeholder was a guess at where PC has people
+       and it read as data; a complete list of states is not a guess at anything. It is honest
+       about being a picker rather than a footprint - and the real footprint, whatever it turns out
+       to be, is a SUBSET of this, so nothing here has to be unlearned. The build should still trim
+       it to the states that have somebody in them (see developer-team.md §2.4c), because 50 rows
+       where 12 have people is a list that lies by omission of the count, not of the names.
+
+       745px = 5 columns of 133 + 4 gaps of 16 + 2 x 16 of popover padding. 133 holds an 18px
+       checkbox, a 10px gap and ~105px of label, which clears the longest state name
+       ("Massachusetts", "South Carolina", "West Virginia" all land near 100px at 14px Inter).
+       Clamped to the viewport, so it is the min() that saves it on a narrow window rather than
+       .ls-pop's max-width, which the min-width override has just disarmed. */
+    /* 900px = 5 columns of ~161 + 4 gaps of 16 + 2 x 16 of popover padding. 161 holds an 18px
+       checkbox, a 10px gap and ~133px of label - and the longest name left on the list,
+       "North Carolina" / "South Carolina", measures ~105px, so every one of the thirty clears its
+       column with ~28px to spare. THAT HEADROOM IS THE POINT: `white-space: nowrap` on its own
+       only converts a wrap into a clip, and the ask was that no name wraps, not that the wrapping
+       be hidden. Width and nowrap together mean nothing wraps AND nothing is cut off.
+
+       THE WIDTH WAS WALKED UP TWICE, so the failures are on the record: 745px left 101px of label
+       and five names wrapped to two lines, which took the row pitch 36 -> 56 and made the block
+       scroll inside its own max-height; 840px stopped the wrap with nowrap but left only ~15px of
+       slack - close enough to the longest name that any font change would have clipped it.
+
+       `top` is 8px under the BAR's content box rather than under the pill, which is where the
+       other two popovers start; the 16px difference is invisible because two popovers can never
+       be open at once.
+
+       `left: var(--rail)`, NOT 0. .ls-bar-in carries the rail as PADDING, so `left: 0` resolves to
+       its border box and the panel opened 32px outside the page's content column - hanging into
+       the margin, out of line with the h1, the cards and every other left edge on the page. The
+       rail puts it back on that line, which is the whole benefit of anchoring to the bar. */
+    .ls-pop-wide{ min-width: 0; max-width: none;
+      width: min(900px, calc(100vw - 40px)); left: var(--rail); right: auto; }
+    /* The State .ls-f opts out of being a positioning context - see the .ls-pop-wide note. */
+    .ls-f-static{ position: static; }
+
+    /* COLUMN-MAJOR, and that is the whole reason this is a grid rather than CSS columns.
+       `grid-auto-flow: column` with 6 explicit rows fills DOWN each column and then across, so
+       the alphabet reads Arkansas..Idaho in the first column - which is how anyone scans for a
+       state, and how a printed list works. CSS multi-column would balance the columns and could
+       leave 5 in one and 7 in another as the box flexes; six rows is six rows.
+       6 x 5 = 30 EXACTLY, so there is no ragged last column. If the list changes length, the row
+       count is the number to change - it is what keeps the column count at five.
+       THE DOM STAYS ALPHABETICAL, so tab order and the visual order agree - the flow is presentation
+       only and no screen-reader user meets a shuffled list. */
+    .ls-checks5{ display: grid; grid-auto-flow: column;
+      grid-template-rows: repeat(6, auto); gap: 2px var(--space-4); }
+    /* minmax(0,1fr) rather than 1fr: a grid column's default min is auto, so one nowrap label
+       wider than its share would push the whole track out and overflow the panel rather than
+       being clipped inside it. */
+    .ls-checks5{ grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    /* NOWRAP holds the 36px row pitch. A wrapped label is what broke the first version of this
+       panel; with nowrap a too-narrow column is visible immediately as clipped text rather than
+       silently doubling every row's height. */
+    .ls-checks5 .ls-opt{ white-space: nowrap; }
+
+    .ls-fieldset{ border: 0; padding: 0; margin: 0; }
+    .ls-fieldset legend{ padding: 0; margin-bottom: var(--space-3);
+      font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--pc-navy); }
+
+    /* ---- popover footer, and the bar's own two actions ---- */
+    /* .ls-clear / .ls-apply are listings' popover-footer pair. They are used in BOTH places
+       here: inside each popover, where listings puts them, and in the bar itself for CLEAR
+       FILTERS and VIEW ALL - which is the same vocabulary doing the same two jobs (undo, and
+       commit) one level up, rather than a second pair of button styles invented for the bar. */
+    .ls-actions{ display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4); margin-top: var(--space-5);
+      padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+    .ls-clear{ border: 0; background: none; padding: 8px 4px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-navy);
+      text-decoration: underline; text-underline-offset: 3px; }
+    .ls-clear:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-apply{ min-height: 44px; padding: 0 22px; border: 1px solid var(--pc-navy);
+      border-radius: var(--radius-pill); background: var(--pc-navy); color: var(--pc-white);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; cursor: pointer; }
+    .ls-apply:hover{ background: var(--pc-black); border-color: var(--pc-black); }
+    .ls-apply:focus-visible{ outline: 2px solid var(--pc-black); outline-offset: 2px; }
+
+    /* THE COUNT LINE IS NOW INVISIBLE, NOT GONE (Kiron, 2026-09-01: "remove the people count
+       below the filter, and eliminate some of that space").
+
+       IT CARRIES .sr-only, so it takes no space and paints nothing, and it is still in the
+       accessibility tree. THAT IS DELIBERATE AND IT SHOULD STAY THAT WAY: it is a `role="status"`
+       live region, and once the cards are reconnected it is the ONLY thing that tells a
+       screen-reader user the grid changed under them - cards are removed in silence otherwise.
+       Deleting the element would take a sighted visitor's line away AND a blind visitor's only
+       announcement; hiding it takes away only the line.
+       ⚠ .sr-only IS NOT display:none. Do not "tidy" it into one.
+
+       The rules below are dormant while .sr-only holds it: .sr-only is position:absolute with a
+       1px clip, so the type and the margin here have nothing to act on. They are left in place
+       because a count line is the obvious thing to want back next to a 178-person roster. */
     .tm-count{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
       color: var(--color-text-muted); margin: var(--space-5) 0 0; }
     .tm-count b{ color: var(--pc-black); }
@@ -107,8 +325,14 @@
        the page read as a roster rather than a gallery, and five 4:5 portraits still hold at the
        top rung. The ladder gains a rung at 1535 so the step down is 5 -> 4 -> 3 -> 2 -> 1 rather
        than shedding two columns at once. */
+    /* SPACE UNDER THE BAR, and it is the grid's own margin that owns it now (Kiron, 2026-09-01:
+       "eliminate some of that space"). It was --space-7 (48px) under a visible count line that
+       itself sat --space-5 (24px) below the bar, so the bar-to-first-card gap measured ~89px
+       including the line. With the count line hidden the grid hangs straight off the bar, and
+       --space-6 (32px) is what is left: 57px removed, and the gap is now one value in one place
+       rather than two stacked on a line between them. */
     .tm-grid{ display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-5);
-      margin-top: var(--space-7); }
+      margin-top: var(--space-6); }
 
     /* `position: relative` IS LOAD-BEARING: it is what the stretched link below anchors to.
        Without it the overlay would size itself to the nearest positioned ancestor instead. */
@@ -153,10 +377,57 @@
     .tm-ph img{ display: block; width: 100%; height: 100%; object-fit: cover;
       object-position: center top; }
 
+    /* HORIZONTAL PADDING IS 14px, NOT --space-4 (16px), and it is bought deliberately: every
+       pixel here is a pixel the name does not have. 2px a side is 4px of line, which is what
+       moved the worst name from 2px of slack to 6px. The vertical padding is untouched - it does
+       no work for the name and dropping it would only crowd the card. */
     .tm-cardbody{ display: flex; flex-direction: column; gap: 3px; flex: 1;
-      padding: var(--space-4) var(--space-4) var(--space-5); }
-    .tm-name{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      padding: var(--space-4) 14px var(--space-5); }
+
+    /* ================= THE NAME MUST NOT WRAP (Kiron, 2026-09-01) =================
+       "adjust the spacing/sizing so that none of these names wrap."
+
+       WHAT THE NUMBERS SAID. The narrowest the card ever gets is 252px, at 1536 - five across a
+       shrinking box - which left 220px of line under the old 32px of padding. Against that, with
+       everything set at one size:
+         name at 22px, letters at 22px  ->  288px  ("Kyle Walker, AFM, AAC, CAC")
+         name at 22px alone             ->  214px  ("Emily Oberbroeckling")
+       So the 22px name was ALREADY within 6px of overflowing before a single designation was
+       added, and holding 22px for the whole string needed a 17px face, which is smaller than the
+       card's own job title.
+
+       THE FIX IS TWO TYPE SIZES, NOT ONE SMALLER ONE. The name steps 22 -> 20px and the letters
+       are set as their own 12px sans run. That is also how credentials are set in print - they
+       are not part of the name, they qualify it - so the typography and the data agree.
+
+       MEASURED ON THE PAGE, at every rung from 1600 down to 375: NOTHING WRAPS and nothing is
+       clipped. The widest line is 205px against 226px of available line in the narrowest card -
+       21px of slack at 1600 and 1536, 26px at 900, and more everywhere else.
+
+       ⚠ 22px WAS RE-TESTED IN PLACE BEFORE SETTLING ON 20, because 22 was the size Kiron had
+       chosen: at 22px the widest line is 222px against the same 226px of line. It FITS - by 4px.
+       Four pixels is not a margin, it is a coincidence: one longer surname, one font fallback on
+       a machine without EB Garamond, one browser rounding differently, and it wraps. 20px buys
+       21px of slack for 2px of headline. If 22px is wanted back, that is the trade being made,
+       and this is the number to make it against.
+
+       ⚠ THE BINDING CASE IS NOT THE LONGEST NAME. It is "Emily Oberbroeckling, ARA" - a long
+       SURNAME with a short designation beats a short name with three designations
+       ("Kyle Walker, AFM, AAC, CAC"), because the surname is set 8px larger than the letters.
+       Test any new card against that string, not against Kyle Walker.
+
+       ⚠ THERE IS NO `white-space: nowrap` HERE, on purpose. Nowrap would turn the next name too
+       long for the card into CLIPPED TEXT with no sign anything was lost; wrapping is ugly and
+       obvious, which is the failure mode to want. The 21px of slack is the real guarantee, and it
+       is only a guarantee for the 25 names on the page today. */
+    .tm-name{ font-family: var(--font-serif); font-weight: 500; font-size: 20px;
       line-height: 1.2; margin: 0; }
+    /* The letters ride the name's baseline at 12px semibold sans, in the muted grey the job title
+       uses - so they read as an annotation on the name rather than as part of it, and the eye
+       still lands on the name first. They sit OUTSIDE the anchor (see the markup note), so they
+       do not take the link's hover colour; that is intended - they are not part of the link. */
+    .tm-desig{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      letter-spacing: .02em; color: var(--color-text-muted); white-space: nowrap; }
     .tm-name a{ color: var(--pc-black); text-decoration: none; }
     .tm-name a:hover{ color: var(--pc-medium-blue); }
 
@@ -199,9 +470,17 @@
     .tm-contact a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
     /* ---- pager ---- */
+    /* THE PAGER BAND WAS 224px OF MOSTLY NOTHING (Kiron, 2026-09-01: "reduce the vertical
+       spacing/white space in this section"). It stacked three of the largest steps on the scale
+       around four 44px buttons: --space-8 (64px) of margin above the rule, --space-8 again below
+       it, then --space-9 (96px) under the buttons.
+       Now 32 / 24 / 48. Each still comes off the scale, and the SHAPE of the rhythm is kept -
+       more air above the rule than below it, most air under the buttons where the footer is
+       coming - it is just two steps down the scale instead of at the top of it.
+       The 44px buttons and the 8px gap are untouched: this is white space, not target size. */
     .tm-pager{ display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
-      gap: 8px; padding: var(--space-8) 0 var(--space-9);
-      border-top: 1px solid var(--color-border); margin-top: var(--space-8); }
+      gap: 8px; padding: var(--space-5) 0 var(--space-7);
+      border-top: 1px solid var(--color-border); margin-top: var(--space-6); }
     .tm-page{ display: inline-flex; align-items: center; justify-content: center;
       min-width: 44px; height: 44px; padding: 0 14px;
       font-family: var(--font-sans); font-size: 14px; font-weight: 600;
@@ -220,9 +499,51 @@
       .tm-grid{ grid-template-columns: repeat(2, 1fr); }
       .tm-intro{ padding-top: var(--space-7); }
     }
+    /* ---- the bar's own ladder, lifted from listings so both bars break at the same widths.
+         The team bar has two pills where listings has five, so it survives to a narrower
+         viewport before it needs two rows - but the RUNGS are the same, because a visitor
+         moving between the pages should not meet two different reflow points. ---- */
+    @media (max-width: 1023px){
+      /* The filters take a full row and the two actions right-align beneath them. Letting the
+         bar wrap on its own orphans VIEW ALL at the left edge. */
+      .ls-controls{ width: 100%; flex-wrap: wrap; }
+      .ls-right{ width: 100%; justify-content: flex-end; }
+      .ls-loc{ flex: 1 1 240px; }
+    }
+    @media (max-width: 767px){
+      .ls-loc{ flex: 1 1 100%; }
+    }
     @media (max-width: 639px){
       .tm-grid{ grid-template-columns: 1fr; }
+      /* Was a step DOWN from 22px; the base is 20px now, so this is a no-op kept as the hook
+         for whatever the phone card wants when responsive is picked up again. */
       .tm-name{ font-size: 20px; }
+      /* EACH PILL TAKES ITS OWN FULL-WIDTH ROW here, and the third picklist is what forced it.
+         Two pills split a 375px row into 164px each, which a wrapped value survives; THREE split
+         it into 101px, and at 101px a single chosen "Land Brokerage & Auctions" wraps to four
+         lines and pushes the pill past its 44px min-height, so the bar's own height starts moving
+         with the selection. Full width also means a chosen value is readable rather than
+         guessable. Same shape listings takes when its five pills stretch and wrap. */
+      .ls-f{ flex: 1 1 100%; min-width: 0; }
+      .ls-f > .ls-pill{ width: 100%; justify-content: space-between; text-align: left; }
+      .ls-pop{ left: 0; right: auto; min-width: 0; width: calc(100vw - 40px); }
+      .ls-actions{ flex-direction: column-reverse; align-items: stretch; }
+      .ls-apply{ width: 100%; }
+      /* ≠ 4, AND IT IS A DIVERGENCE FROM LISTINGS: THE BAR STOPS BEING STICKY HERE.
+         Four filters and two actions stacked full width measure ~320px. Sticky, that parks a
+         third of a phone screen permanently under a 100px header and leaves the roster reading
+         through a slot. listings' bar has the same problem and keeps sticky; this page has one
+         more control than it does and the arithmetic tipped over. The trade is deliberate: on a
+         phone you set the filters once and then scroll the results, so the bar has less to earn
+         its keep than it does on a desktop where it costs 76px and never moves.
+         ⚠ It is STILL STICKY AT 640 AND UP, which is where it was measured and where it stays
+         one row. If a phone-sticky bar is wanted back, the fix is a collapsed
+         "Filters (2)" summary row that expands - not this rule. */
+      .ls-bar{ position: static; }
+      /* The bar's actions stack full width in the same order they sit in on one row. */
+      .ls-right{ flex-wrap: wrap; gap: var(--space-3); }
+      .ls-right .ls-apply{ flex: 1 1 100%; }
+      .ls-right .ls-clear{ flex: 1 1 100%; text-align: center; }
     }
   </style>
 </head>
@@ -296,67 +617,270 @@
     <div class="tm-wrap">
 
       <div class="tm-intro reveal">
-        <p class="hp-eyebrow">The Company</p>
         <h1>Our Team</h1>
-        <!-- ⚠ THE LEAD COPY USED TO PROMISE TWO THINGS THE PAGE DOES NOT DO — "find the person
-             who works in your area" (there is no area filter) and "reach any office directly"
-             (there are no office links). Rewritten to describe the two controls that exist.
-             Rewrite it again if a state or office filter is ever added. -->
-        <p>Land professionals across the Midwest and beyond. Search by name, or filter by the
-          service you need.</p>
+      </div>
+    </div>
 
-        <!-- ============ THE FINDER (Kiron, 2026-08-31) ============
-             Search and pills FILTER THE GRID IN PLACE. They do not navigate, and they COMBINE:
-             a chosen service AND a typed name narrow together, so "Agricultural Appraisal" plus
-             "ober" is appraisers whose name contains "ober". Choosing a pill does not clear the
-             search and typing does not clear the pill.
-             THE ONE THAT DOES CLEAR EVERYTHING is "All", which is both the default state and the
-             way out — plus the reset button in the empty state.
-             ⚠ NOTHING HERE IS IN THE URL. A filtered view cannot be linked or bookmarked, and
-             the back button does not step through filter states. For a mockup that is fine; for
-             the build, service and query belong in the query string so a filtered roster can be
-             shared and so the browser history behaves. -->
-        <div class="tm-controls">
-          <div class="tm-searchwrap">
-            <label class="sr-only" for="tmSearch">Search the team by name</label>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-            <input class="tm-search" id="tmSearch" type="search" placeholder="Search by name"
+    <!-- ---------- search / filter bar ---------- -->
+    <!-- FULL BLEED AND STICKY, so it must be a SIBLING of .tm-wrap and not a child - the wrap is
+         width-capped and rail-padded, and a band inside it would stop at the content edge
+         instead of crossing the page. That is why the wrap closes above and reopens below, and
+         it is the same relationship listings.html has between .listings-wrap and .ls-bar.
+
+         THE STRUCTURE IS LISTINGS.HTML'S, class for class (Kiron, 2026-09-01). Six controls:
+         SEARCH BY NAME as the elastic .ls-loc field, then SERVICE, STATE and REGION as .ls-f
+         pill-plus-popover picklists, then VIEW ALL and CLEAR FILTERS in the .ls-right actions
+         slot. Four filters beside a text field is exactly what listings carries, so the bar is
+         being asked for no more one-row budget than that page already proves.
+
+         ⚠ NOTHING HERE TOUCHES THE CARDS. The controls open, close, write their chosen value
+         back onto their pill and clear each other; the grid does not respond. That is deliberate
+         and it is one flag away - see WIRED in the script at the foot of this page and
+         developer-team.md §2.4a. -->
+    <div class="ls-bar">
+      <div class="ls-bar-in">
+        <div class="ls-controls">
+
+          <!-- SEARCH BY NAME. FIRST in the bar: at 178 people, someone who already knows the
+               name should not have to read a service list first. A plain text field - no
+               autocomplete and no suggestion list is wired, the CMS owns that.
+               `type="search"` keeps the browser's own clear affordance, exactly as listings'
+               location field does; the bespoke × button this page used to draw was dropped with
+               the pill row, because two pages should not offer the same field two ways. -->
+          <div class="ls-loc">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+            <input type="search" id="tmSearch" placeholder="Search by Name" aria-label="Search by name"
                    autocomplete="off" spellcheck="false" />
-            <button class="tm-searchclear" id="tmSearchClear" type="button" aria-label="Clear search" hidden>&times;</button>
           </div>
 
-          <!-- NOT A <nav> ANY MORE. It was `<nav aria-label="Filter by service">` while the pills
-               were links; a group of buttons that filter in place is not a navigation landmark,
-               and leaving it as one would have a screen reader announce a set of links that go
-               nowhere. `role="group"` with the same label is the honest equivalent. -->
-          <div class="tm-filters" role="group" aria-label="Filter by service">
-            <button class="tm-chip is-active" type="button" data-service="all" aria-pressed="true">All</button>
-            <button class="tm-chip" type="button" data-service="brokerage" aria-pressed="false">Land Brokerage &amp; Auctions</button>
-            <button class="tm-chip" type="button" data-service="corporate" aria-pressed="false">Corporate Services</button>
-            <button class="tm-chip" type="button" data-service="management" aria-pressed="false">Land Management</button>
-            <button class="tm-chip" type="button" data-service="appraisal" aria-pressed="false">Agricultural Appraisal</button>
-            <button class="tm-chip" type="button" data-service="capital" aria-pressed="false">Capital Markets</button>
-            <button class="tm-chip" type="button" data-service="crop" aria-pressed="false">Crop Insurance</button>
-            <button class="tm-chip" type="button" data-service="energy" aria-pressed="false">Energy Management</button>
-            <button class="tm-chip" type="button" data-service="operations" aria-pressed="false">Operations</button>
+          <!-- SERVICE — MULTI-SELECT, so checkboxes, and the popover STAYS OPEN while you pick
+               (Kiron, 2026-09-01: "the user should be able to pick more than one service ... or
+               more than one state"). That is listings.html's own SALE TYPE and PROPERTY TYPE
+               behaviour, so this page is now closer to it than the first pass was, not further.
+               A person genuinely holds more than one service - `data-service` is a LIST - so
+               multi-select is also the shape of the data.
+
+               ⚠ THERE IS NO "ANY SERVICE" OPTION. Kiron, same day: "you can probably eliminate
+               'All Services' as an option ... or any state." NOTHING CHECKED IS THE RESTING
+               STATE, and the pill's own label is what says so - it reads "Service" until
+               something is picked. That is the ONE divergence from listings, which keeps an
+               "Any sale type" leaf inside the popover as a visible clear; here that job belongs
+               to the popover's Clear button and to CLEAR FILTERS in the bar, both of which are
+               plainly reachable. The consequence to know: an empty set and "any" are the same
+               query, so unchecking the last box is not a dead end - it is simply back to
+               unfiltered.
+               NINE services in the live team page's own section order - the eight from the pill
+               row this replaced (Kiron, 2026-09-01: "the list of services that we had on the
+               search area before we switched it up") plus LEADERSHIP at the top (Kiron, same
+               day). It differs from the What We Do mega-menu's order; that is intentional.
+               ⚠ MARKETING IS FOLDED INTO OPERATIONS - the live team page lists Marketing as its
+               own section and those people are Operations here. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="tmServiceBtn" type="button" data-label="Service"
+                    aria-expanded="false" aria-controls="tmServicePop">Service <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <div class="ls-pop" id="tmServicePop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Service</legend>
+                <div class="ls-poplist">
+                  <!-- LEADERSHIP (Kiron, 2026-09-01). FIRST, because the list is the live team
+                       page's own section order and Leadership is that page's first section - move
+                       it if it should sit elsewhere.
+                       ⚠ NO CARD IS LEADERSHIP. The 20-person sample deliberately EXCLUDES
+                       Leadership (see developer-team.md §5) - Steve Bruere and Eric Sarff came off
+                       the roster for it. So this is the one service that, once the cards are
+                       reconnected, returns an EMPTY GRID until Leadership people are put back on
+                       the roster. Every other service has at least one person by design. -->
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Leadership" data-key="leadership" /> Leadership</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Land Brokerage &amp; Auctions" data-key="brokerage" /> Land Brokerage &amp; Auctions</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Corporate Services" data-key="corporate" /> Corporate Services</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Land Management" data-key="management" /> Land Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Agricultural Appraisal" data-key="appraisal" /> Agricultural Appraisal</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Capital Markets" data-key="capital" /> Capital Markets</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Crop Insurance" data-key="crop" /> Crop Insurance</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Energy Management" data-key="energy" /> Energy Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-service" value="Operations" data-key="operations" /> Operations</label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="service">Clear</button>
+                <button class="ls-apply" type="button" data-done="service">Done</button>
+              </div>
+            </div>
           </div>
+
+          <!-- STATE — same control, same rules: multi-select checkboxes, no "any" option,
+               nothing checked is unfiltered. TWO things are different, both size:
+
+               THIRTY STATES, IN 5 COLUMNS OF 6 (Kiron, 2026-09-01), in a widened popover - see
+               .ls-pop-wide and .ls-checks5 in the <style> for the 900px derivation and for why
+               the grid is column-major. The DOM order is plain alphabetical, so tab order and
+               reading order agree; the columns are presentation only.
+
+               THIS LIST IS KIRON'S, AND IT IS THE FIRST REAL ONE. It went 12 (a Midwest guess
+               that read as data) -> 50 (a picker, honest about being a picker) -> 30, which Kiron
+               produced by checking off the twenty that do not belong and having them removed:
+               Alabama, Alaska, Arizona, Connecticut, Delaware, Hawaii, Maine, Maryland,
+               Massachusetts, New Hampshire, New Jersey, New Mexico, New York, Oklahoma,
+               Pennsylvania, Rhode Island, Texas, Vermont, Virginia, West Virginia.
+               ⚠ DO NOT RE-ADD ANY OF THOSE TWENTY from a state list, a map or a footprint graphic.
+               Their absence is a decision.
+
+               ⚠ NO CARD CARRIES A `data-state`. The live team page publishes no per-person state -
+               the same reason the invented office lines came off the cards. This cannot be wired
+               until the roster has the field. See developer-team.md §2.4c. -->
+          <div class="ls-f ls-f-static">
+            <button class="ls-pill" id="tmStateBtn" type="button" data-label="State"
+                    aria-expanded="false" aria-controls="tmStatePop">State <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <div class="ls-pop ls-pop-wide" id="tmStatePop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>State</legend>
+                <div class="ls-poplist ls-checks5">
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Arkansas" /> Arkansas</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="California" /> California</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Colorado" /> Colorado</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Florida" /> Florida</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Georgia" /> Georgia</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Idaho" /> Idaho</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Illinois" /> Illinois</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Indiana" /> Indiana</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Iowa" /> Iowa</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Kansas" /> Kansas</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Kentucky" /> Kentucky</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Louisiana" /> Louisiana</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Michigan" /> Michigan</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Minnesota" /> Minnesota</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Mississippi" /> Mississippi</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Missouri" /> Missouri</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Montana" /> Montana</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Nebraska" /> Nebraska</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Nevada" /> Nevada</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="North Carolina" /> North Carolina</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="North Dakota" /> North Dakota</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Ohio" /> Ohio</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Oregon" /> Oregon</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="South Carolina" /> South Carolina</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="South Dakota" /> South Dakota</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Tennessee" /> Tennessee</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Utah" /> Utah</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Washington" /> Washington</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Wisconsin" /> Wisconsin</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-state" value="Wyoming" /> Wyoming</label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="state">Clear</button>
+                <button class="ls-apply" type="button" data-done="state">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- REGION — the fourth control and the third picklist (Kiron, 2026-09-01). Same
+               control, same rules - multi-select, no "any" option - and it takes the
+               right-anchored popover over from STATE
+               because it is now the last pill in the group: a left-anchored 280px popover here
+               would open across VIEW ALL and CLEAR FILTERS.
+
+               THE SEVEN REGIONS ARE KIRON'S LIST, verbatim, and they are the PC REGIONAL
+               FOOTPRINT MAP's own region names — which makes this the one geographic control on
+               the page with a real vocabulary behind it. That map also labels Mountain,
+               Appalachian, Northeast and Pacific; those are NOT here, and their absence is
+               Kiron's call rather than an oversight. Do not add them back from the map.
+
+               ⚠ REGION AND STATE OVERLAP, and it is worth deciding before either is wired. Region
+               is the broader cut of the same dimension (Iowa is Midwest), so the two can
+               contradict each other: Iowa + Pacific West is a combination with nobody in it by
+               definition, not because the roster is thin. Three ways out — constrain the State
+               list to whatever Region is chosen, treat the two as OR rather than AND, or drop one.
+               Nothing is decided here; today they are independent single-selects.
+
+               ⚠ NO CARD CARRIES A `data-region`, exactly as none carries a `data-state`. This
+               cannot be wired until the roster has the field. See developer-team.md §2.4c. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="tmRegionBtn" type="button" data-label="Region"
+                    aria-expanded="false" aria-controls="tmRegionPop">Region <span class="ls-chev" aria-hidden="true">▾</span></button>
+            <div class="ls-pop ls-pop-right" id="tmRegionPop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Region</legend>
+                <div class="ls-poplist">
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Delta" /> Delta</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Lake States" /> Lake States</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Midwest" /> Midwest</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Pacific Northwest" /> Pacific Northwest</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Pacific West" /> Pacific West</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Southeast" /> Southeast</label>
+                  <label class="ls-opt"><input type="checkbox" name="tm-region" value="Southern Plains" /> Southern Plains</label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="region">Clear</button>
+                <button class="ls-apply" type="button" data-done="region">Done</button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <p class="tm-count" id="tmCount" role="status" aria-live="polite"></p>
+        <!-- The right-hand group. Both sit OUTSIDE .ls-controls so the filter group stays a
+             group and the leftover width collects in one place - the slot listings gives SORT BY
+             and the grid/map switch. See the .ls-right note in the <style> for why there are two
+             buttons here doing one job, and how they are ranked. -->
+        <div class="ls-right">
+          <button class="ls-apply" id="tmViewAll" type="button">View All</button>
+          <button class="ls-clear" id="tmClearAll" type="button">Clear Filters</button>
+        </div>
       </div>
+    </div>
 
-      <!-- ============ SAMPLE ROSTER — 20 REAL PEOPLE ============
-           REAL NAMES AND REAL TITLES, taken from peoplescompany.com/team on 2026-08-31, so the
-           grid can be judged against the length of actual names and job titles rather than
+    <div class="tm-wrap">
+      <!-- VISUALLY HIDDEN, STILL ANNOUNCED. See the .tm-count note in the <style> for why this
+           is .sr-only rather than deleted - it is the grid's only live region. -->
+      <p class="tm-count sr-only" id="tmCount" role="status" aria-live="polite"></p>
+
+      <!-- ============ SAMPLE ROSTER — 25 REAL PEOPLE ============
+           REAL NAMES AND REAL TITLES, transcribed from peoplescompany.com/team (2026-08-31, the
+           five additions and every designation re-checked against the live page 2026-09-01), so
+           the grid can be judged against the length of actual names and job titles rather than
            invented ones. Sorted BY LAST NAME (Kiron's call), which is what someone hunting a
            person they already know expects.
-           LEADERSHIP IS DELIBERATELY EXCLUDED (Kiron, for this exercise), so Steve Bruere and
-           Eric Sarff — who were on this page as cards — have come off. Both are Leadership on
-           the live page, and Sarff's card had him as a Land Agent when he is a Vice President.
-           TWENTY, NOT 178. The live roster is 178 and the page paginates at 28; twenty is enough
-           to exercise the grid, every pill and the search. **Every one of the nine services has
-           at least one person**, which is the property that matters — a pill that returns an
-           empty grid would be testing the empty state, not the filter.
+
+           DESIGNATIONS ARE NOW PRINTED (Kiron, 2026-09-01: "I need to include the AFM or PhD, or
+           any other acronyms after their names"). This REVERSES the earlier call to show
+           "First Name Last Name and the job title" only.
+           NINE of the twenty-five carry one; the other sixteen publish none and NONE IS INVENTED
+           FOR THEM. AFM, AAC, ARA, ALC, CAI, CCIM, CAC, MAI and PhD are professional
+           qualifications - a plausible guess is far worse than an obvious blank.
+           ⚠ THE DESIGNATION IS IN THE <h2> ONLY, AND OUTSIDE THE <a>. `alt` and `data-name` keep
+           the plain name, and all three are on purpose:
+             alt names the person in the photograph - the letters belong to the visible line.
+             data-name is what the search matches; put the letters in it and a search for "alc"
+             returns every ALC on the roster, a credential search dressed up as a name search.
+             OUTSIDE THE ANCHOR, so the link's accessible name is "Emily Oberbroeckling" and not
+             "Emily Oberbroeckling , ARA" - a link list and a screen reader's element list both
+             read better for it, and the stretched ::after still covers the whole card either way.
+           The <h2>'s own text is still the full "Name, LETTERS", so the document outline and
+           anything scraping headings get the credential.
+
+           FIVE PEOPLE ADDED (Kiron, 2026-09-01): "from the list of names that we have not used,
+           find the 5 longest names remaining". Ranked by the DISPLAYED STRING - name plus
+           designations - because that is what the card actually has to fit, and fitting it is the
+           point of the exercise:
+             Kyle Walker, AFM, AAC, CAC   26 characters
+             Toby Trowbridge III, CCIM    25
+             Peter Isaacson, AFM, AAC     24
+             Jason Lestina, ALC, AFM      23
+             Eric Geiger, AFM, AAC        21
+           ⚠ KYLE WALKER IS LEADERSHIP, which had been excluded from this roster - he is the
+           longest unused name on the live page, so he came in with the other four. Two useful
+           side-effects: the Leadership pill is no longer a service with nobody in it, and
+           Leadership is back on the page after being taken off. Steve Bruere and Eric Sarff are
+           still off it. If Leadership should stay out, Walker is the card to pull and the pill
+           goes back to returning nothing.
+
+           TWENTY-FIVE, NOT 178. The live roster is 178 and the page paginates at 28; twenty-five
+           is enough to exercise the grid, every pill and the search. **Every one of the nine
+           services now has at least one person** - that was true of eight of them before and is
+           true of Leadership as of this pass — which is the property that matters: a pill that
+           returns an empty grid would be testing the empty state, not the filter.
            CONNIE KREIKEMEIER CARRIES TWO SERVICES (`data-service="management crop"`) because the
            live page lists her under both. That is not a demo convenience: a person genuinely
            belongs to more than one service, so the field is a LIST and the filter has to match
@@ -373,7 +897,7 @@
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Paul Anderson</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">Paul Anderson</a><span class="tm-desig">, AFM</span></h2>
             <p class="tm-role">Land Manager</p>
           </div>
         </article>
@@ -383,7 +907,7 @@
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Mollie Aronowitz</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">Mollie Aronowitz</a><span class="tm-desig">, AFM</span></h2>
             <p class="tm-role">Associate Director of Land Management</p>
           </div>
         </article>
@@ -393,7 +917,7 @@
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">George Baird</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">George Baird</a><span class="tm-desig">, AFM, AAC</span></h2>
             <p class="tm-role">Owner, Landmark Ag &amp; Senior Land Manager</p>
           </div>
         </article>
@@ -403,7 +927,7 @@
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Dean Batie</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">Dean Batie</a><span class="tm-desig">, ARA</span></h2>
             <p class="tm-role">Certified General Appraiser</p>
           </div>
         </article>
@@ -423,7 +947,7 @@
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Ray Brownfield</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">Ray Brownfield</a><span class="tm-desig">, ALC, AFM</span></h2>
             <p class="tm-role">Designated Managing Broker</p>
           </div>
         </article>
@@ -433,7 +957,7 @@
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Jared Chambers</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">Jared Chambers</a><span class="tm-desig">, CAI</span></h2>
             <p class="tm-role">Land Agent &amp; Auctioneer</p>
           </div>
         </article>
@@ -463,8 +987,18 @@
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Wendy Forthun</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">Wendy Forthun</a><span class="tm-desig">, ALC</span></h2>
             <p class="tm-role">Land Broker</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="management" data-name="eric geiger">
+          <div class="tm-ph">
+            <img src="../assets/team/eric-geiger.jpg" alt="Eric Geiger" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Eric Geiger</a><span class="tm-desig">, AFM, AAC</span></h2>
+            <p class="tm-role">Land Manager</p>
           </div>
         </article>
         <article class="tm-card" data-service="corporate" data-name="jaxon goedken">
@@ -475,6 +1009,16 @@
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Jaxon Goedken</a></h2>
             <p class="tm-role">Corporate Services Manager</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="management" data-name="peter isaacson">
+          <div class="tm-ph">
+            <img src="../assets/team/peter-isaacson.jpg" alt="Peter Isaacson" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Peter Isaacson</a><span class="tm-desig">, AFM, AAC</span></h2>
+            <p class="tm-role">Senior Land Manager</p>
           </div>
         </article>
         <article class="tm-card" data-service="management crop" data-name="connie kreikemeier">
@@ -495,6 +1039,16 @@
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Landon Larkin</a></h2>
             <p class="tm-role">Land Agent</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="management" data-name="jason lestina">
+          <div class="tm-ph">
+            <img src="../assets/team/jason-lestina.jpg" alt="Jason Lestina" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Jason Lestina</a><span class="tm-desig">, ALC, AFM</span></h2>
+            <p class="tm-role">Land Manager</p>
           </div>
         </article>
         <article class="tm-card" data-service="appraisal" data-name="kim mcginnis">
@@ -533,7 +1087,7 @@
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Emily Oberbroeckling</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">Emily Oberbroeckling</a><span class="tm-desig">, ARA</span></h2>
             <p class="tm-role">Senior Certified General Appraiser</p>
           </div>
         </article>
@@ -557,13 +1111,33 @@
             <p class="tm-role">Director of Capital Partnerships</p>
           </div>
         </article>
+        <article class="tm-card" data-service="brokerage" data-name="toby trowbridge iii">
+          <div class="tm-ph">
+            <img src="../assets/team/toby-trowbridge.jpg" alt="Toby Trowbridge III" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Toby Trowbridge III</a><span class="tm-desig">, CCIM</span></h2>
+            <p class="tm-role">Licensing &amp; Compliance Broker</p>
+          </div>
+        </article>
+        <article class="tm-card" data-service="leadership" data-name="kyle walker">
+          <div class="tm-ph">
+            <img src="../assets/team/kyle-walker.jpg" alt="Kyle Walker" loading="lazy" decoding="async"
+                 onerror="this.style.display='none';this.onerror=null;" />
+          </div>
+          <div class="tm-cardbody">
+            <h2 class="tm-name"><a href="./team-member.html">Kyle Walker</a><span class="tm-desig">, AFM, AAC, CAC</span></h2>
+            <p class="tm-role">Director of Land Management</p>
+          </div>
+        </article>
         <article class="tm-card" data-service="brokerage" data-name="andrew zellmer">
           <div class="tm-ph">
             <img src="../assets/team/andrew-zellmer.jpg" alt="Andrew Zellmer" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
-            <h2 class="tm-name"><a href="./team-member.html">Andrew Zellmer</a></h2>
+            <h2 class="tm-name"><a href="./team-member.html">Andrew Zellmer</a><span class="tm-desig">, ALC</span></h2>
             <p class="tm-role">Senior Land Agent</p>
           </div>
         </article>
@@ -732,41 +1306,118 @@
 
   <script>
     /* ================= THE TEAM FINDER =================
-       A service pill AND a name search, narrowing TOGETHER. Kiron, 2026-08-31: the cards display
-       dynamically from either control, and the two combine rather than cancelling each other.
+       Five controls: Search by Name · Service · State · View All · Clear Filters.
 
-       IT FILTERS THE DOM IT WAS GIVEN. There is no roster array here and no template: the twenty
-       cards are in the HTML, each carrying `data-service` (a SPACE-SEPARATED LIST - a person can
-       belong to more than one) and `data-name` (the name, lower-cased, so matching needs no
-       per-keystroke normalising). The live page has 178 and paginates at 28, so the real build
-       filters the QUERY, not the DOM - but the matching rule below is the one to reproduce.
+       THE CONTROLLERS ARE LISTINGS.HTML'S (Kiron, 2026-09-01, "the same structure that is on
+       listings.html"). The popover controller below is that page's, verbatim: one popover open at
+       a time, Esc closes and returns focus, an outside click closes, and a pill's label is
+       rewritten from data-label when its value is cleared. Keeping the code identical rather than
+       merely similar is what stops the two bars drifting apart in behaviour while looking alike.
 
-       WHAT COUNTS AS A MATCH. Substring, case-insensitive, anywhere in the name: "and" finds
-       Paul Anderson. Not fuzzy, not initials, not reversed - "anderson paul" finds nobody. If
-       the roster ever wants "last, first" order or nickname matching, that is a decision, not an
-       oversight.
+       ⚠ SECOND COPY. See the note above .ls-bar in the <style>: these rules and this controller
+       live in listings.html too, and until the pattern is promoted out of both pages every
+       change has to be made twice. listings.html is the reference copy.
 
-       ⚠ NO DEBOUNCE, deliberately. Twenty cards is a class toggle per keystroke and imperceptible.
-       At 178 it still would be; at CMS scale, where typing hits the server, it needs one. */
+       ⚠ THE CARDS DO NOT RESPOND. Everything here is chrome - see WIRED below. */
+
+    /* ---- popover pills (SERVICE, STATE, REGION) ----
+       Lifted from listings.html unchanged. ONE controller for all three, so they cannot drift -
+       it binds every `.ls-f > .ls-pop` on the page, so a fourth picklist would need no JS. */
+    (function(){
+      var pops = [].slice.call(document.querySelectorAll(".ls-f > .ls-pop")).map(function(pop){
+        return { pop: pop, btn: document.querySelector('[aria-controls="' + pop.id + '"]') };
+      }).filter(function(p){ return p.btn; });
+      if(!pops.length) return;
+
+      function closeAll(except, returnFocus){
+        pops.forEach(function(p){
+          if(p.pop === except || p.pop.hidden) return;
+          p.pop.hidden = true;
+          p.btn.setAttribute("aria-expanded", "false");
+          if(returnFocus) p.btn.focus();
+        });
+      }
+
+      pops.forEach(function(p){
+        p.btn.addEventListener("click", function(){
+          var isOpen = p.btn.getAttribute("aria-expanded") === "true";
+          closeAll(null, false);
+          if(!isOpen){
+            p.pop.hidden = false;
+            p.btn.setAttribute("aria-expanded", "true");
+            /* Focus the FIRST CHECKED box rather than the top of the list - opening a picklist
+               should land on where you already are. Falls back to the first focusable thing,
+               which is what happens in the resting state, since nothing is checked then. */
+            var first = p.pop.querySelector("input:checked") || p.pop.querySelector("input, button");
+            if(first) first.focus();
+          }
+        });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key !== "Escape" && e.key !== "Esc") return;
+        var open = pops.filter(function(p){ return !p.pop.hidden; });
+        if(open.length) closeAll(null, true);
+      });
+      /* A click anywhere outside every .ls-f closes whatever is open. Guarded on the popover's
+         own subtree so choosing an option inside one does not close its neighbour. */
+      document.addEventListener("click", function(e){
+        if(e.target.closest && e.target.closest(".ls-f")) return;
+        closeAll(null, false);
+      });
+    })();
+
+    /* ---- SERVICE, STATE and REGION, and the bar's two actions ----
+       MULTI-SELECT (Kiron, 2026-09-01), so checkboxes, and the popover does NOT close when
+       something is picked - you are usually picking more than one thing. Getting out is Esc, an
+       outside click, the pill itself (all three come free from the shared popover controller
+       above) or the Done button. That is listings' SALE TYPE / PROPERTY TYPE behaviour exactly.
+
+       ⚠ NO "ANY" OPTION IN ANY OF THE THREE, and that IS the divergence from listings. Nothing
+       checked is the resting state, and the pill's own label carries it. Clearing therefore means
+       unchecking, which the popover's Clear and the bar's CLEAR FILTERS both do. */
     (function(){
       var grid   = document.getElementById("tmGrid");
-      var pills  = [].slice.call(document.querySelectorAll(".tm-chip"));
       var search = document.getElementById("tmSearch");
-      var clear  = document.getElementById("tmSearchClear");
       var count  = document.getElementById("tmCount");
       var empty  = document.getElementById("tmEmpty");
       var reset  = document.getElementById("tmReset");
       var pager  = document.getElementById("tmPager");
-      if(!grid || !pills.length) return;
+      var viewAll  = document.getElementById("tmViewAll");
+      var clearAll = document.getElementById("tmClearAll");
+      if(!grid) return;
 
       var cards = [].slice.call(grid.querySelectorAll(".tm-card"));
       var total = cards.length;
-      var service = "all";
       var lastSig = null;
 
+      /* ================================================================================
+         ⚠ THE FILTER BAR IS DISCONNECTED FROM THE CARDS (Kiron, 2026-09-01).
+
+         WHAT IS DISCONNECTED: not one card is hidden, shown, counted or re-animated by anything
+         in the bar. All `total` cards stand at all times, the count line reads the flat total,
+         the empty state cannot appear and the pager always stands.
+
+         WHAT WORKS, deliberately, so the bar can be designed against: all three picklists open,
+         close, take any number of values, write the selection back onto their pill, take the
+         navy is-set fill and clear themselves; the search field accepts text; View All and Clear
+         Filters reset all four controls.
+
+         TO RECONNECT: flip this flag and give apply() its filtering body back. The matching rule
+         is at §2.4c of developer-team.md - substring, case-insensitive, anywhere in the
+         pre-lowercased data-name; data-service is a SPACE-SEPARATED LIST compared with both sides
+         padded, so " crop " can never match inside a neighbouring token.
+         ⚠ MULTI-SELECT CHANGES THE QUERY SHAPE: within one picklist several values are an OR
+         (Land Management OR Crop Insurance), while the picklists AND with each other and with
+         the name. Getting that backwards is the easy mistake - an AND inside a picklist returns
+         only the handful of people carded under every service picked at once.
+         ⚠ NEITHER STATE NOR REGION CAN BE WIRED AT ALL: no card carries a data-state or a
+         data-region, and those two dimensions also overlap (see the REGION markup).
+         ================================================================================ */
+      var WIRED = false;
+
       /* Clear the entrance class the moment it finishes, so `animation-fill-mode: both` stops
-         holding `transform: none` on the card and the hover lift works again. Bound once per
-         card rather than per filter, which is why it is here and not in play(). */
+         holding `transform: none` on the card and the hover lift works again. */
       for(var k = 0; k < cards.length; k++){
         cards[k].addEventListener("animationend", function(){
           this.classList.remove("is-in");
@@ -774,10 +1425,9 @@
         });
       }
 
-      /* Restart the entrance on the cards that are now showing.
-         ONE REFLOW, NOT ONE PER CARD. Removing the class from all of them, reading a layout
-         property ONCE, then adding it back is what makes the animation restart; doing the read
-         inside the loop would force twenty synchronous layouts here and 178 on the real page. */
+      /* ONE REFLOW, NOT ONE PER CARD. Removing the class from all of them, reading a layout
+         property ONCE, then adding it back is what restarts the animation; the read inside the
+         loop would force twenty synchronous layouts here and 178 on the real page. */
       function play(visible){
         for(var i = 0; i < visible.length; i++){
           visible[i].classList.remove("is-in");
@@ -790,90 +1440,103 @@
         }
       }
 
-      function labelFor(key){
-        for(var i = 0; i < pills.length; i++){
-          if(pills[i].getAttribute("data-service") === key) return pills[i].textContent.trim();
-        }
-        return "";
+      /* One pill = one checkbox group. `plural` is the word the pill uses when it has to count
+         instead of name ("3 services"), so each group says its own noun rather than sharing a
+         vague one. `keys` is what a wired filter would compare against - data-key on the service
+         boxes, the visible value elsewhere. */
+      var chev = ' <span class="ls-chev" aria-hidden="true">\u25be</span>';
+      function pillGroup(btnId, popId, boxName, plural){
+        var btn = document.getElementById(btnId), pop = document.getElementById(popId);
+        if(!btn || !pop) return null;
+        var boxes = [].slice.call(pop.querySelectorAll('input[name="' + boxName + '"]'));
+        var g = { btn: btn, pop: pop, boxes: boxes,
+                  resting: btn.getAttribute("data-label"), keys: [], labels: [] };
+
+        function on(){ return boxes.filter(function(b){ return b.checked; }); }
+
+        /* THE PILL NAMES THE SELECTION WHEN IT CAN AND COUNTS WHEN IT CANNOT - listings' rule,
+           and the reason is width: "Land Brokerage & Auctions" already wraps to two lines inside
+           a 180px pill, so two or three of them could never be spelled out. One value is named
+           because that is the case where naming fits and is worth more than a number. */
+        g.paint = function(){
+          var sel = on();
+          g.keys   = sel.map(function(b){ return b.getAttribute("data-key") || b.value; });
+          g.labels = sel.map(function(b){ return b.value; });
+          var text = !sel.length ? null
+                   : (sel.length === 1 ? sel[0].value : sel.length + " " + plural);
+          btn.innerHTML = (text || g.resting) + chev;
+          btn.classList.toggle("is-set", !!text);
+        };
+        g.clear = function(){
+          boxes.forEach(function(b){ b.checked = false; });
+          g.paint();
+        };
+
+        /* NO CLOSE ON CHANGE - multi-select. Just repaint and let apply() run. */
+        boxes.forEach(function(b){
+          b.addEventListener("change", function(){ g.paint(); apply(); });
+        });
+        /* Clear leaves the popover OPEN, because you are still choosing. Done closes it and
+           hands focus back to the pill, which is now carrying what you picked. */
+        var c = pop.querySelector("[data-clear]"), d = pop.querySelector("[data-done]");
+        if(c) c.addEventListener("click", function(){ g.clear(); apply(); });
+        if(d) d.addEventListener("click", function(){
+          pop.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
+        });
+        g.paint();
+        return g;
       }
+
+      var svcG = pillGroup("tmServiceBtn", "tmServicePop", "tm-service", "services");
+      var stG  = pillGroup("tmStateBtn",   "tmStatePop",   "tm-state",   "states");
+      var rgG  = pillGroup("tmRegionBtn",  "tmRegionPop",  "tm-region",  "regions");
+      /* The order here is the order they clear in, and it matches the bar left to right. */
+      var groups = [svcG, stG, rgG].filter(Boolean);
 
       function apply(){
         var q = search ? search.value.trim().toLowerCase() : "";
-        var shown = 0;
-        var visible = [];
 
-        for(var i = 0; i < cards.length; i++){
-          var c = cards[i];
-          /* Padded with spaces at both ends so an indexOf cannot match across a boundary -
-             " crop " will never be found inside "cropinsurance" or a neighbouring token. */
-          var svc = " " + (c.getAttribute("data-service") || "") + " ";
-          var okSvc = service === "all" || svc.indexOf(" " + service + " ") !== -1;
-          var okQ   = !q || (c.getAttribute("data-name") || "").indexOf(q) !== -1;
-          var on    = okSvc && okQ;
-          c.hidden = !on;
-          if(on){ shown++; visible.push(c); }
+        /* THE DISCONNECTED PATH (see WIRED above). Every card shown, nothing counted, nothing
+           hidden. `lastSig` is still set so the entrance plays exactly once - on load - rather
+           than restarting under the reader on every keystroke. */
+        if(!WIRED){
+          for(var n = 0; n < cards.length; n++){ cards[n].hidden = false; }
+          if(count) count.innerHTML = "<b>" + total + "</b> people";
+          if(empty) empty.hidden = true;
+          grid.hidden  = false;
+          if(pager) pager.hidden = false;
+          if(lastSig !== "all"){ lastSig = "all"; play(cards); }
+          return;
         }
 
-        /* ONLY REPLAY WHEN THE RESULT SET ACTUALLY CHANGED. Typing runs this on every keystroke,
-           and a character that does not change who matches - the "s" in "anders" - must not
-           restart twenty animations underneath the reader. The signature is the set itself, so
-           the test is exact rather than a guess from the count. */
-        var sig = visible.map(function(c){ return c.getAttribute("data-name"); }).join("|");
-        if(sig !== lastSig){ lastSig = sig; play(visible); }
-
-        /* THE COUNT LINE IS THE ONLY ANNOUNCEMENT. Cards vanish silently otherwise, so this is
-           what a screen reader hears - hence role="status" on it in the markup. It names the
-           active filters, because "3 people" alone does not say why the other 17 went. */
-        var bits = [];
-        if(service !== "all") bits.push(labelFor(service));
-        if(q) bits.push("\u201C" + q + "\u201D");
-        var scope = bits.length ? " \u00B7 " + bits.join(" \u00B7 ") : "";
-        if(count){
-          count.innerHTML = shown === total
-            ? "<b>" + total + "</b> people"
-            : "<b>" + shown + "</b> of " + total + " people" + scope;
-        }
-
-        if(empty) empty.hidden = shown !== 0;
-        if(grid)  grid.hidden  = shown === 0;
-        /* The pager is a static placeholder for the 178-person roster. A filtered set of three
-           plainly does not span three pages, so it only stands while nothing is filtered. */
-        if(pager) pager.hidden = !(service === "all" && !q);
-        if(clear) clear.hidden = !q;
+        /* THE WIRED PATH IS DELIBERATELY NOT LEFT HALF-WRITTEN HERE. Reconnecting the cards is
+           its own pass (Kiron: the filter section first, the cards second), and a body that
+           filters on Service and silently ignores State - the dimension the cards have no data
+           for - would look finished and be wrong. developer-team.md §2.4 holds the matching
+           rule to build it from. */
       }
 
-      for(var i = 0; i < pills.length; i++){
-        pills[i].addEventListener("click", function(){
-          service = this.getAttribute("data-service");
-          for(var j = 0; j < pills.length; j++){
-            var on = pills[j] === this;
-            pills[j].classList.toggle("is-active", on);
-            pills[j].setAttribute("aria-pressed", on ? "true" : "false");
-          }
-          apply();
-        });
-      }
-
-      if(search) search.addEventListener("input", apply);
-      if(clear) clear.addEventListener("click", function(){
-        search.value = "";
-        apply();
-        search.focus();   /* focus goes back to the field, not to nowhere */
-      });
-      if(reset) reset.addEventListener("click", function(){
+      /* Both bar actions clear all four controls: the page's whole state IS those four, so
+         "show everybody" and "empty the controls" are the same operation today. Ranked in the
+         markup rather than merged - see the .ls-right note in the <style>.
+         Focus goes to the search field afterwards, so the keyboard is left at the top of the bar
+         ready to start again rather than on a button that now does nothing. */
+      function clearEverything(){
         if(search) search.value = "";
-        service = "all";
-        for(var j = 0; j < pills.length; j++){
-          var on = pills[j].getAttribute("data-service") === "all";
-          pills[j].classList.toggle("is-active", on);
-          pills[j].setAttribute("aria-pressed", on ? "true" : "false");
-        }
+        groups.forEach(function(g){ g.clear(); });
         apply();
         if(search) search.focus();
-      });
+      }
+      if(viewAll)  viewAll.addEventListener("click", clearEverything);
+      if(clearAll) clearAll.addEventListener("click", clearEverything);
+      /* The empty state's own reset, kept wired for when the cards come back. */
+      if(reset) reset.addEventListener("click", clearEverything);
+
+      if(search) search.addEventListener("input", apply);
 
       apply();
     })();
+
     // Mega-menu nav built from the real IA. "The Company" panel carries three
     // affiliation badges on the right (this tab only).
     (function(){
