@@ -441,6 +441,56 @@
        strip from the prose below it - inside a panel it is neither the top nor the bottom of
        anything. Wraps to a second row on its own, which is what a pool does. */
     .ld-ovstats-pool{ margin: 0; padding: 0; border-bottom: 0; }
+
+    /* ================= MOCK-UP NOTE (Kiron, 2026-09-01) =================
+       "Would you be able to add some mark up to some of the sections, to explain what is going
+       on here." The device that keeps appearing on these two pages is A SET OF THINGS OF WHICH
+       THE REAL PAGE RENDERS ONE, or a catalogue of which the real page renders five — and until
+       now nothing ON THE PAGE said so. The record was the HTML comments and DEVELOPER-NOTES.md,
+       which is fine for a developer reading the source and no use at all to anyone LOOKING at
+       the page, which is how this mock-up is actually reviewed.
+
+       THIS REVERSES TWO EARLIER CALLS ON PURPOSE, both from 2026-08-31: the statpool's "no
+       visible label, I am fine with the developer notes handling that", and the "there is no
+       on-page note saying this any more" on the Tracts and Auction Details variant sets. Kiron
+       asked for them back on 2026-09-01. The comments recording the removals are left in place
+       and annotated rather than deleted, so the history reads straight.
+
+       DELIBERATELY OFF-PALETTE. Amber, dashed, left-barred — nothing in the PC palette looks
+       like this, and that is the entire point: a reviewer must never have to wonder whether the
+       note is part of the design. Anything drawn in Navy or Medium Blue would raise that
+       question every time.
+
+       ⚠ NONE OF THIS SHIPS. The block, its CSS and every element carrying .mock-note come out
+       together, along with the sections they annotate. Deleting on the class name is safe: the
+       class is used for nothing else on either page.
+
+       PLACED ABOVE the thing it explains, never inside it — the annotated component has to be
+       judged exactly as it will ship, so nothing here may sit within its box or change its
+       metrics. Margin-bottom only. */
+    .mock-note{ background: #FFFAEF; border: 1px dashed #C2870B; border-left: 4px solid #C2870B;
+      border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4);
+      margin: 0 0 var(--space-4); }
+    .mock-note-tag{ margin: 0 0 var(--space-2); font-family: var(--font-sans); font-size: 10px;
+      font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; }
+    /* NO ch MEASURE CAP, DELIBERATELY (Kiron, 2026-09-01: "adjust the width of the text, so that
+       it populates the entire mock-up note"). The site's 45-75ch rule governs REAL BODY COPY —
+       prose a visitor reads at length — and it was applied here first out of habit. It was wrong
+       for this element: at 68ch the text stopped well short of the panel's right edge, leaving a
+       ragged band of empty amber that made the note read as a half-filled box rather than as a
+       label. A mock-up note is scaffolding, it is short, and it is read once; filling its own box
+       is what makes it look deliberate. In the 380px rail the column is narrower than any cap
+       would be anyway, so this changes nothing there.
+       ⚠ DO NOT "RESTORE" THE CAP ON THE 45-75ch RULE. It has been considered and declined — and
+       none of this ships regardless. */
+    .mock-note-body{ margin: 0; font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+      color: var(--color-text); }
+    .mock-note-body + .mock-note-body{ margin-top: var(--space-2); }
+    /* .ld-aside is a flex column with a 24px gap and .ld-agentslot stacks the same pair on a
+       phone, so the note's own margin would be added to a gap that is already there. Zero it in
+       both; the gap does the spacing. */
+    .ld-aside > .mock-note, .ld-agentslot > .mock-note{ margin-bottom: 0; }
+    .mock-note-body b{ font-weight: 600; }
     .ld-ovstats svg{ width: 26px; height: 26px; flex: none; color: var(--pc-medium-blue); }
     .ld-ovstats .n{ display: block; font-family: var(--font-serif); font-size: 22px;
       font-weight: 600; color: var(--color-text); line-height: 1.1; }
@@ -1422,11 +1472,13 @@
     .ld-auctioncard .ld-ac-sublabel{ font-family: var(--font-sans); font-size: 11px;
       font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
       color: var(--pc-blue); margin: var(--space-5) 0 var(--space-2); }
-    /* 18px, bigger than a field value at 14px, because it is the last thing in the card and it
-       is standing in for a 15px button - at 14px the card would trail off. Serif would make it
-       look like a second date. */
-    .ld-auctioncard .ld-ac-tba{ font-family: var(--font-sans); font-size: 18px; font-weight: 600;
-      line-height: 1.4; color: var(--pc-white); margin: 0; }
+    /* 14px, the field-value voice exactly (.ld-ac-fields dd), because it now reads as the value
+       under its label rather than as a stand-in for the button. It was 18px while it said "TBA"
+       and was the last thing in the card - it had to hold the button's weight on its own. It no
+       longer is the last thing: the Email Agent button below it carries that job, and at 18px
+       a two-line sentence directly above a button shouted over it. */
+    .ld-auctioncard .ld-ac-howto{ font-family: var(--font-sans); font-size: 14px;
+      line-height: 1.5; color: var(--pc-white); margin: 0 0 var(--space-4); }
     .ld-ac-note{ font-family: var(--font-sans); font-size: 12px; line-height: 1.5;
       color: var(--pc-light-blue); margin: var(--space-3) 0 0; }
     @media (prefers-reduced-motion: reduce){ .ld-ac-bid{ transition: none; } }
@@ -2430,11 +2482,34 @@
                so it can be bid Buyer's Choice, and a For Sale listing is one parcel.
                TRACTS READS 4, NOT 2, to match the strip: tracts 3 and 4 are demonstration blocks
                in the Tracts accordion. REVERT BOTH TO 2 when they come out. -->
+          <!-- ON-PAGE NOTE, ADDED BACK (Kiron, 2026-09-01: "the stat cards, where we list the
+               locked in 5, and then we display all options ... I want to somehow label those as
+               available"). This reverses the 2026-08-31 call recorded in the panel below, which
+               said the developer notes could carry it. They can carry it for a developer reading
+               the source; they carry nothing at all for someone LOOKING at the page, and looking
+               at the page is how this mock-up gets reviewed. The tint stays and does its job -
+               this note says out loud what the tint could only hint at.
+               ⚠ IT SITS OUTSIDE .ld-statpool, above it, never within the panel: the cards in
+               there have to be judged as the live strip's, so nothing may share their box. -->
+          <div class="mock-note">
+            <p class="mock-note-tag">Mock-up note &mdash; not part of the design</p>
+            <p class="mock-note-body"><b>Available stat cards.</b> The five cards above are this
+              listing&rsquo;s chosen five &mdash; the strip exactly as it ships. The panel below is
+              the full catalogue those five are picked from: every stat card a listing can offer,
+              including the five that are already live, so a live card deliberately appears in
+              both places.</p>
+            <p class="mock-note-body">The CMS flags up to
+              five of these per listing and the strip renders only those. A residential listing takes square feet and bed/bath; farmland
+              takes tillable acres and productivity index. This panel is here so the whole menu
+              can be judged in one place, and it comes out before launch.</p>
+          </div>
           <div class="ld-statpool">
-            <!-- NO VISIBLE LABEL (Kiron, 2026-08-31: "I am fine with the developer notes
-                 handling that"). THE TINT AND THE PANEL STAY - they are the only thing telling a
-                 reader that these cards are a catalogue rather than more of the strip above, and
-                 the whole block is non-shipping anyway. See DEVELOPER-NOTES.md SS2. -->
+            <!-- SUPERSEDED 2026-09-01 - THERE IS A VISIBLE LABEL NOW, the .mock-note
+                 immediately above this panel. Kept as the record of the earlier call, which was:
+                 NO VISIBLE LABEL (Kiron, 2026-08-31: "I am fine with the developer notes
+                 handling that"). THE TINT AND THE PANEL STAY - and they do still stay. They are
+                 no longer the ONLY thing telling a reader that these cards are a catalogue
+                 rather than more of the strip above. See DEVELOPER-NOTES.md SS2. -->
             <ul class="ld-ovstats ld-ovstats-pool">
               <li>
                 <!-- LIVE in the strip above on this page. -->
@@ -2538,6 +2613,22 @@
              REPEAT THE <details>, ADD NOTHING ELSE. Three tracts is one more <details>. The
              per-tract download lists live under Downloads with the same grouping, so a tract's
              documents are named twice on the page but linked once — see the note there. -->
+        <!-- ON-PAGE NOTE (Kiron, 2026-09-01), the same device as the Auction Details note in
+             the rail and the stat card note above. Two accordions both headed "Tracts", one after
+             the other, is the single most confusing thing on this page when it is read rather
+             than developed. Placed above the FIRST of the pair, outside the <details>, so it is
+             visible with both accordions closed - which is how the page loads. -->
+        <div class="mock-note">
+          <p class="mock-note-tag">Mock-up note &mdash; not part of the design</p>
+          <p class="mock-note-body"><b>One Tracts section, not two.</b> The tract count picks the
+            treatment and the real page renders whichever fits: <b>four tracts or fewer</b> use the
+            accordion immediately below, one panel per tract; <b>five or more</b> use the tract
+            index further down this page, which is otherwise the same section. Both are here so
+            the pair can be compared.</p>
+          <p class="mock-note-body">At five tracts or more the nested accordion is taller than the screen before anything is opened, so each tract becomes one index line and its detail opens in a window over the page instead of pushing everything below it down.
+</p>
+        </div>
+
         <details id="ld-details" class="reveal ld-acc">
           <summary><h2>Tracts</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
@@ -2736,6 +2827,15 @@
                 </ul>
               </div>
             </details>
+
+            <div class="mock-note">
+              <p class="mock-note-tag">Mock-up note &mdash; not part of the design</p>
+              <p class="mock-note-body"><b>Tracts 3 and 4 below are demonstration content.</b>
+                #19282 is a real two-tract auction; these two exist so the nested accordion reads
+                as a list rather than a pair. Their acres, productivity ratings, taxes, parcel
+                numbers and descriptions are invented, and format-correct only. They come out
+                together with the Tracts stat card, which reads 4 to match them.</p>
+            </div>
 
             <!-- TRACTS 3 AND 4 ARE PLACEHOLDERS (Kiron, 2026-08-31: four tracts so the
                  nested accordion reads as a list rather than a pair). #19282 is a real
@@ -2956,10 +3056,15 @@
              description, legal description, tax figure and map image is made up or reused from
              this listing's own photographs. #19282 has two tracts.
 
-             THERE IS NO ON-PAGE NOTE SAYING THIS ANY MORE (Kiron, 2026-08-31: the scaffolding
-             note comes off, the developer notes carry it). So nothing visible on the page tells
-             a reader that two Tracts sections is a review device rather than the design - the
-             record is this comment and DEVELOPER-NOTES.md §2. -->
+             SUPERSEDED 2026-09-01 - THERE IS AN ON-PAGE NOTE AGAIN, the .mock-note above this
+             <details> and another above the accordion higher up. The earlier call, kept here as
+             the record, was: THERE IS NO ON-PAGE NOTE SAYING THIS ANY MORE (Kiron, 2026-08-31:
+             the scaffolding note comes off, the developer notes carry it), so nothing visible on
+             the page tells a reader that two Tracts sections is a review device rather than the
+             design. It does now, and this comment and DEVELOPER-NOTES.md §2 still carry it
+             too. -->
+
+
         <details id="ld-details-many" class="reveal ld-acc">
           <summary><h2>Tracts</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
@@ -3427,6 +3532,30 @@
 
            THIS IS THE LIVE VARIANT. The online-only and sealed-bid cards are built directly
            below it so the three can be compared, and a listing renders ONE of the three. -->
+      <!-- ON-PAGE NOTE (Kiron, 2026-09-01: "on the auction page, where we display 3 cards for
+           the auction types ... I would love to define that the end page will only have 1
+           card"). It sits ABOVE the first of the three, in the rail, so it is read before any of
+           them - a reader who meets the note after two cards has already been misled once.
+           ⚠ IT IS OUTSIDE .ld-auctioncard, a sibling above it, not a row inside the card. The
+           card's metrics are what is being judged; nothing may be added within its box. -->
+      <!-- ⚠ THE ID IS LOAD-BEARING. #ld-auction-note is in the placeRailCards() move list at
+           the bottom of this file, between the agent card and #ld-auction, so the note travels
+           with the live card into the mid-page slot at 1023 and below. Without it the note would
+           stay in the rail explaining a card that is no longer under it, and the live card would
+           arrive on a phone with nothing saying it is one variant of three. -->
+      <div class="mock-note" id="ld-auction-note">
+        <p class="mock-note-tag">Mock-up note &mdash; not part of the design</p>
+        <p class="mock-note-body"><b>The real page shows one Auction&nbsp;Details card, not
+          three.</b> An auction can either be a live auction, an online-only auction or a sealed-bid auction,
+          and the page renders the single card matching its type. Each heading names its own type, which is why none of them carries an &ldquo;Auction
+          type&rdquo; row. </p>
+        <!-- KEPT TO TWO PARAGRAPHS. A third one, repeating the display-value warning, put this
+             note at 500px tall in the phone slot - most of a screen before the card it is
+             annotating. The warning is folded into the sentence below and repeated in the
+             shorter note above the variant pair, where a phone reader meets it again anyway. -->
+
+      </div>
+
       <div class="ld-auctioncard reveal" id="ld-auction">
         <!-- HEADING ADDED (Kiron, 2026-08-31), same treatment as the enquiry form's "Have A
              Question?" below - h2.h3-sans, so the two cards in the rail are titled the same
@@ -3566,9 +3695,17 @@
              ⚠ The dates and times here are display values for the variant, like the live
              card's. Nothing about #19282 is online-only - it was a live auction.
 
-             THERE IS NO ON-PAGE NOTE SAYING THIS ANY MORE (Kiron, 2026-08-31). Nothing visible
-             tells a reader that two Auction Details cards is a review device rather than the
-             design - the record is this comment and DEVELOPER-NOTES.md §2. -->
+             SUPERSEDED 2026-09-01 - THERE IS AN ON-PAGE NOTE AGAIN, the .mock-note above the
+             live card. The earlier call, kept here as the record, was: THERE IS NO ON-PAGE NOTE
+             SAYING THIS ANY MORE (Kiron, 2026-08-31), nothing visible tells a reader that two
+             Auction Details cards is a review device rather than the design. It does now, and the
+             record is still also this comment and DEVELOPER-NOTES.md §2. -->
+        <!-- SECOND, SHORTER NOTE. The full explanation is in #ld-auction-note above the live
+             card, but that note LEAVES THIS COLUMN at 1023 and below - it travels with the live
+             card - and these two variant cards do not. Without this one a phone reader scrolls
+             the rail and meets two more Auction Details cards with nothing saying why. -->
+
+
         <div class="ld-auctioncard reveal" id="ld-auction-online">
           <h2 class="h3-sans ld-ac-title">Online-Only Auction Details</h2>
           <p class="sr-only">Date</p>
@@ -3613,10 +3750,9 @@
              THE THIRD OF THREE VARIANTS (Kiron, 2026-08-31). Peoples Company runs three kinds
              of auction and this is the last of them; a listing renders ONE of these cards.
 
-             BUILT OFF THE ONLINE-ONLY CARD, with one structural change: THERE IS NO BID BUTTON.
-             A sealed bid is not placed through a platform, it is delivered, so the card's final
-             block is not an action but an instruction - what a bidder has to submit and how.
-             That is why this is the one card in the set with nothing clickable in it.
+             BUILT OFF THE ONLINE-ONLY CARD. A sealed bid is not placed through a bidding
+             platform, so the card's final block does not send anyone to one; it sends them to
+             the agent instead, which is the actual first step on this kind of auction.
                · NO LOCATION ROW, same as online-only. Where a bid is delivered belongs in the
                  submission instructions, not in a venue row: it is an office or an agent, not a
                  place anyone attends.
@@ -3629,11 +3765,12 @@
                  BETWEEN THIS CARD AND THE OTHER TWO ARE THE INTENDED ONES: no Location row, no
                  bid button, and a deadline rather than a start time.
 
-             ⚠ THE SUBMISSION INSTRUCTIONS ARE "TBA" ON KIRON'S INSTRUCTION - the real
-             requirements are not settled yet. When they land they will be longer than one line:
-             expect a delivery address, a deadline restated, a deposit requirement and a bid form
-             to download, which is a short list rather than a value. Replace the TBA block, do
-             not try to fit real instructions into that one line. -->
+             THE SUBMISSION BLOCK IS REAL NOW, not TBA (Kiron, 2026-09-01): submitting a sealed
+             bid means contacting the listing agent, and that is the whole of it. The block is
+             therefore a sentence plus an Email Agent button, a mailto with the listing number
+             already in the subject - see the fuller note on it below. That also removes the
+             "nothing clickable" point above: this card has a button like the other two, it just
+             opens a mail client rather than a bidding platform. -->
         <div class="ld-auctioncard reveal" id="ld-auction-sealed">
           <h2 class="h3-sans ld-ac-title">Sealed-Bid Auction Details</h2>
           <p class="sr-only">Date</p>
@@ -3667,19 +3804,55 @@
                    consistent across the set - but on a SEALED BID it is the one worth watching:
                    a bidder writing a figure on a form has to know whether it is per acre or for
                    the tract, and this card is the one place a sealed-bid bidder is most likely
-                   to read alone. It is in the Terms clause, and the "How to submit a bid"
-                   instructions below are still TBA - when those are written, the basis of the
-                   bid is the thing they must not leave out. -->
+                   to read alone. It is in the Terms clause, and it is NOT in the "How to submit
+                   a bid" block below either - that block now says to contact the agent, which is
+                   in fact where a bidder gets told the basis of the bid. That is the answer to
+                   this warning rather than a dodge of it: there is no bid form to print the unit
+                   on, so the agent is the only place it can be confirmed. -->
               <dd>Buyer&rsquo;s Choice</dd>
             </div>
           </dl>
 
-          <!-- WHERE THE BID BUTTON IS ON THE OTHER TWO CARDS. Styled as a label and a value
-               rather than as a button, because it is neither a link nor an action - it is the
-               instruction that replaces one. -->
+          <!-- WHERE THE BID BUTTON IS ON THE OTHER TWO CARDS, and it is a button again.
+               THE TBA IS ANSWERED (Kiron, 2026-09-01): "there really is nothing more than
+               contacting the agent to get the process started. Isn't any form or process."
+               So the earlier warning on this block - expect a delivery address, a deposit, a bid
+               form to download - was wrong about what was coming. There is no submission
+               mechanism to document, and that absence is the instruction: a sealed bid here
+               starts with a phone call, not a download.
+               WHICH MAKES THIS AN ACTION AFTER ALL, so the card is no longer the odd one out
+               with nothing clickable in it. It takes .ld-ac-bid, the same button the live and
+               online-only cards use in this exact position - the sealed-bid bidder's next step
+               is as concrete as theirs, it just points outward to a different place.
+               HREF IS A MAILTO WITH A PREFILLED SUBJECT (Kiron, 2026-09-01): the listing agent's
+               address, subject "Listing #19282 Sealed Bid Inquiry". It opens the bidder's own
+               mail client with the listing already identified, so the enquiry lands on Jared's
+               desk knowing which farm and which auction type it is about - which is more than
+               the rail's enquiry form gives him, since that form's comments box is deliberately
+               blank. It was briefly #ld-contact, pointing at that form, and mail is the better
+               answer: a sealed-bid conversation is a correspondence, not a lead capture.
+                 · THE SUBJECT IS URL-ENCODED - %23 for the # and %20 for the spaces. An
+                   unencoded # would truncate the mailto at "Listing " and send a blank subject,
+                   which is the classic way this link breaks. Encode it if the wording changes.
+                 · BOTH HALVES ARE CMS VALUES: the address is the listing agent's, the number is
+                   the listing's. Neither is typed by hand per listing. Where a listing publishes
+                   two agents the address is the FIRST one, matching the agent card above, which
+                   shows one by decision.
+                 · Not tel: - the agent's office and mobile numbers are in the agent card
+                   directly above, so a phone link here would be the third copy of them.
+               THE SENTENCE SAYS WHAT IS NOT THERE before it says what to do. A bidder who has
+               seen the other two auction types is looking for the bidding platform; telling them
+               there is no form and no platform is the part that stops them hunting for one. -->
           <p class="ld-ac-sublabel">How to submit a bid</p>
-          <p class="ld-ac-tba">TBA</p>
-          <p class="ld-ac-note">Full terms are in the Terms section.</p>
+          <p class="ld-ac-howto">There is no online bidding platform and no bid form to download. Email the listing agent to start the process.</p>
+          <!-- NO .ld-ac-note UNDER THE BUTTON (Kiron, 2026-09-01). It read "Full terms are in
+               the Terms section." and is gone from THIS card only - the live and online-only
+               cards keep theirs, because on those it carries real bidding conditions alongside
+               the pointer (registration, the soft close). Here it was the pointer alone, and the
+               page already answers it twice over: Terms is a stop on the sticky sub nav and a
+               full accordion below. A card whose whole message is "talk to the agent" ends
+               better on the button than on a line hedging it. -->
+          <a class="ld-ac-bid" href="mailto:Jared@PeoplesCompany.com?subject=Listing%20%2319282%20Sealed%20Bid%20Inquiry">Email Agent</a>
         </div>
 
         <!-- ENQUIRY FORM. Non-functional, like every other form in this build: it does
@@ -4742,6 +4915,12 @@
          ⚠ MY CALL, not Kiron's, and worth a look: it is the only place this page's behaviour
          differs from the approved For Sale ladder. */
       var auctionCard = document.getElementById("ld-auction"),
+          /* MOCK-UP SCAFFOLDING, and the only line in this script that is (Kiron, 2026-09-01).
+             The .mock-note above the live auction card has to arrive in the phone slot with it,
+             so it rides in the move list. DELETE THIS VAR AND ITS ENTRY IN THE ARRAY BELOW when
+             the notes come out; the forEach already skips a null, so a stale reference would be
+             harmless, but leaving it would leave the reader wondering what it was for. */
+          auctionNote = document.getElementById("ld-auction-note"),
           agentCard = document.getElementById("ld-agent"),
           agentSlot = document.getElementById("ldAgentSlot"),
           agentRail = document.querySelector(".ld-aside"),
@@ -4759,7 +4938,10 @@
         /* Both cards live in the rail above the form, agent first. The order is preserved in
            either home because they are inserted in order and a card already in the right place
            is skipped — re-inserting one would move it after the other and swap the pair. */
-        [agentCard, auctionCard].forEach(function(card){
+        /* auctionNote is the mock-up note and sits between the two so it lands immediately
+           above the live card in whichever container the pair ends up in. Remove it with the
+           notes. */
+        [agentCard, auctionNote, auctionCard].forEach(function(card){
           if(!card) return;                                  // absent on non-auction pages
           var inSlot = card.parentNode === agentSlot;
           if(wantSlot === inSlot) return;                    // already where it belongs
