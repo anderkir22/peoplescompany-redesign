@@ -691,6 +691,27 @@
     .ld-fields dt{ font-weight: 600; color: var(--pc-black); }
     .ld-fields dt::after{ content: ":"; }
     .ld-fields dd{ margin: 0; color: var(--color-text-muted); }
+    /* ---- .ld-tdir: the "Get Directions" link in the Location address ----
+       PORTED FROM listings-details-auction.html (2026-09-01), where it was built for the tract
+       facts lists. This page has no tracts, so the Location address is its only user.
+       ⚠ IT WAS PORTED LATE, AND THE GAP WAS VISIBLE: the markup landed here first and the link
+       rendered as a bare browser default - inline, underlined, #0000EE, and 881px TALL, because
+       an unstyled inline <a> gives its child <svg> no dimensions to work with. That is the
+       second time in one day a ported class arrived without its rules (see .ld-dl-odd). PORTED
+       MARKUP AND PORTED CSS MUST TRAVEL TOGETHER; a class with no declarations is not a no-op,
+       it is whatever the browser decides.
+       INLINE-FLEX, not flex: it sits inside a .ld-fields <dd>, which is a grid cell with its
+       label beside it, and a block-level link would take the full cell width and run its
+       underline out under empty space.
+       --pc-medium-blue is the page's link colour on white; the 12px arrow is the same
+       external-link mark the downloads list uses, so "leaves this page" reads the same
+       everywhere. */
+    .ld-tdir{ display: inline-flex; align-items: center; gap: 5px;
+      font-weight: 600; color: var(--pc-medium-blue); text-decoration: none;
+      border-bottom: 1px solid rgba(49, 111, 150, .45); }
+    .ld-tdir:hover{ color: var(--pc-black); border-bottom-color: var(--pc-black); }
+    .ld-tdir:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 2px; }
+    .ld-tdir svg{ width: 12px; height: 12px; flex: none; }
     /* ---- .ld-fields-prose: the same two columns carrying PARAGRAPHS instead of figures ----
        (Kiron, 2026-08-31, for Terms.) Three changes, and each one is because the value is now
        prose rather than a value:
@@ -2088,10 +2109,42 @@
                  was the only element in the page using either. -->
             <dl class="ld-fields ld-fields-prose">
               <dt>Address</dt>
-              <dd>2848 370th Avenue, Graettinger, IA 51342</dd>
-              <dt>Directions</dt>
-              <!-- Verbatim from the listing. -->
-              <dd>Access to the farm is provided from the west off paved 370th Avenue / County Highway N26, from the east off 375th Avenue, and through a private field road labeled 290th Street, which bisects the farm into a north and south half. The farm lies approximately five miles west of Graettinger, Iowa.</dd>
+              <dd>2848 370th Avenue, Graettinger, IA 51342<br />
+                <!-- ---- "GET DIRECTIONS" REPLACES THE DIRECTIONS PARAGRAPH ----
+                     (Kiron, 2026-09-01: "on the LOCATION section, I want to remove the Directions
+                     and the text behind it. Instead, after the address text, place a Get Directions
+                     and link out to a Lat/Long location on google maps".)
+                     WHAT WENT: the listing's own published directions prose, which was the second
+                     row of this list - a paragraph of turn-by-turn text that told a visitor to read
+                     rather than to tap. A maps link does the same job in one control and arrives
+                     with the visitor's current position already in it, which no written route can.
+                     ⚠ THE PUBLISHED DIRECTIONS TEXT IS NOW NOWHERE ON THIS PAGE. That is the cost,
+                     and it is worth stating: it was real listing content, and a visitor with no data
+                     signal or no maps app has nothing to fall back on. If it is ever wanted back it
+                     belongs BESIDE this link, not instead of it.
+                     IT SITS INSIDE THE ADDRESS VALUE, not as its own labelled row: it is an action
+                     ON the address, and "Get Directions" already says what it is - a "Directions:"
+                     label in front of it would be the same word twice.
+                     LAT/LONG AND NOT AN ADDRESS STRING, per Kiron. The auction card's venue link is
+                     built from an address instead, because a community centre has one.
+                   LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                   going to dynamically have the Lat/Long for all tracts and listings"). So the
+                   coordinate below is placeholder DATA in a field that exists - not a guess at a
+                   mechanism, and nothing a developer has to invent a field for. Swap the value
+                   for the listing's own and this link is finished.
+                   ⚠ THE VALUE IS A PLACEHOLDER: 43.24083,-94.75194 is the Graettinger vicinity,
+                   NOT a surveyed point on this farm - the listing's own directions put the farm
+                   roughly five miles WEST of the town.
+                   THE ADDRESS ROUTE IS MOOT, and it was worth considering: this listing does
+                   publish a street address, so the destination could have been built from that
+                   string with no new field. It stops mattering now that lat/long is dynamic for
+                   every listing - and the coordinate is the better source regardless, because it
+                   is the only one that works for raw land with no street line, which is the
+                   auction page's case. ONE MECHANISM FOR BOTH PAGES.
+                     .ld-tdir is the on-white directions link, shared with the tract facts lists.
+                     EXTERNAL, so target=_blank - it hands off to the visitor's maps app. -->
+                <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=43.24083%2C-94.75194" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+              </dd>
             </dl>
             <div class="ld-mapbox">Property map placeholder — the FarmWorth map module drops in here. See DEVELOPER-NOTES.md for the window spec.</div>
           </div>
