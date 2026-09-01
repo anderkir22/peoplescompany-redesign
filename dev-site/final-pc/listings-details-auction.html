@@ -240,13 +240,27 @@
        with no listing type after it: the type is already in the h1 and in Property
        Overview, and reading "Active · Land for sale" made the status the smaller half
        of its own line. */
-    .ld-statusline{ display: flex; align-items: baseline; flex-wrap: wrap;
+    /* ---- THE STATUS ROW NOW CARRIES ALL THREE ASSETS ----
+       Left: the status over the listing number. Right: Save and Share. (Kiron, 2026-09-01.)
+       ALIGN-ITEMS BASELINE -> CENTER, and the two-line left column is what forces it. On a
+       first-baseline row the buttons would pin to the "Pending" line and read as dropped
+       against the block as a whole; centred, the two sides centre on each other. MEASURED at
+       1536: the pair's mid-line and the left column's mid-line both land on the same pixel.
+       FLEX-WRAP IS KEPT. At narrow widths the pair drops below the stacked pair rather than
+       squeezing - see the 1023 block, where this row is also what the pair now travels with. */
+    .ld-statusline{ display: flex; align-items: center; flex-wrap: wrap;
       justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
+    /* The row's left column. 2px between the two lines, not one of the spacing tokens: these
+       are two halves of one identity block, and at 8px they start to read as separate rows. */
+    .ld-statusgroup{ display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
     .ld-status{ display: inline-flex; align-items: center; gap: 8px; margin: 0;
       font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 500;
       color: var(--color-text-muted); }
+    /* text-align:right IS GONE (2026-09-01). It existed for the arrangement where this sat at
+       the far right end of the status line. Stacked under the status it is the left column, so
+       it reads left like the line above it. */
     .ld-listingid{ font-family: var(--font-sans); font-size: var(--body-sm);
-      color: var(--pc-navy); margin: 0; text-align: right; }
+      color: var(--pc-navy); margin: 0; }
     /* THE ONE COLOUR EXCEPTION ON THIS PAGE. Same scoped override Kiron recorded for
        listings.html on 2026-08-24: Active green / Pending amber / Sold red, on the
        understanding that THE WORD CARRIES THE MEANING and the dot only reinforces it.
@@ -280,18 +294,16 @@
        grows leftward off the rail rather than pushing the price around. */
     .ld-head h1{ font-size: 30px; line-height: 1.15; margin: 0; text-align: right; }
 
-    /* ---- the street address ----
+    /* ---- the address: NO LONGER HAS A CLASS OF ITS OWN ----
        IT LIVES IN THE LOCATION ACCORDION (Kiron, 2026-08-26), beside the map and the
-       directions — which is what an address is for on a listing page. It has been in
-       three places in two days: opposite the price, then the top of Property Overview
-       per field spec §3.4, now here. §3.4 is superseded on this point.
-       The class name still says "ov" (overview) from the middle stop. Left as-is
-       rather than renamed mid-session; rename it if this section is ever rebuilt. */
-    .ld-ovaddr{ font-family: var(--font-sans); font-size: 16px; line-height: 1.5;
-      color: var(--color-text-muted); margin: 0 0 var(--space-4); }
-    /* The "Address:" label. Matched to .ld-fields dt (600 / PC Black) so a labelled value
-       looks the same in Location as it does in the Details field list. */
-    .ld-ovaddr b{ font-weight: 600; color: var(--pc-black); }
+       directions — which is what an address is for on a listing page. It had been in three
+       places in two days: opposite the price, then the top of Property Overview per field
+       spec §3.4, then here. §3.4 is superseded on this point and that still holds.
+       .ld-ovaddr IS DELETED (2026-09-01). It was a <p> with an inline bold label imitating a
+       .ld-fields row - matched weight, matched colour, a hand-typed colon. It is now a real row
+       in a real two-column <dl> alongside Directions, so the class, its `b` rule and its
+       1023-and-below font-size override all came out together. The markup note in #ld-map has
+       the reasoning. Nothing else in the page used any of the three. */
 
     /* ---- SAVE + SHARE ----
        (Kiron, 2026-08-26) Field spec §3.1 puts both at the top of the photo carousel.
@@ -327,11 +339,11 @@
        eighteen times on the results page and the pattern gets learned; here there is one
        of each, on the page where the decision actually happens. The word also settles
        the saved state without relying on the fill — see below. */
-    /* The row the pair sits on. Right-aligned so it reads as belonging to the headline
-       block above it rather than to the sub nav below, and so the two pills line up on
-       the same rail as the listing number and the h1. 16px above, against the sub bar's
-       own 32px below, keeps it attached to the headline. */
-    .ld-actionrow{ display: flex; justify-content: flex-end; margin-top: var(--space-4); }
+    /* The pair's own wrapper. It is now a FLEX ITEM OF .ld-statusline rather than a row of
+       its own, so it carries no margins at all - the status row's own spacing places it, and a
+       margin here would push it out of alignment with the stacked pair opposite. Kept as a
+       wrapper rather than dropped so .ld-actions stays one addressable unit. */
+    .ld-actionrow{ display: flex; justify-content: flex-end; }
     .ld-actions{ display: flex; align-items: center; gap: var(--space-2); flex: none; }
     .ld-action{ display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
       font-family: var(--font-sans); font-size: 13px; font-weight: 600;
@@ -441,32 +453,48 @@
     /* Takes the slack so the buttons pin right. min-width: 0 lets the link list shrink
        rather than forcing the bar wider than the column. */
     .ld-jump{ flex: 1 1 auto; min-width: 0; }
-    .ld-jump-inner{ display: flex; flex-wrap: wrap; gap: var(--space-2); }
-    /* HORIZONTAL PADDING 12px -> 10px (Kiron, 2026-08-31: "what if we did what is required to
-       make those all fit on one line", at 1536). MEASURED, and it is the whole change:
-         · At 1536 and up the main column is 932px and the auction page's NINE links needed
-           937px - the bar was FIVE PIXELS short, and Terms wrapped alone onto a second row.
-         · 2px off each side of nine links is 36px, so the row now needs 901px and sits on one
-           line with 31px to spare. That headroom is the point of taking 2px rather than the 1px
-           that would technically have done it: 13px of slack is one label rename away from
-           breaking again, 31px is not.
+    .ld-jump-inner{ display: flex; flex-wrap: wrap; gap: 6px; }
+    /* HORIZONTAL PADDING 12px -> 10px -> 9px, AND THE ROW GAP 8px -> 6px. Two passes, both
+       measured at a 1536 viewport where the main column is 932px:
+         · PASS ONE, 12 -> 10 (Kiron, 2026-08-31: "what if we did what is required to make
+           those all fit on one line"). Nine links needed 937px - the bar was FIVE PIXELS short
+           and Terms wrapped alone onto a second row. 2px off each side of nine links is 36px,
+           so the row came to 901px and sat on one line with 31px to spare. 2px rather than the
+           1px that would technically have done it, because 13px of slack is one label rename
+           away from breaking again.
+         · PASS TWO, 10 -> 9 AND gap 8 -> 6 (Kiron, 2026-09-01, the "360" -> "360 Tour"
+           rename). That rename is the exact thing pass one predicted: "360 Tour" is 105.7px
+           against 71.6px, +34px on a row with 31px of slack, so it needed 935px and was THREE
+           PIXELS short. The 3px was not bought on its own - the same reasoning as before says
+           buy back the whole cushion. 1px off each side of nine links is 18px and 2px off each
+           of eight gaps is 16px: 34px, exactly what the longer label costs. The row needs 901px
+           again and the slack is 31px again - IDENTICALLY the position pass one left it in.
+           Both levers were taken rather than 2px of padding alone (which also reaches 33px)
+           because at 9px + 6px the whitespace BETWEEN two labels is 24px against 28px before,
+           where 8px + 8px would have made it 16px and read as a crowded bar.
          · THIS PAGE ONLY, FOR NOW (Kiron, 2026-08-31: "just work on the auction page, once we
            get it right, you can then implement the spacing onto the forsale page"). The For
-           Sale page still carries 12px and its eight links already fit at 1536. THE TWO MUST
-           NOT BE LEFT TO DRIFT - port this value across once the bar is settled.
+           Sale page still carries 12px padding and an 8px gap, and its eight links already fit
+           at 1536. THE TWO MUST NOT BE LEFT TO DRIFT - port both values across, and the label,
+           once the bar is settled.
        THE NINE LINKS ARE THE WORST CASE, NOT THE NORMAL ONE (Kiron, 2026-08-31). The bar is
        left-justified and every section is omit-if-empty, so a listing with no video, no 360 and
        no tracts renders six links that simply close up to the left. Sizing to nine is sizing to
        the fullest page the CMS can produce; most listings will have room to spare.
        VERTICAL PADDING IS UNTOUCHED at 14px, so the bar's height and --ld-jump-h are exactly as
        they were. Nothing that measures the bar has to be re-checked.
-       THE LINKS ARE STILL WELL OVER THE WCAG 2.2 SC 2.5.8 TARGET FLOOR: 45px tall and 71px wide
-       at the narrowest ("360"), against a 24px minimum. The 1279-and-below block trims the
+       THE LINKS ARE STILL WELL OVER THE WCAG 2.2 SC 2.5.8 TARGET FLOOR: 45px tall and 76px wide
+       at the narrowest ("Land"), against a 24px minimum. The 1279-and-below block trims the
        VERTICAL padding to 6px and that is the rule the floor actually constrains - see its note.
+       NOTHING BELOW 768px IS AFFECTED BY THE LONGER LABEL, and it was checked rather than
+       assumed: at 767 and down the bar is a 3-column grid of equal cells, so the WIDEST label
+       sets the cell and that label is "Downloads", not "360 Tour" - 120px against 106px at 14px,
+       and 96px against 84px once the 479-and-below block drops to 12px. Measured at 767, 536,
+       1024 and 1279: no cell overflows and the page has no horizontal scroll at any of them.
        ⚠ 1280-1535 STILL WRAPS ON THE AUCTION PAGE, and padding cannot fix it: the column is
-       812px there, so nine links are 89px short even at 10px. Only dropping the 17px icons
-       (worth 225px across the row) closes that band. Not done - it is a separate decision. */
-    .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 10px;
+       812px there, so nine links are 89px short. Only dropping the 17px icons (worth 225px
+       across the row) closes that band. Not done - it is a separate decision. */
+    .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 9px;
       font-family: var(--font-sans); font-size: 14px; font-weight: 500;
       color: var(--pc-navy); text-decoration: none; border-bottom: 3px solid transparent; }
     .ld-jump a:hover, .ld-jump a:focus-visible{ color: var(--pc-black); border-bottom-color: var(--pc-medium-blue); }
@@ -527,6 +555,15 @@
        has to land one of those the same way it lands a plain section. */
     .ld-main > section, .ld-main > details{
       scroll-margin-top: calc(var(--navH) + var(--ld-jump-h) + var(--space-4)); }
+    /* THE NESTED TRACT ACCORDIONS NEED THE SAME OFFSET, and only got it once openOnJump()
+       started scrolling to them (2026-09-01). The selector above is a CHILD selector, so a
+       <details> one level down inside Tracts was never covered: MEASURED landing at top: 0,
+       i.e. flush under the sticky header and sub bar, with its own summary hidden behind them.
+       Nothing links to a tract today - Kiron's 2026-08-25 rule keeps the sub nav pointed at
+       top-level sections - but openOnJump() resolves any hash in the URL, so a hand-made or
+       shared #tract-2 link can now reach one, and it should land where every other jump does. */
+    .ld-main .ld-acc-sub{
+      scroll-margin-top: calc(var(--navH) + var(--ld-jump-h) + var(--space-4)); }
     .ld-main h2{ margin: 0 0 var(--space-4); }
 
     /* ======================= ACCORDIONS =======================
@@ -540,11 +577,23 @@
        page to load with every section shut. Do not re-add `open` to one of them without
        deciding it for all five; a single pre-opened section reads as the important one.
 
-       THE ANCHOR SITS ON THE <details>, i.e. on the accordion's header — which is the
-       whole reason the sub nav needs no special handling. Kiron, 2026-08-25: "The sub
-       nav will jump to the header of the accordion. Should never need to jump to a
-       section within an accordion." The header exists whether the section is open or
-       shut, so a jump link resolves either way and never has to open anything. */
+       THE ANCHOR SITS ON THE <details>, i.e. on the accordion's header. Kiron, 2026-08-25:
+       "The sub nav will jump to the header of the accordion. Should never need to jump to a
+       section within an accordion." The header exists whether the section is open or shut, so
+       a jump link RESOLVES either way — the anchor never depends on the state.
+
+       IT NOW ALSO OPENS WHAT IT LANDS ON (Kiron, 2026-09-01: "in addition to jumping to that
+       location, can it open the accordion? I don't need anything done if the accordion is
+       already open, but if it is closed and clicked in the sub nav, in addition to jumping to
+       it I would like it to open"). This supersedes the old claim that the sub nav "never has
+       to open anything": it never HAD to, because the heading was always there to land on —
+       but landing on a shut heading meant a visitor who asked for Terms got the word "Terms"
+       and a chevron, and had to click a second time to actually read them.
+       THE OPENING IS SCRIPT, THE ANCHOR IS NOT. See openOnJump() at the foot of the page. If
+       that script fails the links still jump exactly as they did before and the accordions
+       still open on click — the enhancement is additive, which is the whole reason the
+       accordions are native <details> rather than a JS widget. THEY STILL ALL START CLOSED;
+       nothing here pre-opens a section on load. */
     /* SPACING HALVED TWICE (Kiron, 2026-08-26 then 2026-08-27, both times "a lot of
        white space"). 64 + 64 → 32 + 32 → now 16 + 16 = 32px between a rule and the
        heading either side of it. With all five shut that is the state the page loads in,
@@ -559,6 +608,25 @@
        looking like it belongs to that section rather than separating them. */
     .ld-acc{ padding-top: var(--space-4); margin-top: var(--space-4);
       border-top: 1px solid var(--color-border); }
+    /* ---- THE RULE THAT CLOSES THE STACK (Kiron, 2026-09-01: "add a blue hr line at the very
+       bottom of the accordions") ----
+       Every .ld-acc carried a hairline ABOVE it and nothing below, so the list of sections had
+       a rule between each pair and an open end - the last heading ran into the page with no
+       edge, and the run of dividers read as unfinished rather than as a closed list.
+       THE LINE IS THE SAME LINE, not a new treatment: --color-border IS --pc-light-blue
+       (#D7EFFB), so the dividers were always the pale PC blue and this one matches them at
+       1px. A heavier or darker rule would have read as a section boundary of its own.
+       PADDING-BOTTOM MATCHES THE 16 + 16 PAIR ABOVE, for the reason the .ld-acc note gives:
+       the gap above a rule and the gap below it have to match or the hairline drifts toward one
+       heading and starts to look like it belongs to that section. Closed, the last section is
+       now 16px of air, heading, 16px of air, rule - symmetric with every divider above it.
+       :last-child, NOT A HAND-PLACED <hr>. Every section is omit-if-empty, so which accordion
+       is last is the CMS's decision, not the template's - a listing with no video, no 360 tour
+       and no published terms ends on Downloads and the rule has to follow it there. A literal
+       <hr> would also announce itself as "separator" to a screen reader, where the dividers
+       above it are silent borders; matching them keeps the whole stack one thing. */
+    .ld-acc:last-child{ padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border); }
     .ld-acc > summary{ display: flex; align-items: center; justify-content: space-between;
       gap: var(--space-4); cursor: pointer; list-style: none; padding: 0; }
     /* Safari draws its own triangle through ::-webkit-details-marker; list-style:none
@@ -803,6 +871,14 @@
       outline-offset: -4px; }
     .xtw-prev{ left: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
     .xtw-next{ right: 0; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    /* ---- THE FIELD LIST'S GAP TO THE MAP FRAME ----
+       .ld-fields carries margin: 0, and .ld-mapbox has no top margin of its own, so without
+       this the two-column list and the 420px map frame would touch. 16px is the gap the page
+       already uses between prose and a media frame (the 360 tour's paragraph above its embed),
+       and it is the same 16px the address gave the map before Directions moved between them.
+       SCOPED TO #ld-map, because in Land and Building the list IS the last block in the section
+       and a bottom margin there would push their closing rule out of step with every other. */
+    #ld-map .ld-fields{ margin-bottom: var(--space-4); }
     /* .ld-dl-head carries a space-6 top margin for the download groups on the page; inside
        the window the first label in each column must not push off the top of its column. */
     .xtw-media .ld-dl-head, .xtw-info .ld-dl-head{ margin-top: var(--space-5); }
@@ -1516,11 +1592,21 @@
          carries, and that link is what provides this gap at 1024 and above where it comes
          first. So the space above the first line of content is now the same at every width. */
       .ld-head{ order: -2; margin-top: var(--space-5); margin-bottom: var(--space-4); }
-      /* padding-top off: the gap above this row is now the headline's margin-bottom, so the
-         link does not need to carry one, and without it the two halves of the row centre on
-         each other instead of the text sitting low against the buttons. */
+      /* padding-top off: the gap above this link is the headline's margin-bottom, so it does
+         not need to carry one of its own. */
       .ld-back{ order: -1; grid-column: 1; padding-top: 0; align-self: center; }
-      .ld-actionrow{ order: -1; grid-column: 2; margin-top: 0; align-self: center; }
+      /* ---- THE BACK LINK IS ALONE ON ITS ROW AGAIN (2026-09-01) ----
+         It used to share this row with Save/Share, pinned to the right track. That pairing was
+         the answer to two stacked rows costing ~90px on four small controls - but Save/Share
+         has moved inside .ld-statusline, which is inside .ld-head, so it now travels UP with
+         the headline at this width and is no longer available to share a row with.
+         NOTHING REPLACES IT IN TRACK 2. The two-track grid is still what lets .ld-back sit in
+         track 1 without stretching, and a future right-hand control would drop straight in.
+         THE ROW COUNT DID NOT ACTUALLY GO UP: the pair no longer occupies a row anywhere, so
+         the shared row simply became the back link's own. And the rules that used to place it
+         here are GONE rather than overridden - `order: -1` on a node now inside a flex row
+         would have reordered it AHEAD of the status and the listing number, which is not a
+         thing any width should do. */
       /* 12px under the control row. The photograph used to inherit the back link's 24px
          padding as its gap; halving it is the second half of Kiron's "decrease the height
          white space" — 94px between the county and the picture becomes ~69. */
@@ -1700,7 +1786,6 @@
          14px is the floor: it is the smallest size in this build that is still comfortable
          body copy, and the reason the drop is one step rather than two. */
       .ld-copy, .ld-tract p{ font-size: 14px; }
-      .ld-ovaddr{ font-size: 14px; }
       .ld-fields{ font-size: 11px; }
       .ld-dl a{ font-size: 13px; }
       .ld-dl .m{ font-size: 11px; }
@@ -1835,11 +1920,63 @@
           <!-- Status left, listing number right, one line. The status is the status
                only — no listing type after it (Kiron, 2026-08-26). -->
           <div class="ld-statusline">
-            <!-- PENDING, which is #19282's real status: the auction was held on 15 July 2026
-                 and the farm is under contract. It also exercises the amber .is-pending dot —
-                 the For Sale page only ever showed the green Active one. -->
-            <p class="ld-status is-pending"><span class="ld-dot" aria-hidden="true"></span>Pending</p>
-            <p class="ld-listingid">Listing #19282</p>
+            <!-- THE STATUS AND THE LISTING NUMBER ARE NOW STACKED, one over the other, as the
+                 row's left column. They used to sit at opposite ends of this line; the number
+                 moved under the status to free the right end for Save and Share. -->
+            <div class="ld-statusgroup">
+              <!-- PENDING, which is #19282's real status: the auction was held on 15 July 2026
+                   and the farm is under contract. It also exercises the amber .is-pending dot —
+                   the For Sale page only ever showed the green Active one. -->
+              <p class="ld-status is-pending"><span class="ld-dot" aria-hidden="true"></span>Pending</p>
+              <p class="ld-listingid">Listing #19282</p>
+            </div>
+            <!-- ---- SAVE + SHARE, ON THE STATUS ROW ----
+                 (Kiron, 2026-09-01) They sat in their own right-aligned row BELOW the price and
+                 the h1, between the headline and the sub nav: "right now, they are a little
+                 hidden". Five positions were built side by side in _compare-saveshare.html and
+                 this one won - "i like option 5".
+                 IT IS THE ONLY ARRANGEMENT THAT REMOVES A ROW RATHER THAN PLACING ONE. The pair
+                 takes the space the listing number vacates, and the number costs nothing
+                 because it moves into space that was already empty under "Pending". The other
+                 candidates all left the status line and the pair as two separate bands.
+                 THREE ASSETS, ONE ROW: Pending over the listing number on the left, the pair on
+                 the right. See .ld-statusgroup in the CSS for the two-line left column, and the
+                 baseline -> center switch on .ld-statusline that the second line forces.
+                 THE PILLS ARE KEPT ON THIS PAGE ON PURPOSE (Kiron, 2026-09-01: "I will use
+                 forsale without the pillbox, and auction with the pillbox to display the
+                 differences"). listings-details-forsale.html carries the same placement with
+                 the boxes stripped. ⚠ THE TWO PAGES ARE DELIBERATELY INCONSISTENT AND THIS IS
+                 NOT A BUG TO FIX - it is a live comparison awaiting Kiron's call. Whichever
+                 wins, both pages then match.
+                 EARLIER HISTORY (Kiron, 2026-08-27): the pair used to ride inside .ld-subbar,
+                 pinned right. The responsive pass moved it out - the bar needs 823px for the
+                 links plus the pair against a 772px column from --site 1280 down, so it wrapped
+                 to two rows. See the .ld-actions note in the CSS for that trade. -->
+            <div class="ld-actionrow">
+              <!-- SAVE: aria-pressed, not a link and not a checkbox. A toggle button is the
+                   correct role for "on/off, applies immediately", and it is what the results
+                   cards already use, so assistive tech announces the two the same way.
+                   ⚠ VISUAL ONLY. The pressed state is the whole behaviour here. Per field
+                   spec §3.1 the real control writes to customer preferences and prompts the
+                   login screen when nobody is signed in — so the live build must NOT let
+                   this look saved to a logged-out visitor, and the state has to match the
+                   same listing's star on listings.html. -->
+              <div class="ld-actions">
+                <button class="ld-action" type="button" id="ldSave" aria-pressed="false">
+                  <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <span id="ldSaveLabel">Save</span>
+                </button>
+                <!-- SHARE opens a Facebook / LinkedIn / Email sheet per §3.1. That panel is
+                     NOT BUILT — this button is inert, like every other form control in this
+                     mockup. It is here so the pair can be judged together: placing Save on
+                     its own would mean rebuilding this row when Share arrives. -->
+                <button class="ld-action" type="button" id="ldShare">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+                  <span>Share</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- PRICE AND H1 SHARE A LINE (Kiron, 2026-08-26) — price left, the property
@@ -1872,42 +2009,6 @@
           </div>
         </div>
 
-        <!-- ---- SAVE + SHARE: their own right-aligned row ----
-             (Kiron, 2026-08-27) They used to ride inside .ld-subbar, pinned right. The
-             responsive pass moved them out: the bar needs 823px for the links plus this
-             pair, and the left column is 772px from --site 1280 down, so the bar wrapped
-             to two rows. See the .ld-actions note in the CSS for the full trade.
-
-             THE SUB NAV IS STILL A <nav> AND THIS IS STILL OUTSIDE IT. Save and Share are
-             not navigation, so they must not sit inside <nav aria-label="Jump to section">
-             — a screen reader listing that landmark would announce two buttons that jump
-             nowhere. That was true when they shared the bar and it is true here. -->
-        <div class="ld-actionrow">
-          <!-- SAVE: aria-pressed, not a link and not a checkbox. A toggle button is the
-               correct role for "on/off, applies immediately", and it is what the results
-               cards already use, so assistive tech announces the two the same way.
-               ⚠ VISUAL ONLY. The pressed state is the whole behaviour here. Per field
-               spec §3.1 the real control writes to customer preferences and prompts the
-               login screen when nobody is signed in — so the live build must NOT let
-               this look saved to a logged-out visitor, and the state has to match the
-               same listing's star on listings.html. -->
-          <div class="ld-actions">
-            <button class="ld-action" type="button" id="ldSave" aria-pressed="false">
-              <svg class="star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              <svg class="star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              <span id="ldSaveLabel">Save</span>
-            </button>
-            <!-- SHARE opens a Facebook / LinkedIn / Email sheet per §3.1. That panel is
-                 NOT BUILT — this button is inert, like every other form control in this
-                 mockup. It is here so the pair can be judged together: placing Save on
-                 its own would mean rebuilding this row when Share arrives. -->
-            <button class="ld-action" type="button" id="ldShare">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-              <span>Share</span>
-            </button>
-          </div>
-        </div>
-
         <!-- WHERE THE AGENT CARD LANDS AT 1023 AND BELOW (Kiron, 2026-08-27).
              Empty at 1024+, where the card sits in the rail; the script moves the real node
              in here when the page goes to one column, so the agents sit directly under the
@@ -1928,18 +2029,28 @@
           <div class="ld-jump-inner">
             <a href="#ld-overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Overview</a>
             <a href="#ld-details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Tracts</a>
-            <!-- NINE LINKS NOW, up from six: "Land", "Building" and "360" arrived with the
-                 For Sale page's sections (2026-08-31). That lands hard on the open sub-nav wrap
-                 decision in DEVELOPER-NOTES SS3 - at 1024-1279 six links already wrapped 5 + 1,
-                 and nine will wrap again. The labels are deliberately SHORT ("Land", not "Land
-                 Details"; "360", not "360 Tour") for exactly that reason: the accordion headings
-                 carry the full names and the bar does not have room for them. -->
+            <!-- NINE LINKS NOW, up from six: "Land", "Building" and "360 Tour" arrived with
+                 the For Sale page's sections (2026-08-31). That lands hard on the open sub-nav
+                 wrap decision in DEVELOPER-NOTES SS3 - at 1024-1279 six links already wrapped
+                 5 + 1, and nine wrap again.
+                 THE LABELS AND THE ACCORDION HEADINGS NOW MATCH ONE FOR ONE (Kiron, 2026-09-01,
+                 renaming "Land Details" -> "Land" and "Building Details" -> "Building" at the
+                 accordions). They used to differ on purpose - short in the bar, full at the
+                 heading - which meant a visitor who clicked "Land" arrived at something called
+                 something else. Nine links only fit at 1536 BECAUSE the labels are short, so
+                 the headings came down to the labels rather than the other way about.
+                 "360 TOUR" IS THE ONE THAT GOT ITS FULL NAME BACK (Kiron, 2026-09-01: "is it
+                 possible to change the 360 in the sub-nav to 360 Tour without the wrap
+                 happening?"). "360" alone named a number, not a thing - a visitor scanning the
+                 bar had to guess. The rename costs 34px and the row only had 31px of slack, so
+                 it was paid for on the horizontal axis rather than with a wrap: see the .ld-jump
+                 spacing note for the two pixels that were taken and the measurements. -->
             <a href="#ld-land"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>Land</a>
             <a href="#ld-building"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M10 21v-6h4v6"/></svg>Building</a>
             <a href="#ld-map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/></svg>Location</a>
             <a href="#ld-downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Downloads</a>
             <a href="#ld-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Video</a>
-            <a href="#ld-tour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 3v18"/></svg>360</a>
+            <a href="#ld-tour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 3v18"/></svg>360 Tour</a>
             <a href="#ld-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Terms</a>
           </div>
         </nav>
@@ -2433,14 +2544,19 @@
                  Other Rooms, Basement, Fireplaces and Fireplace Type are RESIDENTIAL ONLY - a
                  commercial listing shows the other 13. -->
         <details id="ld-land" class="reveal ld-acc">
-          <summary><h2>Land Details</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <summary><h2>Land</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <!-- LEGAL DESCRIPTION - LOREM IPSUM PLACEHOLDER.
-                 IT IS IN THE WRONG SECTION per the CMS document, which puts Legal Description in
-                 the LOCATION section beside the map and the directions. Left here to match the
-                 For Sale page rather than moved, because moving it is one decision across both
-                 pages and Kiron has not made it yet. -->
-            <p class="ld-copy">Nulla facilisi. Etiam vel tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac leo mollis blandit, donec neque quam, dignissim in, mollis nec, sagittis eu wisi. Phasellus lacus. Etiam laoreet quam sed arcu, phasellus at dui in ligula mollis ultricies. Integer placerat tristique nisl, praesent augue, aliquam adipiscing, lacus ut bibendum vestibulum.</p>
+            <!-- STARTS ON THE FIELD LIST. THERE IS NO INTRO PARAGRAPH (Kiron, 2026-09-01:
+                 "remove the lorem ipsum text in the Land accordion - just start with the
+                 sections"). What stood here was a lorem ipsum block standing in for LEGAL
+                 DESCRIPTION, and it was in the wrong section anyway: the CMS document puts
+                 Legal Description in LOCATION, beside the map and the directions. It had been
+                 left in place only to match the For Sale page.
+                 SO THE OPEN QUESTION IS NOW SMALLER, NOT ANSWERED. Nothing here claims Legal
+                 Description should not appear on the page - only that it does not belong at the
+                 top of Land. If it is wanted, it goes in Location per the document.
+                 .ld-fields carries margin: 0, so the list sits flush on .ld-acc-body's 24px
+                 padding-top and the removal leaves no orphaned gap. -->
             <dl class="ld-fields ld-fields-prose">
               <dt>Road Access &amp; Frontage</dt>
               <dd>County Highway S56 along the west boundary of both tracts, with a further entrance off Raccoon Road to the south of Tract 2.</dd>
@@ -2488,7 +2604,7 @@
         </details>
 
         <details id="ld-building" class="reveal ld-acc">
-          <summary><h2>Building Details</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <summary><h2>Building</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
             <!-- CONSOLIDATED, 26 CMS FIELDS INTO 14 ROWS (Kiron, 2026-08-31: combine some of
                  these the way HOA Dues took HOA Frequency, and put the short ones two across).
@@ -2554,22 +2670,45 @@
                  now here. This is the one that reads best: it sits with the map and the
                  directions, which is what an address is FOR on a listing page. §3.4 of
                  developer-listing-detail.md is superseded on this point. -->
-            <!-- LABELLED "Address" (Kiron, 2026-08-27). Inline label + value rather than a
-                 heading above the line, so it reads as one field the way the Property
-                 Details <dl> rows do — same 600 weight, same PC Black, same colon that
-                 .ld-fields dt::after adds. The "Directions" label below it stays a
-                 heading, because it labels a paragraph rather than a value. -->
+            <!-- NOW AN ACTUAL TWO-COLUMN FIELD LIST (Kiron, 2026-09-01: "format the directions
+                 and address like you have in the other sections as two columns"). Both rows use
+                 the same .ld-fields .ld-fields-prose pair that Land and Building use, so the
+                 labels align on their own column and the values start on a shared left edge.
+                 THIS FINISHES A JOB THAT WAS HALF DONE. On 2026-08-27 the address was given an
+                 INLINE label styled to imitate a .ld-fields row - 600 weight, PC Black, and a
+                 hand-typed colon - "so it reads as one field the way the Property Details rows
+                 do". It imitated the list rather than being one, which is why it did not align
+                 with anything, and Directions used the uppercase .ld-dl-head instead. One <dl>
+                 replaces both: the colons come from .ld-fields dt::after and the alignment is
+                 the grid's, not a coincidence of matched weights.
+                 THE ADDRESS DROPS 16px -> 13px, which is the point rather than a side effect:
+                 at 16px it was the largest text in any accordion body and read as a heading for
+                 the section instead of one field among several.
+                 .ld-ovaddr AND ITS 1023-AND-BELOW OVERRIDE ARE GONE, not left dangling - this
+                 was the only element in the page using either. -->
             <!-- NO STREET ADDRESS, and none is invented. #19282 is raw land: the listing
                  publishes a county, a postal code (52583) and directions from the nearest town,
                  and its schema.org record carries region and postcode with no streetAddress.
                  So the label stays "Address" and the value is what the listing actually says
                  the location is. Do not synthesise "County Highway S56, Promise City" from the
                  directions text — that is a plausible-looking address that does not exist. -->
-            <p class="ld-ovaddr"><b>Address:</b> Wayne County, Iowa 52583 &mdash; between Promise City and Confidence</p>
+            <dl class="ld-fields ld-fields-prose">
+              <dt>Address</dt>
+              <dd>Wayne County, Iowa 52583 &mdash; between Promise City and Confidence</dd>
+              <dt>Directions</dt>
+              <!-- Verbatim from the listing. -->
+              <dd>From Confidence, Iowa: Travel south along County Highway S56 for approximately 2 miles to the beginning of Tract 1, which is located on the east side of the pavement. Watch for Peoples Company auction signs.</dd>
+            </dl>
+            <!-- DIRECTIONS SITS BETWEEN THE ADDRESS AND THE MAP (Kiron, 2026-09-01: "lets move
+                 the directions below the address and above the map"). It used to follow the map.
+                 The three blocks now read in the order they are used: where the property is,
+                 how to get to it, then the map to check both against. Under the old order a
+                 visitor met a 420px map before being told the directions existed, and on a
+                 phone that is a full screen of scrolling between the address and the text that
+                 explains it.
+                 THE MAP IS NOW THE LAST BLOCK IN THE SECTION, which is also why it can carry
+                 the section's full width without a paragraph trailing under it. -->
             <div class="ld-mapbox">Property map placeholder — the FarmWorth map module drops in here. See DEVELOPER-NOTES.md for the window spec.</div>
-            <p class="ld-dl-head">Directions</p>
-            <!-- Verbatim from the listing. -->
-            <p class="ld-copy">From Confidence, Iowa: Travel south along County Highway S56 for approximately 2 miles to the beginning of Tract 1, which is located on the east side of the pavement. Watch for Peoples Company auction signs.</p>
           </div>
         </details>
 
@@ -3686,6 +3825,79 @@
       if(document.fonts && document.fonts.ready) document.fonts.ready.then(syncNavH);
       var logoImg = header.querySelector("img");
       if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+    })();
+
+    /* ================= openOnJump: A SUB-NAV CLICK OPENS WHAT IT LANDS ON =================
+       Kiron, 2026-09-01. A jump link always RESOLVED against a shut accordion - the heading is
+       outside the panel, so there was never a broken anchor - but it left the visitor looking at
+       a heading and a chevron, one more click from the thing they asked for.
+
+       IT ONLY EVER OPENS. Kiron: "I don't need anything done if the accordion is already open."
+       `if(!node.open)` is the whole of that rule: an open section is untouched, and no click on
+       the bar can ever CLOSE anything. A link clicked twice is a no-op the second time, which
+       also makes every entry point below safe to fire more than once.
+
+       THE DEFAULT JUMP IS LEFT ALONE - no preventDefault, no scrollIntoView on the click path.
+       The handler runs synchronously before the browser performs the navigation, so by the time
+       the jump is calculated the panel is already open and the position is already correct.
+       Hijacking the scroll would have meant reimplementing scroll-margin-top, the sticky offset
+       and the smooth/instant preference, all of which the browser is already doing right.
+       THAT THE TARGET DOES NOT MOVE WHEN IT OPENS is why this is safe either way: a <details>
+       grows DOWNWARD from beneath its summary, so opening one never shifts its own heading.
+       Only a target nested INSIDE a details moves, and that is the one case handled explicitly
+       below.
+
+       IT WALKS UP, NOT DOWN. The loop opens every <details> ANCESTOR of the target as well as
+       the target itself. Nothing in the sub nav needs that today - every link points at a
+       top-level accordion, per Kiron's 2026-08-25 rule that the bar never jumps inside one -
+       but the tract accordions are <details> nested in <details>, so the day a link or a shared
+       URL points at one, this already lands it open instead of scrolling to a closed parent.
+       It does NOT open descendants: clicking "Tracts" opens Tracts, not all four tracts inside
+       it. Opening a container should not expand everything it contains.
+
+       #ld-overview IS NOT A <details> AND IS NOT A SPECIAL CASE. The tag check simply does not
+       match a <section>, so that link keeps the plain behaviour with no branch for it.
+
+       THREE ENTRY POINTS, ONE FUNCTION:
+         1. the click, for the bar itself;
+         2. `location.hash` on load, so a SHARED LINK to #ld-terms arrives open rather than
+            landing someone on a shut heading with no idea the content is there. This one DOES
+            re-scroll, because the browser resolved the hash before the panel existed - for a
+            nested target that position is now wrong. rAF, so the re-land happens after layout.
+         3. `hashchange`, which is browser Back/Forward between sections. Without it, going Back
+            to a section you had jumped to would scroll there and leave it shut.
+       ============================================================================== */
+    (function(){
+      var jump = document.querySelector(".ld-jump");
+
+      function openTo(hash){
+        if(!hash || hash.charAt(0) !== "#" || hash.length < 2) return null;
+        var el;
+        /* A hash is user-supplied and can be anything; querySelector throws on a hash that is
+           not a valid selector (an old-style "#2" name anchor, say). A bad hash must not take
+           the rest of the page's scripts down with it. */
+        try{ el = document.querySelector(hash); }catch(e){ return null; }
+        if(!el) return null;
+        for(var node = el; node && node !== document.body; node = node.parentElement){
+          if(node.tagName === "DETAILS" && !node.open) node.open = true;
+        }
+        return el;
+      }
+
+      if(jump){
+        jump.addEventListener("click", function(e){
+          /* closest() from e.target, not a listener per link: e.target is usually the <svg> or
+             a <path> inside the link, and Element.closest walks out of SVG content correctly. */
+          var a = e.target.closest && e.target.closest('a[href^="#"]');
+          if(a && jump.contains(a)) openTo(a.getAttribute("href"));
+        });
+      }
+
+      if(location.hash){
+        var landed = openTo(location.hash);
+        if(landed) requestAnimationFrame(function(){ landed.scrollIntoView(); });
+      }
+      window.addEventListener("hashchange", function(){ openTo(location.hash); });
     })();
 
     // Search: magnifier toggles a text field + submit icon below it
