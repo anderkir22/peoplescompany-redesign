@@ -467,8 +467,35 @@
     @supports not selector(:has(*)){
       .tm-name a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     }
+    /* EVERY CARD IS THE SAME HEIGHT (Kiron, 2026-09-01: all cards at 363, one-line title or two).
+       THE TITLE ALWAYS RESERVES TWO LINES - `min-height: 2.9em`, which is 2 x the 1.45
+       line-height at this element's own 13px, so it tracks the type rather than hard-coding 38px.
+
+       WHY THIS AND NOT A HEIGHT ON THE CARD. A height on .tm-card would have to be re-derived
+       every time the tile ratio, the name size or the padding changed - four numbers, one of which
+       (the tile) is a ratio of a width that changes at every breakpoint. Reserving the line where
+       the variation actually comes from means the card's height is still the sum of its parts, and
+       the only thing that changed is that one part stopped being elastic.
+
+       WHAT IT LOOKS LIKE. A one-line title now carries an empty line under it, so the card's
+       bottom padding effectively grows by 19px on those cards. That is the trade: dead space
+       inside a card, in exchange for a grid that never steps.
+
+       ⚠ WHY THE ROWS LOOKED WRONG IN THE FIRST PLACE, because it is worth knowing before touching
+       this: CSS grid stretches every card in a ROW to the tallest one, so a single long title made
+       all five cards in its row 19px taller while the neighbouring rows stayed short. It was never
+       one odd card - it was one odd row, which is why it read as the grid being uneven.
+       At 1600 with 25 people, rows 1 and 3 were 363px (Aronowitz and Baird; Kreikemeier) against
+       344px for rows 2, 4 and 5.
+
+       ⚠ A THREE-LINE TITLE WOULD BREAK IT AGAIN. Nothing on the live roster needs three lines at
+       254px, the narrowest the card gets, but this reserves two - it does not cap at two. If a
+       longer title ever turns up, this is the number to revisit, and the choice then is reserving
+       three lines for everybody or clamping. Do NOT clamp today: the longest title on the page,
+       "Land Management Administrator, UFARM & Crop Insurance Manager", would lose its second half,
+       and a truncated job title is a data loss that reads as a bug. */
     .tm-role{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45;
-      color: var(--pc-black); margin: 2px 0 0; }
+      color: var(--pc-black); margin: 2px 0 0; min-height: 2.9em; }
     .tm-office{ font-family: var(--font-sans); font-size: 12px; line-height: 1.4;
       color: var(--pc-navy); margin: 0; }
     /* Contact rows sit at the bottom of the card so every card's contact block lines up
