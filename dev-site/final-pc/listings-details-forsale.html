@@ -78,10 +78,30 @@
        The first thing in the main column, directly above the photograph. It is
        left-aligned on the rail; the Interactive Map tab is not on this page, so nothing
        floats over this band. */
-    .ld-back{ display: inline-flex; align-items: center; gap: 8px;
+    /* ---- 5px UNDER THE LINK, DECLARED RATHER THAN INHERITED ----
+       (Kiron, 2026-09-01: "the space between the image and ALL LISTINGS is different. I prefer
+       the spacing on forsale. Let's assign that.")
+       THE TWO PAGES DIFFERED BY 5px AND NEITHER HAD A MARGIN. Measured at 1536: the link's box
+       ended at 160.2 on both, and the photograph began at 160.2 on the auction page and 165.2
+       on For Sale. The whole difference was ONE DECLARATION - `display: flex` here against
+       `display: inline-flex` there. An inline-level box sits on a LINE BOX, and that line box
+       carries the parent's leading below the glyphs; For Sale's extra 5px was that phantom
+       descender space, not a spacing decision anybody made.
+       SO THE LOOK IS KEPT AND THE MECHANISM IS NOT. Both pages are now `display: flex` with an
+       explicit 5px margin-bottom, which renders identically to the For Sale page Kiron approved
+       while depending on nothing: phantom leading would have shifted with any change to the
+       parent's line-height or font-size, silently and on one page only.
+       5px IS NOT A SPACING TOKEN, and that is deliberate - it is a measured match to the
+       approved look, not a value chosen from the scale. The nearest tokens are 4px and 8px; if
+       this is ever regularised, 4px is the one that barely moves it.
+       ZEROED AT 1023 AND BELOW. There the link is a GRID ITEM, and grid blockifies an
+       inline-level child - so For Sale never had the phantom 5px at those widths either, and
+       adding a real margin would introduce a gap that neither page has ever shown. See the
+       .ld-back rule in that block. */
+    .ld-back{ display: flex; width: max-content; align-items: center; gap: 8px;
       font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 500;
       letter-spacing: .04em; text-transform: uppercase; color: var(--pc-navy);
-      text-decoration: none; padding: var(--space-5) 0 0; }
+      text-decoration: none; padding: var(--space-5) 0 0; margin-bottom: 5px; }
     .ld-back:hover{ color: var(--pc-black); }
     .ld-back svg{ width: 14px; height: 14px; }
 
@@ -169,6 +189,24 @@
     .ld-cbtn:focus-visible{ outline: 3px solid var(--pc-white); outline-offset: 2px; }
     .ld-cbtn.prev{ left: 12px; }
     .ld-cbtn.next{ right: 12px; }
+    /* ---- NO CAPTION UNDER ANY PHOTOGRAPH (Kiron, 2026-09-01) ----
+       "The only thing I need is to remove the text captions underneath all the photos ...
+       including the alt tags on the images in the code is fine, I just don't want captions
+       underneath the images."
+       SO THE CAPTION TEXT IS NOT DELETED, IT IS ONLY TAKEN OFF THE SCREEN. Every PHOTOS[]
+       entry still carries its .cap string and every image still uses it as its ALT text - the
+       words are still in the page, doing the job a caption was never the right element for.
+       That is the whole shape of this change: the same sentence, in the accessibility tree
+       instead of under the picture.
+       THE COUNTERS STAY. "3 / 10" beside the arrows is a position, not a caption, and it is
+       the only thing telling a viewer how far through a set they are. Kiron asked for text
+       captions; a count is not one.
+       WHAT WAS REMOVED, in both the markup and the script that filled it:
+         · .xlb-cap  - the <figcaption> under the lightbox photograph.
+         · .ld-tcar-cap - the line under each tract carousel photograph (auction page only;
+           the For Sale page has no tracts).
+       The elements are GONE rather than hidden. A visually-hidden caption would have been a
+       second copy of the alt text for a screen reader to read out twice. */
     .ld-count{ position: absolute; right: 12px; bottom: 12px; z-index: 4; margin: 0;
       font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--pc-white);
       background: rgba(7,22,44,.62); border-radius: var(--radius-pill); padding: 5px 12px; }
@@ -196,8 +234,30 @@
        than squeezing. */
     .ld-statusline{ display: flex; align-items: center; flex-wrap: wrap;
       justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
-    /* The row's left column. 2px between the two lines, not one of the spacing tokens: these
-       are two halves of one identity block, and at 8px they start to read as separate rows. */
+    /* ---- THE ROW'S LEFT COLUMN: 2px GAP, LEADING LEFT ALONE ----
+       2px between the two lines, not one of the spacing tokens: these are two halves of one
+       identity block, and at 8px they start to read as separate rows.
+       TWO ALTERNATIVES WERE BUILT AND BOTH WERE REJECTED (Kiron, 2026-09-01), and the numbers
+       are kept because they are the argument for leaving this alone:
+         · 4px GAP. Rejected as imperceptible, and MEASURING SHOWED WHY: both lines are 12px
+           text in a line box inheriting 1.6 leading, so each carries 3.6px of HALF-LEADING
+           above and below its glyphs. Ink to ink, the visible white is 3.6 + 3.6 + gap, so 2px
+           -> 4px moved it 9.2 -> 11.2px. A 100% change in the gap is a 22% change in what the
+           eye sees; the gap is simply not the dominant term.
+         · LEADING TIGHTENED TO 1.3, which was the better instinct and does control it - visible
+           white 9.2 -> 5.6px, and the group 40.4 -> 33.2px. Rejected on sight against the
+           auction page: "I like the spacing that is currently on auction". The 7px it reclaimed
+           came out of the whole headline block, pulling the price and the sub bar up with it,
+           and that read as tight rather than as tidy.
+       SO THE LEADING IS INHERITED, NOT DECLARED HERE. There is deliberately no line-height on
+       these two lines - they take the page's 1.6 like everything else, and the 2px gap sits on
+       top of it. If this is ever revisited, the lever is the leading and not the gap.
+       ⚠ IF THE LEADING IS EVER TIGHTENED, RE-CHECK THE ROW HEIGHT. At 1.15 the group measures
+       29.6px against the Save/Share pair's 30.2px, so the PAIR becomes the tallest item and
+       starts governing the row - the group then centres inside it and the gaps above and below
+       stop tracking the leading. At the inherited 1.6 the group is 40.4px and safely tallest.
+       THIS NOW MATCHES THE AUCTION PAGE EXACTLY. The two pages still differ on the PILLS, which
+       is a separate live comparison - see the .ld-action note. */
     .ld-statusgroup{ display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
     .ld-status{ display: inline-flex; align-items: center; gap: 8px; margin: 0;
       font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 500;
@@ -718,6 +778,23 @@
        wrongly. A CMS-driven list needs the last row marked in the markup — a class on
        the final row's items, or a :nth-child rule generated from the count. */
     .ld-dl li:nth-last-child(-n+2){ border-bottom: 0; }
+    /* ---- ODD-COUNT LIST ----
+       PORTED FROM listings-details-auction.html (2026-09-01), and it was needed the moment
+       "Marketing Brochure" took the list from six items to SEVEN.
+       WHY: the rule above strips the hairline from the last TWO items, which is the last ROW
+       only while the count is EVEN. With an odd count in two columns the second-to-last item
+       sits in the row ABOVE and loses its rule wrongly - MEASURED on this page before this
+       block existed: items 6 and 7 both came out with no rule, so the Drainage Map row lost its
+       hairline in the middle of the list.
+       Here the two are restored and only the true last item - alone in the final row - loses
+       its rule. ADD .ld-dl-odd TO ANY LIST WHOSE COUNT IS ODD.
+       ⚠ THE CLASS WAS IN THIS PAGE'S MARKUP BEFORE THESE RULES WERE, for about ten minutes,
+       and it did nothing at all: a class with no declarations is invisible. Ported markup and
+       ported CSS have to travel together - that is the whole lesson of this block.
+       AND IT IS STILL AN ARGUMENT FOR MARKING THE FINAL ROW IN THE MARKUP rather than inferring
+       it from a count: a CMS-driven list cannot know its own parity from CSS alone. */
+    .ld-dl-odd li:nth-last-child(-n+2){ border-bottom: 1px solid var(--color-border); }
+    .ld-dl-odd li:last-child{ border-bottom: 0; }
     .ld-dl a{ display: flex; align-items: baseline; gap: var(--space-3);
       padding: 12px 2px; font-family: var(--font-sans); font-size: 15px;
       color: var(--color-text); text-decoration: none; }
@@ -969,8 +1046,6 @@
        to 88vw on a wide monitor would only show it soft. It sits at 1:1 and centres. */
     .xlb-img{ max-width: min(800px, 88vw); max-height: min(600px, 80vh);
       object-fit: contain; border-radius: var(--radius-sm); margin: 0 auto; }
-    .xlb-cap{ font-family: var(--font-sans); font-size: 13px; color: var(--pc-light-blue);
-      text-align: center; margin-top: var(--space-3); }
     .xlb-x, .xlb-prev, .xlb-next{ position: absolute; width: 48px; height: 48px; border: 0;
       cursor: pointer; border-radius: var(--radius-pill); background: rgba(255,255,255,.14);
       color: var(--pc-white); font-size: 22px; line-height: 1; }
@@ -1191,7 +1266,11 @@
       .ld-head{ order: -2; margin-top: var(--space-5); margin-bottom: var(--space-4); }
       /* padding-top off: the gap above this link is the headline's margin-bottom, so it does
          not need to carry one of its own. */
-      .ld-back{ order: -1; grid-column: 1; padding-top: 0; align-self: center; }
+      /* margin-bottom off with the padding: the 5px under the link at 1024+ is a declared
+         value there, and here the link is a grid item whose gap below is the photograph's own
+         margin-top. Neither page has ever shown a gap under the link at these widths. */
+      .ld-back{ order: -1; grid-column: 1; padding-top: 0; margin-bottom: 0;
+        align-self: center; }
       /* ---- THE BACK LINK IS ALONE ON ITS ROW AGAIN (2026-09-01) ----
          It used to share this row with Save/Share, pinned to the right track. That pairing was
          the answer to two stacked rows costing ~90px on four small controls - but Save/Share
@@ -2024,7 +2103,34 @@
         <details id="ld-downloads" class="reveal ld-acc">
           <summary><h2>Downloads</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <ul class="ld-dl">
+            <!-- ---- MARKETING BROCHURE, FIRST IN THE LIST ----
+                 (Kiron, 2026-09-01: "on the forsale page, add Marketing Brochure as the first
+                 link under downloads".) FIRST because it is the document that describes the
+                 whole property; the six below it are single-purpose maps and disclosures.
+                 THIS PAGE KEEPS ITS OTHER SIX, unlike the auction page. There the tract
+                 documents moved into the per-tract blocks and this section was left holding
+                 only farm-wide files - but a For Sale listing has no tracts to move anything
+                 into, so its documents belong here and nothing is duplicated. That is also why
+                 this page carries NO "refer to the individual tract details" note: there are no
+                 tract details to refer to.
+                 ⚠ PLACEHOLDER href, AND IT DOES NOT RESOLVE - deliberately (Kiron, 2026-09-01:
+                 "dont worry about the link not working, just put the placeholder").
+                 IT BRIEFLY POINTED AT A REAL FILE so the link would open during review, and
+                 that was the wrong trade: a real aerial map sitting behind a row labelled
+                 "Marketing Brochure" is a mislabelled document, and the risk of it surviving
+                 into the live build is worse than a dead link in a mockup. The href now names
+                 the file the CMS should emit, in the bucket's own naming convention, so the
+                 shape is right and the gap is obvious.
+                 CHECKED, NOT ASSUMED: this listing publishes no brochure. Every plausible key
+                 (_Brochure, _brochure, _Marketing-Brochure, _Booklet, _Flyer) returns 403 from
+                 the bucket, where the listing's real attachments return 200.
+                 ⚠ THE LIST IS NOW SEVEN, AN ODD COUNT, so it takes .ld-dl-odd. Without it
+                 .ld-dl's `nth-last-child(-n+2)` strips the hairline from the last TWO items -
+                 correct only when the count is even, because in two columns an odd count puts
+                 the second-to-last item in the row ABOVE. This is the exact case that class was
+                 written for. -->
+            <ul class="ld-dl ld-dl-odd">
+              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Brochure.pdf" target="_blank" rel="noopener"><span class="n">Marketing Brochure</span><span class="m">PDF</span></a></li>
               <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Aerial.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
               <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Total.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
               <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19651_Tillable.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
@@ -2573,7 +2679,7 @@
   <div class="xlb" id="xlb" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
     <button class="xlb-x" type="button" aria-label="Close">&#10005;</button>
     <button class="xlb-prev" type="button" aria-label="Previous photo">&#8249;</button>
-    <figure><img class="xlb-img" alt="" /><figcaption class="xlb-cap"></figcaption></figure>
+    <figure><img class="xlb-img" alt="" /></figure>
     <button class="xlb-next" type="button" aria-label="Next photo">&#8250;</button>
     <div class="xlb-count"></div>
   </div>
@@ -3218,7 +3324,6 @@
       if(!items.length) return;
       var box = document.getElementById("xlb"),
           img = box.querySelector(".xlb-img"),
-          cap = box.querySelector(".xlb-cap"),
           cnt = box.querySelector(".xlb-count");
       var i = 0, last = null;
       function show(n){
@@ -3226,7 +3331,6 @@
         var p = items[i];
         img.src = p.src;
         img.alt = p.cap || "";
-        cap.textContent = p.cap || "";
         cnt.textContent = (i + 1) + " / " + items.length;
       }
       function open(n, trig){
