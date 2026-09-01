@@ -1788,9 +1788,40 @@
      .ld-statusline is flex/space-between with two children. margin-right:auto keeps the
      pair next to Pending on the left and leaves "Listing #19282" out on the right edge,
      rather than spreading three items evenly across the row. */
-  #ssSlotStatus{ display: flex; margin-right: auto; }
-  #ssSlotStatus:empty{ display: none; }   /* id beats .ss-slot:empty, so it needs saying twice */
-  #ssSlotStatus .ld-actionrow{ margin: 0; }
+  /* THE WRAPPER IS NOT A BOX except in mode 5. display:contents removes it from layout
+     entirely, so .ld-status and .ld-listingid stay direct flex children of .ld-statusline and
+     every other option behaves as if the wrapper were not in the markup.
+     WITHOUT THIS RULE THE WRAPPER DEFAULTS TO display:block, which stacks the listing number
+     under Pending in ALL FIVE modes - measured, and it silently broke options 1, 2 and 4. */
+  #ssStatusStack{ display: contents; }
+
+  #ssSlotStatus, #ssSlotStack{ display: flex; }
+  #ssSlotStatus:empty, #ssSlotStack:empty{ display: none; }   /* id beats .ss-slot:empty, so it needs saying twice */
+  #ssSlotStatus .ld-actionrow, #ssSlotStack .ld-actionrow{ margin: 0; }
+  /* "status" only: margin-right:auto keeps the pair next to Pending and leaves the listing
+     number out on the right edge, instead of space-between spreading three items evenly. */
+  html[data-ss="status"] #ssSlotStatus{ margin-right: auto; }
+
+  /* ---- position: ALL THREE ON ONE ROW, the listing number stacked under Pending ----
+     (Kiron, 2026-09-01: "move the Listing # over under Pending so that all 3 of those assets
+     live on the same row. Pending and Listing #19282 are stacked on the left, and the
+     save/share are on the right.")
+     This is the only option that REMOVES a row rather than placing one. Options 2 and 3 both
+     leave the status line and the pair as separate horizontal bands; here the pair takes the
+     space the listing number vacates, and the number costs nothing because it moves into
+     space that was already empty under "Pending".
+     THE WRAPPER IS display:contents UNTIL THIS MODE. Switching it to a flex column is what
+     stacks the two paragraphs; everywhere else it is not a box at all, so no other option is
+     affected by its presence.
+     ALIGN-ITEMS GOES BASELINE -> CENTER on the row. .ld-statusline aligns on the first
+     baseline, which with a two-line left column would pin the buttons to the "Pending" line
+     and leave them looking dropped relative to the block as a whole. */
+  html[data-ss="stack"] #ssStatusStack{ display: flex; flex-direction: column;
+    align-items: flex-start; gap: 2px; }
+  html[data-ss="stack"] .ld-statusline{ align-items: center; }
+  /* .ld-listingid is text-align:right for the arrangement where it sits on the right edge.
+     Stacked under Pending it is the left column, so it reads left like the line above it. */
+  html[data-ss="stack"] .ld-listingid{ text-align: left; }
   /* The vertical padding is NOT stripped here, though the tight baseline row invites it:
      at 0 the buttons measured 18px tall, under the WCAG 2.2 SC 2.5.8 floor of 24px. The
      status row simply gets taller. That cost is part of what this option is offering. */
@@ -1820,6 +1851,7 @@
      separate decision (Kiron: "we can then figure out what to do when window shrinks"). */
   @media (max-width: 1023px){
     html[data-ss="status"] .ld-actionrow,
+    html[data-ss="stack"] .ld-actionrow,
     html[data-ss="rail"] .ld-actionrow{ order: 0; grid-column: auto; margin: 0; }
   }
 
@@ -1973,9 +2005,12 @@
             <!-- PENDING, which is #19282's real status: the auction was held on 15 July 2026
                  and the farm is under contract. It also exercises the amber .is-pending dot —
                  the For Sale page only ever showed the green Active one. -->
-            <p class="ld-status is-pending"><span class="ld-dot" aria-hidden="true"></span>Pending</p>
-            <div id="ssSlotStatus" class="ss-slot"></div>
-            <p class="ld-listingid">Listing #19282</p>
+            <div id="ssStatusStack">
+              <p class="ld-status is-pending"><span class="ld-dot" aria-hidden="true"></span>Pending</p>
+              <div id="ssSlotStatus" class="ss-slot"></div>
+              <p class="ld-listingid">Listing #19282</p>
+            </div>
+            <div id="ssSlotStack" class="ss-slot"></div>
           </div>
 
           <!-- PRICE AND H1 SHARE A LINE (Kiron, 2026-08-26) — price left, the property
@@ -4501,6 +4536,7 @@
   <label><input type="radio" name="ss" value="photo" checked /> 2 &middot; Under the photo</label>
   <label><input type="radio" name="ss" value="status" /> 3 &middot; On the status line</label>
   <label><input type="radio" name="ss" value="rail" /> 4 &middot; Top of the right rail</label>
+  <label><input type="radio" name="ss" value="stack" /> 5 &middot; One row, listing # stacked</label>
   <hr />
   <label><input type="checkbox" id="ssPill" /> Keep the pill boxes</label>
   <p class="ss-where" id="ssWhere"></p>
@@ -4511,12 +4547,14 @@
 (function(){
   var el = document.querySelector(".ld-actionrow");
   var slots = { current: "ssSlotCurrent", photo: "ssSlotPhoto",
-                status: "ssSlotStatus", rail: "ssSlotRail" };
+                status: "ssSlotStatus", rail: "ssSlotRail",
+                stack:  "ssSlotStack" };   /* 5 needs its own host - see the note in the builder */
   var blurb = {
     current: "Where it is now: below the price and the h1, above the sub nav.",
     photo:   "Its own row under the photograph, right-aligned beneath the thumbnails.",
     status:  "Clustered beside Pending; the listing number stays on the right edge.",
-    rail:    "First block in the rail, above the agent card. Narrow widths TBD."
+    rail:    "First block in the rail, above the agent card. Narrow widths TBD.",
+    stack:   "All three on one row: Pending over the listing number on the left, the pair right."
   };
   var where = document.getElementById("ssWhere");
 
