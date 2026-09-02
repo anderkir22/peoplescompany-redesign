@@ -382,23 +382,46 @@
        margin here would push it out of alignment with the stacked pair opposite. Kept as a
        wrapper rather than dropped so .ld-actions stays one addressable unit. */
     .ld-actionrow{ display: flex; justify-content: flex-end; }
-    .ld-actions{ display: flex; align-items: center; gap: var(--space-2); flex: none; }
+    /* 16px BETWEEN THEM, up from 8. With the pills gone there are no longer two boxes holding
+       the labels apart, so the gap is the only thing separating "Save" from "Share" - at 8px
+       the two start to read as one string. */
+    .ld-actions{ display: flex; align-items: center; gap: var(--space-4); flex: none; }
+    /* ---- NOT PILLS. THE A/B IS OVER (Kiron, 2026-09-02: "go with the Save/Share buttons with
+       NO pillbox (forsale) format") ----
+       The two pages ran the pair both ways from 2026-09-01 - pills here, bare icon + label on
+       For Sale - so the difference could be seen on real pages rather than argued. The bare
+       treatment won. BOTH PAGES NOW MATCH and the inconsistency notes that stood here and on
+       the For Sale page are gone with the comparison they described.
+       WHAT CAME OFF: a white fill, a light-blue hairline and a 9px/16px inset. Icon + label
+       with no box is the quieter treatment, and it is the same voice as the sub nav's links.
+       STILL <button>, and still the same two roles - this is a skin change only. Nothing about
+       aria-pressed, the toggle behaviour or the announced names moved.
+       THE HIT TARGET IS KEPT DELIBERATELY. Stripping the padding out with the box would have
+       left an 18px-tall target, under the WCAG 2.2 SC 2.5.8 floor of 24px. 6px top and bottom
+       on a 1.4 line-height holds it at 30px, and 2px each side keeps the focus ring off the
+       glyphs.
+       HOVER HAS TO CARRY ITSELF WITHOUT A FILL: a colour shift alone is a weak affordance on
+       something that no longer looks like a button, so the label underlines as well. */
     .ld-action{ display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
-      font-family: var(--font-sans); font-size: 13px; font-weight: 600;
-      color: var(--pc-navy); background: var(--pc-white);
-      border: 1px solid var(--color-border); border-radius: var(--radius-pill);
-      padding: 9px 16px; transition: background-color .15s ease, border-color .15s ease; }
-    .ld-action:hover{ background: var(--pc-light-blue); border-color: var(--pc-light-blue); }
+      font-family: var(--font-sans); font-size: 13px; font-weight: 600; line-height: 1.4;
+      color: var(--pc-navy); background: transparent; border: 0;
+      border-radius: var(--radius-sm); padding: 6px 2px; transition: color .15s ease; }
+    .ld-action:hover{ color: var(--pc-medium-blue); }
+    .ld-action:hover span{ text-decoration: underline; text-underline-offset: 3px; }
     .ld-action:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 2px; }
     .ld-action svg{ width: 16px; height: 16px; flex: none; }
-    /* THE SAVED STATE IS CARRIED THREE WAYS, none of them hue: the star fills (a shape
-       change), the label changes word, and the pill takes the light-blue fill. Kiron is
-       red-green colourblind and the build's rule is that nothing is understood by colour
-       alone — here colour is the third signal, not the only one. Same filled/outline
-       star pair as .lc-fav on listings.html, so the two pages mean the same thing. */
+    /* ---- THE SAVED STATE, ON TWO SIGNALS RATHER THAN THREE ----
+       It was three: the star FILLS (a shape change), the label CHANGES WORD, and the pill took
+       a light-blue fill. Un-pilling the buttons removed the third.
+       THE RULE STILL HOLDS, which is why this was safe to do. Kiron is red-green colourblind
+       and the build's rule is that nothing is understood by colour alone. The pill fill was the
+       one of the three that WAS colour; what remains - a filled star and the word "Saved" - is
+       two non-colour signals, either of which carries the state on its own. The deepened text
+       colour is a fourth cue on top, not a load-bearing one.
+       Same filled/outline star pair as .lc-fav on listings.html, so the two pages mean the
+       same thing. */
     .ld-action .star-fill{ display: none; }
-    .ld-action[aria-pressed="true"]{ background: var(--pc-light-blue);
-      border-color: var(--pc-light-blue); color: var(--pc-black); }
+    .ld-action[aria-pressed="true"]{ color: var(--pc-black); }
     .ld-action[aria-pressed="true"] .star-fill{ display: block; }
     .ld-action[aria-pressed="true"] .star-line{ display: none; }
     @media (prefers-reduced-motion: reduce){ .ld-action{ transition: none; } }
@@ -854,7 +877,7 @@
     .ld-tgrid{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
       gap: var(--space-6); align-items: start; }
     .ld-tprose{ order: 1; }
-    /* "Description" and "Legal" reuse .ld-dl-head, the page's section-label voice - the same
+    /* "Description" and "Legal Description" reuse .ld-dl-head, the page's section-label voice - the same
        treatment "Downloads" carries a few lines below, so the three labels inside one tract
        read as the same kind of thing. Its default 32px top margin is the gap BETWEEN the two
        blocks; the first one loses it because it is already the top of the panel. */
@@ -957,8 +980,21 @@
     /* THE WHOLE BODY SCROLLS, not the right column alone as in the reference. One scroll
        region means the documents list is reachable at any window height, and it collapses to
        a single column on a phone without putting a scroller inside a scroller. */
+    /* ---- THE SAME COLUMNS AS .ld-tgrid, WHICH IS THE SAME PICTURE SIZE (Kiron, 2026-09-02:
+       "what is the image size on the 1-4 carousel? Match that same size") ----
+       BOTH FRAMES WERE ALREADY 4/3. What differed was the column they sat in: the accordions
+       cap theirs at 380px, so the photograph renders 380 x 285; this window split its body
+       50/50, which at a 1040px box is a 480px column and a 480 x 360 image. Same ratio, a
+       different picture - and the facts under it were 100px wider here than there.
+       minmax(0, 380px) IS COPIED FROM .ld-tgrid ON PURPOSE, the same value rather than one
+       that happens to land near it, so the two tract detail spaces cannot drift on this again.
+       THE TEXT COLUMN GAINS WHAT THE PICTURE GIVES UP: about 580px against the old 480, which
+       is a better measure for the three prose blocks that now live there alone.
+       THE COLUMN GAP ALREADY MATCHED .ld-tgrid at --space-6. The row gap stays --space-5,
+       which is what separates the columns from the Downloads row below them - the accordions
+       have no equivalent, their downloads block sitting outside the grid entirely. */
     .xtw-body{ overflow-y: auto; padding: var(--space-5);
-      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
       gap: var(--space-5) var(--space-6); align-items: start; }
     .xtw-frame{ position: relative; aspect-ratio: 4 / 3; overflow: hidden;
       border-radius: var(--radius-sm); border: 1px solid var(--color-border);
@@ -1000,6 +1036,11 @@
     .xtw-media .ld-dl-head{ margin-top: var(--space-5); }
     .xtw-info .ld-dl-head{ margin-top: var(--space-4); margin-bottom: 4px; }
     .xtw-media > :first-child, .xtw-info > :first-child{ margin-top: 0; }
+    /* THE FACTS LIST UNDER THE FRAME (2026-09-02). .ld-fields carries margin: 0 and .xtw-media
+       is a plain block, so without this the figures would touch the bottom of the photograph.
+       16px is what .ld-tside gets from its own row-gap in the accordions, so the list sits the
+       same distance under the carousel in both tract detail spaces. */
+    .xtw-media > .ld-fields{ margin-top: var(--space-4); }
     /* The documents row spans the whole window, under both columns. */
     /* ---- DOWNLOADS SPANS BOTH COLUMNS, AND STAYS THERE. MEASURED. ----
        (Kiron, 2026-08-31: "widen these columns, so that there is no word wrap".)
@@ -1020,6 +1061,18 @@
        IT GOT BETTER SINCE, WITHOUT MOVING: the rows are tighter and the "Tract NN - " prefix
        came off the names (2026-09-01), so this block is shorter than when it was widened. */
     .xtw-docs{ grid-column: 1 / -1; }
+    /* ---- THE 32px ABOVE THIS HEADING COMES OFF (Kiron, 2026-09-02: "remove some of the
+       vertical spacing between Get Directions and Downloads") ----
+       .ld-dl-head's own margin is 32px top / 8px bottom, which is the value for the download
+       GROUPS on the page, where several stacked lists need holding apart. This heading is not
+       one of a stack: it is the first thing in its own grid row, so that 32px was landing on
+       top of .xtw-body's 24px row gap and the two blocks sat 56px apart.
+       THE ROW GAP IS LEFT ALONE at 24px, which is what every other pair of blocks in this
+       window is spaced by - taking the heading's own margin out is what brings this pair into
+       line with the rest rather than making it a special case in the other direction.
+       .xtw-info AND .xtw-media ALREADY DO THIS, each with their own value a few lines above -
+       this is the third column of the window finally getting the same treatment. */
+    .xtw-docs > .ld-dl-head{ margin-top: 0; }
     /* ⚠ THESE THREE SELECTORS CARRY .xtw-body ON PURPOSE. `.ld-dl` and `.ld-dl li` are
        defined LATER in this stylesheet than this block, so a bare `.xtw-dl` at the same
        specificity loses to them and the overrides silently do nothing — which is exactly how
@@ -1061,6 +1114,17 @@
       .xtw{ padding: 0; }
       .xtw-box{ max-height: 100vh; height: 100%; border-radius: 0; }
       .xtw-body{ grid-template-columns: minmax(0, 1fr); }
+      /* THE MAP GOES BACK ON TOP IN ONE COLUMN. Left/right became above/below the moment the
+         grid collapsed, and "below a screen of text" is not where the thing a reader opened the
+         window to look at belongs. Same call .ld-tside makes at 1023 in the accordions.
+         AN `order` HERE AND A DOM MOVE THERE IS NOT AN INCONSISTENCY: the DOM order is the one
+         that reads correctly, so it is what the markup says, and the phone layout is the
+         exception that a presentational property is for.
+         THE 520px CAP IS .ld-tside's, for .ld-tside's reason: released from its column the
+         frame would take the full width of a full-screen window, and a 660px photograph on a
+         tablet dwarfs everything under it. The facts inherit the cap, which suits them - a
+         label/value list does not want a 660px measure either. */
+      .xtw-media{ order: -1; max-width: 520px; }
       /* One column of window means one column of documents: two would be about 300px each
          and back to wrapping, which is the thing being fixed. */
       .xtw-body .xtw-dl{ grid-template-columns: minmax(0, 1fr); }
@@ -1114,7 +1178,7 @@
        was the last thing on the page still showing tract prose at 16px against a 12px field
        list beside it. The two spaces are now identical on every text size. */
     .ld-tract .ld-copy,
-    .xtw-desc, .xtw-legal{ font-size: var(--body-sm); line-height: 1.6; }
+    .xtw-desc, .xtw-legal, .xtw-dirs{ font-size: var(--body-sm); line-height: 1.6; }
     .ld-fields dd{ margin: 0; color: var(--color-text-muted); }
     /* ---- .ld-fields-prose: the same two columns carrying PARAGRAPHS instead of figures ----
        PORTED FROM listings-details-forsale.html (Kiron, 2026-08-31). Three changes off the base
@@ -1439,11 +1503,15 @@
        token: the link is an interactive element embedded in a value, and equal air either side
        is what makes it read as its own thing rather than as the last line of the address.
        EFFECTIVE GAP IS NOW 18px - 6px margin plus the list's 12px row-gap. */
-    /* ---- .ld-tdir: the tract's Driving directions link ----
-       (Kiron, 2026-09-01, in the eight elements every tract detail space carries.)
-       IT LIVES INSIDE A .ld-fields VALUE, so it is inline-flex and not flex: the <dd> is a
-       grid cell whose label sits beside it, and a block-level link would take the full cell
-       width and put its underline under empty space to the right of the words.
+    /* ---- .ld-tdir: the tract's "Get Directions" link ----
+       (Kiron, 2026-09-01, in the eight elements every tract detail space carries; renamed from
+       "Open in Google Maps" and un-labelled on 2026-09-02 - see the note beside tract 1.)
+       INLINE-FLEX AND NOT FLEX, which used to be because the link sat in a <dd> and a block
+       link would have underlined the empty half of the grid cell. IT NO LONGER SITS IN A <dd>,
+       and the reason survives the move intact: the underline must stop where the words do,
+       wherever the link is. The two rules below are what keep that true in its new homes -
+       .ld-tside is a flex column and would otherwise stretch it, and .xtw-info is a block and
+       gives it no space of its own.
        IT IS NOT .ld-ac-dir. That one sits on the dark auction card in PC Blue on navy; this
        one is on white, so it takes --pc-medium-blue, which is the page's link colour on
        white and passes contrast there. Same idea, different ground - and a shared class
@@ -1456,6 +1524,16 @@
     .ld-tdir:hover{ color: var(--pc-black); border-bottom-color: var(--pc-black); }
     .ld-tdir:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 2px; }
     .ld-tdir svg{ width: 12px; height: 12px; flex: none; }
+    /* ONE RULE FOR BOTH TRACT DETAIL SPACES, which is the point of the 2026-09-02 pass: the
+       link sits under the Directions paragraph in the accordion (.ld-tprose) and under the
+       Directions paragraph in the window (.xtw-info), so it takes the same spacing in both.
+       BOTTOM MARGIN, NOT TOP. The paragraph above already carries 16px below it; what .ld-tdir
+       has none of is space UNDER it, and Downloads follows immediately - it is inline-flex, so
+       it brings no margins of its own.
+       NO .ld-tside RULE ANY MORE. It was align-self: flex-start, to stop a flex column
+       stretching the link and dragging its underline across the gap. Nothing sits in that
+       column but the carousel and the figures now, so the rule went with the link. */
+    .ld-tprose > .ld-tdir, .xtw-info > .ld-tdir{ margin-bottom: var(--space-4); }
 
     .ld-ac-dir{ display: flex; width: fit-content; align-items: center; gap: 5px;
       margin: 6px 0; font-size: 13px; font-weight: 600; color: var(--pc-blue);
@@ -2073,7 +2151,7 @@
          14px is the floor: it is the smallest size in this build that is still comfortable
          body copy, and the reason the drop is one step rather than two. */
       .ld-copy, .ld-tract p{ font-size: 14px; }
-      .ld-fields, .ld-tract .ld-copy, .xtw-desc, .xtw-legal{ font-size: 11px; }
+      .ld-fields, .ld-tract .ld-copy, .xtw-desc, .xtw-legal, .xtw-dirs{ font-size: 11px; }
       .ld-dl a{ font-size: 13px; }
       .ld-dl .m{ font-size: 11px; }
       #ld-terms .ld-copy{ font-size: 12px; }
@@ -2229,12 +2307,10 @@
                  THREE ASSETS, ONE ROW: Pending over the listing number on the left, the pair on
                  the right. See .ld-statusgroup in the CSS for the two-line left column, and the
                  baseline -> center switch on .ld-statusline that the second line forces.
-                 THE PILLS ARE KEPT ON THIS PAGE ON PURPOSE (Kiron, 2026-09-01: "I will use
-                 forsale without the pillbox, and auction with the pillbox to display the
-                 differences"). listings-details-forsale.html carries the same placement with
-                 the boxes stripped. ⚠ THE TWO PAGES ARE DELIBERATELY INCONSISTENT AND THIS IS
-                 NOT A BUG TO FIX - it is a live comparison awaiting Kiron's call. Whichever
-                 wins, both pages then match.
+                 NO PILLS (Kiron, 2026-09-02: "go with the Save/Share buttons with NO pillbox
+                 (forsale) format"). The pair ran both ways for a day - pills here, bare icon +
+                 label on For Sale - so the two could be judged on real pages. The bare treatment
+                 won and this page came into line with it; see the .ld-action note in the CSS.
                  EARLIER HISTORY (Kiron, 2026-08-27): the pair used to ride inside .ld-subbar,
                  pinned right. The responsive pass moved it out - the bar needs 823px for the
                  links plus the pair against a 772px column from --site 1280 down, so it wrapped
@@ -2314,8 +2390,6 @@
         <div class="ld-subbar">
         <nav class="ld-jump" aria-label="Jump to section">
           <div class="ld-jump-inner">
-            <a href="#ld-overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Overview</a>
-            <a href="#ld-details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Tracts</a>
             <!-- NINE LINKS NOW, up from six: "Land", "Building" and "360 Tour" arrived with
                  the For Sale page's sections (2026-08-31). That lands hard on the open sub-nav
                  wrap decision in DEVELOPER-NOTES SS3 - at 1024-1279 six links already wrapped
@@ -2332,13 +2406,15 @@
                  bar had to guess. The rename costs 34px and the row only had 31px of slack, so
                  it was paid for on the horizontal axis rather than with a wrap: see the .ld-jump
                  spacing note for the two pixels that were taken and the measurements. -->
+            <a href="#ld-overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Overview</a>
             <a href="#ld-land"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>Land</a>
             <a href="#ld-building"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M10 21v-6h4v6"/></svg>Building</a>
             <a href="#ld-map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/></svg>Location</a>
-            <a href="#ld-downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Downloads</a>
+            <a href="#ld-details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Tracts</a>
             <a href="#ld-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Video</a>
             <a href="#ld-tour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 3v18"/></svg>360 Tour</a>
             <a href="#ld-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Terms</a>
+            <a href="#ld-downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Downloads</a>
           </div>
         </nav>
         </div>
@@ -2380,7 +2456,8 @@
                (Kiron, 2026-08-31: "that should match the layout of the for-sale, with the only
                difference being tracts instead of price"). Verified against
                listings-details-forsale.html: slots 1, 2, 4 and 5 carry the same labels and the
-               same icon paths - Total acres M/L, Tillable acres, Average CSR2, Net taxes - and
+               same icon paths - Total acres M/L, Tillable acres M/L, Average CSR2, Net taxes -
+               and
                only slot 3 differs, TRACTS here against PER ACRE there. An auction has no asking
                price, so the auction addition takes the price slot rather than being appended.
                REORDER ONE PAGE AND YOU MUST REORDER THE OTHER. A reader moving between a For
@@ -2407,7 +2484,15 @@
                figure computed in a template — CSR2 is the number a buyer checks first, and the
                weighting rule (tillable acres, not gross) is a data decision, not a display one.
                Tillable acres, 80.31, is also a sum — 70.23 + 10.08 — but that is arithmetic on
-               published figures rather than a new claim. -->
+               published figures rather than a new claim.
+               "M/L" ON TILLABLE ACRES TOO (Kiron, 2026-09-02). It was on Total acres alone, which
+               read as though the tillable figure were exact and the total were not - the opposite
+               of the truth, since 80.31 is two surveyed estimates added together. Both are more
+               or less, and the Terms disclaimer says so in words at the foot of the page: "overall
+               tract acres, tillable acres, etc. may vary from figures stated".
+               ⚠ NON-TILLABLE ACRES, in the stat card pool below, IS STILL BARE. It is Total minus
+               Tillable - two M/L figures - so it is at least as approximate as either. Kiron asked
+               for Tillable only, so it was left; raise it when the pool is next reviewed. -->
           <ul class="ld-ovstats">
             <li>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
@@ -2415,7 +2500,7 @@
             </li>
             <li>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-              <span><span class="n">80.31</span><span class="l">Tillable acres</span></span>
+              <span><span class="n">80.31</span><span class="l">Tillable acres M/L</span></span>
             </li>
             <li>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v8H3z"/><path d="M3 13h18v8H3z"/></svg>
@@ -2519,7 +2604,7 @@
               <li>
                 <!-- LIVE in the strip above on this page. -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-                <span><span class="n">80.31</span><span class="l">Tillable acres</span></span>
+                <span><span class="n">80.31</span><span class="l">Tillable acres M/L</span></span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
@@ -2581,499 +2666,6 @@
           <p class="ld-copy">The way this farm is subdivided offers something for all types of buyers. This is a rare opportunity to purchase good Wayne County, Iowa farmland that best fits your needs and at your price. The farm is leased for the current 2026 farming season with beans planted. The successful Buyer(s) will receive the second half of the 2026 cash rent at closing, with full farming rights available to the new Buyer(s) beginning March 1, 2027.</p>
           <p class="ld-copy">These two tracts will be offered via a live Public Auction on Saturday, October 31, 2026, beginning at 10:00 AM CT at the Promise City Community Center. The land will be offered as two individual tracts using the &ldquo;Buyer&rsquo;s Choice&rdquo; auction method on a price-per-acre basis, and the high bidder can take, in any order, any or both tracts for their high bid. This auction can also be viewed through the Peoples Company mobile bidding app, and online bidding will be available.</p>
         </section>
-
-        <!-- PROPERTY DETAIL. One <article class="ld-tract"> here because a For Sale
-             listing is normally a single parcel. Add a second article, with its own
-             heading, photographs and download list, for a multi-tract listing —
-             nothing outside this section has to change.
-             NO STAT CHIPS HERE AT ALL (Kiron, 2026-08-25). Every figure that used to
-             sit in this section is in the Property Overview icon row: it was the same
-             numbers twice, a screen apart. This section is prose and documents. -->
-        <!-- ===================== TRACTS (field spec §3.8) =====================
-             THE ONE SECTION THAT ONLY EXISTS ON AN AUCTION, and the reason the For Sale page
-             keeps .ld-tract / .ld-tract-sub in its CSS with a note saying "a multi-tract
-             listing needs them back". This is that listing: two surveyed tracts, sold Buyer's
-             Choice, each with its own description, figures, parcels and documents.
-
-             LOADS SHUT, like every other accordion on the page (Kiron, 2026-08-31: "minimize
-             all accordions"). It was built open because field spec §3.8 says the tract accordion
-             is open by default, flagged at the time as the one section contradicting Kiron's
-             "every accordion loads shut" rule. Kiron has now decided it the other way, so §3.8's
-             default is superseded and the page has no exception left: nothing is pre-opened, at
-             either level. Do not re-add `open` to one accordion without deciding it for all of
-             them — a single pre-opened section reads as the important one.
-
-             ACCORDION INSIDE AN ACCORDION (Kiron, 2026-08-31). Each tract is its own nested
-             <details class="ld-tract ld-acc-sub">, closed on load, so this section opens to a
-             LIST of tracts and the reader expands the one they care about. Two tracts is a
-             convenience; seven would be the difference between a list and a page. Native
-             <details> nests with no JS — see the .ld-acc-sub block in the CSS for why it is a
-             separate class rather than a second .ld-acc.
-
-             REPEAT THE <details>, ADD NOTHING ELSE. Three tracts is one more <details>. The
-             per-tract download lists live under Downloads with the same grouping, so a tract's
-             documents are named twice on the page but linked once — see the note there. -->
-        <!-- ON-PAGE NOTE (Kiron, 2026-09-01), the same device as the Auction Details note in
-             the rail and the stat card note above. Two accordions both headed "Tracts", one after
-             the other, is the single most confusing thing on this page when it is read rather
-             than developed. Placed above the FIRST of the pair, outside the <details>, so it is
-             visible with both accordions closed - which is how the page loads. -->
-        <div class="mock-note">
-          <p class="mock-note-tag">Mock-up note &mdash; not part of the design</p>
-          <p class="mock-note-body"><b>One Tracts section, not two.</b> The tract count picks the
-            treatment and the real page renders whichever fits: <b>four tracts or fewer</b> use the
-            accordion immediately below, one panel per tract; <b>five or more</b> use the tract
-            index further down this page, which is otherwise the same section. Both are here so
-            the pair can be compared.</p>
-          <p class="mock-note-body">At five tracts or more the nested accordion is taller than the screen before anything is opened, so each tract becomes one index line and its detail opens in a window over the page instead of pushing everything below it down.
-</p>
-        </div>
-
-        <details id="ld-details" class="reveal ld-acc">
-          <summary><h2>Tracts</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
-          <div class="ld-acc-body">
-
-            <details class="ld-tract ld-acc-sub">
-              <summary>
-                <div>
-                  <h3>Tract 1</h3>
-                  <p class="ld-tract-sub">81.06 acres M/L &middot; highly tillable with recreation</p>
-                </div>
-                <span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-              </summary>
-              <div class="ld-acc-sub-body">
-                <div class="ld-tgrid">
-                  <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
-                       Both get a .ld-dl-head label, which is new: the description used to open
-                       the panel with no heading at all, and the legal was one row of a field
-                       list where a paragraph-length value sat in a 360px cell.
-                       LEGAL IS PROSE NOW, NOT A FIELD ROW. It is a sentence, and the only
-                       paragraph-length value the eight elements include - so it reads better
-                       under its own label than squeezed beside one. -->
-                  <div class="ld-tprose">
-                    <p class="ld-dl-head">Description</p>
-                    <p class="ld-copy">Tract 1 will be offered as 81.06 surveyed acres, which includes 70.23 FSA tillable acres that are planted to beans in 2026. The tillable soils carry an average CSR2 rating of 36.9, with over 86% of this tract currently in crop production. This highly tillable tract also has convenient highway access, making this a strong addition for farmers or agricultural investors seeking productive acres.</p>
-                    <p class="ld-copy">Beyond its agricultural strengths, the property includes a half-acre pond and also borders state owned public hunting land, offering extensive opportunities for turkey and deer hunting along with additional fishing and outdoor recreation. These features create a versatile farm that supports both income production and recreational use.</p>
-                    <p class="ld-dl-head">Legal</p>
-                    <!-- PLACEHOLDER, FORMAT-CORRECT ONLY. #19282 publishes no per-tract brief
-                         legal in anything available to this build; this is composed from the
-                         section this tract's own parcel numbers point at. IT IS NOT THE REAL
-                         LEGAL DESCRIPTION. The Terms section already says brief legals are not
-                         for legal documents and that full ones come from the abstract. -->
-                    <p class="ld-copy">Part of the NE1/4 and part of the SE1/4 of Section 26, Township 69 North, Range 24 West, Wayne County, Iowa.</p>
-                  </div><!-- /.ld-tprose -->
-                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
-                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
-                  <div class="ld-tside">
-                    <div class="ld-tcar" data-photos="0,1,2,3,4,5,14">
-                    <div class="ld-tcar-frame">
-                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
-                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
-                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
-                      <span class="ld-tcar-count"></span>
-                    </div>
-                  </div>
-                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
-                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
-                         which is why the casing is not uniform here. The rating system moved into
-                         the value as "(CSR2)", again his notation.
-                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
-                         nested list: they are one value with several parts, not several values,
-                         and a <ul> inside a <dd> would be announced as a list of items.
-                         DRIVING DIRECTIONS CLOSES THE LIST. Kiron enumerated five rows and it was
-                         not among them, but it is one of the eight elements and it is "remaining
-                         data", so it sits last rather than being dropped.
-                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
-                         going to dynamically have the Lat/Long for all tracts and listings"). So the
-                         coordinate in the href is placeholder DATA in a field that exists.
-                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
-                         surveyed tract centroid. Four invented coordinates would assert four precise
-                         locations nobody knows. When the real per-tract values arrive these links
-                         differentiate themselves with no change to this markup or its CSS. -->
-                    <dl class="ld-fields ld-tfacts">
-                      <dt>Total acres</dt><dd>81.06 M/L</dd>
-                      <dt>Tillable acres</dt><dd>70.23 FSA</dd>
-                      <dt>Avg. soil rating</dt><dd>36.9 (CSR2)</dd>
-                      <dt>Net taxes</dt><dd>$1,101.00</dd>
-                      <dt>Parcel Number(s)</dt>
-                      <dd>040R26100003<br />
-                          040R26300002<br />
-                          part of 040R26300001</dd>
-                      <dt>Driving directions</dt>
-                      <dd><a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Open in Google Maps<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></dd>
-                    </dl>
-                  </div><!-- /.ld-tside -->
-                </div><!-- /.ld-tgrid -->
-                <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
-                     (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
-                     pdf files".)
-                     OUTSIDE .ld-tgrid ON PURPOSE, not inside the prose column. .ld-dl is a two-column
-                     list and the prose column is the 1fr of a 1fr + 380px grid, so nested there every
-                     file name would break across lines - the same reason the tract window's .xtw-docs
-                     spans both of its columns. Full width gives each column room for the longest name.
-                     THESE ARE THE TRACT'S OWN FILES, the same URLs and the same names the page's
-                     Downloads accordion lists under this tract's heading. One set of documents, shown
-                     also in the place a reader is already looking at that tract, so the two cannot
-                     disagree.
-                     All of these are listing #19282's own attachments. -->
-                <p class="ld-dl-head">Tract 1 Downloads</p>
-                <ul class="ld-dl">
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Map.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Total-Soils.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Tillable-Soils.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Field-Map-Whole-Farm.pdf" target="_blank" rel="noopener"><span class="n">FSA Field Map, whole farm</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Field-Map-East-13.83-acres.pdf" target="_blank" rel="noopener"><span class="n">FSA Field Map, east 13.83 acres</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-2608NorthSurvey.pdf" target="_blank" rel="noopener"><span class="n">Survey</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Land-Disclosure-T1.pdf" target="_blank" rel="noopener"><span class="n">Seller&rsquo;s Land Disclosure</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Plat-Map.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
-                </ul>
-              </div>
-            </details>
-
-            <details class="ld-tract ld-acc-sub">
-              <summary>
-                <div>
-                  <h3>Tract 2</h3>
-                  <p class="ld-tract-sub">55.51 acres M/L &middot; building site, timber and recreation</p>
-                </div>
-                <span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-              </summary>
-              <div class="ld-acc-sub-body">
-                <div class="ld-tgrid">
-                  <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
-                       Both get a .ld-dl-head label, which is new: the description used to open
-                       the panel with no heading at all, and the legal was one row of a field
-                       list where a paragraph-length value sat in a 360px cell.
-                       LEGAL IS PROSE NOW, NOT A FIELD ROW. It is a sentence, and the only
-                       paragraph-length value the eight elements include - so it reads better
-                       under its own label than squeezed beside one. -->
-                  <div class="ld-tprose">
-                    <p class="ld-dl-head">Description</p>
-                    <p class="ld-copy">Tract 2 will be offered as 55.51 surveyed acres. This exceptional tract, with easy highway access, provides numerous secluded and scenic locations ideal for building your dream home or a hunting cabin. A 30&prime; x 62&prime; steel building with an attached 30&prime; x 40&prime; addition sits on the property, offering multiple options for you to store your machinery, equipment, and recreational items. The building includes a 30&prime; x 30&prime; heated workshop with a concrete floor and electric service provided by Alliant Energy. A well is already in place supplying water to the tract, and Rathbun Rural Water Association also has rural water available at County Highway S56.</p>
-                    <p class="ld-copy">This tract offers outstanding turkey and deer hunting along with endless recreational opportunities. The property features one pond, a live creek, and excellent hunting access from two sides. The timbered acres include many large, mature cottonwood, oak, and walnut trees.</p>
-                    <p class="ld-copy">Additionally, the tract contains 10.08 FSA tillable acres that are planted to beans in 2026 that carry an average CSR2 rating of 57.3 on the tillable soils. The current tenant also rents the hay acres and the two metal grain bins located on this tract.</p>
-                    <p class="ld-copy">This is a fantastic tract offering convenient pavement access, private building sites along with extensive recreational opportunities.</p>
-                    <p class="ld-dl-head">Legal</p>
-                    <!-- PLACEHOLDER, FORMAT-CORRECT ONLY. #19282 publishes no per-tract brief
-                         legal in anything available to this build; this is composed from the
-                         section this tract's own parcel numbers point at. IT IS NOT THE REAL
-                         LEGAL DESCRIPTION. The Terms section already says brief legals are not
-                         for legal documents and that full ones come from the abstract. -->
-                    <p class="ld-copy">Part of the NE1/4 of Section 35 and part of the SE1/4 of Section 26, Township 69 North, Range 24 West, Wayne County, Iowa.</p>
-                  </div><!-- /.ld-tprose -->
-                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
-                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
-                  <div class="ld-tside">
-                    <div class="ld-tcar" data-photos="6,7,8,9,10,11,15">
-                    <div class="ld-tcar-frame">
-                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
-                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
-                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
-                      <span class="ld-tcar-count"></span>
-                    </div>
-                  </div>
-                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
-                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
-                         which is why the casing is not uniform here. The rating system moved into
-                         the value as "(CSR2)", again his notation.
-                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
-                         nested list: they are one value with several parts, not several values,
-                         and a <ul> inside a <dd> would be announced as a list of items.
-                         DRIVING DIRECTIONS CLOSES THE LIST. Kiron enumerated five rows and it was
-                         not among them, but it is one of the eight elements and it is "remaining
-                         data", so it sits last rather than being dropped.
-                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
-                         going to dynamically have the Lat/Long for all tracts and listings"). So the
-                         coordinate in the href is placeholder DATA in a field that exists.
-                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
-                         surveyed tract centroid. Four invented coordinates would assert four precise
-                         locations nobody knows. When the real per-tract values arrive these links
-                         differentiate themselves with no change to this markup or its CSS. -->
-                    <dl class="ld-fields ld-tfacts">
-                      <dt>Total acres</dt><dd>55.51 M/L</dd>
-                      <dt>Tillable acres</dt><dd>10.08 FSA</dd>
-                      <dt>Avg. soil rating</dt><dd>57.3 (CSR2) on the tillable soils</dd>
-                      <dt>Net taxes</dt><dd>$767.00</dd>
-                      <dt>Parcel Number(s)</dt>
-                      <dd>040R35100002<br />
-                          040R26300004<br />
-                          part of 040R26300001</dd>
-                      <dt>Driving directions</dt>
-                      <dd><a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Open in Google Maps<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></dd>
-                    </dl>
-                  </div><!-- /.ld-tside -->
-                </div><!-- /.ld-tgrid -->
-                <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
-                     (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
-                     pdf files".)
-                     OUTSIDE .ld-tgrid ON PURPOSE, not inside the prose column. .ld-dl is a two-column
-                     list and the prose column is the 1fr of a 1fr + 380px grid, so nested there every
-                     file name would break across lines - the same reason the tract window's .xtw-docs
-                     spans both of its columns. Full width gives each column room for the longest name.
-                     THESE ARE THE TRACT'S OWN FILES, the same URLs and the same names the page's
-                     Downloads accordion lists under this tract's heading. One set of documents, shown
-                     also in the place a reader is already looking at that tract, so the two cannot
-                     disagree.
-                     All of these are listing #19282's own attachments. -->
-                <p class="ld-dl-head">Tract 2 Downloads</p>
-                <ul class="ld-dl ld-dl-odd">
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Map.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Total-Soils-Map.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Tillable-Soils-Map.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Field-Map-Whole-Farm.pdf" target="_blank" rel="noopener"><span class="n">FSA Field Map, whole farm</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-2608SouthSurvey.pdf" target="_blank" rel="noopener"><span class="n">Survey</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Land-Disclosure-T2.pdf" target="_blank" rel="noopener"><span class="n">Seller&rsquo;s Land Disclosure</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Plat.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
-                </ul>
-              </div>
-            </details>
-
-            <div class="mock-note">
-              <p class="mock-note-tag">Mock-up note &mdash; not part of the design</p>
-              <p class="mock-note-body"><b>Tracts 3 and 4 below are demonstration content.</b>
-                #19282 is a real two-tract auction; these two exist so the nested accordion reads
-                as a list rather than a pair. Their acres, productivity ratings, taxes, parcel
-                numbers and descriptions are invented, and format-correct only. They come out
-                together with the Tracts stat card, which reads 4 to match them.</p>
-            </div>
-
-            <!-- TRACTS 3 AND 4 ARE PLACEHOLDERS (Kiron, 2026-08-31: four tracts so the
-                 nested accordion reads as a list rather than a pair). #19282 is a real
-                 two-tract auction, so the acres, CSR2, taxes and parcel numbers here are
-                 made up. Format-correct on purpose, so the rows size like real ones.
-                 Two things follow from them and come out together: the Tracts count in
-                 Property Overview says 4, and the page's real #19282 figures (136.57 total
-                 acres, the derived 39.5 CSR2, the Tract 1/2 download groups, "Both tracts"
-                 in Terms) were left alone, so those do not add up to four while these exist. -->
-            <details class="ld-tract ld-acc-sub">
-              <summary>
-                <div>
-                  <h3>Tract 3</h3>
-                  <p class="ld-tract-sub">38.24 acres M/L &middot; hay ground, pasture and timber</p>
-                </div>
-                <span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-              </summary>
-              <div class="ld-acc-sub-body">
-                <div class="ld-tgrid">
-                  <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
-                       Both get a .ld-dl-head label, which is new: the description used to open
-                       the panel with no heading at all, and the legal was one row of a field
-                       list where a paragraph-length value sat in a 360px cell.
-                       LEGAL IS PROSE NOW, NOT A FIELD ROW. It is a sentence, and the only
-                       paragraph-length value the eight elements include - so it reads better
-                       under its own label than squeezed beside one. -->
-                  <div class="ld-tprose">
-                    <p class="ld-dl-head">Description</p>
-                    <p class="ld-copy">Tract 3 will be offered as 38.24 surveyed acres made up of established hay ground, fenced pasture and mature timber. The 12.50 FSA tillable acres carry an average CSR2 rating of 41.2 and have been in a hay rotation for the past several seasons. Fencing on the north and east boundaries is in serviceable condition, and a pond in the southwest corner provides livestock water.</p>
-                    <p class="ld-copy">The timbered draws on the south end of this tract connect directly to the cover on Tract 2, giving a Buyer of both tracts a continuous block of habitat. Access is from the gravel road along the north boundary.</p>
-                    <p class="ld-dl-head">Legal</p>
-                    <!-- PLACEHOLDER, FORMAT-CORRECT ONLY. #19282 publishes no per-tract brief
-                         legal in anything available to this build; this is composed from the
-                         section this tract's own parcel numbers point at. IT IS NOT THE REAL
-                         LEGAL DESCRIPTION. The Terms section already says brief legals are not
-                         for legal documents and that full ones come from the abstract. -->
-                    <p class="ld-copy">Part of the NE1/4 of Section 27, Township 69 North, Range 24 West, Wayne County, Iowa.</p>
-                  </div><!-- /.ld-tprose -->
-                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
-                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
-                  <div class="ld-tside">
-                    <div class="ld-tcar" data-photos="12,13,2,3">
-                    <div class="ld-tcar-frame">
-                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
-                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
-                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
-                      <span class="ld-tcar-count"></span>
-                    </div>
-                  </div>
-                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
-                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
-                         which is why the casing is not uniform here. The rating system moved into
-                         the value as "(CSR2)", again his notation.
-                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
-                         nested list: they are one value with several parts, not several values,
-                         and a <ul> inside a <dd> would be announced as a list of items.
-                         DRIVING DIRECTIONS CLOSES THE LIST. Kiron enumerated five rows and it was
-                         not among them, but it is one of the eight elements and it is "remaining
-                         data", so it sits last rather than being dropped.
-                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
-                         going to dynamically have the Lat/Long for all tracts and listings"). So the
-                         coordinate in the href is placeholder DATA in a field that exists.
-                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
-                         surveyed tract centroid. Four invented coordinates would assert four precise
-                         locations nobody knows. When the real per-tract values arrive these links
-                         differentiate themselves with no change to this markup or its CSS. -->
-                    <dl class="ld-fields ld-tfacts">
-                      <dt>Total acres</dt><dd>38.24 M/L</dd>
-                      <dt>Tillable acres</dt><dd>12.50 FSA</dd>
-                      <dt>Avg. soil rating</dt><dd>41.2 (CSR2)</dd>
-                      <dt>Net taxes</dt><dd>$438.00</dd>
-                      <dt>Parcel Number(s)</dt>
-                      <dd>040R27100005<br />
-                          part of 040R27100004</dd>
-                      <dt>Driving directions</dt>
-                      <dd><a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Open in Google Maps<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></dd>
-                    </dl>
-                  </div><!-- /.ld-tside -->
-                </div><!-- /.ld-tgrid -->
-                <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
-                     (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
-                     pdf files".)
-                     OUTSIDE .ld-tgrid ON PURPOSE, not inside the prose column. .ld-dl is a two-column
-                     list and the prose column is the 1fr of a 1fr + 380px grid, so nested there every
-                     file name would break across lines - the same reason the tract window's .xtw-docs
-                     spans both of its columns. Full width gives each column room for the longest name.
-                     THESE ARE THE TRACT'S OWN FILES, the same URLs and the same names the page's
-                     Downloads accordion lists under this tract's heading. One set of documents, shown
-                     also in the place a reader is already looking at that tract, so the two cannot
-                     disagree.
-                     TRACTS 3 AND 4 ARE DEMO TRACTS, so their lists BORROW real files rather than
-                     carrying their own - there are no others to point at. The 28-tract generator does
-                     the same thing for the same reason. Their lists are deliberately shorter than
-                     tracts 1 and 2's: a tract does not have to carry every document type. -->
-                <p class="ld-dl-head">Tract 3 Downloads</p>
-                <ul class="ld-dl">
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Map.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Total-Soils.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Tillable-Soils.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Plat-Map.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
-                </ul>
-              </div>
-            </details>
-
-            <details class="ld-tract ld-acc-sub">
-              <summary>
-                <div>
-                  <h3>Tract 4</h3>
-                  <p class="ld-tract-sub">62.19 acres M/L &middot; nearly all tillable row crop</p>
-                </div>
-                <span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-              </summary>
-              <div class="ld-acc-sub-body">
-                <div class="ld-tgrid">
-                  <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
-                       Both get a .ld-dl-head label, which is new: the description used to open
-                       the panel with no heading at all, and the legal was one row of a field
-                       list where a paragraph-length value sat in a 360px cell.
-                       LEGAL IS PROSE NOW, NOT A FIELD ROW. It is a sentence, and the only
-                       paragraph-length value the eight elements include - so it reads better
-                       under its own label than squeezed beside one. -->
-                  <div class="ld-tprose">
-                    <p class="ld-dl-head">Description</p>
-                    <p class="ld-copy">Tract 4 will be offered as 62.19 surveyed acres, of which 57.90 FSA acres are tillable and planted to corn in 2026. The tillable soils carry an average CSR2 rating of 48.6, the highest of the four tracts, and the field lies in one contiguous block with gentle slopes that farm efficiently in large equipment.</p>
-                    <p class="ld-copy">A terrace system installed in the early 2000s is in good repair, and tile outlets along the west boundary drain to the road ditch. This is the most productive of the four tracts and will appeal to farm operators looking to add row crop acres close to home.</p>
-                    <p class="ld-dl-head">Legal</p>
-                    <!-- PLACEHOLDER, FORMAT-CORRECT ONLY. #19282 publishes no per-tract brief
-                         legal in anything available to this build; this is composed from the
-                         section this tract's own parcel numbers point at. IT IS NOT THE REAL
-                         LEGAL DESCRIPTION. The Terms section already says brief legals are not
-                         for legal documents and that full ones come from the abstract. -->
-                    <p class="ld-copy">Part of the SE1/4 of Section 28, Township 69 North, Range 24 West, Wayne County, Iowa.</p>
-                  </div><!-- /.ld-tprose -->
-                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
-                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
-                  <div class="ld-tside">
-                    <div class="ld-tcar" data-photos="16,17,8,9">
-                    <div class="ld-tcar-frame">
-                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
-                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
-                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
-                      <span class="ld-tcar-count"></span>
-                    </div>
-                  </div>
-                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
-                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
-                         which is why the casing is not uniform here. The rating system moved into
-                         the value as "(CSR2)", again his notation.
-                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
-                         nested list: they are one value with several parts, not several values,
-                         and a <ul> inside a <dd> would be announced as a list of items.
-                         DRIVING DIRECTIONS CLOSES THE LIST. Kiron enumerated five rows and it was
-                         not among them, but it is one of the eight elements and it is "remaining
-                         data", so it sits last rather than being dropped.
-                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
-                         going to dynamically have the Lat/Long for all tracts and listings"). So the
-                         coordinate in the href is placeholder DATA in a field that exists.
-                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
-                         surveyed tract centroid. Four invented coordinates would assert four precise
-                         locations nobody knows. When the real per-tract values arrive these links
-                         differentiate themselves with no change to this markup or its CSS. -->
-                    <dl class="ld-fields ld-tfacts">
-                      <dt>Total acres</dt><dd>62.19 M/L</dd>
-                      <dt>Tillable acres</dt><dd>57.90 FSA</dd>
-                      <dt>Avg. soil rating</dt><dd>48.6 (CSR2)</dd>
-                      <dt>Net taxes</dt><dd>$1,024.00</dd>
-                      <dt>Parcel Number(s)</dt>
-                      <dd>040R28300001<br />
-                          040R28300002</dd>
-                      <dt>Driving directions</dt>
-                      <dd><a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Open in Google Maps<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></dd>
-                    </dl>
-                  </div><!-- /.ld-tside -->
-                </div><!-- /.ld-tgrid -->
-                <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
-                     (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
-                     pdf files".)
-                     OUTSIDE .ld-tgrid ON PURPOSE, not inside the prose column. .ld-dl is a two-column
-                     list and the prose column is the 1fr of a 1fr + 380px grid, so nested there every
-                     file name would break across lines - the same reason the tract window's .xtw-docs
-                     spans both of its columns. Full width gives each column room for the longest name.
-                     THESE ARE THE TRACT'S OWN FILES, the same URLs and the same names the page's
-                     Downloads accordion lists under this tract's heading. One set of documents, shown
-                     also in the place a reader is already looking at that tract, so the two cannot
-                     disagree.
-                     TRACTS 3 AND 4 ARE DEMO TRACTS, so their lists BORROW real files rather than
-                     carrying their own - there are no others to point at. The 28-tract generator does
-                     the same thing for the same reason. Their lists are deliberately shorter than
-                     tracts 1 and 2's: a tract does not have to carry every document type. -->
-                <p class="ld-dl-head">Tract 4 Downloads</p>
-                <ul class="ld-dl">
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Map.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Total-Soils-Map.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Tillable-Soils-Map.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
-                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Plat.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
-                </ul>
-              </div>
-            </details>
-  </div>
-        </details>
-
-        <!-- ===================== TRACTS, 5 OR MORE (Kiron, 2026-08-31) =====================
-             THE RULE: the tract count picks the treatment. FOUR OR FEWER, the section above -
-             one nested accordion per tract. FIVE OR MORE, this one - an index of every tract
-             on one line each, and a window per tract for the detail. A real listing renders
-             ONE of these two, never both; both are here so the pair can be compared.
-
-             WHY: at 28 tracts the nested accordion is 28 headers tall before anything is open,
-             and the section becomes the page again. An index line is a third the height, so 28
-             fit in one screen in two columns, and the detail opens over the page rather than
-             pushing everything below it down.
-
-             The list, the window and its contents are all built by the ldTracts script at the
-             bottom of this file from one array. The count in that array is the only thing that
-             decides how long this list is - see the note there for the shape of a tract record.
-
-             ⚠ PLACEHOLDER DATA. 28 tracts with Kiron's acre figures from the reference; every
-             description, legal description, tax figure and map image is made up or reused from
-             this listing's own photographs. #19282 has two tracts.
-
-             SUPERSEDED 2026-09-01 - THERE IS AN ON-PAGE NOTE AGAIN, the .mock-note above this
-             <details> and another above the accordion higher up. The earlier call, kept here as
-             the record, was: THERE IS NO ON-PAGE NOTE SAYING THIS ANY MORE (Kiron, 2026-08-31:
-             the scaffolding note comes off, the developer notes carry it), so nothing visible on
-             the page tells a reader that two Tracts sections is a review device rather than the
-             design. It does now, and this comment and DEVELOPER-NOTES.md §2 still carry it
-             too. -->
-
-
-        <details id="ld-details-many" class="reveal ld-acc">
-          <summary><h2>Tracts</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
-          <div class="ld-acc-body">
-            <p class="ld-copy">Click a tract below for individual maps and more information.</p>
-            <ul class="ld-tlist" id="ldTractList"></ul>
-            <noscript><p class="ld-copy">The tract index is built by script. Server-render one
-              line per tract, each opening that tract's detail.</p></noscript>
-          </div>
-        </details>
 
         <!-- ============ LAND DETAILS + BUILDING DETAILS (Kiron, 2026-08-31) ============
              PORTED FROM listings-details-forsale.html, where one "Details" accordion became two.
@@ -3268,21 +2860,22 @@
             <dl class="ld-fields ld-fields-prose">
               <dt>Address</dt>
               <dd>Wayne County, Iowa 52583 &mdash; between Promise City and Confidence<br />
-                <!-- ---- "GET DIRECTIONS" REPLACES THE DIRECTIONS PARAGRAPH ----
+                <!-- ---- "GET DIRECTIONS", THE TAP-AND-GO HALF OF THIS SECTION ----
                      (Kiron, 2026-09-01: "on the LOCATION section, I want to remove the Directions
                      and the text behind it. Instead, after the address text, place a Get Directions
                      and link out to a Lat/Long location on google maps".)
-                     WHAT WENT: the listing's own published directions prose, which was the second
-                     row of this list - a paragraph of turn-by-turn text that told a visitor to read
-                     rather than to tap. A maps link does the same job in one control and arrives
-                     with the visitor's current position already in it, which no written route can.
-                     ⚠ THE PUBLISHED DIRECTIONS TEXT IS NOW NOWHERE ON THIS PAGE. That is the cost,
-                     and it is worth stating: it was real listing content, and a visitor with no data
-                     signal or no maps app has nothing to fall back on. If it is ever wanted back it
-                     belongs BESIDE this link, not instead of it.
+                     IT REPLACED THE DIRECTIONS PROSE FOR ONE DAY AND NO LONGER DOES. Kiron asked
+                     for the text field back on 2026-09-02, so the published route is the labelled
+                     row directly below and the two now sit side by side - which is where the note
+                     left here at the time said the prose belonged if it ever came back.
+                     THE SPLIT OF WORK: this link is one control, arrives with the visitor's current
+                     position already in it, and hands off to their maps app - which no written
+                     route can do. The row below is what a visitor reads with no signal, no maps
+                     app, or off a printed page. Neither one covers the other.
                      IT SITS INSIDE THE ADDRESS VALUE, not as its own labelled row: it is an action
-                     ON the address, and "Get Directions" already says what it is - a "Directions:"
-                     label in front of it would be the same word twice.
+                     ON the address. That was already the reason before the Directions row returned
+                     and it is a stronger one now - a second "Directions" label, on a link, beside a
+                     field already called Directions, would be the same word twice on one screen.
                      LAT/LONG AND NOT AN ADDRESS STRING, per Kiron. The auction card's venue link is
                      built from an address instead, because a community centre has one.
                    LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
@@ -3300,6 +2893,26 @@
                      EXTERNAL, so target=_blank - it hands off to the visitor's maps app. -->
                 <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
               </dd>
+              <!-- ---- THE PUBLISHED DIRECTIONS ARE BACK, BESIDE THE LINK RATHER THAN INSTEAD
+                   OF IT (Kiron, 2026-09-02: "below Address ... add Directions and the text will
+                   just be a text field") ----
+                   They came off on 2026-09-01 when "Get Directions" replaced them, and the note
+                   left at the time said that if the prose was ever wanted back it belonged BESIDE
+                   the link, not in place of it. This is that: the link is still inside the address
+                   value above and is untouched.
+                   THE TWO ARE NOT REDUNDANT. The link is the tap-and-go path and arrives with the
+                   visitor's own position already in it; the text is what a visitor reads with no
+                   signal, no maps app, or off a printed page - and it carries what a route cannot,
+                   which is "watch for Peoples Company auction signs" and which side of the
+                   pavement the tract is on.
+                   NOT PLACEHOLDER TEXT. This is #19282's own published directions, verbatim - the
+                   same string that stood here before - so the row is sized by real copy rather
+                   than by Lorem Ipsum that would set to a different length in the live build.
+                   A PLAIN TEXT FIELD in the CMS, per Kiron: one more row of the same
+                   .ld-fields.ld-fields-prose list the address uses, so the two labels share a
+                   column and the values a left edge. Absent, not empty, when the CMS has none. -->
+              <dt>Directions</dt>
+              <dd>From Confidence, Iowa: Travel south along County Highway S56 for approximately 2 miles to the beginning of Tract 1, which is located on the east side of the pavement. Watch for Peoples Company auction signs.</dd>
             </dl>
             <!-- DIRECTIONS SITS BETWEEN THE ADDRESS AND THE MAP (Kiron, 2026-09-01: "lets move
                  the directions below the address and above the map"). It used to follow the map.
@@ -3314,50 +2927,575 @@
           </div>
         </details>
 
-        <!-- ---- THE PAGE-LEVEL DOWNLOADS SECTION IS NO LONGER A COPY OF THE TRACTS ----
-             (Kiron, 2026-09-01: "for the downloads section, I don't want to duplicate the tract
-             pdfs here, but there will be a Marketing Brochure link to a pdf.")
-             IT USED TO HOLD ALL FIFTEEN TRACT DOCUMENTS, grouped "Tract 1" and "Tract 2". That
-             grouping was the right answer while this was the ONLY place the documents appeared -
-             but on 2026-09-01 every tract detail space got its own "Tract N Downloads" block
-             carrying that tract's own files, so this section became a second copy of all of
-             them, in a different place, that could fall out of step.
-             WHAT BELONGS HERE INSTEAD: documents about the SALE or the FARM AS A WHOLE, which
-             have no tract to sit under. The Marketing Brochure is the first of those. If others
-             arrive (a bidder packet, an auction terms PDF), they join this list.
-             SO THE RULE FOR THE LIVE BUILD IS: tract-specific attachments render in the tract,
-             farm-wide attachments render here. A document must not appear in both.
-             THE ITALIC NOTE AT THE FOOT is what stops the short list reading as though documents
-             are missing - see .ld-dl-note.
-             THE TRACT GROUPING AND .ld-dl-odd ARE GONE FROM THIS SECTION and their notes with
-             them. Both live on in the tract blocks, which is where a grouped list now is:
-             .ld-dl-odd is still applied per tract wherever a count is odd (tract 2's seven
-             files), and the standing argument it came from - mark the final row in the markup
-             rather than inferring it from a count - still stands for the CMS. -->
-        <details id="ld-downloads" class="reveal ld-acc">
-          <summary><h2>Downloads</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+        <!-- PROPERTY DETAIL. One <article class="ld-tract"> here because a For Sale
+             listing is normally a single parcel. Add a second article, with its own
+             heading, photographs and download list, for a multi-tract listing —
+             nothing outside this section has to change.
+             NO STAT CHIPS HERE AT ALL (Kiron, 2026-08-25). Every figure that used to
+             sit in this section is in the Property Overview icon row: it was the same
+             numbers twice, a screen apart. This section is prose and documents. -->
+        <!-- ===================== TRACTS (field spec §3.8) =====================
+             THE ONE SECTION THAT ONLY EXISTS ON AN AUCTION, and the reason the For Sale page
+             keeps .ld-tract / .ld-tract-sub in its CSS with a note saying "a multi-tract
+             listing needs them back". This is that listing: two surveyed tracts, sold Buyer's
+             Choice, each with its own description, figures, parcels and documents.
+
+             LOADS SHUT, like every other accordion on the page (Kiron, 2026-08-31: "minimize
+             all accordions"). It was built open because field spec §3.8 says the tract accordion
+             is open by default, flagged at the time as the one section contradicting Kiron's
+             "every accordion loads shut" rule. Kiron has now decided it the other way, so §3.8's
+             default is superseded and the page has no exception left: nothing is pre-opened, at
+             either level. Do not re-add `open` to one accordion without deciding it for all of
+             them — a single pre-opened section reads as the important one.
+
+             ACCORDION INSIDE AN ACCORDION (Kiron, 2026-08-31). Each tract is its own nested
+             <details class="ld-tract ld-acc-sub">, closed on load, so this section opens to a
+             LIST of tracts and the reader expands the one they care about. Two tracts is a
+             convenience; seven would be the difference between a list and a page. Native
+             <details> nests with no JS — see the .ld-acc-sub block in the CSS for why it is a
+             separate class rather than a second .ld-acc.
+
+             REPEAT THE <details>, ADD NOTHING ELSE. Three tracts is one more <details>. The
+             per-tract download lists live under Downloads with the same grouping, so a tract's
+             documents are named twice on the page but linked once — see the note there. -->
+        <!-- ON-PAGE NOTE (Kiron, 2026-09-01), the same device as the Auction Details note in
+             the rail and the stat card note above. Two accordions both headed "Tracts", one after
+             the other, is the single most confusing thing on this page when it is read rather
+             than developed. Placed above the FIRST of the pair, outside the <details>, so it is
+             visible with both accordions closed - which is how the page loads. -->
+        <div class="mock-note">
+          <p class="mock-note-tag">Mock-up note &mdash; not part of the design</p>
+          <p class="mock-note-body"><b>One Tracts section, not two.</b> The tract count picks the
+            treatment and the real page renders whichever fits: <b>four tracts or fewer</b> use the
+            accordion immediately below, one panel per tract; <b>five or more</b> use the tract
+            index further down this page, which is otherwise the same section. Both are here so
+            the pair can be compared.</p>
+          <p class="mock-note-body">At five tracts or more the nested accordion is taller than the screen before anything is opened, so each tract becomes one index line and its detail opens in a window over the page instead of pushing everything below it down.
+</p>
+        </div>
+
+        <details id="ld-details" class="reveal ld-acc">
+          <summary><h2>Tracts</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <!-- ONE ITEM, AND NO GROUP HEADING ABOVE IT. A "General" or "Farm" label over a
-                 single row would be scaffolding for a structure that is not there; the
-                 accordion is already headed "Downloads".
-                 ⚠ PLACEHOLDER href, AND IT DOES NOT RESOLVE - deliberately (Kiron, 2026-09-01:
-                 "dont worry about the link not working, just put the placeholder").
-                 IT BRIEFLY POINTED AT A REAL FILE so the link would open during review, and
-                 that was the wrong trade: a real aerial map sitting behind a row labelled
-                 "Marketing Brochure" is a mislabelled document, and the risk of it surviving
-                 into the live build is worse than a dead link in a mockup. The href now names
-                 the file the CMS should emit, in the bucket's own naming convention, so the
-                 shape is right and the gap is obvious.
-                 CHECKED, NOT ASSUMED: this listing publishes no brochure. Every plausible key
-                 (_Brochure, _brochure, _Marketing-Brochure, _Booklet, _Flyer) returns 403 from
-                 the bucket, where the listing's real attachments return 200. -->
-            <ul class="ld-dl ld-dl-odd">
-              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_Brochure.pdf" target="_blank" rel="noopener"><span class="n">Marketing Brochure</span><span class="m">PDF</span></a></li>
-            </ul>
-            <!-- Kiron, 2026-09-01: "at the bottom of the accordion window, in italics, say
-                 something like: Refer to the individual tract details for tract-specific
-                 downloadable files". -->
-            <p class="ld-dl-note">Refer to the individual tract details for tract-specific downloadable files.</p>
+
+            <details class="ld-tract ld-acc-sub">
+              <summary>
+                <div>
+                  <h3>Tract 1</h3>
+                  <p class="ld-tract-sub">81.06 acres M/L &middot; highly tillable with recreation</p>
+                </div>
+                <span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </summary>
+              <div class="ld-acc-sub-body">
+                <div class="ld-tgrid">
+                  <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
+                       Both get a .ld-dl-head label, which is new: the description used to open
+                       the panel with no heading at all, and the legal was one row of a field
+                       list where a paragraph-length value sat in a 360px cell.
+                       LEGAL IS PROSE NOW, NOT A FIELD ROW. It is a sentence, and the only
+                       paragraph-length value the eight elements include - so it reads better
+                       under its own label than squeezed beside one. -->
+                  <div class="ld-tprose">
+                    <p class="ld-dl-head">Description</p>
+                    <p class="ld-copy">Tract 1 will be offered as 81.06 surveyed acres, which includes 70.23 FSA tillable acres that are planted to beans in 2026. The tillable soils carry an average CSR2 rating of 36.9, with over 86% of this tract currently in crop production. This highly tillable tract also has convenient highway access, making this a strong addition for farmers or agricultural investors seeking productive acres.</p>
+                    <p class="ld-copy">Beyond its agricultural strengths, the property includes a half-acre pond and also borders state owned public hunting land, offering extensive opportunities for turkey and deer hunting along with additional fishing and outdoor recreation. These features create a versatile farm that supports both income production and recreational use.</p>
+                    <p class="ld-dl-head">Legal Description</p>
+                    <!-- PLACEHOLDER, FORMAT-CORRECT ONLY. #19282 publishes no per-tract brief
+                         legal in anything available to this build; this is composed from the
+                         section this tract's own parcel numbers point at. IT IS NOT THE REAL
+                         LEGAL DESCRIPTION. The Terms section already says brief legals are not
+                         for legal documents and that full ones come from the abstract. -->
+                    <p class="ld-copy">Part of the NE1/4 and part of the SE1/4 of Section 26, Township 69 North, Range 24 West, Wayne County, Iowa.</p>
+                    <!-- ---- DIRECTIONS, THE TRACT'S THIRD PROSE BLOCK (Kiron, 2026-09-02: "add the
+                         same section to each tract") ----
+                         THE SAME FIELD THE LOCATION SECTION GAINED, one level down: a plain CMS text
+                         field, rendered as a labelled prose block rather than a facts row. It is in
+                         the LEFT column with Description and Legal Description because it is a
+                         paragraph - the 380px facts column would set it about twenty characters wide.
+                         Absent, not empty, when a tract publishes none.
+                         VERBATIM FROM THE LISTING. This is #19282's own published route, the same
+                         string the Location section carries, and it names Tract 1 by name - which is
+                         why the other three tracts could not simply repeat it. -->
+                    <p class="ld-dl-head">Directions</p>
+                    <p class="ld-copy">From Confidence, Iowa: Travel south along County Highway S56 for approximately 2 miles to the beginning of Tract 1, which is located on the east side of the pavement. Watch for Peoples Company auction signs.</p>
+                    <!-- ---- "GET DIRECTIONS" SITS UNDER THE DIRECTIONS TEXT (Kiron, 2026-09-02:
+                         "move the Get Directions over to underneath the Directions section") ----
+                         IT HAS MOVED TWICE IN ONE DAY and this is where it settles. It was the last
+                         ROW of the facts list, labelled "Driving directions"; the label came off
+                         when the wording went to "Get Directions" (a <dl> cannot hold a bare <a>,
+                         so it left the list and sat under the figures); now it leaves the facts
+                         COLUMN too and joins the text it belongs to.
+                         WHICH IS THE ARRANGEMENT THE LOCATION SECTION ALREADY HAD. There the link
+                         rides with the address prose and the two directions treatments - read it,
+                         or tap it - are one block. The tract now reads the same way: the written
+                         route, then the button that drives it. Nothing else on the page asks a
+                         reader to look in a second column for the other half of a field.
+                         THE FACTS COLUMN IS FIGURES ONLY AGAIN, which is what .ld-tfacts was for
+                         before the link was put there. -->
+                    <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+                  </div><!-- /.ld-tprose -->
+                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
+                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
+                  <div class="ld-tside">
+                    <div class="ld-tcar" data-photos="0,1,2,3,4,5,14">
+                    <div class="ld-tcar-frame">
+                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
+                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
+                      <span class="ld-tcar-count"></span>
+                    </div>
+                  </div>
+                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
+                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
+                         which is why the casing is not uniform here. The rating system moved into
+                         the value as "(CSR2)", again his notation.
+                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
+                         nested list: they are one value with several parts, not several values,
+                         and a <ul> inside a <dd> would be announced as a list of items.
+                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
+                         sixth; it is now the "Get Directions" link under the Directions text in the
+                         prose column, so this list is figures only again - see the note there.
+                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                         going to dynamically have the Lat/Long for all tracts and listings"). So the
+                         coordinate in that link’s href is placeholder DATA in a field that exists.
+                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
+                         surveyed tract centroid. Four invented coordinates would assert four precise
+                         locations nobody knows. When the real per-tract values arrive these links
+                         differentiate themselves with no change to the markup or its CSS. -->
+                    <dl class="ld-fields ld-tfacts">
+                      <dt>Total acres</dt><dd>81.06 M/L</dd>
+                      <dt>Tillable acres</dt><dd>70.23 FSA</dd>
+                      <dt>Avg. soil rating</dt><dd>36.9 (CSR2)</dd>
+                      <dt>Net taxes</dt><dd>$1,101.00</dd>
+                      <dt>Parcel Number(s)</dt>
+                      <dd>040R26100003<br />
+                          040R26300002<br />
+                          part of 040R26300001</dd>
+                    </dl>
+                  </div><!-- /.ld-tside -->
+                </div><!-- /.ld-tgrid -->
+                <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
+                     (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
+                     pdf files".)
+                     OUTSIDE .ld-tgrid ON PURPOSE, not inside the prose column. .ld-dl is a two-column
+                     list and the prose column is the 1fr of a 1fr + 380px grid, so nested there every
+                     file name would break across lines - the same reason the tract window's .xtw-docs
+                     spans both of its columns. Full width gives each column room for the longest name.
+                     THESE ARE THE TRACT'S OWN FILES, the same URLs and the same names the page's
+                     Downloads accordion lists under this tract's heading. One set of documents, shown
+                     also in the place a reader is already looking at that tract, so the two cannot
+                     disagree.
+                     All of these are listing #19282's own attachments. -->
+                <p class="ld-dl-head">Tract 1 Downloads</p>
+                <ul class="ld-dl">
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Map.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Total-Soils.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Tillable-Soils.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Field-Map-Whole-Farm.pdf" target="_blank" rel="noopener"><span class="n">FSA Field Map, whole farm</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Field-Map-East-13.83-acres.pdf" target="_blank" rel="noopener"><span class="n">FSA Field Map, east 13.83 acres</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-2608NorthSurvey.pdf" target="_blank" rel="noopener"><span class="n">Survey</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Land-Disclosure-T1.pdf" target="_blank" rel="noopener"><span class="n">Seller&rsquo;s Land Disclosure</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Plat-Map.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
+                </ul>
+              </div>
+            </details>
+
+            <details class="ld-tract ld-acc-sub">
+              <summary>
+                <div>
+                  <h3>Tract 2</h3>
+                  <p class="ld-tract-sub">55.51 acres M/L &middot; building site, timber and recreation</p>
+                </div>
+                <span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </summary>
+              <div class="ld-acc-sub-body">
+                <div class="ld-tgrid">
+                  <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
+                       Both get a .ld-dl-head label, which is new: the description used to open
+                       the panel with no heading at all, and the legal was one row of a field
+                       list where a paragraph-length value sat in a 360px cell.
+                       LEGAL IS PROSE NOW, NOT A FIELD ROW. It is a sentence, and the only
+                       paragraph-length value the eight elements include - so it reads better
+                       under its own label than squeezed beside one. -->
+                  <div class="ld-tprose">
+                    <p class="ld-dl-head">Description</p>
+                    <p class="ld-copy">Tract 2 will be offered as 55.51 surveyed acres. This exceptional tract, with easy highway access, provides numerous secluded and scenic locations ideal for building your dream home or a hunting cabin. A 30&prime; x 62&prime; steel building with an attached 30&prime; x 40&prime; addition sits on the property, offering multiple options for you to store your machinery, equipment, and recreational items. The building includes a 30&prime; x 30&prime; heated workshop with a concrete floor and electric service provided by Alliant Energy. A well is already in place supplying water to the tract, and Rathbun Rural Water Association also has rural water available at County Highway S56.</p>
+                    <p class="ld-copy">This tract offers outstanding turkey and deer hunting along with endless recreational opportunities. The property features one pond, a live creek, and excellent hunting access from two sides. The timbered acres include many large, mature cottonwood, oak, and walnut trees.</p>
+                    <p class="ld-copy">Additionally, the tract contains 10.08 FSA tillable acres that are planted to beans in 2026 that carry an average CSR2 rating of 57.3 on the tillable soils. The current tenant also rents the hay acres and the two metal grain bins located on this tract.</p>
+                    <p class="ld-copy">This is a fantastic tract offering convenient pavement access, private building sites along with extensive recreational opportunities.</p>
+                    <p class="ld-dl-head">Legal Description</p>
+                    <!-- PLACEHOLDER, FORMAT-CORRECT ONLY. #19282 publishes no per-tract brief
+                         legal in anything available to this build; this is composed from the
+                         section this tract's own parcel numbers point at. IT IS NOT THE REAL
+                         LEGAL DESCRIPTION. The Terms section already says brief legals are not
+                         for legal documents and that full ones come from the abstract. -->
+                    <p class="ld-copy">Part of the NE1/4 of Section 35 and part of the SE1/4 of Section 26, Township 69 North, Range 24 West, Wayne County, Iowa.</p>
+                    <!-- ---- DIRECTIONS (Kiron, 2026-09-02: "add the same section to each tract") ----
+                         Same field and same treatment as Tract 1's block above - see the note there
+                         for why it is a prose block in this column rather than a facts row.
+                         &#9888; THIS ROUTE IS INVENTED, and it is the only invented content in a
+                         REAL tract. #19282 publishes ONE directions paragraph and it names Tract 1;
+                         nothing was published for the others. It is written in the listing's own
+                         voice and is format-correct - a town, a road, a distance, a side of the
+                         pavement, the auction-sign line - so the block is sized by copy the length a
+                         real one runs. IT IS NOT A ROUTE ANYONE SHOULD DRIVE. Replace it with the
+                         tract's own CMS value; do not let it reach a live page. -->
+                    <p class="ld-dl-head">Directions</p>
+                    <p class="ld-copy">From Confidence, Iowa: Travel south along County Highway S56 for approximately 3 miles. Tract 2 begins at the south line of Tract 1 and lies on the east side of the pavement. Watch for Peoples Company auction signs.</p>
+                    <!-- ---- "GET DIRECTIONS" SITS UNDER THE DIRECTIONS TEXT (Kiron, 2026-09-02:
+                         "move the Get Directions over to underneath the Directions section") ----
+                         IT HAS MOVED TWICE IN ONE DAY and this is where it settles. It was the last
+                         ROW of the facts list, labelled "Driving directions"; the label came off
+                         when the wording went to "Get Directions" (a <dl> cannot hold a bare <a>,
+                         so it left the list and sat under the figures); now it leaves the facts
+                         COLUMN too and joins the text it belongs to.
+                         WHICH IS THE ARRANGEMENT THE LOCATION SECTION ALREADY HAD. There the link
+                         rides with the address prose and the two directions treatments - read it,
+                         or tap it - are one block. The tract now reads the same way: the written
+                         route, then the button that drives it. Nothing else on the page asks a
+                         reader to look in a second column for the other half of a field.
+                         THE FACTS COLUMN IS FIGURES ONLY AGAIN, which is what .ld-tfacts was for
+                         before the link was put there. -->
+                    <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+                  </div><!-- /.ld-tprose -->
+                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
+                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
+                  <div class="ld-tside">
+                    <div class="ld-tcar" data-photos="6,7,8,9,10,11,15">
+                    <div class="ld-tcar-frame">
+                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
+                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
+                      <span class="ld-tcar-count"></span>
+                    </div>
+                  </div>
+                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
+                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
+                         which is why the casing is not uniform here. The rating system moved into
+                         the value as "(CSR2)", again his notation.
+                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
+                         nested list: they are one value with several parts, not several values,
+                         and a <ul> inside a <dd> would be announced as a list of items.
+                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
+                         sixth; it is now the "Get Directions" link under the Directions text in the
+                         prose column, so this list is figures only again - see the note there.
+                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                         going to dynamically have the Lat/Long for all tracts and listings"). So the
+                         coordinate in that link’s href is placeholder DATA in a field that exists.
+                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
+                         surveyed tract centroid. Four invented coordinates would assert four precise
+                         locations nobody knows. When the real per-tract values arrive these links
+                         differentiate themselves with no change to the markup or its CSS. -->
+                    <dl class="ld-fields ld-tfacts">
+                      <dt>Total acres</dt><dd>55.51 M/L</dd>
+                      <dt>Tillable acres</dt><dd>10.08 FSA</dd>
+                      <dt>Avg. soil rating</dt><dd>57.3 (CSR2) on the tillable soils</dd>
+                      <dt>Net taxes</dt><dd>$767.00</dd>
+                      <dt>Parcel Number(s)</dt>
+                      <dd>040R35100002<br />
+                          040R26300004<br />
+                          part of 040R26300001</dd>
+                    </dl>
+                  </div><!-- /.ld-tside -->
+                </div><!-- /.ld-tgrid -->
+                <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
+                     (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
+                     pdf files".)
+                     OUTSIDE .ld-tgrid ON PURPOSE, not inside the prose column. .ld-dl is a two-column
+                     list and the prose column is the 1fr of a 1fr + 380px grid, so nested there every
+                     file name would break across lines - the same reason the tract window's .xtw-docs
+                     spans both of its columns. Full width gives each column room for the longest name.
+                     THESE ARE THE TRACT'S OWN FILES, the same URLs and the same names the page's
+                     Downloads accordion lists under this tract's heading. One set of documents, shown
+                     also in the place a reader is already looking at that tract, so the two cannot
+                     disagree.
+                     All of these are listing #19282's own attachments. -->
+                <p class="ld-dl-head">Tract 2 Downloads</p>
+                <ul class="ld-dl ld-dl-odd">
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Map.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Total-Soils-Map.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Tillable-Soils-Map.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Field-Map-Whole-Farm.pdf" target="_blank" rel="noopener"><span class="n">FSA Field Map, whole farm</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-2608SouthSurvey.pdf" target="_blank" rel="noopener"><span class="n">Survey</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Land-Disclosure-T2.pdf" target="_blank" rel="noopener"><span class="n">Seller&rsquo;s Land Disclosure</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Plat.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
+                </ul>
+              </div>
+            </details>
+
+            <!-- TRACTS 3 AND 4 ARE PLACEHOLDERS (Kiron, 2026-08-31: four tracts so the
+                 nested accordion reads as a list rather than a pair). #19282 is a real
+                 two-tract auction, so the acres, CSR2, taxes and parcel numbers here are
+                 made up. Format-correct on purpose, so the rows size like real ones.
+                 Two things follow from them and come out together: the Tracts count in
+                 Property Overview says 4, and the page's real #19282 figures (136.57 total
+                 acres, the derived 39.5 CSR2, the Tract 1/2 download groups, "Both tracts"
+                 in Terms) were left alone, so those do not add up to four while these exist. -->
+            <details class="ld-tract ld-acc-sub">
+              <summary>
+                <div>
+                  <h3>Tract 3</h3>
+                  <p class="ld-tract-sub">38.24 acres M/L &middot; hay ground, pasture and timber</p>
+                </div>
+                <span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </summary>
+              <div class="ld-acc-sub-body">
+                <div class="ld-tgrid">
+                  <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
+                       Both get a .ld-dl-head label, which is new: the description used to open
+                       the panel with no heading at all, and the legal was one row of a field
+                       list where a paragraph-length value sat in a 360px cell.
+                       LEGAL IS PROSE NOW, NOT A FIELD ROW. It is a sentence, and the only
+                       paragraph-length value the eight elements include - so it reads better
+                       under its own label than squeezed beside one. -->
+                  <div class="ld-tprose">
+                    <p class="ld-dl-head">Description</p>
+                    <p class="ld-copy">Tract 3 will be offered as 38.24 surveyed acres made up of established hay ground, fenced pasture and mature timber. The 12.50 FSA tillable acres carry an average CSR2 rating of 41.2 and have been in a hay rotation for the past several seasons. Fencing on the north and east boundaries is in serviceable condition, and a pond in the southwest corner provides livestock water.</p>
+                    <p class="ld-copy">The timbered draws on the south end of this tract connect directly to the cover on Tract 2, giving a Buyer of both tracts a continuous block of habitat. Access is from the gravel road along the north boundary.</p>
+                    <p class="ld-dl-head">Legal Description</p>
+                    <!-- PLACEHOLDER, FORMAT-CORRECT ONLY. #19282 publishes no per-tract brief
+                         legal in anything available to this build; this is composed from the
+                         section this tract's own parcel numbers point at. IT IS NOT THE REAL
+                         LEGAL DESCRIPTION. The Terms section already says brief legals are not
+                         for legal documents and that full ones come from the abstract. -->
+                    <p class="ld-copy">Part of the NE1/4 of Section 27, Township 69 North, Range 24 West, Wayne County, Iowa.</p>
+                    <!-- ---- DIRECTIONS (Kiron, 2026-09-02: "add the same section to each tract") ----
+                         Same field and same treatment as Tract 1's block above.
+                         INVENTED, like everything else in this tract - see the placeholder note at
+                         the top of Tracts 3 and 4. Format-correct only. -->
+                    <p class="ld-dl-head">Directions</p>
+                    <p class="ld-copy">From Promise City, Iowa: Travel east along 260th Avenue for approximately 4 miles to the corner of Tract 3, which lies on the north side of the gravel. Watch for Peoples Company auction signs.</p>
+                    <!-- ---- "GET DIRECTIONS" SITS UNDER THE DIRECTIONS TEXT (Kiron, 2026-09-02:
+                         "move the Get Directions over to underneath the Directions section") ----
+                         IT HAS MOVED TWICE IN ONE DAY and this is where it settles. It was the last
+                         ROW of the facts list, labelled "Driving directions"; the label came off
+                         when the wording went to "Get Directions" (a <dl> cannot hold a bare <a>,
+                         so it left the list and sat under the figures); now it leaves the facts
+                         COLUMN too and joins the text it belongs to.
+                         WHICH IS THE ARRANGEMENT THE LOCATION SECTION ALREADY HAD. There the link
+                         rides with the address prose and the two directions treatments - read it,
+                         or tap it - are one block. The tract now reads the same way: the written
+                         route, then the button that drives it. Nothing else on the page asks a
+                         reader to look in a second column for the other half of a field.
+                         THE FACTS COLUMN IS FIGURES ONLY AGAIN, which is what .ld-tfacts was for
+                         before the link was put there. -->
+                    <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+                  </div><!-- /.ld-tprose -->
+                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
+                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
+                  <div class="ld-tside">
+                    <div class="ld-tcar" data-photos="12,13,2,3">
+                    <div class="ld-tcar-frame">
+                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
+                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
+                      <span class="ld-tcar-count"></span>
+                    </div>
+                  </div>
+                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
+                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
+                         which is why the casing is not uniform here. The rating system moved into
+                         the value as "(CSR2)", again his notation.
+                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
+                         nested list: they are one value with several parts, not several values,
+                         and a <ul> inside a <dd> would be announced as a list of items.
+                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
+                         sixth; it is now the "Get Directions" link under the Directions text in the
+                         prose column, so this list is figures only again - see the note there.
+                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                         going to dynamically have the Lat/Long for all tracts and listings"). So the
+                         coordinate in that link’s href is placeholder DATA in a field that exists.
+                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
+                         surveyed tract centroid. Four invented coordinates would assert four precise
+                         locations nobody knows. When the real per-tract values arrive these links
+                         differentiate themselves with no change to the markup or its CSS. -->
+                    <dl class="ld-fields ld-tfacts">
+                      <dt>Total acres</dt><dd>38.24 M/L</dd>
+                      <dt>Tillable acres</dt><dd>12.50 FSA</dd>
+                      <dt>Avg. soil rating</dt><dd>41.2 (CSR2)</dd>
+                      <dt>Net taxes</dt><dd>$438.00</dd>
+                      <dt>Parcel Number(s)</dt>
+                      <dd>040R27100005<br />
+                          part of 040R27100004</dd>
+                    </dl>
+                  </div><!-- /.ld-tside -->
+                </div><!-- /.ld-tgrid -->
+                <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
+                     (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
+                     pdf files".)
+                     OUTSIDE .ld-tgrid ON PURPOSE, not inside the prose column. .ld-dl is a two-column
+                     list and the prose column is the 1fr of a 1fr + 380px grid, so nested there every
+                     file name would break across lines - the same reason the tract window's .xtw-docs
+                     spans both of its columns. Full width gives each column room for the longest name.
+                     THESE ARE THE TRACT'S OWN FILES, the same URLs and the same names the page's
+                     Downloads accordion lists under this tract's heading. One set of documents, shown
+                     also in the place a reader is already looking at that tract, so the two cannot
+                     disagree.
+                     TRACTS 3 AND 4 ARE DEMO TRACTS, so their lists BORROW real files rather than
+                     carrying their own - there are no others to point at. The 28-tract generator does
+                     the same thing for the same reason. Their lists are deliberately shorter than
+                     tracts 1 and 2's: a tract does not have to carry every document type. -->
+                <p class="ld-dl-head">Tract 3 Downloads</p>
+                <ul class="ld-dl">
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Map.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Total-Soils.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-FSA-Tillable-Soils.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_1-Plat-Map.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
+                </ul>
+              </div>
+            </details>
+
+            <details class="ld-tract ld-acc-sub">
+              <summary>
+                <div>
+                  <h3>Tract 4</h3>
+                  <p class="ld-tract-sub">62.19 acres M/L &middot; nearly all tillable row crop</p>
+                </div>
+                <span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </summary>
+              <div class="ld-acc-sub-body">
+                <div class="ld-tgrid">
+                  <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
+                       Both get a .ld-dl-head label, which is new: the description used to open
+                       the panel with no heading at all, and the legal was one row of a field
+                       list where a paragraph-length value sat in a 360px cell.
+                       LEGAL IS PROSE NOW, NOT A FIELD ROW. It is a sentence, and the only
+                       paragraph-length value the eight elements include - so it reads better
+                       under its own label than squeezed beside one. -->
+                  <div class="ld-tprose">
+                    <p class="ld-dl-head">Description</p>
+                    <p class="ld-copy">Tract 4 will be offered as 62.19 surveyed acres, of which 57.90 FSA acres are tillable and planted to corn in 2026. The tillable soils carry an average CSR2 rating of 48.6, the highest of the four tracts, and the field lies in one contiguous block with gentle slopes that farm efficiently in large equipment.</p>
+                    <p class="ld-copy">A terrace system installed in the early 2000s is in good repair, and tile outlets along the west boundary drain to the road ditch. This is the most productive of the four tracts and will appeal to farm operators looking to add row crop acres close to home.</p>
+                    <p class="ld-dl-head">Legal Description</p>
+                    <!-- PLACEHOLDER, FORMAT-CORRECT ONLY. #19282 publishes no per-tract brief
+                         legal in anything available to this build; this is composed from the
+                         section this tract's own parcel numbers point at. IT IS NOT THE REAL
+                         LEGAL DESCRIPTION. The Terms section already says brief legals are not
+                         for legal documents and that full ones come from the abstract. -->
+                    <p class="ld-copy">Part of the SE1/4 of Section 28, Township 69 North, Range 24 West, Wayne County, Iowa.</p>
+                    <!-- ---- DIRECTIONS (Kiron, 2026-09-02: "add the same section to each tract") ----
+                         Same field and same treatment as Tract 1's block above.
+                         INVENTED, like everything else in this tract - see the placeholder note at
+                         the top of Tracts 3 and 4. Format-correct only. -->
+                    <p class="ld-dl-head">Directions</p>
+                    <p class="ld-copy">From Promise City, Iowa: Travel east along 260th Avenue for approximately 5 miles, then north along Fillmore Street for 1 mile. Tract 4 lies on the west side of the gravel. Watch for Peoples Company auction signs.</p>
+                    <!-- ---- "GET DIRECTIONS" SITS UNDER THE DIRECTIONS TEXT (Kiron, 2026-09-02:
+                         "move the Get Directions over to underneath the Directions section") ----
+                         IT HAS MOVED TWICE IN ONE DAY and this is where it settles. It was the last
+                         ROW of the facts list, labelled "Driving directions"; the label came off
+                         when the wording went to "Get Directions" (a <dl> cannot hold a bare <a>,
+                         so it left the list and sat under the figures); now it leaves the facts
+                         COLUMN too and joins the text it belongs to.
+                         WHICH IS THE ARRANGEMENT THE LOCATION SECTION ALREADY HAD. There the link
+                         rides with the address prose and the two directions treatments - read it,
+                         or tap it - are one block. The tract now reads the same way: the written
+                         route, then the button that drives it. Nothing else on the page asks a
+                         reader to look in a second column for the other half of a field.
+                         THE FACTS COLUMN IS FIGURES ONLY AGAIN, which is what .ld-tfacts was for
+                         before the link was put there. -->
+                    <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+                  </div><!-- /.ld-tprose -->
+                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
+                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
+                  <div class="ld-tside">
+                    <div class="ld-tcar" data-photos="16,17,8,9">
+                    <div class="ld-tcar-frame">
+                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
+                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
+                      <span class="ld-tcar-count"></span>
+                    </div>
+                  </div>
+                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
+                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
+                         which is why the casing is not uniform here. The rating system moved into
+                         the value as "(CSR2)", again his notation.
+                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
+                         nested list: they are one value with several parts, not several values,
+                         and a <ul> inside a <dd> would be announced as a list of items.
+                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
+                         sixth; it is now the "Get Directions" link under the Directions text in the
+                         prose column, so this list is figures only again - see the note there.
+                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                         going to dynamically have the Lat/Long for all tracts and listings"). So the
+                         coordinate in that link’s href is placeholder DATA in a field that exists.
+                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
+                         surveyed tract centroid. Four invented coordinates would assert four precise
+                         locations nobody knows. When the real per-tract values arrive these links
+                         differentiate themselves with no change to the markup or its CSS. -->
+                    <dl class="ld-fields ld-tfacts">
+                      <dt>Total acres</dt><dd>62.19 M/L</dd>
+                      <dt>Tillable acres</dt><dd>57.90 FSA</dd>
+                      <dt>Avg. soil rating</dt><dd>48.6 (CSR2)</dd>
+                      <dt>Net taxes</dt><dd>$1,024.00</dd>
+                      <dt>Parcel Number(s)</dt>
+                      <dd>040R28300001<br />
+                          040R28300002</dd>
+                    </dl>
+                  </div><!-- /.ld-tside -->
+                </div><!-- /.ld-tgrid -->
+                <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
+                     (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
+                     pdf files".)
+                     OUTSIDE .ld-tgrid ON PURPOSE, not inside the prose column. .ld-dl is a two-column
+                     list and the prose column is the 1fr of a 1fr + 380px grid, so nested there every
+                     file name would break across lines - the same reason the tract window's .xtw-docs
+                     spans both of its columns. Full width gives each column room for the longest name.
+                     THESE ARE THE TRACT'S OWN FILES, the same URLs and the same names the page's
+                     Downloads accordion lists under this tract's heading. One set of documents, shown
+                     also in the place a reader is already looking at that tract, so the two cannot
+                     disagree.
+                     TRACTS 3 AND 4 ARE DEMO TRACTS, so their lists BORROW real files rather than
+                     carrying their own - there are no others to point at. The 28-tract generator does
+                     the same thing for the same reason. Their lists are deliberately shorter than
+                     tracts 1 and 2's: a tract does not have to carry every document type. -->
+                <p class="ld-dl-head">Tract 4 Downloads</p>
+                <ul class="ld-dl">
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Map.pdf" target="_blank" rel="noopener"><span class="n">FSA Aerial Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Total-Soils-Map.pdf" target="_blank" rel="noopener"><span class="n">Total Soils Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-FSA-Tillable-Soils-Map.pdf" target="_blank" rel="noopener"><span class="n">Tillable Soils Map</span><span class="m">PDF</span></a></li>
+                  <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_2-Plat.pdf" target="_blank" rel="noopener"><span class="n">Plat Map</span><span class="m">PDF</span></a></li>
+                </ul>
+              </div>
+            </details>
+  </div>
+        </details>
+
+        <!-- ===================== TRACTS, 5 OR MORE (Kiron, 2026-08-31) =====================
+             THE RULE: the tract count picks the treatment. FOUR OR FEWER, the section above -
+             one nested accordion per tract. FIVE OR MORE, this one - an index of every tract
+             on one line each, and a window per tract for the detail. A real listing renders
+             ONE of these two, never both; both are here so the pair can be compared.
+
+             WHY: at 28 tracts the nested accordion is 28 headers tall before anything is open,
+             and the section becomes the page again. An index line is a third the height, so 28
+             fit in one screen in two columns, and the detail opens over the page rather than
+             pushing everything below it down.
+
+             The list, the window and its contents are all built by the ldTracts script at the
+             bottom of this file from one array. The count in that array is the only thing that
+             decides how long this list is - see the note there for the shape of a tract record.
+
+             ⚠ PLACEHOLDER DATA. 28 tracts with Kiron's acre figures from the reference; every
+             description, legal description, tax figure and map image is made up or reused from
+             this listing's own photographs. #19282 has two tracts.
+
+             SUPERSEDED 2026-09-01 - THERE IS AN ON-PAGE NOTE AGAIN, the .mock-note above this
+             <details> and another above the accordion higher up. The earlier call, kept here as
+             the record, was: THERE IS NO ON-PAGE NOTE SAYING THIS ANY MORE (Kiron, 2026-08-31:
+             the scaffolding note comes off, the developer notes carry it), so nothing visible on
+             the page tells a reader that two Tracts sections is a review device rather than the
+             design. It does now, and this comment and DEVELOPER-NOTES.md §2 still carry it
+             too. -->
+
+
+        <details id="ld-details-many" class="reveal ld-acc">
+          <summary><h2>Tracts</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <p class="ld-copy">Click a tract below for individual maps and more information.</p>
+            <ul class="ld-tlist" id="ldTractList"></ul>
+            <noscript><p class="ld-copy">The tract index is built by script. Server-render one
+              line per tract, each opening that tract's detail.</p></noscript>
           </div>
         </details>
 
@@ -3459,6 +3597,53 @@
             <p class="ld-copy"><b>Other:</b> This sale is subject to all easements, covenants, leases, and restrictions of record. All property is being sold on an &ldquo;As is &ndash; Where is&rdquo; basis with no warranties or guarantees, expressed or implied, made by the Auctioneer, Peoples Company, or the Seller. Peoples Company and its representatives are agents of the Seller. The winning bidder acknowledges that they are representing themselves in completing the auction sales transaction. Any announcements made on auction day by the Auctioneer or Listing Agents will take precedence over all previous marketing material or oral statements. Bidding increments are at the sole discretion of the Auctioneer. No absentee or phone bids will be accepted at the auction without prior approval of the Auctioneer. The Seller reserves the right to accept or reject any or all bids. All decisions of the Auctioneer are final.</p>
             <p class="ld-copy"><b>Disclaimer:</b> All field boundaries are presumed to be accurate according to the best available information and knowledge of the Seller and Peoples Company. Overall tract acres, tillable acres, etc. may vary from figures stated within the marketing material. Buyer should perform his/her investigation of the property before bidding at the auction. The brief legal descriptions in the marketing material should not be used in legal documents. Full legal descriptions will be taken from the abstract.</p>
             <p class="ld-copy"><b>Closing conducted by:</b> Jenna K. Lain, Attorney at Law &middot; Meyer &amp; Lain &middot; 214 S. Franklin, Corydon, Iowa 50060.</p>
+          </div>
+        </details>
+
+        <!-- ---- THE PAGE-LEVEL DOWNLOADS SECTION IS NO LONGER A COPY OF THE TRACTS ----
+             (Kiron, 2026-09-01: "for the downloads section, I don't want to duplicate the tract
+             pdfs here, but there will be a Marketing Brochure link to a pdf.")
+             IT USED TO HOLD ALL FIFTEEN TRACT DOCUMENTS, grouped "Tract 1" and "Tract 2". That
+             grouping was the right answer while this was the ONLY place the documents appeared -
+             but on 2026-09-01 every tract detail space got its own "Tract N Downloads" block
+             carrying that tract's own files, so this section became a second copy of all of
+             them, in a different place, that could fall out of step.
+             WHAT BELONGS HERE INSTEAD: documents about the SALE or the FARM AS A WHOLE, which
+             have no tract to sit under. The Marketing Brochure is the first of those. If others
+             arrive (a bidder packet, an auction terms PDF), they join this list.
+             SO THE RULE FOR THE LIVE BUILD IS: tract-specific attachments render in the tract,
+             farm-wide attachments render here. A document must not appear in both.
+             THE ITALIC NOTE AT THE FOOT is what stops the short list reading as though documents
+             are missing - see .ld-dl-note.
+             THE TRACT GROUPING AND .ld-dl-odd ARE GONE FROM THIS SECTION and their notes with
+             them. Both live on in the tract blocks, which is where a grouped list now is:
+             .ld-dl-odd is still applied per tract wherever a count is odd (tract 2's seven
+             files), and the standing argument it came from - mark the final row in the markup
+             rather than inferring it from a count - still stands for the CMS. -->
+        <details id="ld-downloads" class="reveal ld-acc">
+          <summary><h2>Downloads</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <!-- ONE ITEM, AND NO GROUP HEADING ABOVE IT. A "General" or "Farm" label over a
+                 single row would be scaffolding for a structure that is not there; the
+                 accordion is already headed "Downloads".
+                 ⚠ PLACEHOLDER href, AND IT DOES NOT RESOLVE - deliberately (Kiron, 2026-09-01:
+                 "dont worry about the link not working, just put the placeholder").
+                 IT BRIEFLY POINTED AT A REAL FILE so the link would open during review, and
+                 that was the wrong trade: a real aerial map sitting behind a row labelled
+                 "Marketing Brochure" is a mislabelled document, and the risk of it surviving
+                 into the live build is worse than a dead link in a mockup. The href now names
+                 the file the CMS should emit, in the bucket's own naming convention, so the
+                 shape is right and the gap is obvious.
+                 CHECKED, NOT ASSUMED: this listing publishes no brochure. Every plausible key
+                 (_Brochure, _brochure, _Marketing-Brochure, _Booklet, _Flyer) returns 403 from
+                 the bucket, where the listing's real attachments return 200. -->
+            <ul class="ld-dl ld-dl-odd">
+              <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/tracts/attachments/19282_Brochure.pdf" target="_blank" rel="noopener"><span class="n">Marketing Brochure</span><span class="m">PDF</span></a></li>
+            </ul>
+            <!-- Kiron, 2026-09-01: "at the bottom of the accordion window, in italics, say
+                 something like: Refer to the individual tract details for tract-specific
+                 downloadable files". -->
+            <p class="ld-dl-note">Refer to the individual tract details for tract-specific downloadable files.</p>
           </div>
         </details>
       </div>
@@ -3805,21 +3990,29 @@
                    a bidder writing a figure on a form has to know whether it is per acre or for
                    the tract, and this card is the one place a sealed-bid bidder is most likely
                    to read alone. It is in the Terms clause, and it is NOT in the "How to submit
-                   a bid" block below either - that block now says to contact the agent, which is
-                   in fact where a bidder gets told the basis of the bid. That is the answer to
-                   this warning rather than a dodge of it: there is no bid form to print the unit
-                   on, so the agent is the only place it can be confirmed. -->
+                   a bid" block below either - that block sends the bidder to the agent for the
+                   bid form itself.
+                   WHICH IS A BETTER ANSWER THAN IT WAS (2026-09-02). The argument here used to
+                   be that no form existed, so the agent was the only place the unit could be
+                   confirmed. There IS a form now - unpublished, handed out by the agent - and a
+                   bid form states its own unit of sale, so the bidder meets the basis of the bid
+                   on the document they write the figure on. That is where it belongs. -->
               <dd>Buyer&rsquo;s Choice</dd>
             </div>
           </dl>
 
           <!-- WHERE THE BID BUTTON IS ON THE OTHER TWO CARDS, and it is a button again.
-               THE TBA IS ANSWERED (Kiron, 2026-09-01): "there really is nothing more than
-               contacting the agent to get the process started. Isn't any form or process."
-               So the earlier warning on this block - expect a delivery address, a deposit, a bid
-               form to download - was wrong about what was coming. There is no submission
-               mechanism to document, and that absence is the instruction: a sealed bid here
-               starts with a phone call, not a download.
+               THE TBA IS ANSWERED, THEN HALF-UNANSWERED. Kiron, 2026-09-01: "there really is
+               nothing more than contacting the agent to get the process started. Isn't any form
+               or process." Kiron, 2026-09-02: contact the agent "for a copy of the sealed bid
+               form". SO A FORM EXISTS AND IS NOT PUBLISHED - which lands between the two
+               readings and is why the sentence below was rewritten rather than restored to the
+               original warning. What is still true is that there is no self-service path: no
+               platform, no download, nothing on this page a bidder can complete alone.
+               WHAT IS STILL NOT DOCUMENTED, because nobody has said: where a completed form goes
+               back to, whether a deposit rides with it, and the deadline for its return against
+               the 2:00 PM CT bids-due time above. Those are the questions the form itself will
+               answer; they are listed here so the gap is known rather than assumed closed.
                WHICH MAKES THIS AN ACTION AFTER ALL, so the card is no longer the odd one out
                with nothing clickable in it. It takes .ld-ac-bid, the same button the live and
                online-only cards use in this exact position - the sealed-bid bidder's next step
@@ -3844,7 +4037,23 @@
                seen the other two auction types is looking for the bidding platform; telling them
                there is no form and no platform is the part that stops them hunting for one. -->
           <p class="ld-ac-sublabel">How to submit a bid</p>
-          <p class="ld-ac-howto">There is no online bidding platform and no bid form to download. Email the listing agent to start the process.</p>
+          <!-- ---- THERE IS A BID FORM AFTER ALL (Kiron, 2026-09-02: "change the text above the
+               CTA to ‘Please contact listing agent for a copy of the sealed bid form’") ----
+               THIS REVERSES THE 2026-09-01 CALL, which was "there really is nothing more than
+               contacting the agent to get the process started. Isn’t any form or process." The
+               sentence here said so in as many words: no platform, no form to download. There IS
+               a form; it is simply not published, and the agent hands it out.
+               THE BUTTON DOES NOT CHANGE, and that is the point of the correction being one
+               line. "Email Agent" was already the right action when the agent was the whole
+               process, and it is still the right action now that the agent is the source of a
+               document - a sealed-bid bidder’s next step is the same email either way. What
+               changed is what they should expect to receive.
+               ⚠ TWO OTHER NOTES ON THIS CARD RESTED ON "there is no form": the Method note
+               above, which argued the unit of sale could only be confirmed by the agent because
+               there was no form to print it on, and the block note below the fields. Both are
+               corrected. If the form is ever published as a PDF this line and the button both
+               want revisiting - a downloadable form belongs in Downloads, not in a mailto. -->
+          <p class="ld-ac-howto">Please contact listing agent for a copy of the sealed bid form.</p>
           <!-- NO .ld-ac-note UNDER THE BUTTON (Kiron, 2026-09-01). It read "Full terms are in
                the Terms section." and is gone from THIS card only - the live and online-only
                cards keep theirs, because on those it carries real bidding conditions alongside
@@ -4213,15 +4422,6 @@
         <button class="xtw-x" type="button" aria-label="Close">&#10005;</button>
       </div>
       <div class="xtw-body">
-        <div class="xtw-media">
-          <div class="xtw-frame">
-            <img class="xtw-img" alt="" />
-            <span class="xtw-chip"></span>
-            <button class="xtw-prev" type="button" aria-label="Previous map">&#8249;</button>
-            <button class="xtw-next" type="button" aria-label="Next map">&#8250;</button>
-            <span class="xtw-count"></span>
-          </div>
-        </div>
         <!-- ---- THE SAME EIGHT ELEMENTS AS THE PER-TRACT ACCORDIONS ----
              (Kiron, 2026-09-01: "these are the elements that must be in all tract details
              spaces".) This window IS a tract details space - it is what the 5-or-more index
@@ -4231,10 +4431,14 @@
              and "Estimated annual taxes" as .ld-dl-head labels over paragraphs. That gave the
              same page two different treatments for the same kind of content, and it was
              missing five of the eight - no total acres, no tillable acres, no soil rating, no
-             parcel numbers, no directions. It is now one .ld-fields list, which is what the
-             accordions use, so a labelled value looks the same wherever a reader meets it.
-             THE DESCRIPTION PARAGRAPH STAYS ABOVE THE LIST. It is prose, not a field, and it
-             is the only thing in the window that reads as a sentence.
+             parcel numbers, no directions. The figures are one .ld-fields list now, the same
+             component the accordions use, so a labelled value looks the same wherever a reader
+             meets it.
+             THIS COLUMN IS THE PROSE ONLY (2026-09-02). Description, Legal Description,
+             Directions and the Get Directions link - which is exactly .ld-tprose in the
+             accordions, in the same order. The field list left this column for the media one on
+             the same day, and Kiron's summary of the change is the clearest statement of it:
+             "all that is happening is the facts are moving over underneath the photos".
              DOWNLOADS IS ALREADY BELOW, spanning both columns - see .xtw-docs. That is the
              eighth element and it did not have to be added. -->
         <div class="xtw-info">
@@ -4243,8 +4447,9 @@
                it was the only prose in the window - but Legal now sits below it under a heading
                of its own, so an unlabelled block followed by a labelled one read as though the
                first belonged to the window's title rather than being its own section.
-               THE THREE HEADINGS IN THIS WINDOW NOW MATCH THE ACCORDIONS ONE FOR ONE:
-               Description, Legal, Tract N Downloads. -->
+               THE HEADINGS IN THIS WINDOW MATCH THE ACCORDIONS ONE FOR ONE: Description, Legal
+               Description, Directions, Tract N Downloads. Four since 2026-09-02, when Directions
+               was added to both tract detail spaces in the same pass. -->
           <p class="ld-dl-head">Description</p>
           <p class="ld-copy xtw-desc"></p>
           <!-- ---- LEGAL IS BROUGHT OUT OF THE FIELD LIST (Kiron, 2026-09-01: "really only
@@ -4256,9 +4461,61 @@
                THE ORDER MIRRORS THE ACCORDIONS TOO: description, then Legal, then the facts.
                In an accordion those sit in two columns (prose left, photo and facts right); here
                there is one info column, so they stack in the same reading order. -->
-          <p class="ld-dl-head xtw-legalhead">Legal</p>
+          <p class="ld-dl-head xtw-legalhead">Legal Description</p>
           <p class="ld-copy xtw-legal"></p>
-          <dl class="ld-fields xtw-fields"></dl>
+          <!-- ---- DIRECTIONS, THE WINDOW'S THIRD PROSE BLOCK (Kiron, 2026-09-02: "add the same
+               section to each tract") ----
+               THE ACCORDIONS GAINED IT IN THE SAME PASS, so this window gains it too - the two
+               tract detail spaces carry the identical set in the identical order, which is the
+               rule this window was rebuilt to. Prose under its own heading, like Description and
+               Legal Description above it, for the same reason Legal was brought out of the field
+               list: a paragraph in a table cell wraps to a column a few words wide.
+               THE VALUE IS GENERATED, like every other value in this window - see the dirs field
+               in the TRACTS array for how the string is composed and why. -->
+          <p class="ld-dl-head">Directions</p>
+          <p class="ld-copy xtw-dirs"></p>
+          <!-- ---- "GET DIRECTIONS" UNDER THE DIRECTIONS TEXT, AS IN THE ACCORDIONS
+               (Kiron, 2026-09-02: "the 5+ version can now have the same structure as the
+               other") ----
+               UNLABELLED AND OUTSIDE ANY <dl>, the same as tracts 1-4 - see the note beside
+               tract 1's copy for why the label came off and why the written route and the
+               button that drives it stay together.
+               THE href IN THE MARKUP IS THE SAME PLACEHOLDER COORDINATE the rest of the page
+               uses, not "#". fill() overwrites it every time the window opens, so it is never
+               what a visitor clicks - but a static default means the one control in this window
+               that leaves the page is never briefly pointed at nothing. -->
+          <a class="ld-tdir xtw-dir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+        </div>
+        <!-- ---- THE MAPS SIT RIGHT, THE TEXT LEFT (Kiron, 2026-09-02: "let's put the images
+             right aligned, and the text on the left") ----
+             IT IS A DOM MOVE, NOT AN `order` PROPERTY. This block used to be first in the body
+             and the columns were read in the order they were written. Moving the markup rather
+             than reordering the boxes keeps the reading order and the visual order the same
+             thing, which is what a screen reader and a keyboard both follow.
+             IT ALSO PUTS THE WINDOW THE SAME WAY ROUND AS THE ACCORDIONS, where .ld-tprose is
+             the left column and .ld-tside carries the photographs on the right. The two tract
+             detail spaces now agree on the axis as well as on the content.
+             ON A PHONE THE IMAGE GOES BACK ON TOP - see the order rule in the 767 block, which
+             is the same call .ld-tside makes at 1023 and for the same reason. -->
+        <div class="xtw-media">
+          <div class="xtw-frame">
+            <img class="xtw-img" alt="" />
+            <span class="xtw-chip"></span>
+            <button class="xtw-prev" type="button" aria-label="Previous map">&#8249;</button>
+            <button class="xtw-next" type="button" aria-label="Next map">&#8250;</button>
+            <span class="xtw-count"></span>
+          </div>
+          <!-- ---- THE FACTS MOVE UNDER THE PHOTOGRAPHS (Kiron, 2026-09-02: "all that is
+               happening is the facts are moving over underneath the photos") ----
+               THIS IS THE WHOLE OF WHAT SEPARATED THE TWO TRACT LAYOUTS. The accordion has
+               always put its figures under its carousel in the right-hand column; this window
+               stacked them under the prose in the left one, which is why the same eight
+               elements read as two different designs. They are now one design at two sizes.
+               IT CARRIES .ld-tfacts AS WELL, which is the accordion's own column sizing -
+               fit-content(45%) for the label against minmax(0, 1fr) for the value. Sharing the
+               class rather than copying the numbers is what stops the two drifting again.
+               THE LABELS MATCH TRACTS 1-4 TOO, written in fill() - see there. -->
+          <dl class="ld-fields ld-tfacts xtw-fields"></dl>
         </div>
         <!-- DOWNLOADS SPANS BOTH COLUMNS (Kiron, 2026-08-31: "widen these columns, so that
              there is no word wrap"). Under the map it had half the window to hold two columns,
@@ -4266,10 +4523,17 @@
              the set is prefixed "Tract NN - ", which is what pushed them over. Full width gives
              each column roughly 455px against a longest name of about 250px. -->
         <div class="xtw-docs">
-          <!-- "Tract N Downloads", written by fill() - see there. The heading names the tract
-               so the file names below it do not have to; they used to be prefixed "Tract NN - "
-               each, which is what made them long enough to wrap and forced this block to span
-               both columns in the first place. -->
+          <!-- ---- JUST "DOWNLOADS" (Kiron, 2026-09-02: "download section header can just be
+               Downloads") ----
+               IT SAID "Tract N Downloads" AND WAS WRITTEN BY fill(); it is static text again and
+               fill() no longer touches it. The prefix was added on 2026-09-01 so the heading
+               could name the tract and the file names below would not have to - the names used
+               to carry "Tract NN - " each, which is what made them long enough to wrap. THE
+               NAMES STAY SHORT: what made the prefix unnecessary is the window itself, whose
+               title bar already says which tract is open two inches above this heading. Saying
+               it twice on one screen was the same repetition the file names were cured of.
+               THE ACCORDIONS ARE NOT THIS CASE and still read "Tract 1 Downloads" - there are
+               four of them open on one page with nothing else to say which is which. -->
           <p class="ld-dl-head xtw-dlhead">Downloads</p>
           <ul class="ld-dl xtw-dl"></ul>
         </div>
@@ -5140,6 +5404,17 @@
                    .concat(i % 3 === 0
                      ? ["part of 040R" + (sec < 10 ? "0" + sec : sec) + "300002"] : []),
           geo: "40.78889,-93.31222",
+          /* dirs - the Directions text field, added 2026-09-02 with the block that renders it.
+             COMPOSED FROM THIS TRACT'S OWN where/sec VALUES rather than being one string
+             repeated 28 times, so the index's tracts read as 28 different places the way the
+             rest of their generated copy does. Shaped like #19282's real published route - a
+             town, a road, a distance, a side of the road, the auction-sign line - because a
+             format-correct string is what sizes the block honestly.
+             INVENTED, like every other value in this array. */
+          dirs: "From Promise City, Iowa: Travel " + (i % 2 ? "south" : "east") +
+                " for approximately " + ((i % 7) + 2) + " miles. Tract " + n +
+                " begins on the " + WHERE[r] +
+                ". Watch for Peoples Company auction signs.",
           maps: [MAPS[i % MAPS.length], MAPS[(i + 3) % MAPS.length],
                  MAPS[(i + 6) % MAPS.length], MAPS[(i + 9) % MAPS.length]].filter(Boolean),
           docs: DOCNAMES.map(function(name, d){ return { name: name, url: DB + DOCFILES[d] }; })
@@ -5170,7 +5445,8 @@
           desc  = box.querySelector(".xtw-desc"),
           flds  = box.querySelector(".xtw-fields"),
           legal = box.querySelector(".xtw-legal"),
-          dlhead = box.querySelector(".xtw-dlhead"),
+          dirs  = box.querySelector(".xtw-dirs"),
+          dirlink = box.querySelector(".xtw-dir"),
           dl    = box.querySelector(".xtw-dl"),
           xbtn  = box.querySelector(".xtw-x"),
           scrollBody = box.querySelector(".xtw-body");
@@ -5200,27 +5476,36 @@
            because every value is generated, but the link is the one row with HTML in it and
            it is assembled from a coordinate this file controls). */
         flds.innerHTML =
+          /* ---- THE LABELS ARE TRACTS 1-4's, EXACTLY (Kiron, 2026-09-02: "match the labels
+             of facts from 1-4 to the 5+") ----
+             THREE CHANGED: "Average soil rating" -> "Avg. soil rating", "Parcel number(s)" ->
+             "Parcel Number(s)", and the rating's value takes the accordion's parentheses,
+             "36.9 (CSR2)" rather than "36.9 CSR2". The hand-written tracts are the reference -
+             the strings there are Kiron's own, from the layout he wrote, which is why the
+             abbreviation and the capital N are not tidied on the way across. TIDY THEM IN BOTH
+             PLACES OR NEITHER. */
           "<dt>Total acres</dt><dd>" + t.acres.toFixed(2) + " M/L</dd>" +
           "<dt>Tillable acres</dt><dd>" + t.tillable.toFixed(2) + " FSA</dd>" +
-          "<dt>Average soil rating</dt><dd>" + t.csr.toFixed(1) + " CSR2</dd>" +
+          "<dt>Avg. soil rating</dt><dd>" + t.csr.toFixed(1) + " (CSR2)</dd>" +
           "<dt>Net taxes</dt><dd>" + money(t.taxes) + "</dd>" +
           /* LEGAL IS NOT IN THIS LIST ANY MORE - it is the .xtw-legal paragraph above.
              PARCELS ARE STACKED ONE PER LINE, the same treatment the four hand-written tracts
              use: one value with several parts, so <br /> rather than a nested list. t.parcels
              is an array for exactly this reason - see the generator. */
-          "<dt>Parcel number(s)</dt><dd>" + t.parcels.join("<br />") + "</dd>" +
-          "<dt>Driving directions</dt><dd>" +
-            '<a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&destination=' +
-            encodeURIComponent(t.geo) + '" target="_blank" rel="noopener">Open in Google Maps' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-            'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-            '<path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></dd>';
+          "<dt>Parcel Number(s)</dt><dd>" + t.parcels.join("<br />") + "</dd>";
+        /* THE DIRECTIONS LINK IS NO LONGER BUILT INTO THIS STRING (2026-09-02). It was the
+           list's last row, labelled "Driving directions"; the label came off when the wording
+           went to "Get Directions" and a <dl> cannot hold a bare <a>, so the link is now a
+           static element in the markup and only its href is set here. That also takes the one
+           row of assembled HTML out of this innerHTML - every value above is now text. */
+        if(dirlink) dirlink.href = "https://www.google.com/maps/dir/?api=1&destination=" +
+          encodeURIComponent(t.geo);
+        if(dirs) dirs.textContent = t.dirs;
         /* THE HEADING CARRIES THE TRACT NUMBER (Kiron, 2026-09-01: 'the "DOWNLOADS" header
            ... adjust to include "Tract # Downloads"'), which is also why the per-item
            "Tract NN - " prefix came OFF the names below. Saying it once in the heading and
            then again on every row was the reason the names ran long. */
         legal.textContent = t.legal;
-        if(dlhead) dlhead.textContent = "Tract " + t.n + " Downloads";
         dl.innerHTML = t.docs.map(function(d){
           return '<li><a href="' + d.url + '" target="_blank" rel="noopener">' +
                  '<span class="n">' + d.name + '</span>' +
