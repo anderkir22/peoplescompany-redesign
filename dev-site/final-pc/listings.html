@@ -837,7 +837,7 @@
 
               <div class="ls-actions">
                 <button class="ls-clear" type="button" id="moreClear">Clear all filters</button>
-                <button class="ls-apply" type="button" id="moreApply">Show 22 properties</button>
+                <button class="ls-apply" type="button" id="moreApply">Show 21 properties</button>
               </div>
             </div>
           </div>
@@ -895,76 +895,47 @@
 
     <!-- ---------- results ---------- -->
     <!-- 18 CARDS = SIX ROWS OF THREE, and 18 is the page size (Kiron, 2026-08-24). Pagination
-         cuts here. The pager itself is NOT built yet — see the note below the grid. -->
+         cuts here. The pager itself is NOT built yet — see the note below the grid.
+         SINCE THE FULL-ROW PREMIUM CAME OFF (2026-09-02) A PAGE IS 18 CARDS EXACTLY, because
+         every card is one cell. It used to be 16 cards on page 1 — the banner plus fifteen —
+         since the banner spent three of the eighteen slots on its own. -->
     <div class="ls-results">
-      <!-- THIS LINE NAMES THE RESULT SET, NOT THE PAGE — 22, not the 16 on screen. That split is
+      <!-- THIS LINE NAMES THE RESULT SET, NOT THE PAGE — 21, not the 18 on screen. That split is
            the point: .ls-count is above both panels and is shared with the map view, which shows
-           all 22; the pager's own "Showing 1-16 of 22" readout names the slice and lives inside
+           all 21; the pager's own "Showing 1-18 of 21" readout names the slice and lives inside
            the grid panel with the cards it describes.
+           IT WAS 22 UNTIL 2026-09-02, when the full-row premium card was removed. The number has
+           to follow the cards: it is the one figure on the page that claims how much inventory
+           there is, and 22 against 21 articles would be the page contradicting itself.
            Still hard-coded, and still does not respond to any filter — filtering and counting
            belong to the CMS. With real inventory this is the total matching the current filters,
            and the pager's readout follows from it. -->
-      <p class="ls-count" id="lsCount"><b>22</b> properties</p>
+      <p class="ls-count" id="lsCount"><b>21</b> properties</p>
 
       <!-- Each card is one <article>. A clean photograph, then five body rows — status/number,
            place, headline, meta, agent — are the whole pattern; everything else is styling. -->
       <div class="ls-panel" id="panelGrid" role="tabpanel" aria-labelledby="viewGrid">
       <div class="lc-grid">
 
-        <!-- ================= PREMIUM CARD ================= (Kiron, 2026-08-24)
-             A promoted listing that takes THE WHOLE OF ROW 1 — the width of three standard cards.
-             It is still an <article class="lc"> so it inherits the card shell, and `.lc-premium`
-             both spans the row and swaps the layout from vertical to a photo-left / detail-right
-             split. Reuses .lc-media, .lc-statusrow, .lc-status, .lc-id, .lc-meta, .lc-fav
-             unchanged; only the pieces that genuinely differ get a .lc-p* class.
-             The structural difference from a standard card, and it inverted on 2026-08-24: the
-             standard card now keeps ALL its copy in the white body and its photograph clean, while
-             this one keeps every line on the picture. Where the place is a 24px title under the
-             status row on a standard card, here it is the 44px headline of the whole banner.
-             It counts as ONE of the 21 listings, so page 1 is this plus 17 standard cards. -->
-        <article class="lc lc-pic lc-premium">
-          <div class="lc-media">
-            <img src="../assets/pc-hero9.jpg" alt="Open farmland at sunset" />
-            <span class="lc-pill is-premium">Premium Listing</span>
-            <button class="lc-fav" type="button" aria-pressed="true" aria-label="Save this listing">
-              <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-            </button>
-            <!-- All the copy sits OVER the photograph, on the gradient. Since the standard cards
-                 moved their place and agent into the white body, this is the only place on the page
-                 where copy is on a picture. There is deliberately no .lc-body on this
-                 card: the picture is the card. -->
-            <div class="lc-pover">
-              <div class="lc-statusrow">
-                <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="sr-only">Listing </span>#19548</p>
-              </div>
-              <!-- A PROPERTY NAME, not a county (Kiron, 2026-08-24). This is the only card in the
-                   grid whose headline is a name — every standard card leads with "County, State",
-                   which is all a 26px line over a photo can hold. A named ranch is exactly the kind
-                   of listing that earns the premium slot, so the name leads and the location moves
-                   into the meta row below rather than being dropped: a premium listing should not be
-                   the one card that does not say where it is. -->
-              <p class="lc-pplace"><a class="lc-link" href="./listings-details.html">Lazy Z Ranch</a></p>
-              <div class="lc-prow">
-                <div>
-                  <p class="lc-headline">$50,000,000</p>
-                  <p class="lc-meta"><span>Stanley County, SD</span><span>34,000 Acres</span><span>31,345 Tillable Acres</span><span>$1,471 / Acre</span></p>
-                </div>
-                <p class="lc-pagent">Steve Bruere <span>Land Agent</span></p>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <!-- ===== ALT PREMIUM: the same treatment in ONE grid cell =====
-             (Kiron, 2026-08-24) "give me that card as an alt version ... place it as the 1st card
-             of the 2nd row." It is the layout the full-row premium collapses to on a phone, promoted
-             to a card of its own so the promoted treatment also appears inside the normal grid flow.
-             Shares .lc-pic with the full-row card, so the gradient, the border and every colour flip
-             come from one place; only the ratio and the type sizes differ.
-             Being the first card in the DOM after the full-row premium is what puts it first in
-             row 2 — there is no positioning here, just source order. -->
+        <!-- ===== PREMIUM CARD: the promoted treatment in ONE grid cell =====
+             A promoted listing, PICTURE-LED: the whole card is one photograph, a gradient covers
+             the bottom half, and every line of copy sits over the gradient. It is an
+             <article class="lc"> like any other card, so it inherits the shell; .lc-pic carries
+             the border, the gradient and the colour flips, and .lc-premium-alt the ratio and the
+             type sizes. There is deliberately no .lc-body — the picture is the card.
+             THIS IS NOW THE ONLY PREMIUM CARD (Kiron, 2026-09-02: remove the card that is full
+             page width completely). There used to be a second one above it, .lc-premium, which
+             spanned the whole of row 1 as a 44px-type banner, and this card was introduced on
+             2026-08-24 as "that card as an alt version ... place it as the 1st card of the 2nd
+             row" — the layout the full-row card collapsed to on a phone, promoted to a card of
+             its own. The banner is gone and this one stands alone, so the "alt" in the class name
+             now records where it came from rather than what it is an alternative to. The class was
+             left as it is because renaming it would touch pc.css and every note that points at it
+             for no visual change.
+             WHAT WENT WITH IT: the .lc-premium rules and the 767/639 overrides in pc.css, and the
+             full-row card's slot cost in the pager — every card on the page is one cell now.
+             IT IS THE FIRST CARD IN THE DOM, which is what puts it first in the grid — there is
+             no positioning here, just source order. -->
         <article class="lc lc-pic lc-premium-alt">
           <div class="lc-media">
             <img src="../assets/pc-hero8.jpg" alt="Farm field under open sky" loading="lazy" decoding="async" />
@@ -1488,7 +1459,7 @@
            aria-live="polite" because paging swaps the cards without moving focus or reloading, so
            a screen reader user would otherwise get no confirmation that anything happened. Polite,
            not assertive: it is a status, and it must not interrupt. -->
-      <p class="lc-pgrange" id="pgRange" role="status" aria-live="polite">Showing 1–16 of 22</p>
+      <p class="lc-pgrange" id="pgRange" role="status" aria-live="polite">Showing 1–18 of 21</p>
       </div>
 
       <!-- Map view. Same placeholder image the Interactive Map layer uses, sized into the
@@ -1993,10 +1964,15 @@
     //
     // THE PAGE SIZE IS COUNTED IN GRID SLOTS, NOT CARDS (Kiron, 2026-08-24: "each page should
     // limit to 6 full rows, regardless of if there is a premium taking up a row or not").
-    // A full-row premium card consumes a whole row; a standard or alt-premium card consumes one
-    // cell. So the budget is 6 rows x 3 columns = 18 SLOTS, and a .lc-premium spends 3 of them.
-    // Page 1 = premium(3) + 15 one-cell cards = 18 slots = 6 full rows.
-    // Page 2 = the remaining 6 one-cell cards = 2 full rows.
+    // The budget is 6 rows x 3 columns = 18 SLOTS and each card declares what it costs.
+    // Page 1 = 18 one-cell cards = 6 full rows.  Page 2 = the remaining 3.
+    //
+    // EVERY CARD COSTS ONE CELL AS OF 2026-09-02, when the full-row premium was removed - so on
+    // today's markup slots and cards are the same number and the packing has nothing to solve.
+    // THE SLOT ARITHMETIC IS KEPT ANYWAY, and not as dead weight: Kiron's rule above is about
+    // ROWS, not cards, and it only holds if a card that spans is charged for what it spans. The
+    // moment the CMS reintroduces a full-row promotion, counting cards would put a half row at
+    // the bottom of a page. Charging in slots is what makes "6 full rows" true either way.
     //
     // ⚠ THE 3 IS THE DESKTOP COLUMN COUNT AND IT IS INTENTIONALLY FIXED, not read from the grid.
     // .lc-grid is 3 columns at 1280+, 2 at 1024-1279 and 1 at <=767, so measuring the live column
@@ -2004,7 +1980,7 @@
     // would show different properties on a laptop and a phone, and a shared link would not
     // resolve to what the sender saw. Page composition has to be device-independent, which is also
     // how it will work once the CMS owns it. The consequence is that the "6 full rows" promise is
-    // exact at 1280+ and becomes "the same 16 listings, reflowed" below that.
+    // exact at 1280+ and becomes "the same 18 listings, reflowed" below that.
     (function(){
       var grid  = document.querySelector("#panelGrid .lc-grid");
       var list  = document.getElementById("pgList");
@@ -2017,7 +1993,10 @@
       var cards = [].slice.call(grid.querySelectorAll("article.lc"));
       var page  = 1;
 
-      // Cost in slots: a full-row premium takes the row, everything else takes one cell.
+      // Cost in slots: a card that spans the row is charged for the row, everything else for one
+      // cell. NOTHING ON THE PAGE SPANS TODAY - .lc-premium was removed on 2026-09-02 and no
+      // markup carries it - so this returns 1 for all 21 cards. It is the hook a row-spanning
+      // promotion plugs back into; see the note above for why that is worth keeping.
       function cost(card){ return card.classList.contains("lc-premium") ? COLS : 1; }
 
       // Pack the cards into pages up front, greedily, so every page holds whole rows. A premium
@@ -2069,8 +2048,10 @@
         prev.disabled = page === 1;
         next.disabled = page === pages.length;
 
-        // The readout counts CARDS, not slots — "Showing 1-16 of 22" is about listings, and nobody
-        // outside this file knows or cares that a premium card is worth three cells.
+        // The readout counts CARDS, not slots — "Showing 1-18 of 21" is about listings, and nobody
+        // outside this file knows or cares what a card is worth in cells. The two happen to agree
+        // on today's markup, since every card is one cell; the distinction is what keeps the
+        // readout honest if a row-spanning card ever comes back.
         var first = 0;
         for(var i = 0; i < page - 1; i++) first += pages[i].length;
         range.textContent = "Showing " + (first + 1) + "\u2013" + (first + onPage.length)

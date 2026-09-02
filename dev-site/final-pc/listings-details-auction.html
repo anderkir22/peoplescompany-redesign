@@ -873,10 +873,33 @@
        where a reader is already looking at the picture of the thing they describe.
        .ld-tside IS THE NEW RIGHT-HAND WRAPPER. The carousel used to be the grid item itself;
        it now shares a column with the facts, so something has to hold the two. The `order`
-       moved with it - see the 1023 block, where .ld-tside (not .ld-tcar) goes first. */
-    .ld-tgrid{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
-      gap: var(--space-6); align-items: start; }
-    .ld-tprose{ order: 1; }
+       moved with it, and has since been retired altogether - the two columns are a float and
+       the text that wraps around it now, and the DOM order is the reading order at every
+       width. See .ld-tgrid below. */
+    /* ---- IT IS A FLOAT NOW, NOT A GRID (Kiron, 2026-09-02: "can we have the wording wrap
+       from the left side text underneath the facts?") ----
+       A GRID CANNOT DO THIS. Two grid items are two boxes side by side, so the prose column
+       ends where its own track ends and the space under the facts stays empty however short
+       the right column is - on Tract 1 that was roughly 200px of white beside nothing. Text
+       wrapping BACK UNDER a block is what floats are for, and it is the one thing they still
+       do that no other layout mode does.
+       SO THE MARKUP MOVED. A float only shortens the lines of content that FOLLOWS it, which
+       means .ld-tside has to come first in the DOM - and it now does, in all four tracts. That
+       also makes the stacked layout the DOM's own order (photograph, then text) and retires
+       the `order: 1` / `order: 2` pair that used to swap them, so nothing presentational is
+       reversing the reading order any more.
+       display: flow-root ON THE WRAPPER, so the float is contained: Downloads sits outside
+       .ld-tgrid in the accordions but the panel's own bottom padding would still collapse
+       against an uncontained float. flow-root is `overflow: hidden`'s job without its side
+       effects - nothing here is clipped or made scrollable.
+       .ld-tprose MUST NOT ESTABLISH A BLOCK FORMATTING CONTEXT. It is a plain block on purpose:
+       give it overflow, flow-root, display: flex or display: grid and it becomes a box that
+       sits BESIDE the float instead of flowing around it, which is exactly the layout being
+       replaced. That is the one constraint this arrangement carries.
+       WIDTH IS A FLAT 380px, not minmax(0, 380px) - a float takes no part in track sizing, so
+       the shrink half of that minmax had nothing to do. max-width: 100% is the safety for the
+       one case the old minmax covered honestly, a container narrower than the float itself. */
+    .ld-tgrid{ display: flow-root; }
     /* "Description" and "Legal Description" reuse .ld-dl-head, the page's section-label voice - the same
        treatment "Downloads" carries a few lines below, so the three labels inside one tract
        read as the same kind of thing. Its default 32px top margin is the gap BETWEEN the two
@@ -887,7 +910,11 @@
        value would leave the numbers about 240px, so the label track is capped and the values
        take what is left. */
     .ld-tfacts{ grid-template-columns: fit-content(45%) minmax(0, 1fr); }
-    .ld-tside{ order: 2; display: flex; flex-direction: column; gap: var(--space-4); }
+    /* STILL A FLEX COLUMN INSIDE, which is what keeps 16px between the carousel and the facts.
+       The float is what the box does in its parent; the flex is what it does with its children. */
+    .ld-tside{ float: right; width: 380px; max-width: 100%;
+      margin: 0 0 var(--space-4) var(--space-6);
+      display: flex; flex-direction: column; gap: var(--space-4); }
     .ld-tcar-frame{ position: relative; aspect-ratio: 4 / 3; overflow: hidden;
       border-radius: var(--radius-sm); border: 1px solid var(--color-border);
       background: var(--pc-soft-white); }
@@ -934,6 +961,18 @@
        278px against a longest row of roughly 200px ("Tract 28: 119.08 Acres M/L" at 16px
        Inter), so nothing wraps and 28 tracts stand about 10 rows tall instead of 14. It drops
        to two at 1023, where the main column is 588px and three columns would be 164px. */
+    /* THE COLUMNS MUST HOLD AS NEAR THE SAME NUMBER OF TRACTS AS THE COUNT ALLOWS (Kiron,
+       2026-09-02): ceil(count / columns) per column, left to right, the last taking the
+       remainder - 12 tracts as 4/4/4, 26 as 9/9/8. Not a full column followed by a short one.
+       `columns` ALREADY DOES THIS, which is the second reason it is the implementation. Multicol
+       balances by HEIGHT, and every row here is one line of the same height, so equal height IS
+       equal count - the browser reaches 9/9/8 with no tract count anywhere in the template.
+       WHICH IS WHY EVERY ROW MUST STAY ONE LINE. A row that wraps to two, or a non-uniform row
+       margin, breaks the identity: the columns still balance by height but the counts stop
+       matching. That is what the 1279 and 767 steps below are protecting, not just legibility.
+       A developer swapping this for a grid or a server-side chunk has to reproduce the
+       distribution by hand - and slice(0, 14) / slice(14) does not: it fills to capacity and
+       leaves the last column short. See developer-listing-detail.md, the Tracts section. */
     .ld-tlist{ list-style: none; margin: 0; padding: 0;
       columns: 3; column-gap: var(--space-7); }
     .ld-tlist li{ break-inside: avoid; }
@@ -993,9 +1032,19 @@
        THE COLUMN GAP ALREADY MATCHED .ld-tgrid at --space-6. The row gap stays --space-5,
        which is what separates the columns from the Downloads row below them - the accordions
        have no equivalent, their downloads block sitting outside the grid entirely. */
-    .xtw-body{ overflow-y: auto; padding: var(--space-5);
-      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
-      gap: var(--space-5) var(--space-6); align-items: start; }
+    /* THE SAME FLOAT AS .ld-tgrid, FOR THE SAME REASON - see the long note there. The two
+       tract detail spaces are meant to be one design at two sizes, so the wrap-under behaviour
+       could not land in only one of them.
+       NO flow-root NEEDED: overflow-y: auto already establishes a block formatting context,
+       because this is the window's scroll container. The float is contained by that.
+       .xtw-docs CLEARS IT instead of spanning tracks - see its rule. */
+    .xtw-body{ overflow-y: auto; padding: var(--space-5); }
+    /* THE FLOATED COLUMN. It had no rule of its own before - it was a grid item and the track
+       sized it. 380px is .ld-tgrid's figure, kept identical here on purpose so the two tract
+       detail spaces render the same 380 x 285 photograph; that was the whole point of the
+       2026-09-02 change that brought them into line, and a float must not undo it. */
+    .xtw-media{ float: right; width: 380px; max-width: 100%;
+      margin: 0 0 var(--space-5) var(--space-6); }
     .xtw-frame{ position: relative; aspect-ratio: 4 / 3; overflow: hidden;
       border-radius: var(--radius-sm); border: 1px solid var(--color-border);
       background: var(--pc-soft-white); }
@@ -1060,7 +1109,16 @@
        the three. The empty ~100px under the photograph is the smallest waste available.
        IT GOT BETTER SINCE, WITHOUT MOVING: the rows are tighter and the "Tract NN - " prefix
        came off the names (2026-09-01), so this block is shorter than when it was widened. */
-    .xtw-docs{ grid-column: 1 / -1; }
+    /* WAS grid-column: 1 / -1. With the body a float wrapper rather than a grid, "spans both
+       columns" is just a block in normal flow - it takes the full width on its own. What it
+       needs instead is clear: both, so a short window (one-line description, tall map) does not
+       start the downloads list beside the map. */
+    .xtw-docs{ clear: both; margin-top: var(--space-5); }
+    /* ⚠ WHY 20px IS ON .xtw-media's margin-bottom AS WELL. The window's prose is usually
+       SHORTER than the map column, so .xtw-docs clears the float rather than following the text
+       - and clearance ABSORBS its own margin-top, which would have left the Downloads heading
+       flush against the facts list. The float's bottom margin is the gap in that case, so it
+       carries the same --space-5 the old grid's row-gap did. */
     /* ---- THE 32px ABOVE THIS HEADING COMES OFF (Kiron, 2026-09-02: "remove some of the
        vertical spacing between Get Directions and Downloads") ----
        .ld-dl-head's own margin is 32px top / 8px bottom, which is the value for the download
@@ -1099,15 +1157,17 @@
       /* SAME MEASUREMENT, other consequence: at a 588px main column a 380px photo leaves
          176px of prose, a column too narrow to read. The photo goes full width ABOVE the
          text, capped so it does not become the whole section on a wide-ish tablet. Dropping
-         its order back to 0 is what lifts it above the prose - see the note on .ld-tgrid. */
-      .ld-tgrid{ grid-template-columns: minmax(0, 1fr); }
+         the float is what lets it sit above the prose - see the note on .ld-tgrid. */
+      /* NOTHING TO UNSET ON .ld-tgrid ANY MORE - it has no columns to collapse. The float is
+         what comes off, below. */
       /* ONE COLUMN: the photographs AND THEIR FACTS come first, then Description and Legal.
-         It is .ld-tside that carries the order now, not .ld-tcar - the facts travel with the
-         picture rather than being left behind above the prose.
+         It is .ld-tside that unfloats, not .ld-tcar - the facts travel with the picture rather
+         than being left behind above the prose.
          max-width follows to .ld-tside for the same reason it was on the carousel: a 700px
          photograph in a single column dwarfs everything under it. The facts inherit the cap,
          which suits them - a label/value list does not want a 700px measure either. */
-      .ld-tside{ order: 0; max-width: 520px; }
+      .ld-tside{ float: none; width: auto; max-width: 520px;
+        margin: 0 0 var(--space-6); }
     }
     @media (max-width: 767px){
       .ld-tlist{ columns: 1; }
@@ -1117,14 +1177,15 @@
       /* THE MAP GOES BACK ON TOP IN ONE COLUMN. Left/right became above/below the moment the
          grid collapsed, and "below a screen of text" is not where the thing a reader opened the
          window to look at belongs. Same call .ld-tside makes at 1023 in the accordions.
-         AN `order` HERE AND A DOM MOVE THERE IS NOT AN INCONSISTENCY: the DOM order is the one
-         that reads correctly, so it is what the markup says, and the phone layout is the
-         exception that a presentational property is for.
+         IT IS THE FLOAT COMING OFF, NOT AN `order`. Both tract spaces now write the media block
+         first, so unfloating it is all that is needed and the DOM order is the reading order at
+         every width - there is no presentational reversal left anywhere in either layout.
          THE 520px CAP IS .ld-tside's, for .ld-tside's reason: released from its column the
          frame would take the full width of a full-screen window, and a 660px photograph on a
          tablet dwarfs everything under it. The facts inherit the cap, which suits them - a
          label/value list does not want a 660px measure either. */
-      .xtw-media{ order: -1; max-width: 520px; }
+      .xtw-media{ float: none; width: auto; max-width: 520px;
+        margin: 0 0 var(--space-6); }
       /* One column of window means one column of documents: two would be about 300px each
          and back to wrapping, which is the thing being fixed. */
       .xtw-body .xtw-dl{ grid-template-columns: minmax(0, 1fr); }
@@ -1199,22 +1260,23 @@
        so there is no breakpoint to keep in step with the rest of the ladder. */
     .ld-fields-prose{ font-size: 13px; row-gap: var(--space-4);
       grid-template-columns: fit-content(32%) minmax(0, 1fr); }
-    /* ---- .ld-fields-2up: FOUR columns, two label/value pairs per row ----
-       For fields whose value is a word or a number. At one pair per row, "1977" sat alone
-       against the whole column nineteen times over.
-       fit-content(20%) ON BOTH LABEL COLUMNS, not max-content: it matters more here because
-       there are two of them - a long label in either would push the grid wider than the
-       accordion. The two label columns size INDEPENDENTLY, so column 3 does not line up with
-       column 1. That is correct: each pair is a label bound to its own value.
-       ROW GAP DROPS BACK TO 12px from the prose list's 16px - these are single lines. */
-    .ld-fields-2up{ grid-template-columns:
-        fit-content(20%) minmax(0, 1fr) fit-content(20%) minmax(0, 1fr);
-      column-gap: var(--space-6); row-gap: var(--space-3); margin-bottom: var(--space-5); }
-    /* ONE PAIR PER ROW BELOW 767. Four tracks in a 300px column is a label and two characters.
-       This one DOES need a breakpoint - there is no self-regulating value for "how many pairs
-       fit". 767 is on the --site ladder, where the rest of this page restructures. */
+    /* ---- .ld-colpair: TWO STACKS SIDE BY SIDE, each a whole field list ----
+       BUILDING IS NOW AUTHORED IN COLUMNS, NOT FLOWED INTO THEM (Kiron, 2026-09-02: the
+       Building section becomes these two columns, and he gave the two field orders).
+       IT REPLACES .ld-fields-2up, WHICH IS GONE FROM ALL THREE DETAIL PAGES. That class flowed
+       one list across four tracks, so which pair landed beside which was whatever the row count
+       happened to make, and a value that wrapped to two lines dragged its neighbour's baseline
+       with it. Here each column is its OWN <dl> with its own label track, so the order Kiron
+       listed is the order that renders and the two sides are independent - fifteen rows on the
+       left against eight on the right, with no attempt to make them meet at the bottom.
+       align-items: start so the shorter column sits at the top rather than stretching.
+       ONE COLUMN BELOW 767, the same breakpoint .ld-fields-2up uses - two prose field lists
+       in a 300px column would be a label and two characters. The left list comes first in
+       source order, so it stacks first, which is the reading order Kiron gave. */
+    .ld-colpair{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-8); align-items: start; }
     @media (max-width: 767px){
-      .ld-fields-2up{ grid-template-columns: fit-content(32%) minmax(0, 1fr); }
+      .ld-colpair{ grid-template-columns: minmax(0, 1fr); row-gap: var(--space-4); }
     }
 
     /* ---- downloads: a clean text list, no file-type icon tiles ---- */
@@ -2547,8 +2609,14 @@
                again, so what is being judged is the field and its value, not a mock-up of one.
 
                THREE CARDS THAT ARE MORE THAN ONE CMS FIELD, or fewer:
-                 * BATHS is Full Bathrooms + Half Bathrooms, composed to the US convention where
-                   2 full and 1 half reads 2.5. Same join as HOA Dues.
+                 * BATHROOMS is Full Bathrooms + Half Bathrooms, composed to the US convention
+                   where 2 full and 1 half reads 2.5. Same join as HOA Dues.
+                   THE CARD SAID "Baths" UNTIL 2026-09-02 (Kiron: change it to BATHROOMS on the
+                   card). The Building section calls the same field Bathrooms, so the short form
+                   was the only place on the page where one field wore two names. The card has
+                   the room - "Bathrooms" is the longest label in the catalogue and it still sets
+                   on one line at every width in the ladder, because .ld-ovstats' 767 block
+                   turns the strip into label-left / figure-right rows.
                  * AVERAGE CSR2 IS ONE CARD, NOT TWO. The label is the state's productivity index
                    name - CSR2 in Iowa, PI in Illinois and Indiana - and it is driven by the
                    data-field="productivity-type" span, not by a second card. An earlier pool
@@ -2643,7 +2711,7 @@
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M7 12V6a2 2 0 0 1 4 0"/></svg>
-                <span><span class="n">2.5</span><span class="l">Baths</span></span>
+                <span><span class="n">2.5</span><span class="l">Bathrooms</span></span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
@@ -2771,59 +2839,90 @@
         <details id="ld-building" class="reveal ld-acc">
           <summary><h2>Building</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <!-- CONSOLIDATED, 26 CMS FIELDS INTO 14 ROWS (Kiron, 2026-08-31: combine some of
-                 these the way HOA Dues took HOA Frequency, and put the short ones two across).
-                 TWO LISTS, because these 26 fields are two kinds of thing:
-                   1. A SPEC GRID - counts, years, materials. Nineteen fields whose values are a
-                      word or a number. Four columns, two label/value pairs per row, so a
-                      one-word value no longer holds a whole row on its own.
-                   2. DESCRIPTIONS - four fields that are sentences. Full width, one pair per
-                      row, exactly as Land Details.
-                 It reads as a specification followed by the prose that qualifies it, and it cuts
-                 the section's height by roughly a third.
+            <!-- AUTHORED AS TWO COLUMNS (Kiron, 2026-09-02: "convert it all to these two
+                 columns", followed by the two field orders verbatim). This replaces the previous
+                 arrangement - a nineteen-field .ld-fields-2up spec grid, then a separate four-row
+                 prose list underneath - which sorted the fields by the SHAPE of their value.
+                 These two columns sort them by SUBJECT instead:
+                   LEFT  - the house as you experience it inside. Size and counts first, then
+                           who built it and in what style, then room by room, ending on what
+                           conveys and what is fitted.
+                   RIGHT - the systems and the outside. Mechanicals, then the shell from the
+                           roof down, then how you arrive.
+                 SO SHORT AND LONG VALUES NOW SIT IN ONE LIST. "4" and a three-line sentence
+                 share a column, which the old split existed to avoid; .ld-fields-prose handles
+                 it because every row is its own grid row, and a one-word value simply leaves
+                 white space rather than misaligning anything.
+                 EACH COLUMN IS ITS OWN <dl>, so the two label tracks size independently and the
+                 orders Kiron gave are what renders - see .ld-colpair.
+                 THE ROWS ARE NOT BALANCED, 15 against 8, and are not meant to be. Left is the
+                 longer list and both start at the top.
 
-                 THREE PAIRS COMBINED WITH " / ", the HOA Dues pattern - two CMS fields rendered
-                 as one value by the template, NOT new fields:
+                 THREE PAIRS STILL COMBINED WITH " / ", the HOA Dues pattern - two CMS fields
+                 rendered as one value by the template, NOT new fields:
                    - Full Bathrooms + Half Bathrooms -> "Bathrooms: 2 full / 1 half"
                    - Fireplaces + Fireplace Type     -> "Fireplaces: 1 / wood burning insert"
-                   - Heat + Cooling                  -> "Heating and Cooling: forced air, propane / central"
+                   - Heat + Cooling                  -> "Heating & Cooling: forced air, propane / central"
                  Each join has to degrade: if the second field is empty the slash goes with it,
                  and if both are empty the row goes. Half Bathrooms is the common case - plenty
                  of houses have none, and "2 full /" is worse than "2 full".
-                 NOT COMBINED, though it looks tempting: Exterior and Trim. Trim may describe
-                 interior woodwork, and joining them would assert something the fields do not. -->
-            <dl class="ld-fields ld-fields-prose ld-fields-2up">
-              <dt>Year Built</dt><dd>1977</dd>
-              <dt>Square Feet</dt><dd>2,480</dd>
-              <dt>Bedrooms</dt><dd>4</dd>
-              <dt>Bathrooms</dt><dd>2 full / 1 half</dd>
-              <dt>Stories</dt><dd>1.5</dd>
-              <dt>Style</dt><dd>Raised ranch</dd>
-              <dt>Foundation</dt><dd>Poured concrete</dd>
-              <dt>Roof</dt><dd>Asphalt shingle, 2019</dd>
-              <dt>Exterior</dt><dd>Vinyl siding, brick accent</dd>
-              <dt>Trim</dt><dd>Painted pine</dd>
-              <dt>Builder</dt><dd>Unknown</dd>
-              <dt>Basement</dt><dd>Full, partially finished</dd>
-              <dt>Fireplaces</dt><dd>1 / wood burning insert</dd>
-              <dt>Heating &amp; Cooling</dt><dd>Forced air, propane / central</dd>
-              <dt>Street</dt><dd>Paved county highway</dd>
-              <dt>Driveway</dt><dd>Gravel circle drive</dd>
-              <dt>Family Room</dt><dd>Lower level, walkout</dd>
-              <dt>Dining Room</dt><dd>Informal, off the kitchen</dd>
-              <dt>Other Rooms</dt><dd>Office and mud room</dd>
-            </dl>
-            <!-- The four that are sentences. Same treatment as Land Details. -->
-            <dl class="ld-fields ld-fields-prose ld-fields-desc">
-              <dt>Garage</dt>
-              <dd>Attached two car, 24&prime; x 24&prime;, with a floor drain.</dd>
-              <dt>Exterior Features</dt>
-              <dd>Covered front porch, rear deck off the dining room, and a fenced yard on the south side.</dd>
-              <dt>Interior Features</dt>
-              <dd>Main floor laundry, walk-in pantry, and original hardwood through the living and dining rooms.</dd>
-              <dt>Appliances</dt>
-              <dd>Refrigerator, range, dishwasher, washer and dryer all remain with the property.</dd>
-            </dl>
+                 EVERY ROW IS STILL CONDITIONAL, and an empty field takes its label with it. A
+                 column that empties out entirely leaves the other one at full width, which the
+                 1fr tracks do on their own with no extra rule.
+                 STILL PLACEHOLDER VALUES on a farmland auction that would show none of this -
+                 the accordion is here for visual approval, per the note above Land. -->
+            <div class="ld-colpair">
+              <dl class="ld-fields ld-fields-prose">
+                <dt>Square Feet</dt>
+                <dd>2,480</dd>
+                <dt>Bedrooms</dt>
+                <dd>4</dd>
+                <dt>Bathrooms</dt>
+                <dd>2 full / 1 half</dd>
+                <dt>Stories</dt>
+                <dd>1.5</dd>
+                <dt>Year Built</dt>
+                <dd>1977</dd>
+                <dt>Builder</dt>
+                <dd>Unknown</dd>
+                <dt>Style</dt>
+                <dd>Raised ranch</dd>
+                <dt>Trim</dt>
+                <dd>Painted pine</dd>
+                <dt>Family Room</dt>
+                <dd>Lower level, walkout</dd>
+                <dt>Dining Room</dt>
+                <dd>Informal, off the kitchen</dd>
+                <dt>Other Rooms</dt>
+                <dd>Office and mud room</dd>
+                <dt>Basement</dt>
+                <dd>Full, partially finished</dd>
+                <dt>Fireplaces</dt>
+                <dd>1 / wood burning insert</dd>
+                <dt>Appliances</dt>
+                <dd>Refrigerator, range, dishwasher, washer and dryer all remain with the property.</dd>
+                <dt>Interior Features</dt>
+                <dd>Main floor laundry, walk-in pantry, and original hardwood through the living and dining rooms.</dd>
+              </dl>
+              <dl class="ld-fields ld-fields-prose">
+                <dt>Heating &amp; Cooling</dt>
+                <dd>Forced air, propane / central</dd>
+                <dt>Garage</dt>
+                <dd>Attached two car, 24&prime; x 24&prime;, with a floor drain.</dd>
+                <dt>Exterior</dt>
+                <dd>Vinyl siding, brick accent</dd>
+                <dt>Roof</dt>
+                <dd>Asphalt shingle, 2019</dd>
+                <dt>Driveway</dt>
+                <dd>Gravel circle drive</dd>
+                <dt>Foundation</dt>
+                <dd>Poured concrete</dd>
+                <dt>Exterior Features</dt>
+                <dd>Covered front porch, rear deck off the dining room, and a fenced yard on the south side.</dd>
+                <dt>Street</dt>
+                <dd>Paved county highway</dd>
+              </dl>
+            </div>
           </div>
         </details>
 
@@ -2988,6 +3087,51 @@
               </summary>
               <div class="ld-acc-sub-body">
                 <div class="ld-tgrid">
+                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
+                       Kiron, 2026-09-01: "the remaining data sits under the photos".
+                       IT IS WRITTEN FIRST AND IT HAS TO BE (Kiron, 2026-09-02: the wording wraps
+                       from the left side text underneath the facts). This block is a right float
+                       and .ld-tprose is the text that flows around it; a float only shortens the
+                       lines that FOLLOW it in the DOM. So "RIGHT" describes where it renders, not
+                       where it is written, and putting it back after the prose would quietly turn
+                       the tract into two side-by-side boxes again. See .ld-tgrid. -->
+                  <div class="ld-tside">
+                    <div class="ld-tcar" data-photos="0,1,2,3,4,5,14">
+                    <div class="ld-tcar-frame">
+                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
+                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
+                      <span class="ld-tcar-count"></span>
+                    </div>
+                  </div>
+                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
+                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
+                         which is why the casing is not uniform here. The rating system moved into
+                         the value as "(CSR2)", again his notation.
+                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
+                         nested list: they are one value with several parts, not several values,
+                         and a <ul> inside a <dd> would be announced as a list of items.
+                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
+                         sixth; it is now the "Get Directions" link under the Directions text in the
+                         prose column, so this list is figures only again - see the note there.
+                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                         going to dynamically have the Lat/Long for all tracts and listings"). So the
+                         coordinate in that link’s href is placeholder DATA in a field that exists.
+                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
+                         surveyed tract centroid. Four invented coordinates would assert four precise
+                         locations nobody knows. When the real per-tract values arrive these links
+                         differentiate themselves with no change to the markup or its CSS. -->
+                    <dl class="ld-fields ld-tfacts">
+                      <dt>Total acres</dt><dd>81.06 M/L</dd>
+                      <dt>Tillable acres</dt><dd>70.23 FSA</dd>
+                      <dt>Avg. soil rating</dt><dd>36.9 (CSR2)</dd>
+                      <dt>Net taxes</dt><dd>$1,101.00</dd>
+                      <dt>Parcel Number(s)</dt>
+                      <dd>040R26100003<br />
+                          040R26300002<br />
+                          part of 040R26300001</dd>
+                    </dl>
+                  </div><!-- /.ld-tside -->
                   <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
                        Both get a .ld-dl-head label, which is new: the description used to open
                        the panel with no heading at all, and the legal was one row of a field
@@ -3034,45 +3178,6 @@
                          before the link was put there. -->
                     <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
                   </div><!-- /.ld-tprose -->
-                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
-                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
-                  <div class="ld-tside">
-                    <div class="ld-tcar" data-photos="0,1,2,3,4,5,14">
-                    <div class="ld-tcar-frame">
-                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
-                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
-                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
-                      <span class="ld-tcar-count"></span>
-                    </div>
-                  </div>
-                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
-                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
-                         which is why the casing is not uniform here. The rating system moved into
-                         the value as "(CSR2)", again his notation.
-                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
-                         nested list: they are one value with several parts, not several values,
-                         and a <ul> inside a <dd> would be announced as a list of items.
-                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
-                         sixth; it is now the "Get Directions" link under the Directions text in the
-                         prose column, so this list is figures only again - see the note there.
-                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
-                         going to dynamically have the Lat/Long for all tracts and listings"). So the
-                         coordinate in that link’s href is placeholder DATA in a field that exists.
-                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
-                         surveyed tract centroid. Four invented coordinates would assert four precise
-                         locations nobody knows. When the real per-tract values arrive these links
-                         differentiate themselves with no change to the markup or its CSS. -->
-                    <dl class="ld-fields ld-tfacts">
-                      <dt>Total acres</dt><dd>81.06 M/L</dd>
-                      <dt>Tillable acres</dt><dd>70.23 FSA</dd>
-                      <dt>Avg. soil rating</dt><dd>36.9 (CSR2)</dd>
-                      <dt>Net taxes</dt><dd>$1,101.00</dd>
-                      <dt>Parcel Number(s)</dt>
-                      <dd>040R26100003<br />
-                          040R26300002<br />
-                          part of 040R26300001</dd>
-                    </dl>
-                  </div><!-- /.ld-tside -->
                 </div><!-- /.ld-tgrid -->
                 <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
                      (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
@@ -3110,6 +3215,51 @@
               </summary>
               <div class="ld-acc-sub-body">
                 <div class="ld-tgrid">
+                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
+                       Kiron, 2026-09-01: "the remaining data sits under the photos".
+                       IT IS WRITTEN FIRST AND IT HAS TO BE (Kiron, 2026-09-02: the wording wraps
+                       from the left side text underneath the facts). This block is a right float
+                       and .ld-tprose is the text that flows around it; a float only shortens the
+                       lines that FOLLOW it in the DOM. So "RIGHT" describes where it renders, not
+                       where it is written, and putting it back after the prose would quietly turn
+                       the tract into two side-by-side boxes again. See .ld-tgrid. -->
+                  <div class="ld-tside">
+                    <div class="ld-tcar" data-photos="6,7,8,9,10,11,15">
+                    <div class="ld-tcar-frame">
+                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
+                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
+                      <span class="ld-tcar-count"></span>
+                    </div>
+                  </div>
+                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
+                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
+                         which is why the casing is not uniform here. The rating system moved into
+                         the value as "(CSR2)", again his notation.
+                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
+                         nested list: they are one value with several parts, not several values,
+                         and a <ul> inside a <dd> would be announced as a list of items.
+                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
+                         sixth; it is now the "Get Directions" link under the Directions text in the
+                         prose column, so this list is figures only again - see the note there.
+                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                         going to dynamically have the Lat/Long for all tracts and listings"). So the
+                         coordinate in that link’s href is placeholder DATA in a field that exists.
+                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
+                         surveyed tract centroid. Four invented coordinates would assert four precise
+                         locations nobody knows. When the real per-tract values arrive these links
+                         differentiate themselves with no change to the markup or its CSS. -->
+                    <dl class="ld-fields ld-tfacts">
+                      <dt>Total acres</dt><dd>55.51 M/L</dd>
+                      <dt>Tillable acres</dt><dd>10.08 FSA</dd>
+                      <dt>Avg. soil rating</dt><dd>57.3 (CSR2) on the tillable soils</dd>
+                      <dt>Net taxes</dt><dd>$767.00</dd>
+                      <dt>Parcel Number(s)</dt>
+                      <dd>040R35100002<br />
+                          040R26300004<br />
+                          part of 040R26300001</dd>
+                    </dl>
+                  </div><!-- /.ld-tside -->
                   <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
                        Both get a .ld-dl-head label, which is new: the description used to open
                        the panel with no heading at all, and the legal was one row of a field
@@ -3158,45 +3308,6 @@
                          before the link was put there. -->
                     <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
                   </div><!-- /.ld-tprose -->
-                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
-                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
-                  <div class="ld-tside">
-                    <div class="ld-tcar" data-photos="6,7,8,9,10,11,15">
-                    <div class="ld-tcar-frame">
-                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
-                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
-                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
-                      <span class="ld-tcar-count"></span>
-                    </div>
-                  </div>
-                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
-                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
-                         which is why the casing is not uniform here. The rating system moved into
-                         the value as "(CSR2)", again his notation.
-                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
-                         nested list: they are one value with several parts, not several values,
-                         and a <ul> inside a <dd> would be announced as a list of items.
-                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
-                         sixth; it is now the "Get Directions" link under the Directions text in the
-                         prose column, so this list is figures only again - see the note there.
-                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
-                         going to dynamically have the Lat/Long for all tracts and listings"). So the
-                         coordinate in that link’s href is placeholder DATA in a field that exists.
-                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
-                         surveyed tract centroid. Four invented coordinates would assert four precise
-                         locations nobody knows. When the real per-tract values arrive these links
-                         differentiate themselves with no change to the markup or its CSS. -->
-                    <dl class="ld-fields ld-tfacts">
-                      <dt>Total acres</dt><dd>55.51 M/L</dd>
-                      <dt>Tillable acres</dt><dd>10.08 FSA</dd>
-                      <dt>Avg. soil rating</dt><dd>57.3 (CSR2) on the tillable soils</dd>
-                      <dt>Net taxes</dt><dd>$767.00</dd>
-                      <dt>Parcel Number(s)</dt>
-                      <dd>040R35100002<br />
-                          040R26300004<br />
-                          part of 040R26300001</dd>
-                    </dl>
-                  </div><!-- /.ld-tside -->
                 </div><!-- /.ld-tgrid -->
                 <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
                      (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
@@ -3241,6 +3352,50 @@
               </summary>
               <div class="ld-acc-sub-body">
                 <div class="ld-tgrid">
+                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
+                       Kiron, 2026-09-01: "the remaining data sits under the photos".
+                       IT IS WRITTEN FIRST AND IT HAS TO BE (Kiron, 2026-09-02: the wording wraps
+                       from the left side text underneath the facts). This block is a right float
+                       and .ld-tprose is the text that flows around it; a float only shortens the
+                       lines that FOLLOW it in the DOM. So "RIGHT" describes where it renders, not
+                       where it is written, and putting it back after the prose would quietly turn
+                       the tract into two side-by-side boxes again. See .ld-tgrid. -->
+                  <div class="ld-tside">
+                    <div class="ld-tcar" data-photos="12,13,2,3">
+                    <div class="ld-tcar-frame">
+                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
+                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
+                      <span class="ld-tcar-count"></span>
+                    </div>
+                  </div>
+                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
+                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
+                         which is why the casing is not uniform here. The rating system moved into
+                         the value as "(CSR2)", again his notation.
+                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
+                         nested list: they are one value with several parts, not several values,
+                         and a <ul> inside a <dd> would be announced as a list of items.
+                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
+                         sixth; it is now the "Get Directions" link under the Directions text in the
+                         prose column, so this list is figures only again - see the note there.
+                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                         going to dynamically have the Lat/Long for all tracts and listings"). So the
+                         coordinate in that link’s href is placeholder DATA in a field that exists.
+                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
+                         surveyed tract centroid. Four invented coordinates would assert four precise
+                         locations nobody knows. When the real per-tract values arrive these links
+                         differentiate themselves with no change to the markup or its CSS. -->
+                    <dl class="ld-fields ld-tfacts">
+                      <dt>Total acres</dt><dd>38.24 M/L</dd>
+                      <dt>Tillable acres</dt><dd>12.50 FSA</dd>
+                      <dt>Avg. soil rating</dt><dd>41.2 (CSR2)</dd>
+                      <dt>Net taxes</dt><dd>$438.00</dd>
+                      <dt>Parcel Number(s)</dt>
+                      <dd>040R27100005<br />
+                          part of 040R27100004</dd>
+                    </dl>
+                  </div><!-- /.ld-tside -->
                   <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
                        Both get a .ld-dl-head label, which is new: the description used to open
                        the panel with no heading at all, and the legal was one row of a field
@@ -3281,44 +3436,6 @@
                          before the link was put there. -->
                     <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
                   </div><!-- /.ld-tprose -->
-                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
-                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
-                  <div class="ld-tside">
-                    <div class="ld-tcar" data-photos="12,13,2,3">
-                    <div class="ld-tcar-frame">
-                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
-                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
-                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
-                      <span class="ld-tcar-count"></span>
-                    </div>
-                  </div>
-                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
-                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
-                         which is why the casing is not uniform here. The rating system moved into
-                         the value as "(CSR2)", again his notation.
-                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
-                         nested list: they are one value with several parts, not several values,
-                         and a <ul> inside a <dd> would be announced as a list of items.
-                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
-                         sixth; it is now the "Get Directions" link under the Directions text in the
-                         prose column, so this list is figures only again - see the note there.
-                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
-                         going to dynamically have the Lat/Long for all tracts and listings"). So the
-                         coordinate in that link’s href is placeholder DATA in a field that exists.
-                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
-                         surveyed tract centroid. Four invented coordinates would assert four precise
-                         locations nobody knows. When the real per-tract values arrive these links
-                         differentiate themselves with no change to the markup or its CSS. -->
-                    <dl class="ld-fields ld-tfacts">
-                      <dt>Total acres</dt><dd>38.24 M/L</dd>
-                      <dt>Tillable acres</dt><dd>12.50 FSA</dd>
-                      <dt>Avg. soil rating</dt><dd>41.2 (CSR2)</dd>
-                      <dt>Net taxes</dt><dd>$438.00</dd>
-                      <dt>Parcel Number(s)</dt>
-                      <dd>040R27100005<br />
-                          part of 040R27100004</dd>
-                    </dl>
-                  </div><!-- /.ld-tside -->
                 </div><!-- /.ld-tgrid -->
                 <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
                      (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
@@ -3355,6 +3472,50 @@
               </summary>
               <div class="ld-acc-sub-body">
                 <div class="ld-tgrid">
+                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
+                       Kiron, 2026-09-01: "the remaining data sits under the photos".
+                       IT IS WRITTEN FIRST AND IT HAS TO BE (Kiron, 2026-09-02: the wording wraps
+                       from the left side text underneath the facts). This block is a right float
+                       and .ld-tprose is the text that flows around it; a float only shortens the
+                       lines that FOLLOW it in the DOM. So "RIGHT" describes where it renders, not
+                       where it is written, and putting it back after the prose would quietly turn
+                       the tract into two side-by-side boxes again. See .ld-tgrid. -->
+                  <div class="ld-tside">
+                    <div class="ld-tcar" data-photos="16,17,8,9">
+                    <div class="ld-tcar-frame">
+                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
+                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
+                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
+                      <span class="ld-tcar-count"></span>
+                    </div>
+                  </div>
+                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
+                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
+                         which is why the casing is not uniform here. The rating system moved into
+                         the value as "(CSR2)", again his notation.
+                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
+                         nested list: they are one value with several parts, not several values,
+                         and a <ul> inside a <dd> would be announced as a list of items.
+                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
+                         sixth; it is now the "Get Directions" link under the Directions text in the
+                         prose column, so this list is figures only again - see the note there.
+                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
+                         going to dynamically have the Lat/Long for all tracts and listings"). So the
+                         coordinate in that link’s href is placeholder DATA in a field that exists.
+                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
+                         surveyed tract centroid. Four invented coordinates would assert four precise
+                         locations nobody knows. When the real per-tract values arrive these links
+                         differentiate themselves with no change to the markup or its CSS. -->
+                    <dl class="ld-fields ld-tfacts">
+                      <dt>Total acres</dt><dd>62.19 M/L</dd>
+                      <dt>Tillable acres</dt><dd>57.90 FSA</dd>
+                      <dt>Avg. soil rating</dt><dd>48.6 (CSR2)</dd>
+                      <dt>Net taxes</dt><dd>$1,024.00</dd>
+                      <dt>Parcel Number(s)</dt>
+                      <dd>040R28300001<br />
+                          040R28300002</dd>
+                    </dl>
+                  </div><!-- /.ld-tside -->
                   <!-- ---- LEFT: DESCRIPTION, THEN LEGAL (Kiron, 2026-09-01) ----
                        Both get a .ld-dl-head label, which is new: the description used to open
                        the panel with no heading at all, and the legal was one row of a field
@@ -3395,44 +3556,6 @@
                          before the link was put there. -->
                     <a class="ld-tdir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
                   </div><!-- /.ld-tprose -->
-                  <!-- ---- RIGHT: THE PHOTOGRAPHS, AND THE FACTS DIRECTLY UNDER THEM ----
-                       Kiron, 2026-09-01: "the remaining data sits under the photos". -->
-                  <div class="ld-tside">
-                    <div class="ld-tcar" data-photos="16,17,8,9">
-                    <div class="ld-tcar-frame">
-                      <button class="ld-tcar-open" type="button" aria-label="Open this photograph full size"><img alt="" loading="lazy" decoding="async" /></button>
-                      <button class="ld-tcar-prev" type="button" aria-label="Previous photograph">&#8249;</button>
-                      <button class="ld-tcar-next" type="button" aria-label="Next photograph">&#8250;</button>
-                      <span class="ld-tcar-count"></span>
-                    </div>
-                  </div>
-                    <!-- LABELS ARE KIRON'S OWN STRINGS from the layout he wrote, including the
-                         abbreviated "Avg. soil rating" and the capitalised "Parcel Number(s)" -
-                         which is why the casing is not uniform here. The rating system moved into
-                         the value as "(CSR2)", again his notation.
-                         PARCELS ARE STACKED ONE PER LINE ("stack them"), with <br /> rather than a
-                         nested list: they are one value with several parts, not several values,
-                         and a <ul> inside a <dd> would be announced as a list of items.
-                         FIVE ROWS, WHICH IS WHAT KIRON ENUMERATED. Driving directions used to be a
-                         sixth; it is now the "Get Directions" link under the Directions text in the
-                         prose column, so this list is figures only again - see the note there.
-                         ITS LAT/LONG IS A REAL CMS FIELD, CONFIRMED (Kiron, 2026-09-01: "the CMS is
-                         going to dynamically have the Lat/Long for all tracts and listings"). So the
-                         coordinate in that link’s href is placeholder DATA in a field that exists.
-                         ⚠ ALL FOUR TRACTS SHARE ONE COORDINATE TODAY - the property's vicinity, not a
-                         surveyed tract centroid. Four invented coordinates would assert four precise
-                         locations nobody knows. When the real per-tract values arrive these links
-                         differentiate themselves with no change to the markup or its CSS. -->
-                    <dl class="ld-fields ld-tfacts">
-                      <dt>Total acres</dt><dd>62.19 M/L</dd>
-                      <dt>Tillable acres</dt><dd>57.90 FSA</dd>
-                      <dt>Avg. soil rating</dt><dd>48.6 (CSR2)</dd>
-                      <dt>Net taxes</dt><dd>$1,024.00</dd>
-                      <dt>Parcel Number(s)</dt>
-                      <dd>040R28300001<br />
-                          040R28300002</dd>
-                    </dl>
-                  </div><!-- /.ld-tside -->
                 </div><!-- /.ld-tgrid -->
                 <!-- ---- DOWNLOADS, FULL WIDTH UNDER THE GRID ----
                      (Kiron, 2026-09-01: "also, a downloads section with links to all the appropriate
@@ -4422,6 +4545,42 @@
         <button class="xtw-x" type="button" aria-label="Close">&#10005;</button>
       </div>
       <div class="xtw-body">
+        <!-- ---- THE MAPS SIT RIGHT, THE TEXT LEFT (Kiron, 2026-09-02: "let's put the images
+             right aligned, and the text on the left") ----
+             IT IS A DOM MOVE, NOT AN `order` PROPERTY. This block used to be first in the body
+             and the columns were read in the order they were written. Moving the markup rather
+             than reordering the boxes keeps the reading order and the visual order the same
+             thing, which is what a screen reader and a keyboard both follow.
+             IT ALSO PUTS THE WINDOW THE SAME WAY ROUND AS THE ACCORDIONS, where .ld-tprose is
+             the left column and .ld-tside carries the photographs on the right. The two tract
+             detail spaces now agree on the axis as well as on the content.
+             IT IS ALSO WHAT LETS THE PROSE WRAP BACK UNDER THE FACTS (Kiron, 2026-09-02). The
+             columns are a right float and the text that flows around it, and a float only
+             shortens the lines that FOLLOW it - so this block being first in the DOM is now
+             structural, not a reading-order preference. Moving it back would silently return
+             the window to two side-by-side boxes.
+             ON A PHONE THE IMAGE GOES BACK ON TOP, which is simply the float coming off in the
+             767 block - the same call .ld-tside makes at 1023 and for the same reason. -->
+        <div class="xtw-media">
+          <div class="xtw-frame">
+            <img class="xtw-img" alt="" />
+            <span class="xtw-chip"></span>
+            <button class="xtw-prev" type="button" aria-label="Previous map">&#8249;</button>
+            <button class="xtw-next" type="button" aria-label="Next map">&#8250;</button>
+            <span class="xtw-count"></span>
+          </div>
+          <!-- ---- THE FACTS MOVE UNDER THE PHOTOGRAPHS (Kiron, 2026-09-02: "all that is
+               happening is the facts are moving over underneath the photos") ----
+               THIS IS THE WHOLE OF WHAT SEPARATED THE TWO TRACT LAYOUTS. The accordion has
+               always put its figures under its carousel in the right-hand column; this window
+               stacked them under the prose in the left one, which is why the same eight
+               elements read as two different designs. They are now one design at two sizes.
+               IT CARRIES .ld-tfacts AS WELL, which is the accordion's own column sizing -
+               fit-content(45%) for the label against minmax(0, 1fr) for the value. Sharing the
+               class rather than copying the numbers is what stops the two drifting again.
+               THE LABELS MATCH TRACTS 1-4 TOO, written in fill() - see there. -->
+          <dl class="ld-fields ld-tfacts xtw-fields"></dl>
+        </div>
         <!-- ---- THE SAME EIGHT ELEMENTS AS THE PER-TRACT ACCORDIONS ----
              (Kiron, 2026-09-01: "these are the elements that must be in all tract details
              spaces".) This window IS a tract details space - it is what the 5-or-more index
@@ -4485,37 +4644,6 @@
                what a visitor clicks - but a static default means the one control in this window
                that leaves the page is never briefly pointed at nothing. -->
           <a class="ld-tdir xtw-dir" href="https://www.google.com/maps/dir/?api=1&amp;destination=40.78889%2C-93.31222" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
-        </div>
-        <!-- ---- THE MAPS SIT RIGHT, THE TEXT LEFT (Kiron, 2026-09-02: "let's put the images
-             right aligned, and the text on the left") ----
-             IT IS A DOM MOVE, NOT AN `order` PROPERTY. This block used to be first in the body
-             and the columns were read in the order they were written. Moving the markup rather
-             than reordering the boxes keeps the reading order and the visual order the same
-             thing, which is what a screen reader and a keyboard both follow.
-             IT ALSO PUTS THE WINDOW THE SAME WAY ROUND AS THE ACCORDIONS, where .ld-tprose is
-             the left column and .ld-tside carries the photographs on the right. The two tract
-             detail spaces now agree on the axis as well as on the content.
-             ON A PHONE THE IMAGE GOES BACK ON TOP - see the order rule in the 767 block, which
-             is the same call .ld-tside makes at 1023 and for the same reason. -->
-        <div class="xtw-media">
-          <div class="xtw-frame">
-            <img class="xtw-img" alt="" />
-            <span class="xtw-chip"></span>
-            <button class="xtw-prev" type="button" aria-label="Previous map">&#8249;</button>
-            <button class="xtw-next" type="button" aria-label="Next map">&#8250;</button>
-            <span class="xtw-count"></span>
-          </div>
-          <!-- ---- THE FACTS MOVE UNDER THE PHOTOGRAPHS (Kiron, 2026-09-02: "all that is
-               happening is the facts are moving over underneath the photos") ----
-               THIS IS THE WHOLE OF WHAT SEPARATED THE TWO TRACT LAYOUTS. The accordion has
-               always put its figures under its carousel in the right-hand column; this window
-               stacked them under the prose in the left one, which is why the same eight
-               elements read as two different designs. They are now one design at two sizes.
-               IT CARRIES .ld-tfacts AS WELL, which is the accordion's own column sizing -
-               fit-content(45%) for the label against minmax(0, 1fr) for the value. Sharing the
-               class rather than copying the numbers is what stops the two drifting again.
-               THE LABELS MATCH TRACTS 1-4 TOO, written in fill() - see there. -->
-          <dl class="ld-fields ld-tfacts xtw-fields"></dl>
         </div>
         <!-- DOWNLOADS SPANS BOTH COLUMNS (Kiron, 2026-08-31: "widen these columns, so that
              there is no word wrap"). Under the map it had half the window to hold two columns,

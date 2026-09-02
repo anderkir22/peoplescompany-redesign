@@ -793,27 +793,24 @@
        167px is under a third of the list until the list drops below about 520px, which only
        happens on a phone. Desktop is untouched and no label wraps there. */
     .ld-fields-prose{ grid-template-columns: fit-content(32%) minmax(0, 1fr); }
-    /* ---- .ld-fields-2up: FOUR columns, two label/value pairs per row ----
-       (Kiron, 2026-08-31: "converting some of them to 2 column that are little text counts".)
-       For fields whose value is a word or a number. At one pair per row, "1977" sat alone
-       against 800px of empty space nineteen times over.
-       fit-content(20%) ON BOTH LABEL COLUMNS, not max-content: the same reasoning as the prose
-       list, and it matters more here because there are two of them - a long label in either
-       column would otherwise push the whole grid wider than the accordion.
-       THE TWO LABEL COLUMNS SIZE INDEPENDENTLY, so column 3's labels do not line up with
-       column 1's. That is correct: each pair is a label bound to its own value, and forcing one
-       shared width would leave a gap inside every pair in the narrower column.
-       ROW GAP DROPS BACK TO 12px from the prose list's 16px. 16px is spacing for multi-line
-       clauses that need separating; these are single lines and read as a table. */
-    .ld-fields-2up{ grid-template-columns:
-        fit-content(20%) minmax(0, 1fr) fit-content(20%) minmax(0, 1fr);
-      column-gap: var(--space-6); row-gap: var(--space-3); margin-bottom: var(--space-5); }
-    /* ONE PAIR PER ROW BELOW 767. Four tracks in a 300px column is a label and two characters.
-       This one DOES need a breakpoint - unlike the label cap, there is no self-regulating value
-       for "how many pairs fit", so the count has to change at a width. 767 is on the --site
-       ladder, where the rest of this page restructures. */
+    /* ---- .ld-colpair: TWO STACKS SIDE BY SIDE, each a whole field list ----
+       BUILDING IS NOW AUTHORED IN COLUMNS, NOT FLOWED INTO THEM (Kiron, 2026-09-02: the
+       Building section becomes these two columns, and he gave the two field orders).
+       IT REPLACES .ld-fields-2up, WHICH IS GONE FROM ALL THREE DETAIL PAGES. That class flowed
+       one list across four tracks, so which pair landed beside which was whatever the row count
+       happened to make, and a value that wrapped to two lines dragged its neighbour's baseline
+       with it. Here each column is its OWN <dl> with its own label track, so the order Kiron
+       listed is the order that renders and the two sides are independent - fifteen rows on the
+       left against eight on the right, with no attempt to make them meet at the bottom.
+       align-items: start so the shorter column sits at the top rather than stretching.
+       ONE COLUMN BELOW 767, which is the breakpoint .ld-fields-2up used and for the same
+       reason - two prose field lists in a 300px column would be a label and two characters.
+       The left list comes first in source order, so it stacks first, which is the reading order
+       Kiron gave. */
+    .ld-colpair{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-8); align-items: start; }
     @media (max-width: 767px){
-      .ld-fields-2up{ grid-template-columns: fit-content(32%) minmax(0, 1fr); }
+      .ld-colpair{ grid-template-columns: minmax(0, 1fr); row-gap: var(--space-4); }
     }
 
     /* ---- downloads: a clean text list, no file-type icon tiles ---- */
@@ -1807,40 +1804,38 @@
                so the type is a field the CMS supplies and the value is another. Do NOT
                hardcode "CSR2" back into the label. -->
           <ul class="ld-ovstats">
+          <!-- THE ORDER IS KIRON'S, 2026-09-02: Price per Acre / Total Acres / Tillable Acres
+               / Avg CSR2 / Net Taxes. PER ACRE LEADS NOW - it used to sit third, between the
+               two acreages and the rating, under the 2026-08-26 call that put "the two money
+               figures together in the middle-and-right of the row". That call is superseded:
+               price per acre is the figure a farmland buyer compares listings on, so it opens
+               the row, and net taxes closes it. The two acreages and the rating read as one
+               run in the middle - acres, how many of them farm, how good they are.
+               SAME FIVE CARDS AS BEFORE, only reordered. Nothing was added or dropped.
+               THE LABELS ARE THE CATALOGUE'S, not the wording of the instruction: the card is
+               "Per acre", not "Price per Acre", and "Average CSR2" is the productivity-type
+               span rendering Iowa's index - see the note on it below. -->
             <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
-              <span><span class="n">161.03</span><span class="l">Total acres M/L</span></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.2 1.2-4.2 3s1.6 2.6 4.4 3.2c2.9.6 4.6 1.5 4.6 3.4 0 2-1.9 3.4-4.8 3.4-2.4 0-4.2-1-4.9-2.7"/></svg>
+            <span><span class="n">$14,500</span><span class="l">Per acre</span></span>
             </li>
             <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-              <!-- "Tillable acres" (Kiron, 2026-08-26), which is also the field spec's
-                   name for this slot (§3.4). The figure itself is #19651's FSA cropland
-                   number — the listing's description still says so in full, so the page
-                   is not claiming a different measurement, just labelling it the way the
-                   rest of the site does. -->
-              <span><span class="n">149.72</span><span class="l">Tillable acres M/L</span></span>
-            </li>
-            <!-- PER ACRE AND SOIL PRODUCTIVITY SWAPPED (Kiron, 2026-08-26): the two
-                 money figures now sit together in the middle-and-right of the row
-                 (per acre, then net taxes) with the two acreages on the left, so the
-                 rating is not wedged between them. -->
-            <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.2 1.2-4.2 3s1.6 2.6 4.4 3.2c2.9.6 4.6 1.5 4.6 3.4 0 2-1.9 3.4-4.8 3.4-2.4 0-4.2-1-4.9-2.7"/></svg>
-              <span><span class="n">$14,500</span><span class="l">Per acre</span></span>
-            </li>
-            <!-- NO "LISTING TYPE" ITEM (Kiron, 2026-08-26). It was the one entry here
-                 whose value was a word rather than a figure, and the type is already
-                 stated in the h1 and in the breadcrumb above it. Removing it is what
-                 leaves exactly five for a Farmland listing. -->
-            <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
-              <span><span class="n">84.6</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
+            <span><span class="n">161.03</span><span class="l">Total acres M/L</span></span>
             </li>
             <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
-              <span><span class="n">$5,038</span><span class="l">Net taxes</span></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
+            <span><span class="n">149.72</span><span class="l">Tillable acres M/L</span></span>
             </li>
-                    </ul>
+            <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
+            <span><span class="n">84.6</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
+            </li>
+            <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+            <span><span class="n">$5,038</span><span class="l">Net taxes</span></span>
+            </li>
+          </ul>
 
           <!-- ================= THE STAT CARD POOL: EVERY AVAILABLE OPTION =================
                THE FIVE ABOVE ARE THE LIVE MODEL - how the strip ships, five cards chosen per
@@ -1871,8 +1866,14 @@
                again, so what is being judged is the field and its value, not a mock-up of one.
 
                THREE CARDS THAT ARE MORE THAN ONE CMS FIELD, or fewer:
-                 * BATHS is Full Bathrooms + Half Bathrooms, composed to the US convention where
-                   2 full and 1 half reads 2.5. Same join as HOA Dues.
+                 * BATHROOMS is Full Bathrooms + Half Bathrooms, composed to the US convention
+                   where 2 full and 1 half reads 2.5. Same join as HOA Dues.
+                   THE CARD SAID "Baths" UNTIL 2026-09-02 (Kiron: change it to BATHROOMS on the
+                   card). The Building section calls the same field Bathrooms, so the short form
+                   was the only place on the page where one field wore two names. The card has
+                   the room - "Bathrooms" is the longest label in the catalogue and it still sets
+                   on one line at every width in the ladder, because .ld-ovstats' 767 block
+                   turns the strip into label-left / figure-right rows.
                  * AVERAGE CSR2 IS ONE CARD, NOT TWO. The label is the state's productivity index
                    name - CSR2 in Iowa, PI in Illinois and Indiana - and it is driven by the
                    data-field="productivity-type" span, not by a second card. An earlier pool
@@ -1965,7 +1966,7 @@
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M7 12V6a2 2 0 0 1 4 0"/></svg>
-                <span><span class="n">2.5</span><span class="l">Baths</span></span>
+                <span><span class="n">2.5</span><span class="l">Bathrooms</span></span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
@@ -2094,59 +2095,90 @@
         <details id="ld-building" class="reveal ld-acc">
           <summary><h2>Building</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
           <div class="ld-acc-body">
-            <!-- CONSOLIDATED, 26 CMS FIELDS INTO 14 ROWS (Kiron, 2026-08-31: combine some of
-                 these the way HOA Dues took HOA Frequency, and put the short ones two across).
-                 TWO LISTS, because these 26 fields are two kinds of thing:
-                   1. A SPEC GRID - counts, years, materials. Nineteen fields whose values are a
-                      word or a number. Four columns, two label/value pairs per row, so a
-                      one-word value no longer holds a whole 800px row on its own.
-                   2. DESCRIPTIONS - four fields that are sentences. Full width, one pair per
-                      row, exactly as Land Details and Terms.
-                 It reads as a specification followed by the prose that qualifies it, and it cuts
-                 the section's height by roughly a third.
+            <!-- AUTHORED AS TWO COLUMNS (Kiron, 2026-09-02: "convert it all to these two
+                 columns", followed by the two field orders verbatim). This replaces the previous
+                 arrangement - a nineteen-field .ld-fields-2up spec grid, then a separate four-row
+                 prose list underneath - which sorted the fields by the SHAPE of their value.
+                 These two columns sort them by SUBJECT instead:
+                   LEFT  - the house as you experience it inside. Size and counts first, then
+                           who built it and in what style, then room by room, ending on what
+                           conveys and what is fitted.
+                   RIGHT - the systems and the outside. Mechanicals, then the shell from the
+                           roof down, then how you arrive.
+                 SO SHORT AND LONG VALUES NOW SIT IN ONE LIST. "4" and a three-line sentence
+                 share a column, which the old split existed to avoid; .ld-fields-prose handles
+                 it because every row is its own grid row, and a one-word value simply leaves
+                 white space rather than misaligning anything.
+                 EACH COLUMN IS ITS OWN <dl>, so the two label tracks size independently and the
+                 orders Kiron gave are what renders - see .ld-colpair.
+                 THE ROWS ARE NOT BALANCED, 15 against 8, and are not meant to be. Left is the
+                 longer list and both start at the top.
 
-                 THREE PAIRS COMBINED WITH " / ", the HOA Dues pattern - two CMS fields rendered
-                 as one value by the template, NOT new fields:
-                   · Full Bathrooms + Half Bathrooms -> "Bathrooms: 2 full / 1 half"
-                   · Fireplaces + Fireplace Type     -> "Fireplaces: 1 / wood burning insert"
-                   · Heat + Cooling                  -> "Heating & Cooling: forced air, propane / central"
+                 THREE PAIRS STILL COMBINED WITH " / ", the HOA Dues pattern - two CMS fields
+                 rendered as one value by the template, NOT new fields:
+                   - Full Bathrooms + Half Bathrooms -> "Bathrooms: 2 full / 1 half"
+                   - Fireplaces + Fireplace Type     -> "Fireplaces: 1 / wood burning insert"
+                   - Heat + Cooling                  -> "Heating &amp; Cooling: forced air, propane / central"
                  Each join has to degrade: if the second field is empty the slash goes with it,
                  and if both are empty the row goes. Half Bathrooms is the common case - plenty
                  of houses have none, and "2 full /" is worse than "2 full".
-                 NOT COMBINED, though it looks tempting: Exterior and Trim. Trim may describe
-                 interior woodwork, and joining them would assert something the fields do not. -->
-            <dl class="ld-fields ld-fields-prose ld-fields-2up">
-              <dt>Year Built</dt><dd>1977</dd>
-              <dt>Square Feet</dt><dd>2,480</dd>
-              <dt>Bedrooms</dt><dd>4</dd>
-              <dt>Bathrooms</dt><dd>2 full / 1 half</dd>
-              <dt>Stories</dt><dd>1.5</dd>
-              <dt>Style</dt><dd>Raised ranch</dd>
-              <dt>Foundation</dt><dd>Poured concrete</dd>
-              <dt>Roof</dt><dd>Asphalt shingle, 2019</dd>
-              <dt>Exterior</dt><dd>Vinyl siding, brick accent</dd>
-              <dt>Trim</dt><dd>Painted pine</dd>
-              <dt>Builder</dt><dd>Unknown</dd>
-              <dt>Basement</dt><dd>Full, partially finished</dd>
-              <dt>Fireplaces</dt><dd>1 / wood burning insert</dd>
-              <dt>Heating &amp; Cooling</dt><dd>Forced air, propane / central</dd>
-              <dt>Street</dt><dd>Paved county road</dd>
-              <dt>Driveway</dt><dd>Concrete circle drive</dd>
-              <dt>Family Room</dt><dd>Lower level, walkout</dd>
-              <dt>Dining Room</dt><dd>Informal, off the kitchen</dd>
-              <dt>Other Rooms</dt><dd>Office and mud room</dd>
-            </dl>
-            <!-- The four that are sentences. Same treatment as Land Details and Terms. -->
-            <dl class="ld-fields ld-fields-prose ld-fields-desc">
-              <dt>Garage</dt>
-              <dd>Attached two car, 24&prime; x 24&prime;, with a floor drain.</dd>
-              <dt>Exterior Features</dt>
-              <dd>Covered front porch, rear deck off the dining room, and a fenced yard on the south side.</dd>
-              <dt>Interior Features</dt>
-              <dd>Main floor laundry, walk-in pantry, and original hardwood through the living and dining rooms.</dd>
-              <dt>Appliances</dt>
-              <dd>Refrigerator, range, dishwasher, washer and dryer all remain with the property.</dd>
-            </dl>
+                 EVERY ROW IS STILL CONDITIONAL, and an empty field takes its label with it. A
+                 column that empties out entirely leaves the other one at full width, which the
+                 1fr tracks do on their own with no extra rule.
+                 THE THREE DETAIL PAGES CARRY THE IDENTICAL BLOCK, differing only in the two
+                 values that were already different here - Street and Driveway. -->
+            <div class="ld-colpair">
+              <dl class="ld-fields ld-fields-prose">
+                <dt>Square Feet</dt>
+                <dd>2,480</dd>
+                <dt>Bedrooms</dt>
+                <dd>4</dd>
+                <dt>Bathrooms</dt>
+                <dd>2 full / 1 half</dd>
+                <dt>Stories</dt>
+                <dd>1.5</dd>
+                <dt>Year Built</dt>
+                <dd>1977</dd>
+                <dt>Builder</dt>
+                <dd>Unknown</dd>
+                <dt>Style</dt>
+                <dd>Raised ranch</dd>
+                <dt>Trim</dt>
+                <dd>Painted pine</dd>
+                <dt>Family Room</dt>
+                <dd>Lower level, walkout</dd>
+                <dt>Dining Room</dt>
+                <dd>Informal, off the kitchen</dd>
+                <dt>Other Rooms</dt>
+                <dd>Office and mud room</dd>
+                <dt>Basement</dt>
+                <dd>Full, partially finished</dd>
+                <dt>Fireplaces</dt>
+                <dd>1 / wood burning insert</dd>
+                <dt>Appliances</dt>
+                <dd>Refrigerator, range, dishwasher, washer and dryer all remain with the property.</dd>
+                <dt>Interior Features</dt>
+                <dd>Main floor laundry, walk-in pantry, and original hardwood through the living and dining rooms.</dd>
+              </dl>
+              <dl class="ld-fields ld-fields-prose">
+                <dt>Heating &amp; Cooling</dt>
+                <dd>Forced air, propane / central</dd>
+                <dt>Garage</dt>
+                <dd>Attached two car, 24&prime; x 24&prime;, with a floor drain.</dd>
+                <dt>Exterior</dt>
+                <dd>Vinyl siding, brick accent</dd>
+                <dt>Roof</dt>
+                <dd>Asphalt shingle, 2019</dd>
+                <dt>Driveway</dt>
+                <dd>Concrete circle drive</dd>
+                <dt>Foundation</dt>
+                <dd>Poured concrete</dd>
+                <dt>Exterior Features</dt>
+                <dd>Covered front porch, rear deck off the dining room, and a fenced yard on the south side.</dd>
+                <dt>Street</dt>
+                <dd>Paved county road</dd>
+              </dl>
+            </div>
           </div>
         </details>
 

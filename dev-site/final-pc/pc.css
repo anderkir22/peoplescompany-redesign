@@ -1762,8 +1762,9 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
      <div class="lc-media">  img · optional .lc-pill · .lc-fav star
      <div class="lc-body">   .lc-statusrow (.lc-status + .lc-id) · .lc-place > .lc-link
                              .lc-headline · .lc-meta > span* · .lc-agentrow > .lc-agent
- The premium variants (.lc-pic + .lc-premium / .lc-premium-alt) put their copy over
- the photograph in .lc-pover instead and carry no .lc-body.
+ The premium card (.lc-pic + .lc-premium-alt) puts its copy over the photograph
+ in .lc-pover instead and carries no .lc-body. A second, full-row variant
+ (.lc-premium) existed until 2026-09-02 and is gone from this file.
 
  THE SAVE STAR NEEDS THREE LINES OF JS on any page that uses it — the click handler
  that flips aria-pressed. It is not in this file because this file is CSS; copy it
@@ -1853,17 +1854,21 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
    did before this hover existed. */
 .lc:hover, .lc:focus-within{ box-shadow: 0 10px 28px rgba(7,22,44,.22);
   transform: translateY(-2px); }
-/* The premium card starts from a heavier resting shadow and lifts further, so it stays ahead of
-   the standard cards at both states instead of being caught up with on hover. */
-.lc-premium{ box-shadow: 0 6px 22px rgba(7,22,44,.16); }
-.lc-premium:hover, .lc-premium:focus-within{ box-shadow: 0 16px 40px rgba(7,22,44,.30);
-  transform: translateY(-3px); }
+/* THE PREMIUM SHADOW PAIR THAT USED TO SIT HERE IS GONE, not moved: it was
+   `.lc-premium{ box-shadow }` plus its hover, and .lc-pic declares the identical two values in
+   the premium section below. One of the two was always redundant; with .lc-premium removed from
+   the markup on 2026-09-02 it is the one that went. The premium card still starts from a heavier
+   resting shadow and lifts further than a standard card - .lc-pic is what does it. */
 /* Reduced motion keeps the shadow — it is the information — and drops the movement, which is
-   the decoration. Removing both would leave no hover feedback at all. */
+   the decoration. Removing both would leave no hover feedback at all.
+   ⚠ THE PREMIUM CARD'S OVERRIDE CANNOT LIVE HERE, and used to try to: this block named
+   `.lc-premium:hover` while `.lc-pic:hover{ transform: translateY(-3px) }` sits LATER in the
+   file at equal specificity, so the later rule won and the premium card kept lifting under
+   reduced motion regardless. Its override now sits after .lc-pic's own rule, in the premium
+   section, which is the only place it can win. */
 @media (prefers-reduced-motion: reduce){
     .lc{ transition: box-shadow .18s ease; }
-    .lc:hover, .lc:focus-within,
-    .lc-premium:hover, .lc-premium:focus-within{ transform: none; }
+    .lc:hover, .lc:focus-within{ transform: none; }
   }
 
 /* ---- media: photo + scrim + overlays ---- */
@@ -1946,7 +1951,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
      stays a rectangle — see the .lc-grid note.
      THE LINK. .lc-link now sits in a static parent, which is why .lc had to become
      `position: relative`. Read the note on .lc before touching either.
-   The PREMIUM cards are unchanged: their copy is still over the photograph in .lc-pover, by
+   The PREMIUM card is unchanged: its copy is still over the photograph in .lc-pover, by
    design — the picture is the card there. */
 /* Sits under the status row as the card's title line. 24px against the 27px headline keeps
    the price/date the loudest thing on the card while the place still reads as the name of the
@@ -2072,20 +2077,29 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 /* Middot separators come from CSS so the markup stays a clean list of facts. */
 .lc-meta span + span::before{ content: "·"; margin: 0 6px; color: var(--pc-medium-blue); }
 
-/* ================= PREMIUM CARDS =================
+/* ================= PREMIUM CARD =================
    A promoted listing, PICTURE-LED: the whole card is one photograph, a gradient covers the
    bottom half, and all the copy sits over the gradient. There is deliberately NO .lc-body —
    the card IS .lc-media and the copy lives in .lc-pover. The standard card used to do the same
    thing with .lc-over; since 2026-08-24 its copy has moved into the white body, so the premium
-   cards are now the ONLY place copy sits on the photograph. That is the promotion.
+   card is now the ONLY place copy sits on the photograph. That is the promotion.
 
-   TWO SIZES, ONE TREATMENT (Kiron, 2026-08-24):
-     .lc-premium      — spans the whole row, 3/1 banner, 44px display type.
-     .lc-premium-alt  — ONE grid cell like a standard card, 4/3, 30px type. This is the layout
-                        the full-row card collapses to on a phone, promoted to a card of its own
-                        so the same treatment can appear inside the normal grid flow.
-   Everything they SHARE lives on .lc-pic, so the two can never drift apart. Both carry the
-   class: <article class="lc lc-pic lc-premium">. Only size-dependent values are overridden. */
+   ONE SIZE. The markup is <article class="lc lc-pic lc-premium-alt">: .lc-pic carries the
+   treatment - border, gradient, colour flips, the copy overlay - and .lc-premium-alt the ratio
+   and the type sizes for one grid cell.
+
+   ⚠ THERE WERE TWO SIZES UNTIL 2026-09-02 (Kiron: remove the card that is full page width
+   completely). The other was .lc-premium, which spanned the whole row as a 3/1 banner at 44px
+   display type, and .lc-premium-alt was defined as the layout that banner collapsed to on a
+   phone. Every .lc-premium rule is gone from this file, including its 767 and 639 overrides.
+   TWO CONSEQUENCES WORTH KNOWING:
+     * .lc-pic AND .lc-premium-alt ARE NOW ALWAYS TOGETHER. The split between them no longer
+       earns its keep on today's markup - it exists so a second size can be added back without
+       touching the shared treatment, which is exactly what happened once. Keeping it is cheap;
+       collapsing the two into one class would have to be undone the next time.
+     * "alt" NAMES ITS HISTORY, NOT A CHOICE. There is nothing left for it to be an alternative
+       to. It was not renamed because renaming it buys no visual change and touches every note
+       on the page that points at it. */
 
 /* ---- shared by both premium sizes ---- */
 /* Border went ONE STEP DARKER at Kiron's request: PC Blue -> PC Medium Blue #316F96. Palette by
@@ -2093,8 +2107,10 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
    Side effect worth keeping: PC Blue was 2.5:1 on white and Medium Blue is 5.5:1, so the border
    now clears WCAG 2.2 SC 1.4.11 (3:1 for a UI boundary) on its own rather than leaning on the
    size and the word to excuse it.
-   THE HIGHLIGHT IS STILL NOT THE BORDER ALONE — the pill says "Premium Listing" and (on the
-   full-row card) the size says it too. Both survive greyscale; the border does not. */
+   THE HIGHLIGHT IS NOT THE BORDER ALONE — the pill says "Premium Listing" in words, and words
+   survive greyscale where a colour does not. It used to have the full-row card's SIZE saying it
+   as well; with that card gone the pill is the whole of the non-colour signal, which is the
+   reason it is a pill with text in it rather than a coloured corner. */
 .lc-pic{ border: 3px solid var(--pc-medium-blue);
   box-shadow: 0 6px 22px rgba(7,22,44,.16); }
 .lc-pic:hover, .lc-pic:focus-within{ box-shadow: 0 16px 40px rgba(7,22,44,.30);
@@ -2138,45 +2154,23 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .lc-pagent span{ display: block; font-weight: 400; font-size: 12px;
   color: var(--pc-light-blue); margin-top: 2px; }
 
-/* ---- FULL-ROW premium ----
-   grid-column: 1 / -1 rather than "span 3" — it means "every column there is", so the card
-   still fills the row when the grid drops to 2 columns at 1279 and to 1 at 767. "span 3" would
-   invent a phantom third track and overflow a 2-column grid. */
-.lc-premium{ grid-column: 1 / -1; }
-/* NO ratio and NO min-height any more — the row is already exactly as tall as a standard card
-   (grid-auto-rows:1fr), so the photo just fills it. It used to be `aspect-ratio: 3/1` with a
-   420px floor, which made row 1 taller than row 2 at some widths and SHORTER at others: at the
-   1216px box it measured 426px against the standard card's 439px, so the promoted card was the
-   smaller of the two. Kiron's call is that they match exactly.
-   The old `width: 100%` note about aspect-ratio inflating the inline size no longer applies,
-   because there is no aspect-ratio left to resolve — but width:100% is harmless and kept so the
-   box cannot be sized by anything but the card. */
-.lc-premium .lc-media{ width: 100%; height: 100%; aspect-ratio: auto; min-height: 0; }
-/* 3/1 is the shape that makes this read as a BANNER rather than a very wide card — at 1376px
-   that is a 459px-tall image. min-height is the floor for narrower bands where 3/1 would
-   collapse to a letterbox: at 960px the ratio wants 320px and the floor holds it at 420.
-   ⚠ width: 100% IS LOAD-BEARING — do not remove it as redundant on a block element.
-   `aspect-ratio` plus a BINDING `min-height` resolves the OTHER axis from the ratio, so once
-   min-height won, the box computed its width as height x 3 and blew past the card: measured
-   1260px wide inside a 797px card (clipped by .lc overflow:hidden, so it looked fine on screen
-   while the overlay was being positioned against a box half again too wide). Pinning the inline
-   size makes width definite, so the ratio and then min-height resolve the height instead. */
-.lc-premium .lc-pplace{ font-size: 44px; }
-.lc-premium .lc-headline{ font-size: 30px; }
-.lc-premium .lc-meta{ font-size: 13px; }
-/* Facts left, agent right on one baseline, so the full width earns its keep instead of leaving
-   a long empty gap beside the price. */
-.lc-premium .lc-prow{ align-items: flex-end; justify-content: space-between; }
-.lc-premium .lc-pagent{ font-size: 15px; text-align: right; }
-
-/* ---- ALT premium: the same card in ONE grid cell ----
-   Placed as the first card of row 2 (Kiron, 2026-08-24) so the promoted treatment also appears
-   inside the normal grid flow. It is the phone layout of the full-row card, which is why the
-   ratio, the type sizes and the stacked facts row all match what .lc-premium does at <=767.
-   No grid-column: it takes one cell like any standard card, so it needs no span at all. */
-/* Same as the full-row card: fill the row. Without this the alt card kept a 4/3 photo inside a
-   449px-tall row and left ~122px of bare white card below the picture — measured 436x327 in a
-   449px box. Because its copy sits ON the photo, that gap was empty, not padding. */
+/* ---- .lc-premium-alt: the premium card, one grid cell ----
+   No grid-column: it takes one cell like any standard card, so it needs no span at all, and it
+   sits first in the grid purely by being first in the DOM.
+   THE SIZES HERE WERE DERIVED FROM THE FULL-ROW CARD'S PHONE LAYOUT - the ratio, the type sizes
+   and the stacked facts row were chosen to match what .lc-premium did at <=767, back when both
+   existed. They are the values in their own right now; there is nothing left to keep them in
+   step with, so they can be changed on their own merits.
+   REDUCED MOTION, WHICH HAS TO BE HERE AND NOT IN THE BLOCK NEAR .lc: .lc-pic:hover sets
+   transform a few lines above, at equal specificity to `.lc:hover`, so the general
+   prefers-reduced-motion rule up there cannot reach it. Same shadow-stays / movement-goes call
+   that rule makes. */
+@media (prefers-reduced-motion: reduce){
+  .lc-pic:hover, .lc-pic:focus-within{ transform: none; }
+}
+/* FILL THE ROW. Without this the card kept a 4/3 photo inside a 449px-tall row and left ~122px
+   of bare white card below the picture — measured 436x327 in a 449px box. Because its copy sits
+   ON the photo, that gap was empty, not padding. */
 .lc-premium-alt .lc-media{ width: 100%; height: 100%; aspect-ratio: auto; }
 /* Tighter insets than the full-row card: 32px each side out of a ~443px card would leave the
    44px-equivalent name almost no measure. */
@@ -2292,27 +2286,20 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
      cost of showing the card at full size on a small screen. Do not "optimise" it back to two
      columns without asking. */
   .lc-grid{ grid-template-columns: 1fr; }
-  /* FULL-ROW PREMIUM: nothing to stack — it is one photograph with the copy over it, so what
-     changes is the SHAPE, not the layout. 3/1 is a banner ratio that only works while the card
-     is wide; at 704px it would be a 235px letterbox carrying 44px display type. 4/3 with a
-     460px floor gives the copy room at phone widths. In other words, at this width the full-row
-     card becomes what .lc-premium-alt already is — which is exactly why the alt exists.
-     EVERY SELECTOR HERE IS SCOPED TO .lc-premium, and it has to be. The base rules it is
-     overriding are two-class (`.lc-premium .lc-prow`, `.lc-premium .lc-pagent`), so a bare
-     `.lc-prow` would lose on specificity no matter that it sits in a later media query:
-     flex-direction would flip to column while align-items stayed flex-end, giving a
-     right-aligned stack, and the agent would stay right-aligned. Scoping is not tidiness. */
-  .lc-premium .lc-pover{ left: var(--space-4); right: var(--space-4);
-    bottom: var(--space-4); }
-  .lc-premium .lc-prow{ flex-direction: column; align-items: flex-start;
-    justify-content: flex-start; gap: var(--space-3); }
-  .lc-premium .lc-pagent{ text-align: left; }
+  /* NOTHING FOR THE PREMIUM CARD TO DO AT THIS WIDTH. The four .lc-premium overrides that used
+     to sit here reshaped the full-row banner into what .lc-premium-alt already was - tighter
+     insets, a stacked facts row, a left-aligned agent - and .lc-premium-alt declares all of that
+     unconditionally, so with the banner removed on 2026-09-02 there is nothing left to converge
+     on. The card simply becomes the one full-width column .lc-grid gives it. */
 }
 @media (max-width: 639px){
-  /* 44px in a ~295px measure wraps "Stanley County, SD" to three lines and starts to look like
-     a mistake rather than emphasis. 32px keeps it clearly the largest thing on the card while
-     holding two. The price follows it down so the gap between them stays proportional — at 30px
-     against a 32px place name the two would read as the same level. */
+  /* A LONG PLACE NAME IN A ~295px MEASURE wraps to three lines and starts to look like a mistake
+     rather than emphasis. 32px keeps the name clearly the largest thing on the card while
+     holding two lines.
+     THE MATCHING `.lc-premium .lc-headline{ font-size: 24px }` CAME OFF WITH THE BANNER, and
+     nothing replaces it: it pulled the price down from 30px so the gap to a 44px name stayed
+     proportional. .lc-premium-alt sets the name at 30px and the price at 23px, which is already
+     that proportion, so the card needs no 639 adjustment of its own. This rule stays because
+     .lc-pplace is unscoped and 32px is still right for the name at this width. */
   .lc-pplace{ font-size: 32px; }
-  .lc-premium .lc-headline{ font-size: 24px; }
 }
