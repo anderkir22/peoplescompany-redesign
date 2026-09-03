@@ -313,6 +313,31 @@
       letter-spacing: .1em; text-transform: uppercase; color: var(--pc-white);
       background: var(--pc-medium-blue); border-radius: var(--radius-pill); padding: 5px 12px; }
 
+    /* ---- THE DATE/PRICE AND THE HEADING ARE THE SAME SIZE, AT EVERY WIDTH ----
+       (Kiron, 2026-09-03: "I want Date/Price to decrease in size to match the size of
+       Wayne County, IA".)
+       ONE RULE NOW GOVERNS THE PAIR: .ld-price == .ld-head h1, and they step down together.
+         base   44 -> 30px   (h1 30px)
+         767    34 -> 26px   (h1 26px)
+         503    30 -> 22px   (h1 22px)
+       THE OLD LADDER HAD THE PRICE PERMANENTLY LARGER - 44/30, 34/26, 30/22 - on the argument
+       that the figure is what the eye lands on first and the county is what names the page.
+       That argument is retired, not overridden in one band: a listing's heading and the figure
+       beside it are two halves of the same statement, and sizing one above the other made the
+       row read as a headline with a subtitle rather than as one line.
+       ALL FOUR VALUES WERE CHANGED IN ONE PASS, WHICH IS THE POINT. An earlier version of this
+       set 30px at 1024-1279 alone, and that quietly broke the ladder: the 767 band still said
+       34px, so the date GREW from 30 to 34 as the window got NARROWER. A pair rule has to be
+       applied to every rung or it is not a rule.
+       BASELINE ALIGNMENT SURVIVES UNCHANGED. align-items: baseline was chosen because a 44px
+       figure and a 30px heading centre badly against each other; two items at the same size
+       share a baseline trivially, so the rule now costs nothing and still earns its place if
+       either size ever moves again. The 2px of vertical offset measurable between them is
+       serif-against-sans ascent metrics, not a misalignment.
+       IT ALSO BUYS BACK ONE-LINE ROWS, measured at the 588px column of 1024-1279: the date
+       goes from 270px to about 213px, returning ~57px to the heading beside it, so
+       "Pottawattamie County, IA" and "Pottawattamie County, Iowa" both stopped stacking. See
+       .ld-pricerow's wrap-reverse note for what governs the names still long enough to stack. */
     /* PRICE LEFT, PROPERTY RIGHT, ONE BASELINE (Kiron, 2026-08-26). The h1 moved up
        from its own line under the price into the slot the street address used to hold
        before the address moved out. Everything else that once shared this row is gone:
@@ -321,11 +346,60 @@
        align-items: baseline, NOT center — a 44px figure and a 30px heading centred
        against each other look misaligned, because their optical weight sits at
        different heights. Sitting them on a shared baseline is what makes the row read
-       as one line. flex-wrap so the heading drops under the price rather than
-       compressing it when the column is narrow. */
+       as one line. The row wraps rather than compressing either item when the column
+       is narrow.
+
+       WRAP-REVERSE, SO THE PLACE NAME KEEPS THE TOP LINE (Kiron, 2026-09-03: "where the
+       County State (or street address) is too long and crowds the Date (or price), stack them
+       so the date/price is below. I believe it is currently the other way around?").
+       IT WAS THE OTHER WAY AROUND. Plain `wrap` sends the LATER flex item to the NEXT line,
+       and the DOM order here is price-then-heading (which is deliberate and documented at the
+       markup), so a long county name pushed ITSELF down and left the date sitting alone on
+       top:
+           October 31, 2026
+                                        Pottawattamie County, IA
+       That inverts the page's own hierarchy the moment the name gets long. The h1 is what
+       NAMES the listing; the date is the figure it leads with. When there is only room for one
+       of them on the first line it has to be the name.
+       `wrap-reverse` FLIPS WHICH LINE IS ON TOP WITHOUT TOUCHING THE DOM. Cross-start and
+       cross-end swap, so line two renders ABOVE line one - the heading takes the top and the
+       date drops beneath it. Nothing about source order, the <h1>, or what a screen reader
+       hears changes, which is why this is a one-word fix and not a reordering:
+           Pottawattamie County, IA
+           October 31, 2026
+       THE ONE-LINE CASE IS UNTOUCHED, and that was the thing to check rather than assume:
+       wrap-reverse only has an effect once there IS a second line. Measured at 1024, 1280 and
+       1536 with four name lengths up to "Pottawattamie and Mills Counties, Iowa" - every case
+       that fits on one line still renders date left, heading right, on the shared baseline,
+       at exactly the same coordinates as before. Only 1024 wraps at all, and only there does
+       anything move.
+       WHEN IT STACKS THE HEADING SITS LEFT, which is right and needs no rule: it is then the
+       only item on its line, so space-between places it at the start, and its own
+       `text-align: right` has nothing to act on because the box shrinks to the text. If a name
+       ever gets long enough to wrap to two lines INSIDE that box, the ragged edge would flip to
+       the left and that rule would need revisiting - 464px of a 588px column is the longest
+       measured so far, so it has not come up. */
+    /* ---- THE TWO GAPS ARE SPLIT, BECAUSE THEY DO DIFFERENT JOBS (Kiron, 2026-09-03, at 375:
+       "decrease the space between the county, state and date text") ----
+       `gap: var(--space-5)` set BOTH axes from one value, which is why the stacked pair was as
+       far apart as the side-by-side pair is wide. Those are not the same measurement:
+         · COLUMN-GAP 24px, unchanged. Side by side, this is the horizontal separation between
+           the date and the heading at the far end of the row - and the row is
+           space-between, so this value is only ever a MINIMUM. It never actually shows until
+           the row is nearly full.
+         · ROW-GAP 12px, was 24. Stacked, this is the real, visible distance between two lines
+           of a two-line block, and it shows on every narrow screen. 24px between them read as
+           two separate things; 12px reads as one block of two lines.
+       MEASURED at 375, where the pair first stacks (column 335px): box-to-box 24 -> 12px, and
+       ink-to-ink 18 -> 6px. The 6px difference between the two figures is the line-height's own
+       leading, which is why the ink gap is not simply the row-gap.
+       IT APPLIES AT EVERY WIDTH, not just here, and that is intended: row-gap only has any
+       effect when the row has actually wrapped, so this changes nothing at the widths where the
+       pair sits on one line. The long-county-name case at 1024 gets the same tightening for the
+       same reason. */
     .ld-pricerow{ display: flex; align-items: baseline; justify-content: space-between;
-      gap: var(--space-5); flex-wrap: wrap; }
-    .ld-price{ font-family: var(--font-serif); font-size: 44px; font-weight: 600;
+      column-gap: var(--space-5); row-gap: var(--space-3); flex-wrap: wrap-reverse; }
+    .ld-price{ font-family: var(--font-serif); font-size: 30px; font-weight: 600;
       color: var(--color-text); line-height: 1; margin: 0; flex: none; }
     /* 30px against the price's 44px, deliberately: the price is what the eye goes to
        first, and the county and acreage are what NAME the page. Right-aligned so it
@@ -715,22 +789,6 @@
     .ld-aside > .mock-note, .ld-agentslot > .mock-note{ margin-bottom: 0; }
     .mock-note-body b{ font-weight: 600; }
 
-    /* ================= MOCK-UP NOTES TEMPORARILY HIDDEN (Kiron, 2026-09-02) =================
-       "let's hide all the mock up notes ... I will want to bring them back once we have sized
-       everything, but right now, let's hide them."
-       THIS IS A HOLD, NOT A REMOVAL. The notes, their markup and every rule above are untouched;
-       this one declaration is the whole of it. TO BRING THEM BACK, DELETE THIS BLOCK - nothing
-       else has to be put back, and there is nothing else to remember.
-       display: none, NOT the .sr-only treatment this site uses elsewhere for "I do not want to
-       see it". Those two are different requests: .sr-only hides a thing from the eye while it
-       still occupies the accessibility tree, and it is right for a heading a screen reader needs.
-       These are review scaffolding that never ships to anyone, and the point of hiding them is to
-       size the page WITHOUT them - so they must take their space with them, which only
-       display: none does. A visually-hidden note would leave the page measuring the same.
-       THE THREE NOTES THIS AFFECTS on this page: above the stat card catalogue, above the pair of
-       Tracts treatments, and above the three Auction Details cards. It is scoped to the class, so
-       any note added later is hidden too until this comes out. */
-    .mock-note{ display: none; }
     .ld-ovstats svg{ width: 26px; height: 26px; flex: none; color: var(--pc-medium-blue); }
     .ld-ovstats .n{ display: block; text-align: center; font-family: var(--font-serif);
       font-size: 22px; font-weight: 600; color: var(--color-text); line-height: 1.1; }
@@ -778,6 +836,28 @@
     .ld-subbar{ position: sticky; top: var(--navH); z-index: 20;
       margin-top: var(--space-1); background: var(--pc-white);
       display: flex; align-items: center; gap: var(--space-4); }
+    /* ---- A TIGHT BAR HAS TO BUY ITS TOP GAP BACK (Kiron, 2026-09-03: "increase the spacing
+       above the sub-nav, as it is too close to the line of text above it") ----
+       THE 4px MARGIN WAS NEVER THE GAP. What separates the bar from the Save/Share row above
+       it is the margin PLUS the link's own top padding, and the padding is almost all of it:
+       4 + 14 = 18px of box, and 20-21px measured ink-to-ink (the bottom of the row above to
+       the top of the first label). That is what 1280 and 1536 have and what was approved.
+       THEN THE TIGHT ROWS TOOK THE PADDING. .ld-jump-wrapped drops it 14px -> 3px, so at 1024
+       the same gap measured TEN PIXELS - half of what every other band shows. The bar did not
+       move; the thing that was doing the spacing was spent on something else.
+       SO THE MARGIN COVERS EXACTLY WHAT THE PADDING GAVE UP: 4 -> 14px, which is +10 against
+       the -11 the padding lost. Measured back at 20px ink-to-ink at 1024, matching 1280's 20
+       and 1536's 21. This is parity, NOT a new value - if the gap should be bigger than the
+       one 1280 has, that is a separate change and it belongs on .ld-subbar's base margin so
+       every band moves together.
+       KEYED THROUGH :has() TO THE SAME STATE, deliberately. The compensation must appear and
+       disappear with the padding it is compensating for, and .ld-jump-wrapped is on the inner,
+       not on the bar - :has() is what lets the parent respond to it. A one-row bar keeps the
+       4px margin and its full 14px padding, so nothing changes at 1280 or 1536.
+       WITHOUT :has() the bar keeps 4px and the gap reads 7px when tight - visibly close, but
+       not broken. The same is true without JS, where .ld-jump-wrapped is never set at all and
+       the padding stays 14px, so the two degrade consistently. */
+    .ld-subbar:has(.ld-jump-wrapped){ margin-top: 14px; }
     /* Takes the slack so the buttons pin right. min-width: 0 lets the link list shrink
        rather than forcing the bar wider than the column. */
     .ld-jump{ flex: 1 1 auto; min-width: 0; }
@@ -819,9 +899,14 @@
        sets the cell and that label is "Downloads", not "360 Tour" - 120px against 106px at 14px,
        and 96px against 84px once the 479-and-below block drops to 12px. Measured at 767, 536,
        1024 and 1279: no cell overflows and the page has no horizontal scroll at any of them.
-       ⚠ 1280-1535 STILL WRAPS ON THE AUCTION PAGE, and padding cannot fix it: the column is
-       812px there, so nine links are 89px short. Only dropping the 17px icons (worth 225px
-       across the row) closes that band. Not done - it is a separate decision. */
+       1280-1535 IS SOLVED, AND THE ICONS ARE WHAT PAID FOR IT (Kiron, 2026-09-03). This note
+       used to end with a warning that the band still wrapped - the column is 812px there, so
+       nine links were 89px short, and it recorded that only dropping the icons could close it.
+       That is now done: `@media (max-width: 1535px)` hides them and zeroes the icon gap, worth
+       25px per link and 225px across the row. Nine links need 676px there and have 136px of
+       slack. See the .ld-body 1535 block for the full derivation.
+       THE 9px PADDING AND 6px GAP ON THIS LINE ARE STILL WHAT 1536+ IS SIZED TO, and that is
+       the band this whole note is about. Nothing above changes below 1536 except the icons. */
     .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 9px;
       font-family: var(--font-sans); font-size: 14px; font-weight: 500;
       color: var(--pc-navy); text-decoration: none; border-bottom: 3px solid transparent; }
@@ -838,22 +923,96 @@
        exists when it is wanted needs neither.
        aria-hidden and empty, so it is not in the accessibility tree and adds nothing to read. */
     .ld-jump-break{ flex: 0 0 100%; width: 100%; height: 0; align-self: flex-start; }
+    /* ---- A BAR ON MORE THAN ONE ROW GETS TIGHT ROWS (Kiron, 2026-09-03: at 1024, "let's
+       tighten the rows ... decrease the space between them") ----
+       Restored from the 2026-09-02 reset, where it was removed as item 2 so it could be put
+       back deliberately. This is that.
+
+       THE SPACE BETWEEN TWO ROWS IS NOT THE ROW-GAP, IT IS MOSTLY THE PADDING. Each link
+       carries 14px above and below its label, so two stacked rows are separated by
+       14 + row-gap 6 + 14 = 34px, of which the gap is 6. Setting row-gap to 0 alone takes 34
+       to 28 - the bar goes 113px to 107px and looks unchanged. The padding is the lever.
+
+       MEASURED AT 1024, NINE LINKS (column 588, bar wraps 6+3):
+         pad 14 / gap 6   34px between rows   bar 113px   <- before
+         pad 10 / gap 0   20px                bar  91px
+         pad  6 / gap 0   12px                bar  75px
+         pad  3 / gap 0    6px                bar  63px   <- this
+       63px against 113px: the second row is bought for 10px rather than for 60. That matters
+       more here than anywhere else on the page because THE BAR IS STICKY - its height is
+       subtracted from every screen of content for the whole scroll, not just at the top.
+
+       KEYED TO .ld-jump-wrapped, WHICH IS THE WHOLE POINT, and it is a STATE rule rather than
+       a viewport one. balanceJump() sets that class only when the bar actually occupies more
+       than one row. So a one-row bar keeps its full 14px at every width, and only a bar that
+       has already conceded a second row pays for it by tightening. THERE WAS A PLAIN MEDIA
+       QUERY COPY OF THIS AT 1279 ONCE AND IT HAD TO COME OUT - a media query cannot tell a
+       wrapped bar from a single-row one, so it tightened both, and the For Sale bar came out
+       37px at 900px where its eight links fit on one row. See the note in the 1279 block.
+
+       STILL WELL OVER THE WCAG 2.2 SC 2.5.8 TARGET FLOOR. The link is 31px tall at 3px padding
+       against a 24px minimum, and the narrowest ("Land") is 76px wide. 3px is not the floor for
+       comfort but it is nowhere near the floor for accessibility - if it ever reads as too
+       tight, 5px (35px tall, bar 71px) and 6px (37px tall, bar 75px) are the measured steps
+       back, and nothing changes but this one number.
+
+       WITHOUT JAVASCRIPT the class is never set and every bar keeps 14px - taller than it wants
+       to be when it wraps, but never two different heights for the same shape. The page already
+       needs script for --ld-jump-h, so this adds no new dependency. */
+    /* ---- AND A WRAPPED BAR CENTRES EVERY ROW (Kiron, 2026-09-03: "and then center both
+       rows") ----
+       Restored from the 2026-09-02 reset, where it was item 1. It is the third rule keyed to
+       .ld-jump-wrapped and it is keyed there for the same reason as the other two: a bar on ONE
+       row must stay left-aligned, because it sits under a left-aligned headline block and the
+       first link lines up with everything above it. Centre that and the whole bar drifts off
+       the page's left edge for no reason.
+       IT IS THE COMPANION TO THE THREE-ON-THE-LAST-ROW RULE, not an independent preference.
+       balanceJump() now guarantees a wrapped bar is exactly two rows split n + 3, so the second
+       row is always SHORTER than the first. Left-aligned, that short row hangs off the left and
+       the bar reads as a list that ran out of space. Centred, the two rows read as one
+       deliberate block - which is only safe to do BECAUSE the split is controlled. Centring an
+       arbitrary 8 + 1 wrap would just have centred a mistake.
+       justify-content, so it applies PER FLEX LINE - each row centres within the column
+       independently, which is exactly what "center both rows" means and is not something a
+       text-align could do. */
+    .ld-jump-inner.ld-jump-wrapped{ justify-content: center; row-gap: 0; }
+    .ld-jump-inner.ld-jump-wrapped a{ padding-top: 3px; padding-bottom: 3px; }
     /* ================= SUB NAV: RESET TO ONE STATE (Kiron, 2026-09-02) =================
        "let's eliminate all adjustments that are applied to the sub-nav as the window size
        changes. I want to start with 1536 and have a clean slate and work my way down."
 
-       THE BAR NOW LOOKS THE SAME AT EVERY WIDTH. Everything above this line is the whole of its
-       styling; there is no rule anywhere in this file that changes it by viewport, and the two
-       row-balancing rules in balanceJump() are gone as well. It wraps where the width runs out
-       and nothing intervenes.
+       THE RESET STILL HOLDS ABOVE 1536, AND ONE RULE HAS BEEN PUT BACK BELOW IT. Everything
+       above this line is the whole of the bar's styling at 1536+, and the two row-balancing
+       rules in balanceJump() are still gone. As of 2026-09-03 the bar is touched by exactly
+       ONE viewport rule and ONE state rule anywhere in this file, and the distinction between
+       them is the useful part:
+         · VIEWPORT (1 of 2): `@media (min-width: 1280px) and (max-width: 1535px)` drops the
+           icons (`.ld-jump svg{display:none}`, `.ld-jump a{gap:0}`) and widens the gap to 16px.
+           That is what puts nine links on ONE ROW in that band. It is deliberately NOT inherited
+           downward - 1024-1279 gets its icons back and its 6px gap, because that band cannot
+           fit one row at any setting and a bar that has conceded a second row has no reason to
+           pay for width. See that block.
+         · VIEWPORT (2 of 2): `@media (max-width: 639px)` drops the icons again, for a different
+           reason - not to buy a single row for nine links, which is impossible at that width,
+           but to stop FIVE links wrapping and to keep nine on two rows instead of three. See
+           that block. THE TWO RULES DO NOT MEET: 640-1279 keeps its icons.
+         · STATE: `.ld-jump-inner.ld-jump-wrapped` tightens the rows of a bar that has actually
+           wrapped - row-gap 0 and 3px vertical padding, 113px -> 63px. It is keyed to what the
+           bar IS DOING, not to how wide the window is, which is why it can be safe at every
+           width at once. See it above .ld-jump-break.
+       KEEP THAT COUNT HONEST: if another rule appears, say so here, because the value of this
+       note is that it lists all of them.
 
        WHAT WAS REMOVED, so it can be put back a piece at a time as the ladder is worked down:
-         1. `.ld-jump-inner.ld-jump-wrapped{ justify-content: center }` - every row of a wrapped
+         1. RESTORED 2026-09-03, alongside the three-on-the-last-row rule it partners.
+            `.ld-jump-inner.ld-jump-wrapped{ justify-content: center }` - every row of a wrapped
             bar centred itself. Keyed to the state, not a width. (2026-09-02)
-         2. `.ld-jump-inner.ld-jump-wrapped{ row-gap: 0 }` and
+         2. RESTORED 2026-09-03 - see the rule just above .ld-jump-break's note.
+            `.ld-jump-inner.ld-jump-wrapped{ row-gap: 0 }` and
             `.ld-jump-inner.ld-jump-wrapped a{ padding-top: 3px; padding-bottom: 3px }` - the
             tight treatment for a bar on more than one row. At 14px padding a two-row bar is
-            115px tall; this took it to 63px. The rows' spacing IS that padding, doubled.
+            113px tall; this takes it to 63px. The rows' spacing IS that padding, doubled.
+            It came back when 1024-1279 was settled as a two-row band.
          3. The `@media (max-width: 767px)` block: `.ld-jump-inner` became
             `display: grid; grid-template-columns: repeat(3, 1fr); overflow-x: visible` and
             `.ld-jump a` took `justify-content: center; white-space: nowrap`. Nine links read
@@ -863,6 +1022,9 @@
             `.ld-jump svg{ width: 14px; height: 14px }`.
          5. In balanceJump(): the 8-or-9-links-put-3-on-the-last-row rule, and the older rule
             that no secondary row may hold a single link.
+            BOTH ARE BACK as of 2026-09-03, and they now run in sequence: three-on-the-last-row
+            first, and the no-orphan rule as a FALLBACK for the three-row bars the first cannot
+            help. Neither is keyed to a link count any more. See balanceJump().
 
        WHAT DELIBERATELY STAYED, because neither is a size adjustment:
          * `--ld-jump-h`, which every jump link's `scroll-margin-top` is built on. The bar's
@@ -994,7 +1156,65 @@
        the band where the eye reliably finds the start of the next line. It is Kiron's
        call and it is recorded here rather than quietly reverted. If it is ever revisited,
        the fix is a cap here, not a narrower column — the column width is doing other work. */
-    .ld-copy{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.7;
+    /* ================= ONE BODY-COPY SCALE FOR THE WHOLE PAGE (Kiron, 2026-09-03) =================
+       "do a full adjustment on body copy size across the whole page."
+
+       THE FAULT WAS NOT A SIZE, IT WAS THAT .ld-copy HAD THREE OF THEM. At one viewport the
+       same class rendered 16px in Overview and the 360 section, 13px in Terms, and 12px inside
+       a tract - and .ld-fields ran 12px in one place and 13px in another. None of that was
+       sloppiness; each was a deliberate local decision (terms as fine print, tract prose sized
+       to match the tract field list on 2026-09-01) and they accumulated until the class no
+       longer meant anything. The file was carrying both "12px IS SMALL FOR RUNNING PROSE" and
+       "14px is the floor ... the smallest size that is still comfortable body copy" a few
+       hundred lines apart.
+
+       FOUR ROLES, ONE SIZE EACH, ONE STEP DOWN BELOW 480:
+         PROSE  16px / 15px   lh 1.55   running paragraphs - .ld-copy EVERYWHERE (Overview,
+                                        360, Terms, tracts), .xtw-desc, .xtw-legal, .xtw-dirs
+         NOTE   14px / 13px   lh 1.45   secondary prose attached to something - .ld-ac-note,
+                                        .ld-dl-note, .ld-formnote, .ld-ac-howto
+         DATA   13px / 12px   lh 1.45   label-and-value pairs - .ld-fields
+         MICRO  12px / 11px   lh 1.4    one-word tags and legal lines - .ld-ac-sublabel,
+                                        .ld-agent-lic, .ld-listingid, .ld-status, .ld-count
+
+       LEADING IS PART OF THE ROLE, NOT A PER-BLOCK CHOICE (Kiron, 2026-09-03: "the leading on
+       the text ... feels like it can all be tightened"). It had drifted exactly the way the
+       sizes had - 1.7 on prose, 1.65 on Terms, 1.6 on the field lists, 1.55 on the form note,
+       1.5 on the auction note - five values for four roles, none of them chosen against each
+       other. Now each role carries one.
+       WHY PROSE LANDS AT 1.55: 1.7 is a measure-for-a-narrow-column value, and this page has
+       the opposite problem - the prose runs the full width of a one-column layout below 1024,
+       where a LOOSE line makes a long line harder to track back, not easier. 1.55 on 15px is
+       23px of line, which is still an open setting for sans body copy.
+       DATA GOES FURTHEST, 1.6 -> 1.45, because a label-and-value list is read down the column
+       rather than along the line - the gap between rows is doing the separating there, not the
+       leading inside a row.
+       A ROLE, NOT A PLACE, DECIDES THE SIZE. That is the rule that stops this drifting back:
+       if a new block holds running prose it takes PROSE, wherever it sits on the page.
+
+       ⚠ THIS REVERSES AN EXPLICIT EARLIER DECISION and that is deliberate rather than
+       overlooked. On 2026-09-01 tract prose was set to 12px specifically so it matched the
+       tract field list beside it ("the description and legal prose content should be 12").
+       Prose and data are now different roles at different sizes, so they no longer match -
+       tract prose is 16px against a 13px field list. If matching them mattered more than
+       reading them, this is the rule to change back, and .xtw-desc/.xtw-legal have to move
+       with it or the accordion and the tract window drift apart again.
+
+       ⚠ NO max-width MEASURE CAP ON THIS PAGE, AND THAT IS A DELIBERATE OVERRIDE OF THE
+       PROJECT'S 45-75ch PROSE RULE (Kiron, 2026-09-03: "all locations where you brought that
+       false word-wrap back ... eliminate it").
+       A cap WAS applied here in the same pass as the sizes and was taken straight back out.
+       The reasoning for it still stands on paper - below 1024 the layout is one column, so
+       prose gets the full page width, and it measured 122ch on tract prose at 1023, 117ch on
+       Terms and 120ch on the auction note. But `max-width: 70ch` ends the line well short of
+       the column it sits in, and a paragraph that stops two-thirds of the way across with
+       nothing beside it reads as a rendering fault rather than as a typographic measure. On a
+       page whose columns are already narrowed by the rail, Kiron's call is that the ragged gap
+       costs more than the long line.
+       SO: DO NOT REINTRODUCE max-width ON PROSE HERE. If long lines need addressing again, the
+       lever is the COLUMN - the grid that sets how wide the prose box is - not a cap that
+       leaves the box wide and the text short. */
+    .ld-copy{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.55;
       color: var(--color-text-muted); margin: 0 0 var(--space-4); }
 
     /* .ld-sec (the old section separator) is gone: every section below the overview is
@@ -1051,7 +1271,10 @@
     .ld-acc-sub > summary > div{ display: flex; flex-wrap: wrap; align-items: baseline;
       gap: 2px var(--space-3); min-width: 0; }
     /* SANS, not the serif h3 default. 16px/700 is the weight the page gives a field label
-       (.ld-fields dt), which is what this is — the name of a thing you can open. */
+       (.ld-fields dt), which is what this is — the name of a thing you can open.
+       ⚠ THAT RATIONALE IS STALE: .ld-fields went to 13px in the 2026-09-03 type scale, so this
+       row no longer matches the label it was sized against. Left at 16px rather than quietly
+       restyled - it is a real question, not a typo, and belongs to whoever reviews this row. */
     .ld-acc-sub > summary h3{ margin: 0; font-family: var(--font-sans); font-weight: 700;
       font-size: var(--body); line-height: 1.4; letter-spacing: 0; color: var(--pc-navy); }
     /* And the detail line drops the uppercase + .06em tracking it carries on the For Sale
@@ -1216,10 +1439,29 @@
     .ld-tlist li{ break-inside: avoid; }
     /* A BUTTON, NOT A LINK. It opens a dialog on this page, it does not navigate - so it
        must be a button, or keyboard users get "link" and Enter-to-follow semantics for
-       something that goes nowhere. Full width so the whole row is the target: 10px of
-       padding on a 24px line clears the 44px WCAG 2.5.8 target height. */
+       something that goes nowhere. Full width so the whole row is the target.
+
+       ---- TYPE AND LEADING BOTH COME DOWN A STEP (Kiron, 2026-09-03: "I want that font size to
+       come down a little, and also decrease the leading") ----
+       16px -> 15px, line-height 1.5 -> 1.35. The row goes 44px to 40px.
+       THE ROW HEIGHT IS MULTIPLIED BY THE TRACT COUNT, which is why this rule is worth tuning
+       at all. This index is one row per tract and the reference listing carries 28 of them: at
+       1024 the list is two columns of 14, so 4px off the row is 56px off the block. On a
+       three-column layout at 1536 it is 10 rows and 40px.
+       LEADING IS THE LEVER, NOT THE SIZE. A one-line row's height is its line box plus its
+       padding: 16 -> 15px takes about 1.5px off, 1.5 -> 1.35 takes about 3.5. Both were asked
+       for; the second is what shortens the list.
+       PADDING DELIBERATELY UNTOUCHED at 10px. It is what makes the whole row a hit target
+       rather than a line of text, and it is the only thing standing between this and a list you
+       cannot reliably tap.
+       ⚠ TARGET SIZE, AND THE OLD NOTE HERE WAS WRONG ABOUT WHICH RULE IT WAS CLEARING. It read
+       "10px of padding on a 24px line clears the 44px WCAG 2.5.8 target height". 2.5.8 (AA) is
+       24px; 44px is 2.5.5 Target Size (Enhanced), which is AAA. At 40px this row still clears
+       the AA requirement by 16px and is 4px short of the AAA figure the old note was aiming at.
+       If 44px is wanted back, raise the PADDING to 12px - do not put the leading back, because
+       padding buys target height without lengthening the text block. */
     .ld-tlink{ display: block; width: 100%; text-align: left; cursor: pointer;
-      font-family: var(--font-sans); font-size: var(--body); line-height: 1.5;
+      font-family: var(--font-sans); font-size: 15px; line-height: 1.35;
       padding: 10px var(--space-3); border: 0; background: transparent;
       border-radius: var(--radius-sm); color: var(--color-text-muted);
       transition: background-color .12s ease, color .12s ease; }
@@ -1408,7 +1650,21 @@
         margin: 0 0 var(--space-6); }
     }
     @media (max-width: 767px){
-      .ld-tlist{ columns: 1; }
+      /* .ld-tlist KEEPS ITS SECOND COLUMN THROUGH THIS BAND (Kiron, 2026-09-03: "the tracts
+         that were creating 2 columns higher ... can it still be 2 columns at 640?").
+         IT USED TO DROP TO ONE HERE, and that was the biggest single jump on the ladder for any
+         component: 28 tracts went from a 564px block to a 1127px one in one breakpoint, purely
+         because the column count halved. The rule now lives at 639 - see that block.
+         IT FITS WITH ROOM, measured rather than assumed. The widest row is
+         "Tract 28: 119.08 Acres M/L" at 199px of ink plus 24px of .ld-tlink padding = 223px
+         needed. Two columns with the --space-7 (48px) gap give each: 328px at 767, 294px at
+         700, 264px at 640. The tightest point in the band still has 41px to spare and NO row
+         wraps to a second line at any width in it.
+         WHERE IT ACTUALLY BREAKS is about 534px of viewport: two columns need 2 x 223 + 48 =
+         494px of main column, and below 640 the rail is 20px rather than 32 so the main column
+         is viewport - 40. Measured, 504 is already too tight - the columns come out 208px and
+         the rows start taking two lines each, which makes the block LONGER than one column
+         would have been. That is why the drop is at 639 and not lower. */
       .xtw{ padding: 0; }
       .xtw-box{ max-height: 100vh; height: 100%; border-radius: 0; }
       .xtw-body{ grid-template-columns: minmax(0, 1fr); }
@@ -1429,6 +1685,46 @@
       .xtw-body .xtw-dl{ grid-template-columns: minmax(0, 1fr); }
     }
     @media (max-width: 639px){
+      /* ============ THE SUB NAV LOSES ITS ICONS AGAIN, FROM 639 DOWN (Kiron, 2026-09-03) ============
+         THE SECOND OF THE BAR'S TWO VIEWPORT RULES. The first is at 1280-1535 (see it for the
+         full derivation); this is the same lever pulled for a different reason, and the two do
+         NOT join up - 640-1279 keeps its icons, because those bands can afford them.
+
+         WHAT IT FIXES, measured at 504 (main column 464px), where the bar had TWO faults:
+           · FIVE LINKS NO LONGER FIT ONE ROW. Five links with icons need 510px flat, so they
+             hold down to a 550px viewport and then wrap 2 + 3. 504 is below that line. Without
+             icons they need 385px and stay on one row down to about 425px.
+           · NINE LINKS WENT TO THREE ROWS WITH AN ORPHAN - 4 + 4 + 1, "Downloads" alone, a 94px
+             sticky bar. Without icons the same nine are 6 + 3 on two rows at 63px.
+         Both come from the same 25px per link (17px glyph + its 8px gap), 125px across five and
+         225px across nine.
+
+         WHY balanceJump() COULD NOT SAVE THE NINE-LINK CASE, which is worth recording because
+         the rule looked like it should have: it inserts a break before the last three, measures,
+         and keeps it only if the bar comes out at EXACTLY two rows. At 464px the top four links
+         already fill a row, so forcing three onto a last row still produces three rows - the
+         attempt fails its own test, the break is removed, and the natural 4 + 4 + 1 stands. The
+         rule protects the LAST row; it has nothing to say about a bar that needs three rows in
+         the first place. Widening the links was the only fix available.
+
+         THE CUT IS AT 639 AND NOT AT 550, which is where the icons actually stop fitting. 639 is
+         a boundary the page already has; 550 is a number nothing else uses. And between the two
+         the icons only just fit - five links have 10px of slack at 560 - which is the same
+         knife-edge that was rejected at 1280. A rule that holds by 10px is not holding.
+
+         ⚠ IT DOES NOT REACH ALL THE WAY DOWN. At a 400px viewport (column 360) five links wrap
+         2 + 3 again and nine return to three rows even with no icons. That is the ≤479 band's
+         problem and it has its own levers - the 2026-09-02 reset removed a block there that took
+         the type to 12px and the icons to 14px. Do not assume this rule covers it. */
+      .ld-jump svg{ display: none; }
+      .ld-jump a{ gap: 0; }
+
+      /* ONE COLUMN FROM HERE DOWN (moved from 767 on 2026-09-03 - see the note there). Two
+         columns need 494px of main column and this band starts at 599px of it, but the rail
+         drops to 20px inside it and the tightest widths cannot hold two 223px columns without
+         every row taking two lines. A wrapped two-column list is TALLER than a clean
+         one-column list, so this is the point where the second column stops paying. */
+      .ld-tlist{ columns: 1; }
       .xtw-bar{ padding: var(--space-3) var(--space-4); }
       .xtw-bar h2{ font-size: 17px; }
       .xtw-body{ padding: var(--space-4); }
@@ -1436,7 +1732,7 @@
     }
     /* .ld-chips is gone: every stat it carried is in .ld-ovstats under Property
        Overview now. Do not reintroduce a second stat treatment here. */
-    .ld-tract p{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.7;
+    .ld-tract p{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.55;
       color: var(--color-text-muted); margin: 0 0 var(--space-4); }
     .ld-parcels{ font-size: var(--body-sm) !important; }
 
@@ -1452,7 +1748,7 @@
        to align on without a table. */
     .ld-fields{ display: grid; grid-template-columns: max-content minmax(0, 1fr);
       gap: var(--space-2) var(--space-4); margin: 0; font-family: var(--font-sans);
-      font-size: var(--body-sm); line-height: 1.6; }
+      font-size: 13px; line-height: 1.45; }  /* DATA role - see the scale note at .ld-copy */
     .ld-fields dt{ font-weight: 600; color: var(--pc-black); }
     .ld-fields dt::after{ content: ":"; }
     /* ---- TRACT PROSE IS SET AT THE FIELD-LIST SIZE (Kiron, 2026-09-01: "can we make all of
@@ -1476,8 +1772,12 @@
        equivalents of the accordion's two prose blocks, so they take the same size - the window
        was the last thing on the page still showing tract prose at 16px against a 12px field
        list beside it. The two spaces are now identical on every text size. */
+    /* PROSE SIZE, NOT THE FIELD-LIST SIZE (2026-09-03). These were var(--body-sm)/12px to match
+       .ld-fields beside them; they are running prose and now take var(--body)/16px with it. The
+       selector is kept because .xtw-desc/.xtw-legal/.xtw-dirs are NOT .ld-copy - the tract
+       window's prose has to be moved by hand or the accordion and the window drift apart. */
     .ld-tract .ld-copy,
-    .xtw-desc, .xtw-legal, .xtw-dirs{ font-size: var(--body-sm); line-height: 1.6; }
+    .xtw-desc, .xtw-legal, .xtw-dirs{ font-size: var(--body); line-height: 1.55; }
     .ld-fields dd{ margin: 0; color: var(--color-text-muted); }
     /* ---- .ld-fields-prose: the same two columns carrying PARAGRAPHS instead of figures ----
        PORTED FROM listings-details-forsale.html (Kiron, 2026-08-31). Three changes off the base
@@ -1569,7 +1869,7 @@
        not let colour carry meaning on its own.
        16px ABOVE IT, which is .ld-dl's own bottom margin doubled by nothing - the list's margin
        and this rule's margin-top collapse to the larger of the two. */
-    .ld-dl-note{ font-family: var(--font-sans); font-style: italic; font-size: 13px;
+    .ld-dl-note{ font-family: var(--font-sans); font-style: italic; font-size: 14px;
       line-height: 1.6; color: var(--color-text-muted); margin: var(--space-4) 0 0; }
     /* ---- DOWNLOAD ROWS INSIDE A TRACT ARE SMALLER AND TIGHTER ----
        (Kiron, 2026-09-01: "match that smaller font and tighten up the individual linked pdf
@@ -1638,7 +1938,22 @@
        column reaches 932px. ONE ASSET IGNORES ALL OF THIS: a lone video has nothing to sit
        beside, and a 1fr grid of one item is the full column at every width. */
     .ld-videos{ display: grid; gap: var(--space-6); }
+    /* ---- 1536+: THE PRICE ROW STEPS UP, BOTH HALVES TOGETHER (Kiron, 2026-09-03: "The
+       price/date and the city/state should both move up in size. I am OK with them being the
+       same size, but need to go up.") ----
+       30 -> 38px for BOTH, so the pair rule holds: .ld-price == .ld-head h1 at every rung, and
+       the ladder is now 38 / 30 / 26 / 22 down the four bands.
+       SCOPED TO 1536+ ON PURPOSE. 1280-1535, 1024-1279 and 768-1023 were each reviewed and
+       approved at 30px, and this is feedback about the widest band only - pushing it down the
+       ladder would silently reopen three settled rungs. The base rule still says 30px and that
+       is what every band below inherits.
+       IT FITS WITH ROOM: the column is 932px here, the date is ~342px at 38px and
+       "Wayne County, IA" ~274px, so the row needs about 640px including the 24px gap. Nearly
+       300px of slack, and .ld-pricerow's wrap-reverse still covers any name long enough to
+       stack. */
     @media (min-width: 1536px){
+      .ld-price, .ld-head h1{ font-size: 38px; }
+
       .ld-videos{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     /* The sub-heading sits tight to its own frame - space-2, not the space-6 .ld-dl-head
@@ -1660,7 +1975,18 @@
       font-family: var(--font-sans); font-size: 14px; font-weight: 500; color: var(--pc-navy); }
 
     /* ---- terms: fine print, wider measure because it is reference text ---- */
-    #ld-terms .ld-copy{ font-size: 13px; line-height: 1.65; margin-bottom: var(--space-3); }
+    /* ---- TERMS TAKES THE DATA SIZE, NOT THE PROSE SIZE (Kiron, 2026-09-03: "Terms font
+       should be the same style as the Building text size") ----
+       THE ONE DOCUMENTED EXCEPTION TO THE FOUR-ROLE SCALE, and it is named as an exception
+       rather than left to look like drift. Building is a .ld-fields-prose list at 13px, so
+       Terms is 13px: the two blocks are read the same way - a dense stack of short factual
+       statements that a buyer scans for one clause - and sizing Terms as running prose made it
+       the loudest block on the page for the thing people read last.
+       IT WAS BRIEFLY 16px earlier the same day, when the scale first unified .ld-copy. That
+       went too far: "one class, one size" is right for the four roles, but Terms is doing the
+       job of the data lists and follows them.
+       IF .ld-fields MOVES, MOVE THIS WITH IT - the whole point is that the two match. */
+    #ld-terms .ld-copy{ font-size: 13px; line-height: 1.45; margin-bottom: var(--space-3); }
     #ld-terms .ld-copy b{ font-weight: 600; }
     #ld-terms a{ color: var(--pc-medium-blue); }
 
@@ -1847,7 +2173,7 @@
        because it IS a field label, just one whose value is a paragraph rather than a line. It is
        not written as a dt/dd pair because it sits outside the <dl>, below it, in the button's
        position; putting it in the list would move it up above the Method row. */
-    .ld-auctioncard .ld-ac-sublabel{ font-family: var(--font-sans); font-size: 11px;
+    .ld-auctioncard .ld-ac-sublabel{ font-family: var(--font-sans); font-size: 12px;
       font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
       color: var(--pc-blue); margin: var(--space-5) 0 var(--space-2); }
     /* 14px, the field-value voice exactly (.ld-ac-fields dd), because it now reads as the value
@@ -1857,7 +2183,9 @@
        a two-line sentence directly above a button shouted over it. */
     .ld-auctioncard .ld-ac-howto{ font-family: var(--font-sans); font-size: 14px;
       line-height: 1.5; color: var(--pc-white); margin: 0 0 var(--space-4); }
-    .ld-ac-note{ font-family: var(--font-sans); font-size: 12px; line-height: 1.5;
+    /* NOTE role, 12 -> 14px, and capped: this measured 120ch at 1023, where the rail is full
+       width. See the scale note at .ld-copy. */
+    .ld-ac-note{ font-family: var(--font-sans); font-size: 14px; line-height: 1.45;
       color: var(--pc-light-blue); margin: var(--space-3) 0 0; }
     @media (prefers-reduced-motion: reduce){ .ld-ac-bid{ transition: none; } }
 
@@ -1916,7 +2244,7 @@
        nobody opens. Wording tightened to one sentence by Kiron the same day. Do not
        quietly drop it in the live build — if the wording changes again, the commitment
        still has to be stated here. */
-    .ld-formnote{ font-family: var(--font-sans); font-size: 12px; line-height: 1.55;
+    .ld-formnote{ font-family: var(--font-sans); font-size: 14px; line-height: 1.45;
       color: var(--pc-navy); margin: var(--space-3) 0 0; }
     .ld-formnote a{ color: var(--pc-medium-blue); }
 
@@ -1958,7 +2286,7 @@
        is noise on a page about one Iowa farm. The CMS picks the row matching the
        listing's state. Smaller and quieter than the contact lines above it: required
        information, not something anyone came here to read. */
-    .ld-agent-lic{ font-size: 11px !important; line-height: 1.5 !important;
+    .ld-agent-lic{ font-size: 12px !important; line-height: 1.4 !important;
       color: var(--pc-navy) !important; margin-top: var(--space-2) !important; }
     .ld-agent a{ color: var(--pc-medium-blue); text-decoration: none; }
     .ld-agent a:hover{ text-decoration: underline; }
@@ -2069,11 +2397,122 @@
       .ld-agent{ grid-template-columns: minmax(0, 1fr); row-gap: var(--space-3); }
     }
 
-    /* ---- 1280-1535: nine links wrap, and no CSS here decides how ----
-       The column is 812px and the nine links need 901px, so one row is impossible: 2px of
-       horizontal padding cannot buy 89px and nothing short of dropping the icons could. The bar
-       wraps, and left to itself it wraps 8 + 1 - "Terms" alone on a row, which reads as a
-       mistake rather than a second row.
+    /* ================= 1280-1535 ONLY: THE SUB NAV'S OWN BAND =================
+       SCOPED min-width: 1280px, AND THE SCOPE IS THE POINT (Kiron, 2026-09-03: at 1024 "bring
+       back the logos, and remove the spacing between the links that we applied at 1280").
+       These two rules lived in the max-width: 1535px block for one iteration and inherited all
+       the way down the ladder. They do not any more, because THE TWO BANDS HAVE OPPOSITE
+       PROBLEMS:
+         · 1280-1535 has a 812px column and nine links can be MADE to fit one row - dropping
+           the icons is what buys the 89px, and the gap widens into part of what they gave back.
+         · 1024-1279 has a 588px column and nine links CANNOT fit one row by any means: they
+           need 756px even with no icons, and stripping the gap and all horizontal padding
+           still leaves the labels alone at 466px. That band goes to two rows deliberately (see
+           it below), and a bar that has ALREADY conceded the second row has no reason to pay
+           for width it no longer needs. So the icons come back there and the gap returns to
+           the 6px the base rule sets.
+       Every declaration in here is therefore about buying a single row, and nothing in here is
+       wanted by a band that is not trying to buy one. */
+    @media (min-width: 1280px) and (max-width: 1535px){
+      /* ============ SUB NAV LOSES ITS ICONS FROM 1535 DOWN (Kiron, 2026-09-03) ============
+         "let's just simply drop the icons beginning at 1535."
+
+         THE ONE THING THAT REACHES THE NINE-LINK ROW. The main column is 812px right across
+         1280-1535 (--site is pinned at 1280 through the whole band, so there is no range here,
+         just the one number) and nine links with icons need 901px. THE SHORTFALL IS 89px.
+         Nothing else on the page can pay it:
+           · The gutter is 64px. Spent to ZERO it leaves the bar 25px short, and 64 -> 32 (the
+             value one band down already uses) leaves it 57px short.
+           · The rail cannot contribute. It is locked (Kiron, 2026-09-03) and it has an unfixed
+             overflow of its own - see the .ld-agent note about long agent emails.
+           · Horizontal padding cannot reach 89px: 9 -> 5px plus the gap 6 -> 4px raises 88px
+             and leaves the labels 14px apart, a crowded bar bought for zero slack.
+         The icon is 17px of glyph plus its 8px gap = 25px per link, 225px across nine. That is
+         the only lever of the right size in the whole layout.
+
+         BOTH DECLARATIONS ARE LOAD-BEARING. `display: none` on the svg drops the 17px; the gap
+         has to go with it or the flex gap survives as 8px of dead space in front of every
+         label. Together they are the 25px. Dropping only the icon buys 17 and misses the row.
+
+         A FLAT RULE, NOT A FIT TEST (Kiron, 2026-09-03: "I don't want the inconsistency here").
+         The measured alternative was to keep the icons wherever they happen to fit and drop
+         them only when the bar would wrap - which works, and balanceJump() already measures
+         rows so the hook existed. It was rejected because THE BAR IS OMIT-IF-EMPTY: at 812px
+         the four 8-link combinations need 791, 798, 810 and 813, so three fit and one misses by
+         a pixel. Icon presence would have become a property of the LISTING rather than of the
+         viewport, and two auction pages side by side at the same window width would show
+         different bars. A band-wide rule is the consistent one.
+
+         DISPLAY: NONE, NOT REMOVAL FROM THE MARKUP - the same treatment .ld-ovstats svg gets at
+         1279. The icons are correct and wanted at 1536+, and they are aria-hidden decoration at
+         every width, so nothing is lost from the accessibility tree either way.
+
+         MEASURED AT 812px, ALL FIVE LINK COUNTS, icons off (the bar renders 5 to 9 links):
+           5 links 385px (+427 slack) · 6 links 447-469 · 7 links 513-547 · 8 links 591-613
+           9 links 676px (+136 slack)
+         Every count sits on ONE ROW at 53px, and the worst case has 136px to spare - wide
+         enough that a label rename of the size of "360" -> "360 Tour" (34px) does not threaten
+         it. With icons the same nine links were 901px and wrapped 8 + 1, one orphaned link on a
+         second row, taking the sticky bar from 53px to 113px.
+
+         THIS INHERITS ALL THE WAY DOWN THE LADDER, which is intended as the starting position
+         and not a finished answer: it is the state each band below inherits before that band is
+         worked. It does NOT put nine links on one row at 1024-1279 - the column is 588px there
+         and 676 does not fit - so that band still wraps and is decided on its own terms. */
+      .ld-jump svg{ display: none; }
+      .ld-jump a{ gap: 0; }
+
+      /* ---- AND THE LINKS SPREAD OUT INTO SOME OF WHAT THE ICONS GAVE BACK ----
+         (Kiron, 2026-09-03: "can we add some padding between each to spread them a little
+         bit? Don't go full width, as I don't want that much separation if there are only 5
+         links ... and don't want the padding to the left of Overview, only want it between
+         each link.")
+
+         THE GAP IS THE ONLY LEVER THAT MEETS ALL THREE CONDITIONS, and each one rules
+         something out:
+           · "not to the left of Overview" rules out raising .ld-jump a's horizontal padding.
+             Padding applies to every link including the first, so it would indent Overview
+             and break the bar's alignment with the headline block above it. A FLEX GAP IS
+             ONLY EVER BETWEEN ITEMS - there is no gap before the first or after the last, by
+             definition. It cannot produce the thing he does not want.
+           · "don't go full width" rules out justify-content: space-between, which is the
+             other obvious way to spread a row. That divides ALL the slack among however many
+             links there are, so five links would be flung across the full 812px while nine
+             sat close together - the separation would be a function of how many sections the
+             listing happens to have. A FIXED gap is the same distance at every count.
+           · "a little bit" is why this is 16 and not the 20 the row can actually carry.
+
+         6 -> 16px. The visible white between two labels is the gap PLUS the 9px of padding
+         each link carries either side: 24px before, 34px now, a 42% increase.
+
+         WHY THE BAR WANTS THIS EXACTLY HERE, which is the real justification and not just
+         that the room exists: the icons came off at this same breakpoint, and an icon was
+         doing separating work as well as labelling work - it put a 17px glyph and its 8px
+         gap between one label and the last. Take the icons away and the labels sit closer to
+         each other than they read at 1536+, even though the gap number has not changed.
+         Spending some of the 225px back on the gap is putting the RHYTHM back, not adding
+         decoration.
+
+         MEASURED AT 812px. Nine links go 676 -> 756px, so 56px of slack remains - still more
+         than the 34px a "360" -> "360 Tour"-sized rename costs, which is the yardstick this
+         file has used twice before. Five links end at 425px of the 812px column: comfortably
+         left-grouped, which is the "don't go full width" test.
+         THE CEILING IS 20px AND IT WAS MEASURED, not estimated. At 24px nine links need 820
+         against 812 and the bar wraps 8 + 1 again - the exact orphan the icon removal was
+         done to kill. If this ever wants to be more generous, 20px is the last safe value
+         (24px of slack) and there is nothing above it.
+
+         1536+ KEEPS THE 6px GAP and cannot have this. Nine links WITH their icons need 901px
+         of a 932px column there - 31px of slack, and eight gaps means even 4px more would
+         cost 32. The band that has the icons has no room to spread, and the band that spread
+         is the one that gave the icons up. Both follow from the same arithmetic. */
+      .ld-jump-inner{ gap: 16px; }
+    }
+
+    /* ---- HOW A WRAPPED BAR SPLITS, wherever one happens ----
+       THE 1280-1535 CASE IS SOLVED and this note no longer describes it - see the block above.
+       What follows still governs every band that DOES wrap, which from 2026-09-03 means 1024
+       and below.
        THE SPLIT IS COMPUTED, NOT WRITTEN. An earlier version of this forced 7 + 2 with a
        hardcoded break element and a :has() guard counting nine anchors. That was replaced the
        same day: Kiron's rule is not "nine links wrap 7 + 2", it is "NO SECONDARY ROW EVER HOLDS
@@ -2088,7 +2527,10 @@
     @media (max-width: 1279px){
       /* Rail stays 340 from the band above. Gap 64 → 32 buys the main column another 32px. */
       .ld-body{ gap: var(--space-6); }
-      .ld-price{ font-size: 38px; }
+      /* NO .ld-price RULE HERE ANY MORE. It briefly carried `font-size: 30px` on 2026-09-03,
+         which the base rule now sets for every band - see the pair note above .ld-pricerow.
+         A band-level copy of a value the base already has is the kind of duplicate that drifts,
+         so it is gone rather than kept "for clarity". */
 
       /* SUB BAR: NOTHING HERE. The tight two-row treatment is keyed to .ld-jump-wrapped,
          which balanceJump() sets when the bar actually wraps.
@@ -2158,6 +2600,26 @@
        --site becomes 100%, the two-column grid collapses, and the rail's contents rejoin the
        page's single flow. That one change is what everything in this block responds to. */
     @media (max-width: 1023px){
+      /* ---- PROSE STEPS DOWN ONE, BECAUSE THIS IS WHERE THE COLUMN GETS WIDE ----
+         (Kiron, 2026-09-03, at 1023: "the text in the overview size comes down a little bit?
+         It seems big here?")
+         16 -> 15px. THE WHOLE PROSE ROLE MOVES, NOT JUST THE OVERVIEW - the observation was
+         made about the Overview because that is the first and longest block on the page, but
+         Terms, the 360 note and the tract descriptions are the same role at the same width and
+         sizing one of them apart would put the four-role scale back where it started. See the
+         scale note at .ld-copy.
+         WHY IT LOOKS BIG HERE AND NOT AT 1280, which is worth stating because the font size is
+         not really the variable: this band drops the rail, so the main column goes 588px at
+         1024 to 959px at 1023 - the WIDEST prose measure on the whole ladder, wider than 1536's
+         932px. 16px reads fine in a 588px column and heavy in a 959px one. The honest fix for a
+         959px line is a narrower column, but a max-width cap was tried on 2026-09-03 and
+         rejected on sight (see .ld-copy) - so the size takes the strain instead.
+         THE ≤479 STEP IS NOW THE SAME 15px, so prose reads 16 / 15 / 15 down the ladder rather
+         than 16 / 16 / 15. That is deliberate: the step simply moved up to where the column
+         actually changes. If prose ever wants a third size, 14px at ≤479 is the place. */
+      .ld-copy, .ld-tract p, .ld-tract .ld-copy,
+      .xtw-desc, .xtw-legal, .xtw-dirs{ font-size: 15px; }
+
       /* One column. The rail stops being pinned, and the ENQUIRY FORM DROPS BELOW the
          prose rather than jumping above it. That is the opposite of what this page did
          before, and deliberately: when the rail was a price card it belonged at the top,
@@ -2349,7 +2811,11 @@
         line-height: 1.2; letter-spacing: normal; text-transform: none;
         color: var(--pc-navy); }
       .ld-ovstats .n{ text-align: right; font-size: 20px; }
-      .ld-price{ font-size: 34px; }
+      /* 34 -> 26px (2026-09-03), matching the h1 beside it. See the pair note above
+         .ld-pricerow: the two are one size at every rung now. This is the band that made the
+         rule necessary - it was still 34px while 1024-1279 had gone to 30, so the date grew as
+         the window narrowed. */
+      .ld-price{ font-size: 26px; }
       .ld-head h1{ font-size: 26px; }
       .ld-mapbox{ height: 320px; }
 
@@ -2387,8 +2853,9 @@
 
       /* PRICE AND HEADING STEP DOWN (Kiron, 2026-08-27). They had held 34/26px since 767
          while the column lost 240px, so the price was taking a third of the line on its own.
-         34 → 30 and 26 → 22, one step each. */
-      .ld-price{ font-size: 30px; }
+         One step each - now 26 → 22 for BOTH, since 2026-09-03 pairs them at every rung and
+         this band's price came down 34 -> 26 with it. See the pair note above .ld-pricerow. */
+      .ld-price{ font-size: 22px; }
       .ld-head h1{ font-size: 22px; }
     }
 
@@ -2465,11 +2932,21 @@
          the section headers are what make the closed list of five readable on a phone.
          14px is the floor: it is the smallest size in this build that is still comfortable
          body copy, and the reason the drop is one step rather than two. */
-      .ld-copy, .ld-tract p{ font-size: 14px; }
-      .ld-fields, .ld-tract .ld-copy, .xtw-desc, .xtw-legal, .xtw-dirs{ font-size: 11px; }
+      /* THE ONE STEP DOWN IN THE SCALE (rewritten 2026-09-03 - see the scale note at .ld-copy).
+         It used to be a list of separate values that had drifted apart: prose 14, tract prose
+         and fields both 11, terms 12. It is now the four roles, each one step down:
+           PROSE 15 · NOTE 13 · DATA 12 · MICRO 11
+         #ld-terms needs no rule at all now - it is prose, so it follows prose. */
+      .ld-copy, .ld-tract p, .ld-tract .ld-copy,
+      .xtw-desc, .xtw-legal, .xtw-dirs{ font-size: 15px; }   /* #ld-terms overrides this below */
+      .ld-ac-note, .ld-dl-note, .ld-formnote, .ld-ac-howto{ font-size: 13px; }
+      /* #ld-terms RIDES WITH .ld-fields, not with prose - it is the documented exception, and
+         it has to take the DATA step too or Terms and Building stop matching exactly where the
+         screen is smallest. Caught by measurement: Terms was 13px against Building's 12px here
+         after the exception went in. */
+      .ld-fields, #ld-terms .ld-copy{ font-size: 12px; }
       .ld-dl a{ font-size: 13px; }
       .ld-dl .m{ font-size: 11px; }
-      #ld-terms .ld-copy{ font-size: 12px; }
     }
   </style>
 </head>
@@ -5274,19 +5751,103 @@
            are cleaned up even at widths where no break may be inserted. */
         var isFlex = window.getComputedStyle(jumpInner).display === "flex";
 
-        /* ---- BOTH ROW-BALANCING RULES ARE GONE (Kiron, 2026-09-02: reset the sub nav to one
-           state and work back down the ladder) ----
-           WHAT STOOD HERE, in the order it ran:
-             1. EIGHT OR NINE LINKS PUT THREE ON THE LAST ROW. A .ld-jump-break was inserted
-                before links[length - 3], the result measured, and the break removed again unless
-                the bar came out on exactly two rows - so it was attempted, never assumed.
-             2. NO SECONDARY ROW HOLDS A SINGLE LINK. A loop that walked the rendered rows from
-                the bottom, found a row of one, and inserted a break before the link ahead of it
-                to pull a second one down. Guarded against stranding row one.
-           The bar now wraps wherever its width runs out and nothing rearranges it.
-           THE MACHINERY IS ALL STILL HERE: jumpRows() still measures the rendered rows, the old
-           breaks are still stripped on every pass, and .ld-jump-wrapped is still set. Putting a
-           rule back is writing the rule, not rebuilding the scaffolding. */
+        /* ---- IF THE BAR WRAPS AT ALL, THE LAST ROW GETS EXACTLY THREE LINKS ----
+           (Kiron, 2026-09-03: "Once there are enough sub-nav items to generate a 2nd row, I
+           want to bring 3 down to the 2nd row.")
+
+           THIS REPLACES BOTH OF THE RULES REMOVED IN THE 2026-09-02 RESET, and it is stricter
+           than either. What stood here was (1) eight or nine links put three on the last row,
+           and (2) no secondary row holds a single link. The first was keyed to a link COUNT,
+           which cannot be right on an omit-if-empty bar that renders anywhere from five to
+           nine; the second only forbade the worst outcome instead of naming the wanted one.
+           THE RULE IS NOW ABOUT THE WRAP, NOT THE COUNT: whatever number of links produced a
+           second row, three of them go on it. That subsumes rule 2 - a row of three is never a
+           row of one - and it makes every wrapped bar on the page the same shape.
+           WHAT IT PRODUCES at the 588px column of 1024-1279, where the bar actually wraps:
+             6 links 5+1 -> 3+3 · 7 links 6+1 -> 4+3 · 8 links 6+2 or 5+3 -> 5+3 · 9 links 6+3
+           Nine already split 6+3 on its own; the other three were all leaving "Downloads"
+           stranded or nearly so.
+
+           ATTEMPTED AND MEASURED, NEVER ASSUMED - which is the whole reason this is script and
+           not a :nth-child() rule in the stylesheet. The break is inserted, the rows are
+           re-read, and IF THE RESULT IS NOT EXACTLY TWO ROWS the break is pulled straight back
+           out and the natural wrap stands. Two things can cause that and both are real: the
+           three links pulled down may not themselves fit on one row, or what is left above may
+           still be wide enough to need two rows of its own. Either way a bar that wraps oddly
+           is better than a bar rearranged into three rows in pursuit of a rule about two.
+
+           THE >= 5 GUARD STOPS THE FIX BECOMING THE FAULT. Pulling three down out of four
+           links leaves ONE on the top row - the same orphan, moved upstairs, where it looks
+           worse because row one is the one that reads first. Five is also the CMS's own floor
+           for this bar, so the guard is not hypothetical arithmetic: below it, leave the wrap
+           alone.
+
+           FLEX ONLY. isFlex is read above, after the old breaks are stripped. A forced break is
+           a flex-line concept; in a grid layout the same element would occupy a cell and put a
+           hole in the bar rather than end a row.
+
+           THE MACHINERY WAS ALL LEFT IN PLACE BY THE RESET and none of it had to be rebuilt:
+           jumpRows() measures the rendered rows, stale breaks are stripped at the top of every
+           pass, .ld-jump-break's declaration was kept precisely so a break would work the day
+           one was inserted again, and .ld-jump-wrapped is still set at the end. Writing this
+           was writing the rule, not the scaffolding. */
+        function newBreak(){
+          var b = document.createElement("span");
+          b.className = "ld-jump-break";
+          b.setAttribute("aria-hidden", "true");
+          return b;
+        }
+
+        var rows = jumpRows(links);
+        if(isFlex && rows.length > 1 && links.length >= 5){
+          var brk = newBreak();
+          jumpInner.insertBefore(brk, links[links.length - 3]);
+          /* Exactly two rows, or it did not work - put it back as it was. */
+          if(jumpRows(links).length !== 2) brk.parentNode.removeChild(brk);
+        }
+
+        /* ---- FALLBACK: NO ROW EVER HOLDS A SINGLE LINK (Kiron, 2026-09-03: "restore the
+           no-orphan rule for the sub nav") ----
+           THE RULE ABOVE ONLY PROTECTS A TWO-ROW BAR. It forces three onto the last row and
+           keeps that only if the bar comes out at EXACTLY two rows; the moment a bar genuinely
+           needs THREE, the attempt fails its own test, the break is pulled, and the natural
+           wrap stands - orphan included. That is what was left at the bottom of the ladder:
+           measured at a 320px viewport (column 280), SIX of the seven-link variants and THREE
+           of the four eight-link ones ended "... / [Downloads]", a single word alone on a third
+           row, in a 94px sticky bar.
+           SO THIS RUNS SECOND AND ONLY WHERE THE FIRST GAVE UP. If the bar is already two rows
+           ending in three links there is no single-link row to find and the loop exits on its
+           first test, so nothing that currently works is touched.
+           HOW IT WORKS: read the rendered rows; if the last one holds exactly one link, insert
+           a break BEFORE the link ahead of it, which pulls that link down to join the orphan and
+           makes the last row two. Then look again, because fixing one row can expose another.
+           EVERY STEP IS VERIFIED AND REVERTED IF IT DID NOT HELP, the same contract the first
+           rule uses. A break is kept only if the row count is unchanged AND the last row now
+           holds two - so it can never buy a tidy last row by adding a whole new row above it.
+           TWO GUARDS, both of which stop a fix becoming the fault:
+             · idx < 2 - never pull from a row-one that only has two links, which would strand a
+               single link on the FIRST row. That is worse than the orphan being fixed, because
+               row one is the one that reads first.
+             · a loop counter bounded by the link count - the cascade is finite by construction
+               (each pass moves one link down), but an unbounded while() around a live layout
+               measurement is not something to ship on trust. */
+        if(isFlex){
+          for(var pass = 0; pass < links.length; pass++){
+            var rr = jumpRows(links);
+            if(rr.length < 2) break;
+            var lastRow = rr[rr.length - 1];
+            if(lastRow.length !== 1) break;
+            var idx = lastRow[0];
+            if(idx < 2) break;
+            var fix = newBreak();
+            jumpInner.insertBefore(fix, links[idx - 1]);
+            var after = jumpRows(links);
+            if(after.length !== rr.length || after[after.length - 1].length !== 2){
+              fix.parentNode.removeChild(fix);
+              break;
+            }
+          }
+        }
 
         /* MARK THE STATE, AT EVERY WIDTH AND IN EITHER LAYOUT - the three-column grid below
            768 wraps too, and wants the same tight rows. This is the last thing done, so it
