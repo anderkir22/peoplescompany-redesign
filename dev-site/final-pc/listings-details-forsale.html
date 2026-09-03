@@ -437,18 +437,33 @@
          NOW 12 / 12 / 24: 28px above the card and 37px below, and the strip's own box drops from
          92.8px to 68.8px. The 16px above comes from the page grid, not from here, so it is left
          alone - taking this to zero would butt the figures against the sub nav.
-         THE BOTTOM RULE IS UNCHANGED and still does the separating; what came off is air that
-         was doing the same job twice. */
+         THE BOTTOM RULE WAS UNCHANGED BY THAT PASS and was doing the separating then; it is gone
+         now - see the note where it used to be declared. */
       margin: 0 0 var(--space-5); padding: var(--space-3) 0;
-      /* NO BORDER-TOP (2026-08-26). This strip used to be ruled top and bottom, which
+      /* ---- NO RULES AT ALL NOW, TOP OR BOTTOM ----
+         NO BORDER-TOP (2026-08-26). This strip used to be ruled top and bottom, which
          was right while a visible "Property Overview" heading sat between it and the
          jump nav. That heading is .sr-only now, and .sr-only is position: absolute, so
          it takes NO SPACE IN FLOW — the strip's top rule landed directly against the
          jump nav's border-bottom and read as a doubled hairline. The nav's rule came off
-         too, later the same day, so the strip is now open at the top by design and only
-         its bottom rule is drawn.
-         ⚠ If the heading is ever made visible again, put this border back with it. */
-      border-bottom: 1px solid var(--color-border); }
+         too, later the same day, so the strip was open at the top by design and only its
+         bottom rule was drawn.
+         AND NOW NO BORDER-BOTTOM EITHER, ON THIS PAGE ONLY (Kiron, 2026-09-03: "hide the
+         horizontal line below the stat cards on forsale"). VARIANT A GAVE THE PAGE A SECOND
+         HORIZONTAL RULE and the two were stacked 78px apart: the sub nav's 2px PC Medium Blue
+         edge above the strip, this 1px PC Light Blue hairline below it. That reads as the stat
+         strip being boxed in - two lines bracketing five cards - when only the sub nav's line
+         was ever meant to be a divider. Taking this one out leaves variant A with exactly ONE
+         rule in this part of the page, which is the whole idea of it.
+         THE SPACING IS UNTOUCHED: margin-bottom stays 24px, so the strip keeps its distance from
+         the description below and nothing moves - the strip's own box just loses 1px.
+         ⚠ RESIDENTIAL KEEPS ITS BOTTOM RULE, deliberately. Variant B's separation is the tinted
+         BAND, which draws no line at all, so the hairline under the strip is not competing with
+         anything there and is still the only edge that section has. Do not sync the two - this is
+         part of what the A/B is testing.
+         ⚠ If the "Property Overview" heading is ever made visible again, the top border comes back
+         with it (that was always the condition); the bottom one is now a separate decision. */
+      border-bottom: 0; }
     /* ---- THE LIVE STRIP TAKES THE CATALOGUE'S CARD (Kiron, 2026-09-02: "apply these new card
        designs to the 3 pages actual 5 card layouts") ----
        The tile was designed in the stat-card pool over the course of the day and is now the card
@@ -537,19 +552,73 @@
        pair until 2026-08-27; the pair moved to its own row, so the bar is now the links
        alone and its height is theirs. --ld-jump-h is measured by JS either way, so nothing
        had to be retuned when the pair left. */
-    /* MARGIN 32 → 4px (Kiron, 2026-08-27). This gap used to separate the bar from the
-       headline block; now it separates it from the Save/Share row, and the two rows read
-       as one control strip, so it wants to be tight. The links carry 14px of padding of
-       their own above the label, so the visible gap is ~18px, not 4. */
+    /* MARGIN 4 → 12px (Kiron, 2026-09-03: "add some space above the subnav to get it a little
+       farther away from the price row").
+       HISTORY: 32 → 4px (Kiron, 2026-08-27), when this gap separated the bar from the Save/Share
+       row and the two were meant to read as one control strip. IT SEPARATES THE PRICE ROW NOW -
+       Save and Share moved up onto the status line on 2026-09-01 - so the reason for keeping it
+       tight went with them, and 4px was left behind rather than chosen.
+       ⚠ THE MARGIN IS NOT THE GAP ON THIS PAGE, and that is the trap in tuning it: the bar has no
+       fill, so what the eye reads is the margin PLUS the link's own 14px of top padding. 4 + 14
+       was 18px; 12 + 14 is 26px. So an 8px change to this number is an 8px change to a 26px gap,
+       not to a 12px one. MEASURED: 18px → 26px at 1536, 1280 and 1024.
+       THE 26px TOTAL IS THE DESIGN INTENT - re-derive this number from it if the link padding ever
+       changes, the way variant B's margins are derived. */
+    /* ---- VARIANT A OF THE SUB-NAV A/B (Kiron, 2026-09-03) ----
+       THIS PAGE AND listings-details-residential.html ARE NOW A DELIBERATE PAIR. Residential
+       carries variant B - a PC Light Blue band behind the bar, 31px tall, column width. This page
+       carries variant A: white background, no fill, the 14px link padding kept. Do not port the band
+       here - the whole point is that the two pages differ.
+       THE VARIANT NOW REACHES ONE THING OUTSIDE THE SUB NAV. It started as "the only change I want
+       to forsale is on the subnav" (Kiron, 2026-09-03), and the hairline under the stat strip was
+       then removed as a CONSEQUENCE of this variant rather than as a separate idea: giving the page
+       a full-width rule left two horizontal lines bracketing the stat cards, so one had to go. See
+       the note on .ld-ovstats. Nothing else on the page differs from residential.
+       WHAT VARIANT A IS: "the horizontal line that appears onhover ... have that go full width,
+       and turn off onhover". The PC Medium Blue rule that used to be drawn under ONE LINK on hover
+       is now drawn under THE WHOLE BAR, permanently, at 2px. Same colour - what changed is its
+       width, its weight and its trigger.
+       SO IT IS A DIFFERENT KIND OF SEPARATION FROM VARIANT B, which is worth naming before the two
+       get judged: the band separates the sub nav by FILLING it, this rule separates it by DRAWING
+       ITS BOTTOM EDGE. Both are answers to the same problem - three rows of small icons stacked up
+       the page with nothing between them.
+       THE RULE LIVES ON THE WRAPPER, not on the nav, so it spans the column whatever the links do.
+       At two rows it draws under the second row, not between them.
+       THE RULE IS 2px, NOT 3px (Kiron, 2026-09-03: "what does that line look like at 2px"). 3px
+       was inherited thoughtlessly - it was the weight of the OLD PER-LINK HOVER UNDERLINE, where a
+       heavy stroke had to read as a deliberate marker under one label. A rule that runs the whole
+       column has the full width doing that work, so it can be finer: 2px reads as an EDGE, 3px
+       reads as an UNDERLINE that happens to be long. Nothing else on the page is 3px - every other
+       hairline here is 1px --color-border - so 2px is also a step closer to the rest of the file.
+       HEIGHT: MEASURED 53px BEFORE THIS VARIANT, 52px NOW. The links gave up the 3px transparent
+       border that reserved room for the hover line and the bar gained a 2px rule, so it is 1px
+       shorter than the page shipped with. It was an exact wash at 3px, which was luck, not tuning.
+       Nothing depends on the number - --ld-jump-h is measured, not authored.
+       ⚠ A WRAPPED BAR IS 4px SHORTER, 63 -> 59px: the reserved border came off EVERY link and
+       there are two rows of them, while the rule is drawn once. So the two pages differ in height
+       when wrapped, which only matters if this variant wins and gets ported.
+       THE GAP BELOW THE BAR IS 28px, up from 26 before the variant and down from 29 at 3px - the
+       rule's own thickness, and unavoidable if the separation is a line rather than a fill: the
+       line has to occupy the space it separates with. Going to 2px hands 1px of that back. */
     .ld-subbar{ position: sticky; top: var(--navH); z-index: 20;
-      margin-top: var(--space-1); background: var(--pc-white);
+      margin-top: var(--space-3); background: var(--pc-white);
+      border-bottom: 2px solid var(--pc-medium-blue);
       display: flex; align-items: center; gap: var(--space-4); }
     /* THE 4px MARGIN WAS NEVER THE GAP (ported 2026-09-03). What separates this bar from the row
        above is the margin PLUS the link's own top padding - 4 + 14 = 18px of box, ~20px ink-to-ink.
        The tight treatment below takes that padding to 3px, which halved the visible gap. This
        covers exactly what the padding gives up, and is keyed through :has() to the same state so it
        appears and disappears with it. A one-row bar keeps the 4px margin and its full padding. */
-    .ld-subbar:has(.ld-jump-wrapped){ margin-top: 14px; }
+    /* AND THE WRAPPED STATE HAS TO BE RE-DERIVED WITH IT. The tight treatment takes the link
+       padding 14 -> 3px, so a wrapped bar loses 11px of the gap this margin is only half of. This
+       rule covers exactly that: 26 - 3 = 23px, against 12 + 14 = 26px for a one-row bar - one gap,
+       either shape. It was 14px, which paired with the old 4px base to give 17px against 18px.
+       KEYED THROUGH :has() TO THE STATE, not to a width, so it appears and disappears with the
+       wrap - see .ld-jump-wrapped for why the state and not a media query.
+       ⚠ VARIANT B HAS NO SUCH RULE. Residential retired it: a tinted band has a visible top edge,
+       so its margin IS its gap and there is nothing for a second value to compensate for. This
+       page needs it precisely BECAUSE the bar has no fill. Do not "sync" the two. */
+    .ld-subbar:has(.ld-jump-wrapped){ margin-top: 23px; }
     /* Takes the slack so the buttons pin right. min-width: 0 lets the link list shrink
        rather than forcing the bar wider than the column. */
     .ld-jump{ flex: 1 1 auto; min-width: 0; }
@@ -587,10 +656,36 @@
        and every section is omit-if-empty, so a listing with no video and no 360 renders six
        links that simply close up to the left. Sizing to eight is sizing to the fullest For Sale
        page the CMS can produce. */
+    /* NO PER-LINK BORDER-BOTTOM ON THIS PAGE (variant A - see the .ld-subbar note above). The
+       `border-bottom: 3px solid transparent` that stood here was never decoration: it RESERVED the
+       row the hover line would land in, so hovering did not shift the label by 3px. With the line
+       moved to the wrapper and made permanent there is nothing to reserve, so it comes off - and
+       taking it off is what keeps the bar at 53px.
+       ⚠ RESIDENTIAL STILL HAS BOTH DECLARATIONS. This is the one rule the two pages disagree on;
+       everything else in this section is still one component across both. */
     .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 9px;
       font-family: var(--font-sans); font-size: 14px; font-weight: 500;
-      color: var(--pc-navy); text-decoration: none; border-bottom: 3px solid transparent; }
-    .ld-jump a:hover, .ld-jump a:focus-visible{ color: var(--pc-black); border-bottom-color: var(--pc-medium-blue); }
+      color: var(--pc-navy); text-decoration: none; }
+    /* ---- THE HOVER DOES NOT TOUCH THE LINE AT ALL (Kiron, 2026-09-03: "disregard the onhover
+       hiding the line ... keep the line there") ----
+       THE RULE IS NOT A STATE, IT IS THE BAR'S BOTTOM EDGE. It is drawn full width, always, and
+       nothing a pointer does adds to it or takes from it. Two other readings were built and
+       dropped on the way here, and both are worth naming so neither gets rebuilt by accident:
+         · the ORIGINAL - a 3px line under ONE link, appearing on hover. Dropped when the line
+           went full width; a full-width rule leaves a per-link line nothing to say.
+         · a NOTCH - the full-width rule with a 3px cover strip erasing the segment under the
+           hovered label, the same gesture inverted. Built, measured (it aligned exactly), and
+           dropped. It also coupled the hover colour to the bar's background, which would have
+           broken the moment this bar got a fill.
+       SO THE HOVER IS THE LABEL DARKENING, PC Navy -> PC Black, AND NOTHING ELSE. That is the
+       whole affordance now, and it is enough: the colour shift is what tells a visitor these are
+       links, and the rule below is doing a different job - separating the sub nav from the stat
+       cards under it, which is not a job that should flicker under the cursor.
+       THE FOCUS RING IS THE ONE THING THAT MUST NOT FOLLOW THIS. A colour change alone is not a
+       sufficient focus indicator, so the 2px PC Medium Blue outline stays - 4.6:1 on white, and
+       WCAG 2.2 SC 2.4.11 requires it. It is now the ONLY thing that distinguishes a focused link
+       from a hovered one, which is correct: hover is a hint, focus is a position. */
+    .ld-jump a:hover, .ld-jump a:focus-visible{ color: var(--pc-black); }
     .ld-jump a:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: -2px; }
     .ld-jump svg{ width: 17px; height: 17px; flex: none; }
     /* ---- .ld-jump-break: a forced wrap point, INSERTED BY SCRIPT, never written by hand ----
@@ -1498,7 +1593,14 @@
       .ld-ovstats{ display: block; padding: var(--space-3) 0 0; }
       .ld-ovstats li{ display: flex; align-items: baseline;
         border-bottom: 1px solid var(--color-border); padding: 10px 0; }
-      /* The last row's rule would sit directly on the strip's own bottom border. */
+      /* ⚠ THE ROW RULES BELOW 639 ARE NOT THE RULE THAT WAS REMOVED. Down here the strip is a
+         stacked list and each row carries its own hairline as a DIVIDER BETWEEN ROWS, which is a
+         different job from the single line that used to close the strip off. Those stay.
+         THE LAST ROW STILL HAS NO RULE, but the reason changed. It was dropped because it would
+         have sat directly on the strip's own bottom border and read as a doubled line; that border
+         is gone now, so nothing is doubled - and it stays dropped because a line under the last
+         card is exactly what "hide the horizontal line below the stat cards" asks not to draw. So
+         the strip ends open at every width on this page, which is the point. */
       .ld-ovstats li:last-child{ border-bottom: 0; padding-bottom: 0; }
       /* REWRITTEN FOR THE NEW CARD SHAPE (2026-09-02). This band used to make `li > span` - the
          one wrapper that held figure and label - the flex row that spaced them apart. There are
@@ -1990,6 +2092,84 @@
                THE CSS WENT WITH IT, and .ld-ovfig did NOT: the card treatment worked out in that
                catalogue is what the live strip above now uses. Everything removed is still on the
                auction page to copy back from. NONE OF IT EVER SHIPPED from any page. -->
+
+          <!-- ---- THE OVERVIEW DESCRIPTION, AND WHY IT WENT MISSING ----
+               RESTORED 2026-09-03 (Kiron: "the overview for forsale and residential doesn't have
+               any text?"). It was not a page that never had prose - these four paragraphs, the
+               </section> that closes the overview, and the WHOLE LAND ACCORDION below were all
+               deleted together by one commit (7a644ad, "one stat card everywhere"), whose actual
+               job was to remove the stat-card catalogue from this page. The deletion ran past the
+               catalogue and took the next three things with it, which is why #ld-land was a jump
+               link pointing at nothing and the overview <section> was being closed by a stray
+               </details>. All three are back, verbatim from the commit before it (5507e1a).
+               LOREM IPSUM ON PURPOSE, and the one place on this page where filler is the right
+               answer: every FIGURE here is listing #19651's real data, and the description is the
+               only field whose real text was not needed to judge the layout. The auction page
+               shows real prose in this slot because #19282's description was available - the two
+               pages differ in what the CMS gave them, not in how the slot is built.
+               FOUR PARAGRAPHS IS THE SPEC, not a round number: it is what the auction listing
+               runs to, so the slot is sized to the length a real description actually reaches. -->
+          <p class="ld-copy">Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Donec ullamcorper nulla non metus auctor fringilla. Maecenas sed diam eget risus varius blandit sit amet non magna. Aenean lacinia bibendum nulla sed consectetur, nullam quis risus eget urna mollis ornare vel eu leo.</p>
+          <p class="ld-copy">Curabitur blandit tempus porttitor. Nulla vitae elit libero, a pharetra augue. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Etiam porta sem malesuada magna mollis euismod, donec id elit non mi porta gravida at eget metus.</p>
+          <p class="ld-copy">Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Sed posuere consectetur est at lobortis. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+          <p class="ld-copy">Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam quis risus eget urna mollis ornare vel eu leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed odio dui. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum, cras mattis consectetur purus sit amet fermentum.</p>
+        </section>
+
+        <details id="ld-land" class="reveal ld-acc">
+          <summary><h2>Land</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <!-- STARTS ON THE FIELD LIST. THERE IS NO INTRO PARAGRAPH.
+                 PORTED FROM listings-details-auction.html (Kiron, 2026-09-01), where it was settled first.
+                 (Kiron: "remove the lorem ipsum text in the Land accordion - just start with
+                 the sections".) What stood here was a lorem ipsum block standing in for the
+                 LEGAL DESCRIPTION, and it was in the wrong section anyway: the CMS document
+                 puts Legal Description in LOCATION, beside the map and the directions.
+                 SO THE OPEN QUESTION IS SMALLER, NOT ANSWERED. Nothing here says Legal
+                 Description should not appear on the page - only that it does not belong at
+                 the top of Land. If it is wanted, it goes in Location per the document.
+                 .ld-fields carries margin: 0, so the list sits flush on .ld-acc-body's 24px
+                 padding-top and the removal leaves no orphaned gap. -->
+            <dl class="ld-fields ld-fields-prose">
+              <dt>Road Access &amp; Frontage</dt>
+              <dd>Gravel frontage along the north boundary, approximately 1,320 feet, with a field entrance at the northwest corner.</dd>
+              <dt>Water Source</dt>
+              <dd>Rural water available at the road.</dd>
+              <dt>Sewer</dt>
+              <dd>None. A septic system would be required for any building site.</dd>
+              <dt>Utilities</dt>
+              <dd>Electric and rural water at the road. Natural gas is approximately one mile east.</dd>
+              <dt>Zoning</dt>
+              <dd>Agricultural</dd>
+              <dt>Gross Taxes</dt>
+              <dd>$5,412.00</dd>
+              <dt>Net Taxes</dt>
+              <dd>$5,038.00</dd>
+              <dt>Wildlife</dt>
+              <dd>Whitetail deer, turkey and upland birds along the timbered draws on the south end.</dd>
+              <dt>Recreation</dt>
+              <dd>Hunting, with a private building site on the northeast corner.</dd>
+              <dt>Water Access</dt>
+              <dd>A seasonal creek crosses the southeast quarter.</dd>
+              <dt>Improvements</dt>
+              <dd>Terraces across the west half in good repair, tile outlets draining to the road ditch, and a stock pond in the southwest corner.</dd>
+              <dt>Fencing</dt>
+              <dd>Perimeter fence in serviceable condition on three sides.</dd>
+              <dt>Horse Amenities</dt>
+              <dd>None</dd>
+              <dt>Possible Uses</dt>
+              <dd>Row crop production, hay ground, hunting and recreation, or a rural building site.</dd>
+              <!-- TWO ROWS THAT ARE NOT IN THE CMS DOCUMENT'S PROPERTY FEATURES LIST, kept
+                   because they are already on the page and removing content is its own decision:
+                     · PARCEL NUMBER(S) is a CMS field, but the document places it in PROPERTY
+                       OVERVIEW, not here.
+                     · SCHOOL DISTRICT does not appear anywhere in the document. Either it is a
+                       field missing from that list, or it is invented and should come off. -->
+              <dt>Parcel(s)</dt>
+              <dd>270010002030, 270010002040, 270010003020, 270010003010</dd>
+              <dt>School district</dt>
+              <dd>Graettinger-Terril</dd>
+            </dl>
+          </div>
         </details>
 
         <details id="ld-building" class="reveal ld-acc">

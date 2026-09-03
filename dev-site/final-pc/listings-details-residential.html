@@ -529,27 +529,80 @@
     /* NO BORDER-BOTTOM (Kiron, 2026-08-26, for consistency with the rules removed
        elsewhere on the page). The bar still needs its opaque background: it is sticky,
        so without a fill the prose would scroll THROUGH the links rather than under them.
-       Losing the rule costs the pinned bar its only edge against the content passing
-       beneath it — the white fill is now the whole separation. If that ever reads as
-       ambiguous while scrolling, a shadow rather than a rule is the way back
-       (box-shadow: 0 1px 0 var(--color-border) applied only once the page is scrolled). */
+       THE FILL IS PC LIGHT BLUE, NOT WHITE (Kiron, 2026-09-03: "pull the sub-nav out away from
+       all the icons in that section of the page ... thinking about putting a color bar behind
+       the subnav"). SAME IDEA AS THE STICKY FILTER BAR on listings.html and team.html — a
+       tinted band behind a bar — one step up in weight, because this bar has a harder job:
+       it is the THIRD icon row in eight vertical inches. Save and Share sit above it, the five
+       stat tiles sit below it, and the eight jump links carry icons of their own, so on a white
+       page all three read as one undifferentiated field of small glyphs. The tint gives the
+       middle row an edge without a rule and without moving anything.
+       #D7EFFB IS ALSO --color-border, so a hairline top or bottom would be invisible against
+       it. That is fine — the fill IS the edge now, which is what the 2026-08-26 decision
+       above wanted the white to do and white could not.
+       CONTRAST HOLDS: the links are --pc-navy on #D7EFFB at 8.9:1, the medium-blue hover
+       underline and focus ring at 4.6:1 against the tint (over the 3:1 non-text floor). No
+       link colour changed — this is on-light to on-light. A PC Black band was the other
+       candidate and would have meant flipping the whole bar to the on-dark scheme.
+       RADIUS 8px, and it is what keeps a COLUMN-WIDTH band from reading as a failed
+       full-bleed one. The band stops at the column edge because a full-bleed bar in this slot
+       was already rejected for cutting the page in half (see the note at the top of this
+       section); square corners at that stop look like the fill ran out, a radius looks chosen. */
     /* THE STICKY LIVES ON .ld-subbar, not on the nav. It held the nav PLUS the Save/Share
        pair until 2026-08-27; the pair moved to its own row, so the bar is now the links
        alone and its height is theirs. --ld-jump-h is measured by JS either way, so nothing
        had to be retuned when the pair left. */
-    /* MARGIN 32 → 4px (Kiron, 2026-08-27). This gap used to separate the bar from the
-       headline block; now it separates it from the Save/Share row, and the two rows read
-       as one control strip, so it wants to be tight. The links carry 14px of padding of
-       their own above the label, so the visible gap is ~18px, not 4. */
+    /* MARGIN 4 → 12px, BECAUSE THE FILL CHANGED WHAT THE MARGIN IS (2026-09-03).
+       HISTORY: it was 32 → 4px (Kiron, 2026-08-27) when the bar was white and its top edge was
+       invisible. 4px was never the gap then — what the eye read was 4 + the link's own 14px of
+       padding, ~20px ink-to-ink — so the number could be small without looking it.
+       A TINTED BAND HAS A VISIBLE TOP EDGE, and 4px of white between the h1 and that edge reads
+       as a collision. 12px is the gap now, measured to the band rather than to the ink.
+       AND IT RETIRES THE :has() COMPENSATION that used to live here. That rule pushed the margin
+       to 14px whenever the bar wrapped, because the tight treatment takes the link padding
+       14 → 3px and halved the only gap there was. With a fill the boundary is the band edge, so
+       12px is 12px in both states and the compensation has nothing left to compensate for.
+       One number, one gap, either shape. */
+    /* THE SPACE THE BAND LOST IS BACK, AND IT IS BACK AS MARGIN (Kiron, 2026-09-03: "when we
+       adjusted the height of the bar, we actually brought everything below it up ... I don't want
+       to lose the space we had between the date and the sub nav, and the space between subnav and
+       statcards", then "keep the height of the PC Light Blue background bar the same").
+       THOSE TWO INSTRUCTIONS ONLY AGREE IN ONE PLACE. The 22px the bar gave up came out of the
+       link's PADDING, which is inside the band - so putting it back as padding would restore the
+       spacing and undo the 31px in the same stroke. Margin is the only lever that moves the
+       content below without touching the fill: PADDING GROWS THE BAND, MARGIN MOVES IT.
+       MEASURED, AND THE NUMBERS ARE DERIVED RATHER THAN CHOSEN - each one is the gap this bar is
+       meant to draw, minus the 3px the band now contributes to it:
+         ABOVE  26px from the headline to the first label. 26 - 3 = 23px.
+         BELOW  26px from the last label to the first stat card, of which the stat strip's own
+                padding provides 12. 26 - 3 - 12 = 11px.
+       THE 26 ABOVE IS NEWER THAN THE 26 BELOW (Kiron, 2026-09-03: "make that same space change to
+       residential", after "add some space above the subnav to get it a little farther away from the
+       price row" on the For Sale page). It was 18px, restored from what the old 4px margin + 14px
+       padding drew; both pages went to 26 together, so variant A and variant B are still being
+       judged on the sub nav treatment alone and not on their spacing.
+       WHICH MAKES THE TWO GAPS EQUAL, 26 above and 26 below, where the page has never had them
+       matched before - it was 18/26 for one edit and 4+14 / 14+12 before that. The band is now
+       centred in its own white space, which is what a filled bar wants and an unfilled one does
+       not care about either way.
+       HOW THE 22px CAME OUT IN THE FIRST PLACE: the padding trim took 3px off the top gap and 11px
+       off the bottom one, because only the bottom gap was being drawn by that padding alone. THAT
+       asymmetry is why the change read as everything below the bar coming up.
+       ⚠ THESE ARE NOT ON THE SPACE SCALE, and deliberately so - 23 and 11 are 26 and 26 minus
+       what the band now contributes. If the link padding ever changes again, RE-DERIVE THEM from
+       those two totals rather than rounding them to var(--space-*). The two 26s are the design
+       intent; these two numbers are just arithmetic.
+       ⚠ AND DO NOT ADD A :has(.ld-jump-wrapped) MARGIN HERE to match the For Sale page's. That page
+       needs one because its bar has no fill, so its gap is margin PLUS link padding and the two
+       shapes draw different amounts of it. This band has a visible top edge: 23px is 23px whether
+       the links wrap or not. The two pages differ here on purpose - see the note in that file.
+       AND THE BAND HEIGHT IS UNAFFECTED: 31px one row, 63px wrapped, exactly as before. Margin is
+       outside the background box, so none of this is tinted. */
     .ld-subbar{ position: sticky; top: var(--navH); z-index: 20;
-      margin-top: var(--space-1); background: var(--pc-white);
+      margin-top: 23px; margin-bottom: 11px;
+      background: var(--pc-light-blue);
+      border-radius: var(--radius-sm);
       display: flex; align-items: center; gap: var(--space-4); }
-    /* THE 4px MARGIN WAS NEVER THE GAP (ported 2026-09-03). What separates this bar from the row
-       above is the margin PLUS the link's own top padding - 4 + 14 = 18px of box, ~20px ink-to-ink.
-       The tight treatment below takes that padding to 3px, which halved the visible gap. This
-       covers exactly what the padding gives up, and is keyed through :has() to the same state so it
-       appears and disappears with it. A one-row bar keeps the 4px margin and its full padding. */
-    .ld-subbar:has(.ld-jump-wrapped){ margin-top: 14px; }
     /* Takes the slack so the buttons pin right. min-width: 0 lets the link list shrink
        rather than forcing the bar wider than the column. */
     .ld-jump{ flex: 1 1 auto; min-width: 0; }
@@ -582,12 +635,26 @@
        eight links, and it applies identically to the auction page, so the component stays one
        component. Not done - it is a look change nobody has asked for.
        AT 1536+ THERE IS NO SUCH PRESSURE: 121.9px of slack against the same 810.1px row.
-       VERTICAL PADDING IS UNTOUCHED at 14px, so the bar's height and --ld-jump-h are unchanged.
+       VERTICAL PADDING IS NOW 3px, NOT 14px (Kiron, 2026-09-03: "when it is 1 row, I want to match
+       the spacing at the very top and very bottom ... is too wide right now at 1 row"). The tint
+       made the old 14px legible for the first time: on a white bar it was invisible air, on a
+       #D7EFFB band it is 14px of colour above and below the ink against the 3px a wrapped bar
+       gets, so the two shapes of the same component had visibly different insets.
+       ONE DECLARATION FOR BOTH SHAPES NOW, which is the only way they cannot drift apart - the
+       wrapped override that used to set this is gone (see .ld-jump-wrapped below).
+       MEASURED: the one-row bar goes 53px -> 31px and --ld-jump-h follows it, because that
+       variable is measured rather than authored. Every jump link's scroll-margin-top is
+       navH + ld-jump-h, so all eight anchors tightened by 22px with it and none needed touching.
+       THE LINK IS 31px TALL, over the 24px WCAG 2.2 SC 2.5.8 target floor - the same floor that
+       stops the wrapped bar going lower, now doing the same job for the only padding there is.
+       HORIZONTAL PADDING IS THE UNTOUCHED HALF, and must stay 9px: the 1280-1535 row measured
+       1.9px of slack on it (above), so this is a vertical-axis change only and cannot move
+       where the bar wraps.
        THE NINE-LINK WORST CASE IS THE AUCTION PAGE'S, NOT THIS ONE. The bar is left-justified
        and every section is omit-if-empty, so a listing with no video and no 360 renders six
        links that simply close up to the left. Sizing to eight is sizing to the fullest For Sale
        page the CMS can produce. */
-    .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 14px 9px;
+    .ld-jump a{ display: inline-flex; align-items: center; gap: 8px; padding: 3px 9px;
       font-family: var(--font-sans); font-size: 14px; font-weight: 500;
       color: var(--pc-navy); text-decoration: none; border-bottom: 3px solid transparent; }
     .ld-jump a:hover, .ld-jump a:focus-visible{ color: var(--pc-black); border-bottom-color: var(--pc-medium-blue); }
@@ -603,36 +670,33 @@
        exists when it is wanted needs neither.
        aria-hidden and empty, so it is not in the accessibility tree and adds nothing to read. */
     .ld-jump-break{ flex: 0 0 100%; width: 100%; height: 0; align-self: flex-start; }
-    /* ---- .ld-jump-wrapped: the tight treatment follows the WRAP, not the viewport ----
+    /* ---- .ld-jump-wrapped: CENTRING, and it follows the WRAP rather than the viewport ----
        Set by balanceJump() whenever the bar ends up on more than one row, removed when it does
-       not. A WIDTH CANNOT STAND IN FOR THIS, which the two pages prove between them: at
-       1280-1535 the auction page's nine links wrap and the For Sale page's eight do not, so a
-       media query that tightened the band would leave the For Sale bar 37px tall against the
-       53px it is at 1536 - two heights for a bar that looks identical either side of the line.
-       Keyed to the state instead, a single-row bar is 53px at every width on both pages and a
-       wrapped one is always the tight version.
-       A WRAPPED BAR AT 14px PADDING IS 115px TALL, which is a shelf rather than a bar. The space
-       between the rows comes out instead:
-         - row-gap 8 -> 0. The links carry their own padding, so 0 is not two rows touching.
-         - vertical padding 14 -> 6px. The gap between the two rows IS this padding, twice over:
-           12px, against 36px before the trim. MEASURED: 115px -> 75px.
-       NEITHER DECLARATION CAN CHANGE WHERE THE BAR WRAPS - both are vertical, and wrapping is
-       decided on the horizontal axis. So there is no feedback loop between this class and the
-       measurement that sets it.
-       EACH LINK IS STILL 37px TALL, comfortably over the 24px WCAG 2.2 SC 2.5.8 target floor.
-       That floor is what stops this going lower. */
-    /* CENTRED, AND TIGHTER STILL - 6px -> 3px (ported 2026-09-03, measured on the auction page).
-       CENTRING IS THE COMPANION TO THE THREE-ON-THE-LAST-ROW RULE in balanceJump(), not an
-       independent preference: that rule guarantees a wrapped bar is n + 3, so the second row is
-       always SHORTER than the first. Left-aligned, a short second row hangs off the left and reads
-       as a list that ran out of space; centred, the two read as one deliberate block. It is only
-       safe BECAUSE the split is controlled - centring an arbitrary 7 + 1 wrap would just centre a
-       mistake. justify-content applies per flex LINE, so each row centres independently.
-       3px rather than 6px: a two-row bar measures 63px against the 75px 6px gives, and this bar is
-       STICKY - its height comes off every screen for the whole scroll. The link is still 31px tall
-       against the 24px WCAG 2.2 SC 2.5.8 floor. */
+       not. IT USED TO CARRY THE BAR'S HEIGHT TOO and no longer does: the vertical padding trim
+       that lived here (14 -> 6 -> 3px, to stop a wrapped bar being a 115px shelf) became the
+       BASE padding for both shapes on 2026-09-03, when the tinted band made the one-row bar's
+       14px visible as inset and Kiron asked the two to match. So a wrapped bar is no longer the
+       tight version of the bar - the bar is tight, and this class only closes the row gap and
+       centres the rows.
+       WHAT IS LEFT HERE, and why each is still keyed to the state and not to a width:
+         - row-gap 8 -> 0. The links carry their own padding, so 0 is not two rows touching: the
+           gap between the rows IS that padding twice over, 6px. MEASURED: a two-row bar is 63px,
+           a one-row bar 31px.
+         - CENTRING IS THE COMPANION TO THE THREE-ON-THE-LAST-ROW RULE in balanceJump(), not an
+           independent preference: that rule guarantees a wrapped bar is n + 3, so the second row
+           is always SHORTER than the first. Left-aligned, a short second row hangs off the left
+           and reads as a list that ran out of space; centred, the two read as one deliberate
+           block. It is only safe BECAUSE the split is controlled - centring an arbitrary 7 + 1
+           wrap would just centre a mistake. justify-content applies per flex LINE, so each row
+           centres independently.
+       A WIDTH CANNOT STAND IN FOR THIS, which the two pages prove between them: at 1280-1535 the
+       auction page's nine links wrap and this page's eight do not, so a media query would centre
+       a bar that is on one row. Keyed to the state, a one-row bar is left-justified at every
+       width on both pages and a wrapped one is always centred.
+       NEITHER DECLARATION CAN CHANGE WHERE THE BAR WRAPS - both are vertical or per-line, and
+       wrapping is decided on the horizontal axis. So there is no feedback loop between this class
+       and the measurement that sets it. */
     .ld-jump-inner.ld-jump-wrapped{ justify-content: center; row-gap: 0; }
-    .ld-jump-inner.ld-jump-wrapped a{ padding-top: 3px; padding-bottom: 3px; }
 
     /* ======================= BODY: main + sticky aside =======================
        ONE grid for the whole page now, starting at the media. It used to start below
@@ -650,8 +714,9 @@
        THIS VALUE IS A PRE-JS FALLBACK ONLY — the script block measures the bar on load
        and resize and overwrites it, exactly as it does for --navH. Do not tune it by
        hand: it was 49px against a 53px bar, which is the kind of drift measuring fixes
-       permanently. */
-    :root{ --ld-jump-h: 53px;
+       permanently. 53 -> 31px with the vertical padding trim of 2026-09-03, which is the second
+       time this number has gone stale by hand and the reason the script owns it. */
+    :root{ --ld-jump-h: 31px;
       /* Pre-JS fallback only - the script measures the real height. See syncNavH. */
       --ld-backrow-h: 41px; }
     /* details as well as section: the accordions below are <details>, and a jump link
@@ -1231,7 +1296,7 @@
        listing populates. Three of the four variants fit by between 2 and 21 pixels and the fourth
        does not fit at all. That is not "fits", it is "fits today" - one label rename or a 2px
        rendering difference between browsers moves the rest across the line, and where it breaks it
-       breaks worst: a single orphaned link on a second row, taking the sticky bar 53px -> 113px.
+       breaks worst: a single orphaned link on a second row, taking the sticky bar 31px -> 63px.
        Without icons the same eight need 591-613px, so the band holds by ~200px instead of by 2.
        THE ICON IS 25px PER LINK - a 17px glyph plus its 8px gap - so BOTH declarations are needed;
        dropping the glyph alone leaves 8px of dead space in front of every label.
@@ -1258,11 +1323,16 @@
          THERE WAS A PLAIN MEDIA-QUERY COPY OF IT AT THIS BREAKPOINT, as a no-JS floor, and it
          had to come out: a media query cannot tell a wrapped bar from a single-row one, so it
          tightened both. It made the For Sale bar 37px at 900px, where its eight links fit on
-         one row, against the 53px the same single row is at 1280. That is the exact fault the
+         one row, against the 53px the same single row was at 1280. That is the exact fault the
          class was introduced to fix, reappearing one band lower.
-         WITHOUT JAVASCRIPT the bar now wraps where it falls and keeps its full 14px padding -
-         taller than it should be, but never two heights for the same shape. The page already
-         needs script for --ld-jump-h, so this adds no new dependency. */
+         ⚠ AND THE FAULT IT DESCRIBES IS NOW IMPOSSIBLE, because the padding it was fighting over
+         is gone: 3px is the base for both shapes since 2026-09-03, so nothing keyed to a width
+         could give the same bar two heights. WHAT IS STILL KEYED TO THE WRAP is the centring, and
+         a media query cannot tell a wrapped bar from a one-row one there either - which is why
+         this block stays empty rather than gaining a no-JS floor.
+         WITHOUT JAVASCRIPT the bar wraps where it falls, left-justified and at its full height -
+         one row or three, never two heights for the same shape. The page already needs script for
+         --ld-jump-h, so this adds no new dependency. */
 
       /* ICON STATS LOSE THEIR ICONS (Kiron, 2026-08-27) — figure over label, nothing else.
          At five across the cells are 105px here, of which the 26px icon and its 12px gap
@@ -1915,6 +1985,11 @@
             <a href="#ld-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Video</a>
             <a href="#ld-tour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 3v18"/></svg>360 Tour</a>
             <a href="#ld-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Terms</a>
+            <!-- DOWNLOADS IS BACK, so this is EIGHT LINKS again (Kiron, 2026-09-03: taken off
+                 to see the bar at seven, "add download back into the subnav"). It is the widest
+                 label in the set at 105px and the link the bar orphans first, which is what the
+                 spacing measurements above are sized around - so the eight-link case, not the
+                 seven-link one, is what any future label change has to clear. -->
             <a href="#ld-downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Downloads</a>
           </div>
         </nav>
@@ -2012,6 +2087,84 @@
                THE CSS WENT WITH IT, and .ld-ovfig did NOT: the card treatment worked out in that
                catalogue is what the live strip above now uses. Everything removed is still on the
                auction page to copy back from. NONE OF IT EVER SHIPPED from any page. -->
+
+          <!-- ---- THE OVERVIEW DESCRIPTION, AND WHY IT WENT MISSING ----
+               RESTORED 2026-09-03 (Kiron: "the overview for forsale and residential doesn't have
+               any text?"). It was not a page that never had prose - these four paragraphs, the
+               </section> that closes the overview, and the WHOLE LAND ACCORDION below were all
+               deleted together by one commit (7a644ad, "one stat card everywhere"), whose actual
+               job was to remove the stat-card catalogue from this page. The deletion ran past the
+               catalogue and took the next three things with it, which is why #ld-land was a jump
+               link pointing at nothing and the overview <section> was being closed by a stray
+               </details>. All three are back, verbatim from the commit before it (5507e1a).
+               LOREM IPSUM ON PURPOSE, and the one place on this page where filler is the right
+               answer: every FIGURE here is listing #19651's real data, and the description is the
+               only field whose real text was not needed to judge the layout. The auction page
+               shows real prose in this slot because #19282's description was available - the two
+               pages differ in what the CMS gave them, not in how the slot is built.
+               FOUR PARAGRAPHS IS THE SPEC, not a round number: it is what the auction listing
+               runs to, so the slot is sized to the length a real description actually reaches. -->
+          <p class="ld-copy">Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Donec ullamcorper nulla non metus auctor fringilla. Maecenas sed diam eget risus varius blandit sit amet non magna. Aenean lacinia bibendum nulla sed consectetur, nullam quis risus eget urna mollis ornare vel eu leo.</p>
+          <p class="ld-copy">Curabitur blandit tempus porttitor. Nulla vitae elit libero, a pharetra augue. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Etiam porta sem malesuada magna mollis euismod, donec id elit non mi porta gravida at eget metus.</p>
+          <p class="ld-copy">Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Sed posuere consectetur est at lobortis. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
+          <p class="ld-copy">Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam quis risus eget urna mollis ornare vel eu leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed odio dui. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum, cras mattis consectetur purus sit amet fermentum.</p>
+        </section>
+
+        <details id="ld-land" class="reveal ld-acc">
+          <summary><h2>Land</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+          <div class="ld-acc-body">
+            <!-- STARTS ON THE FIELD LIST. THERE IS NO INTRO PARAGRAPH.
+                 PORTED FROM listings-details-auction.html (Kiron, 2026-09-01), where it was settled first.
+                 (Kiron: "remove the lorem ipsum text in the Land accordion - just start with
+                 the sections".) What stood here was a lorem ipsum block standing in for the
+                 LEGAL DESCRIPTION, and it was in the wrong section anyway: the CMS document
+                 puts Legal Description in LOCATION, beside the map and the directions.
+                 SO THE OPEN QUESTION IS SMALLER, NOT ANSWERED. Nothing here says Legal
+                 Description should not appear on the page - only that it does not belong at
+                 the top of Land. If it is wanted, it goes in Location per the document.
+                 .ld-fields carries margin: 0, so the list sits flush on .ld-acc-body's 24px
+                 padding-top and the removal leaves no orphaned gap. -->
+            <dl class="ld-fields ld-fields-prose">
+              <dt>Road Access &amp; Frontage</dt>
+              <dd>Gravel frontage along the north boundary, approximately 1,320 feet, with a field entrance at the northwest corner.</dd>
+              <dt>Water Source</dt>
+              <dd>Rural water available at the road.</dd>
+              <dt>Sewer</dt>
+              <dd>None. A septic system would be required for any building site.</dd>
+              <dt>Utilities</dt>
+              <dd>Electric and rural water at the road. Natural gas is approximately one mile east.</dd>
+              <dt>Zoning</dt>
+              <dd>Agricultural</dd>
+              <dt>Gross Taxes</dt>
+              <dd>$5,412.00</dd>
+              <dt>Net Taxes</dt>
+              <dd>$5,038.00</dd>
+              <dt>Wildlife</dt>
+              <dd>Whitetail deer, turkey and upland birds along the timbered draws on the south end.</dd>
+              <dt>Recreation</dt>
+              <dd>Hunting, with a private building site on the northeast corner.</dd>
+              <dt>Water Access</dt>
+              <dd>A seasonal creek crosses the southeast quarter.</dd>
+              <dt>Improvements</dt>
+              <dd>Terraces across the west half in good repair, tile outlets draining to the road ditch, and a stock pond in the southwest corner.</dd>
+              <dt>Fencing</dt>
+              <dd>Perimeter fence in serviceable condition on three sides.</dd>
+              <dt>Horse Amenities</dt>
+              <dd>None</dd>
+              <dt>Possible Uses</dt>
+              <dd>Row crop production, hay ground, hunting and recreation, or a rural building site.</dd>
+              <!-- TWO ROWS THAT ARE NOT IN THE CMS DOCUMENT'S PROPERTY FEATURES LIST, kept
+                   because they are already on the page and removing content is its own decision:
+                     · PARCEL NUMBER(S) is a CMS field, but the document places it in PROPERTY
+                       OVERVIEW, not here.
+                     · SCHOOL DISTRICT does not appear anywhere in the document. Either it is a
+                       field missing from that list, or it is invented and should come off. -->
+              <dt>Parcel(s)</dt>
+              <dd>270010002030, 270010002040, 270010003020, 270010003010</dd>
+              <dt>School district</dt>
+              <dd>Graettinger-Terril</dd>
+            </dl>
+          </div>
         </details>
 
         <details id="ld-building" class="reveal ld-acc">
@@ -3021,10 +3174,11 @@
       if(!header) return;
       /* --ld-jump-h IS MEASURED TOO, for the same reason --navH is. Every jump link's
          scroll-margin-top is navH + ld-jump-h, so a stale value lands each heading
-         underneath the very bar that sent you there. It was hardcoded at 49px and the
-         bar is 53px — a 4px error that grew the moment Save/Share joined the row, and
-         would grow again if the links' padding or type size changed. Measuring it costs
-         one line and cannot go stale. */
+         underneath the very bar that sent you there. It was hardcoded at 49px against a
+         53px bar — a 4px error that grew the moment Save/Share joined the row, and grew
+         again on 2026-09-03 when the links' vertical padding went 14 -> 3px and took the
+         bar to 31px. Exactly the drift this predicted. Measuring it costs one line and
+         cannot go stale. */
       var subbar = document.querySelector(".ld-subbar");
       /* --ld-backrow-h IS MEASURED FOR THE SAME REASON: the rail has to line up with the
          photograph, and the offset is the height of the "ALL LISTINGS" link above the media.
