@@ -438,8 +438,20 @@
        Tracts), so a template that can produce four or seven items needs this track
        count driven by the item count rather than hardcoded at 5. */
     .ld-ovstats{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-auto-rows: 1fr;
       gap: var(--space-4); list-style: none;
-      margin: 0 0 var(--space-6); padding: var(--space-5) 0;
+      /* TIGHTENED (Kiron, 2026-09-02: "this vertical white space has gotten away from us ... can
+         we tighten it up?"). It was 24px of padding top and bottom with 32px of margin below -
+         values set when a card was a 22px figure over a label with no fixed height, and never
+         revisited as the card became a measured 43.8px tile. Measured before: 40px of air above
+         the first card (16 from the jump nav, 24 of padding) and 57px below it (24 padding, the
+         1px rule, 32 margin) - 97px of space around 44px of content.
+         NOW 12 / 12 / 24: 28px above the card and 37px below, and the strip's own box drops from
+         92.8px to 68.8px. The 16px above comes from the page grid, not from here, so it is left
+         alone - taking this to zero would butt the figures against the sub nav.
+         THE BOTTOM RULE IS UNCHANGED and still does the separating; what came off is air that
+         was doing the same job twice. */
+      margin: 0 0 var(--space-5); padding: var(--space-3) 0;
       /* NO BORDER-TOP (2026-08-26). This strip used to be ruled top and bottom, which
          was right while a visible "Property Overview" heading sat between it and the
          jump nav. That heading is .sr-only now, and .sr-only is position: absolute, so
@@ -449,7 +461,37 @@
          its bottom rule is drawn.
          ⚠ If the heading is ever made visible again, put this border back with it. */
       border-bottom: 1px solid var(--color-border); }
-    .ld-ovstats li{ display: flex; align-items: center; gap: var(--space-3); }
+    /* ---- THE LIVE STRIP TAKES THE CATALOGUE'S CARD (Kiron, 2026-09-02: "apply these new card
+       designs to the 3 pages actual 5 card layouts") ----
+       The tile was designed in the stat-card pool over the course of the day and is now the card
+       itself, so the strip and the catalogue are one component again - which was the rule here
+       before the pool was given its own geometry, and is the rule again.
+       WHAT CHANGED FOR THE LIVE STRIP, all of it at 1280+:
+         * THE CARD IS CENTRED IN ITS CELL rather than left-aligned, and the figure is centred
+           over its label. Left-aligned, the five figures sat at five different distances from
+           the middle of their own labels, because each pair has a different length difference.
+         * EQUAL HEIGHTS. grid-auto-rows: 1fr with height: 100% on the card, so a card whose
+           label runs to two lines does not make itself taller than the four beside it.
+         * THE TEXT IS TOPPED OUT AND THE ICON IS CENTRED. align-items: flex-start puts every
+           figure on one ceiling however many lines the label below it runs to; align-self on
+           the icon overrides that for the icon alone, so it sits on the middle of the card.
+           The two rules do different jobs on the same axis and both are wanted.
+       THE NARROW BANDS ARE NOT TOUCHED. 1024-1279 still sizes the five cards to their content
+       with space-between and hides the icon; 639 and below is still a stack of label-left /
+       value-right rows. Those bands are tuned for widths this design was not reviewed at - see
+       the note on each - and Kiron's scope for this pass was desktop.
+       ⚠ SO THE CARD IS THE TILE AT 1280+ AND SOMETHING ELSE BELOW IT. That is a deliberate hold,
+       not a finished state. */
+    .ld-ovstats li{ height: 100%; display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-start; gap: 0; text-align: center; }
+    /* ROW ONE OF THE CARD: the icon and the figure, centred as a pair. The label is row two and
+       spans the card, so it no longer pays for the icon's 38px column - which is what lets the
+       three acreage labels set on one line inside a 146.6px cell instead of needing an authored
+       <br />. Those breaks are gone from all three strips as of 2026-09-02.
+       Shrink-wraps its children, so `align-items: center` on the card is what centres the pair;
+       it must not be full width or there would be nothing to centre. */
+    .ld-ovstats .ld-ovfig{ display: flex; flex-direction: row; align-items: center;
+      justify-content: center; gap: var(--space-3); }
     /* ---- the stat card pool: same cards, set apart as a catalogue ----
        PORTED FROM listings-details-forsale.html (Kiron, 2026-08-31: apply the For Sale
        additions to the auction page). A TINT AND NOTHING ELSE - no dashed review box and no
@@ -464,6 +506,164 @@
        strip from the prose below it - inside a panel it is neither the top nor the bottom of
        anything. Wraps to a second row on its own, which is what a pool does. */
     .ld-ovstats-pool{ margin: 0; padding: 0; border-bottom: 0; }
+
+    /* ---- THE CATALOGUE IS A GRID OF IDENTICAL TILES (Kiron, 2026-09-02: "I need all 13 of
+       those cards to be the exact same height and width ... if we need to stack the text to
+       make it happen, let's do that, as well as perhaps centering the value over the text") ----
+
+       WHY IT NEEDED ITS OWN GEOMETRY AT ALL. The pool used to inherit every one of the live
+       strip's bands, and those bands are tuned for FIVE CHOSEN CARDS in a row, not thirteen in
+       a block. Three consequences, all now gone:
+         1. AT 1024-1279 IT OVERFLOWED. The strip's band there is `repeat(5, max-content)`,
+            sized so five labels reach one line each; max-content tracks do not shrink, so the
+            pool's wider set totalled 587px inside a 523-538px panel and hung 24-39px past the
+            edge of the section, with nothing clipping it. Equal 1fr tracks cannot do that.
+         2. THE CARDS WERE ALL DIFFERENT SIZES. max-content means every tile is exactly as wide
+            as its own longest line, so thirteen tiles were thirteen widths, and rows were as
+            tall as whatever landed in them.
+         3. BELOW 639 IT STOPPED BEING CARDS. The strip becomes a stack of label-left /
+            value-right rows down there - right for five facts about one listing, wrong for a
+            menu of thirteen options.
+
+       HOW THE SIZES ARE MADE EXACT, and both halves are needed:
+         * minmax(0, 1fr) TRACKS give identical widths. The 0 minimum is what lets a track go
+           narrower than its content instead of pushing the grid wide - the failure in (1).
+         * grid-auto-rows: 1fr WITH height: 100% ON THE TILE gives identical heights. 1fr rows
+           in a grid with no fixed height resolve to the TALLEST row's content, so every row
+           matches the worst case; height: 100% is what makes each tile fill the row it is in
+           rather than sitting at its own content height inside it. Without the second half the
+           rows are equal and the tiles are not.
+       So a two-line label anywhere in the catalogue sets the height for all thirteen. That is
+       the cost of exact parity and it is the thing that was asked for.
+
+       ---- THE ICON IS BESIDE THE FIGURE, NOT ABOVE IT (Kiron, 2026-09-02: "the icons sitting
+       above the field is not good! What if the icon set to the left of the number ... and then
+       those two assets were centered on the card?") ----
+       The first version of this block stacked the tile vertically - icon, then figure, then
+       label - which put a 26px glyph on its own line above everything and read as three
+       separate things rather than one card.
+       SO THE TILE IS A CENTRED ROW AGAIN: `flex-direction: row` with `justify-content: center`,
+       the icon on the left and the figure-over-label pair beside it, and the two centred AS A
+       GROUP inside the tile. The figure still sits centred over its label, which is the other
+       half of what was asked for and what the 1024-1279 band already did.
+       THIS ALSO PUTS THE TILE BACK IN STEP WITH THE LIVE STRIP, which is icon-left of the same
+       figure-over-label pair. The remaining difference is alignment only - a live card is
+       left-aligned in its cell, a tile is centred in its own - so the divergence flagged when
+       the tile was stacked is closed rather than merely explained.
+       THE WRAPPER <span> MUST NOT BE width: 100%, which is what the stacked version gave it. A
+       full-width text block leaves the flex row nothing to centre: it would fill the tile and
+       pin the icon to the left edge. `flex: 0 1 auto` lets it size to its own content, so
+       `justify-content: center` has slack to work with, and lets it SHRINK before it overflows
+       a narrow tile.
+
+       THE COLUMN COUNT STEPS, the tile stays uniform. FIVE AT 1280+ (Kiron, 2026-09-02: "convert
+       back to a 5 column count"), which the authored label breaks are what paid for. It was four
+       for one day: with the three acreage labels on one line each, the widest card demanded 169px
+       and five tracks offer 136.6 at 1280, so a label ran three lines deep and - heights being
+       locked - set that height for all thirteen. Broken after the first word, the widest card is
+       now Average CSR2 at 128.8px, which clears a 136.6px track with 7.8px to spare.
+       ⚠ SO THE FIVE COLUMNS DEPEND ON THOSE BREAKS. Remove a <br /> from Total, Tillable or
+       Non-tillable Acres and that card goes back over the track, wraps to three lines, and takes
+       the whole catalogue's height with it. The two are one decision, not two.
+       ⚠ AND THE MARGIN IS 7.8px AT 1280. A longer field name than anything in the catalogue today
+       has almost no room before it needs a break of its own. 1280 is the binding width - 1440
+       gives 139.6px and 1536+ gives 163.6.
+       THE ICON HIDES BELOW 1280, the live strip's own breakpoint for it - see the rule below
+       for the measurement that settled on that width rather than one band lower. The tile stays
+       uniform either way: the icon is shown for all thirteen or for none.
+
+       EVERY SELECTOR IS TWO CLASSES, `.ld-statpool .ld-ovstats-pool`, ON PURPOSE. The strip's
+       band rules are single-class (`.ld-ovstats`, `.ld-ovstats li`) and some of them sit LATER
+       in this file inside media queries, where a media query adds no specificity. A one-class
+       pool selector would lose to them at exactly the widths this block exists to fix, however
+       far down the file it were moved. Two classes wins everywhere, order-independently. */
+    .ld-statpool .ld-ovstats-pool{
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-auto-rows: 1fr; gap: var(--space-5) var(--space-4);
+      justify-content: stretch; padding: 0; }
+    /* ---- THE ICON RIDES THE FIGURE'S LINE, NOT THE WHOLE CARD (Kiron, 2026-09-02: "what if we
+       put the icon up in the row with the ## at that height, instead of the full height of the
+       card?") ----
+       THIS IS A FITTING FIX, not only a look. While the icon was a full-height column beside the
+       text, EVERY line paid for it: a card measured icon + gap + the wider of figure and label,
+       so a 124.9px label needed a 162.9px card and would not go in a 136.6px track at 1280.
+       Now the icon shares a line with the figure and the label spans the card underneath, so a
+       card measures max(icon + gap + figure, label) instead. The label stops paying 38px it was
+       never using - the figure beside the icon is short - and the widest card in the catalogue
+       drops from 162.9px to 124.9px, which clears the track with 11.7px to spare. No authored
+       <br /> anywhere, icons kept at 1280+.
+       SO THE TILE IS A COLUMN OF TWO ROWS: .ld-ovfig (icon + figure, centred as a pair) and the
+       label (full width, centred). The figures all sit on one ceiling for free - .ld-ovfig is
+       row one of every tile - so `align-items: flex-start` is no longer doing that job and the
+       tile centres its two rows horizontally instead.
+       THE ICON CENTRES AGAINST THE FIGURE NOW, not against the tile. That is the change Kiron
+       asked for in as many words: inside .ld-ovfig, align-items: center puts the 26px glyph on
+       the middle of the 24px figure line rather than on the middle of a 42px card.
+       ⚠ IT NEEDED A MARKUP CHANGE, and this is the only place on the site that has it. The card
+       was <svg> + <span>(figure, label); the label cannot escape the icon's column while it is
+       a child of the same wrapper. It is now <span class="ld-ovfig">(svg, figure)</span> +
+       <span class="l">label</span>, which is why .ld-ovfig exists.
+       ⚠ THE LIVE STRIP STILL HAS THE OLD MARKUP on all three pages, and so do the other two
+       pages' pools. This is the auction pool only, for review - Kiron: "build it on auctions
+       page for the pool icons only. If I like it, we'll implement across". Two shapes of the
+       same card exist on this page until that call is made.
+       THE ROW BAND WAS REWRITTEN FOR THIS SHAPE, not left to cope: max-width 767 used to make
+       `li > span` the flex row, and there are two direct spans now. See the note in that block. */
+    .ld-statpool .ld-ovstats-pool li{
+      height: 100%; display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-start; gap: 0; text-align: center;
+      border-bottom: 0; padding: 0; }
+    /* Row one. Shrink-wraps its two children, so `align-items: center` on the tile is what
+       centres the pair; it must NOT be full width or there would be nothing to centre. */
+    .ld-statpool .ld-ovstats-pool .ld-ovfig{
+      display: flex; flex-direction: row; align-items: center; justify-content: center;
+      gap: var(--space-3); }
+    .ld-statpool .ld-ovstats-pool svg{ display: block; flex: none; }
+    /* BOTH LINES RE-DECLARED IN FULL rather than patched. The <=639 band rewrites .l into a
+       20px navy serif and gives it `order: -1` so the label leads the row; inside a tile that
+       would put the label above the figure in a different typeface. Restating every property
+       the band touches - family, size, weight, spacing, case, colour, order, margin - is what
+       makes the tile immune to it, and to the next band that reaches for .l. */
+    .ld-statpool .ld-ovstats-pool .n{
+      display: block; order: 0; text-align: center; font-family: var(--font-serif);
+      font-size: 22px; font-weight: 600; line-height: 1.1; letter-spacing: normal;
+      color: var(--color-text); }
+    /* width: 100% is the whole point of the restructure - the label now spans the card rather
+       than sharing a row with the icon, so it centres in the TILE and is measured against the
+       full track. */
+    /* flex: none IS LOAD-BEARING. The strip's row band (max-width: 767) sets `.ld-ovstats .l{
+       flex: 1 }` so the label can take the slack in a label-left / value-right row. That selector
+       is two classes and reaches into the catalogue as well, where the label is a flex item in a
+       COLUMN - so it grew to fill whatever height the tallest tile had, and a one-line label
+       reported a two-line box. Invisible on screen, but it makes every measurement of this
+       component lie. Declaring flex here is what stops the strip's band leaking in. */
+    .ld-statpool .ld-ovstats-pool .l{
+      display: block; order: 0; flex: none; width: 100%; text-align: center;
+      font-family: var(--font-sans);
+      font-size: 11px; font-weight: 500; line-height: 1.35; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--pc-navy); margin-top: 3px;
+      white-space: normal; }
+    @media (max-width: 1279px){
+      .ld-statpool .ld-ovstats-pool{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    /* THE ICON DROPS BELOW 1280, WHICH IS THE LIVE STRIP'S OWN BREAKPOINT FOR IT. Measured,
+       not matched for tidiness: at 1024-1279 the pool is three tracks of ~164px, and an icon
+       plus its gap takes 38 of them, leaving ~126px for a label that wants 131 ("NON-TILLABLE
+       ACRES"). The text block shrank to fit, the label wrapped to two lines, and the group
+       filled the tile edge to edge - so there was no slack left for `justify-content: center`
+       to centre it with, which is the one thing this treatment is for. Dropping the icon hands
+       the full 164px back: the label sets on one line and the pair centres properly.
+       IT ALSO MAKES THE CATALOGUE'S ICON RULE IDENTICAL TO THE STRIP'S, so the two components
+       now agree on when an icon is affordable instead of disagreeing by one band. */
+    @media (max-width: 1279px){
+      .ld-statpool .ld-ovstats-pool svg{ display: none; }
+    }
+    @media (max-width: 767px){
+      .ld-statpool .ld-ovstats-pool{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 479px){
+      .ld-statpool .ld-ovstats-pool{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
 
     /* ================= MOCK-UP NOTE (Kiron, 2026-09-01) =================
        "Would you be able to add some mark up to some of the sections, to explain what is going
@@ -514,12 +714,29 @@
        both; the gap does the spacing. */
     .ld-aside > .mock-note, .ld-agentslot > .mock-note{ margin-bottom: 0; }
     .mock-note-body b{ font-weight: 600; }
+
+    /* ================= MOCK-UP NOTES TEMPORARILY HIDDEN (Kiron, 2026-09-02) =================
+       "let's hide all the mock up notes ... I will want to bring them back once we have sized
+       everything, but right now, let's hide them."
+       THIS IS A HOLD, NOT A REMOVAL. The notes, their markup and every rule above are untouched;
+       this one declaration is the whole of it. TO BRING THEM BACK, DELETE THIS BLOCK - nothing
+       else has to be put back, and there is nothing else to remember.
+       display: none, NOT the .sr-only treatment this site uses elsewhere for "I do not want to
+       see it". Those two are different requests: .sr-only hides a thing from the eye while it
+       still occupies the accessibility tree, and it is right for a heading a screen reader needs.
+       These are review scaffolding that never ships to anyone, and the point of hiding them is to
+       size the page WITHOUT them - so they must take their space with them, which only
+       display: none does. A visually-hidden note would leave the page measuring the same.
+       THE THREE NOTES THIS AFFECTS on this page: above the stat card catalogue, above the pair of
+       Tracts treatments, and above the three Auction Details cards. It is scoped to the class, so
+       any note added later is hidden too until this comes out. */
+    .mock-note{ display: none; }
     .ld-ovstats svg{ width: 26px; height: 26px; flex: none; color: var(--pc-medium-blue); }
-    .ld-ovstats .n{ display: block; font-family: var(--font-serif); font-size: 22px;
-      font-weight: 600; color: var(--color-text); line-height: 1.1; }
-    .ld-ovstats .l{ display: block; font-family: var(--font-sans); font-size: 11px;
-      font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
-      color: var(--pc-navy); margin-top: 3px; }
+    .ld-ovstats .n{ display: block; text-align: center; font-family: var(--font-serif);
+      font-size: 22px; font-weight: 600; color: var(--color-text); line-height: 1.1; }
+    .ld-ovstats .l{ display: block; text-align: center; font-family: var(--font-sans);
+      font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--pc-navy); margin-top: 3px; line-height: 1.35; }
 
 
     /* ======================= JUMP NAV =======================
@@ -621,26 +838,40 @@
        exists when it is wanted needs neither.
        aria-hidden and empty, so it is not in the accessibility tree and adds nothing to read. */
     .ld-jump-break{ flex: 0 0 100%; width: 100%; height: 0; align-self: flex-start; }
-    /* ---- .ld-jump-wrapped: the tight treatment follows the WRAP, not the viewport ----
-       Set by balanceJump() whenever the bar ends up on more than one row, removed when it does
-       not. A WIDTH CANNOT STAND IN FOR THIS, which the two pages prove between them: at
-       1280-1535 the auction page's nine links wrap and the For Sale page's eight do not, so a
-       media query that tightened the band would leave the For Sale bar 37px tall against the
-       53px it is at 1536 - two heights for a bar that looks identical either side of the line.
-       Keyed to the state instead, a single-row bar is 53px at every width on both pages and a
-       wrapped one is always the tight version.
-       A WRAPPED BAR AT 14px PADDING IS 115px TALL, which is a shelf rather than a bar. The space
-       between the rows comes out instead:
-         - row-gap 8 -> 0. The links carry their own padding, so 0 is not two rows touching.
-         - vertical padding 14 -> 6px. The gap between the two rows IS this padding, twice over:
-           12px, against 36px before the trim. MEASURED: 115px -> 75px.
-       NEITHER DECLARATION CAN CHANGE WHERE THE BAR WRAPS - both are vertical, and wrapping is
-       decided on the horizontal axis. So there is no feedback loop between this class and the
-       measurement that sets it.
-       EACH LINK IS STILL 37px TALL, comfortably over the 24px WCAG 2.2 SC 2.5.8 target floor.
-       That floor is what stops this going lower. */
-    .ld-jump-inner.ld-jump-wrapped{ row-gap: 0; }
-    .ld-jump-inner.ld-jump-wrapped a{ padding-top: 6px; padding-bottom: 6px; }
+    /* ================= SUB NAV: RESET TO ONE STATE (Kiron, 2026-09-02) =================
+       "let's eliminate all adjustments that are applied to the sub-nav as the window size
+       changes. I want to start with 1536 and have a clean slate and work my way down."
+
+       THE BAR NOW LOOKS THE SAME AT EVERY WIDTH. Everything above this line is the whole of its
+       styling; there is no rule anywhere in this file that changes it by viewport, and the two
+       row-balancing rules in balanceJump() are gone as well. It wraps where the width runs out
+       and nothing intervenes.
+
+       WHAT WAS REMOVED, so it can be put back a piece at a time as the ladder is worked down:
+         1. `.ld-jump-inner.ld-jump-wrapped{ justify-content: center }` - every row of a wrapped
+            bar centred itself. Keyed to the state, not a width. (2026-09-02)
+         2. `.ld-jump-inner.ld-jump-wrapped{ row-gap: 0 }` and
+            `.ld-jump-inner.ld-jump-wrapped a{ padding-top: 3px; padding-bottom: 3px }` - the
+            tight treatment for a bar on more than one row. At 14px padding a two-row bar is
+            115px tall; this took it to 63px. The rows' spacing IS that padding, doubled.
+         3. The `@media (max-width: 767px)` block: `.ld-jump-inner` became
+            `display: grid; grid-template-columns: repeat(3, 1fr); overflow-x: visible` and
+            `.ld-jump a` took `justify-content: center; white-space: nowrap`. Nine links read
+            3 + 3 + 3.
+         4. The `@media (max-width: 479px)` block: `.ld-jump-inner{ gap: 6px }`,
+            `.ld-jump a{ font-size: 12px; gap: 6px; padding-left: 6px; padding-right: 6px }`,
+            `.ld-jump svg{ width: 14px; height: 14px }`.
+         5. In balanceJump(): the 8-or-9-links-put-3-on-the-last-row rule, and the older rule
+            that no secondary row may hold a single link.
+
+       WHAT DELIBERATELY STAYED, because neither is a size adjustment:
+         * `--ld-jump-h`, which every jump link's `scroll-margin-top` is built on. The bar's
+           height still has to be published or the anchors land under it.
+         * The `.ld-jump-wrapped` class toggle. It now styles nothing, and that is the point -
+           it is the hook that rules 1 and 2 plugged into, kept so the next version has somewhere
+           to attach without re-deriving how to know the bar has wrapped.
+         * `.ld-jump-break`'s own rule, for the same reason: no JS inserts one today, and the
+           declaration is what makes a forced break work the moment one does. */
 
     /* ======================= BODY: main + sticky aside =======================
        ONE grid for the whole page now, starting at the media. It used to start below
@@ -857,7 +1088,7 @@
        lightbox is the natural next step and it already exists - see the tract-carousel script
        for how the indices line up with LD_PHOTOS. */
     /* PHOTOGRAPH RIGHT, PROSE LEFT (Kiron, 2026-08-31), AND IT IS `order`, NOT MARKUP - the
-       same call the listing rail made at 1023 and for the same reason. The carousel stays FIRST
+       same call the listing rail made at 1279 and for the same reason. The carousel stays FIRST
        in the DOM, because when the grid collapses to one column the photograph has to land
        ABOVE the text; if the markup were reordered to put prose first, the stacked layout would
        put the photograph below it. So the wide layout does the swapping and the stacked layout
@@ -888,6 +1119,13 @@
        also makes the stacked layout the DOM's own order (photograph, then text) and retires
        the `order: 1` / `order: 2` pair that used to swap them, so nothing presentational is
        reversing the reading order any more.
+       ⚠ THE WRAP-UNDER ONLY HAPPENS AT 1280 AND ABOVE, because that is the only band where
+       there are two columns at all. .ld-tside unfloats in the @media (max-width: 1279px) block,
+       where a 588px main column would leave a 380px photograph about 176px of prose - a measure
+       too narrow to read, which is the pre-existing call this change did not touch. From 1279
+       down the photograph and its facts sit full width ABOVE the prose, as they always have, and
+       there is no float for anything to wrap around. So what Kiron asked for is a wide-screen
+       behaviour by construction, not by omission.
        display: flow-root ON THE WRAPPER, so the float is contained: Downloads sits outside
        .ld-tgrid in the accordions but the panel's own bottom padding would still collapse
        against an uncontained float. flow-root is `overflow: hidden`'s job without its side
@@ -1176,7 +1414,7 @@
       .xtw-body{ grid-template-columns: minmax(0, 1fr); }
       /* THE MAP GOES BACK ON TOP IN ONE COLUMN. Left/right became above/below the moment the
          grid collapsed, and "below a screen of text" is not where the thing a reader opened the
-         window to look at belongs. Same call .ld-tside makes at 1023 in the accordions.
+         window to look at belongs. Same call .ld-tside makes at 1279 in the accordions.
          IT IS THE FLOAT COMING OFF, NOT AN `order`. Both tract spaces now write the media block
          first, so unfloating it is all that is needed and the DOM order is the reading order at
          every width - there is no presentational reversal left anywhere in either layout.
@@ -2038,25 +2276,27 @@
          padding as its gap; halving it is the second half of Kiron's "decrease the height
          white space" — 94px between the county and the picture becomes ~69. */
       .ld-media{ margin-top: var(--space-3); }
+
     }
     /* ---- 640-767 ---- */
     @media (max-width: 767px){
-      /* SUB NAV: TWO ROWS OF THREE, FROM 767 ALL THE WAY DOWN (Kiron, 2026-08-27).
-         Left to itself the bar wrapped 5 + 1 — the links need 656px and the column is 636 at
-         a 700px viewport — and a lone "Terms" on its own row read as a mistake rather than a
-         second row. It was briefly 4 + 2, forced with a full-width flex item; Kiron's call is
-         3 + 3, which is the same shape the band below already used, so the two merged into
-         this one rule and the break element came out of the markup entirely.
-         GRID, NOT A FLEX BREAK: three equal columns wrap six items into 2 x 3 with nothing to
-         place, the two rows align in columns, and the cells stay even as the column narrows.
-         At 767 each cell is 229px and the widest link ("Downloads", icon included) needs 100.
-         ⚠ THE COST, stated because it is real: at 720-767 all six links still FIT on one line
-         (the column is 656-703 there), and this puts them in two rows anyway. The alternative
-         was a breakpoint at 719, which is not a --site step and would be the first off-ladder
-         breakpoint in the file. Kiron chose the consistent shape over the extra row of 48px. */
-      .ld-jump-inner{ display: grid; grid-template-columns: repeat(3, 1fr);
-        overflow-x: visible; }
-      .ld-jump a{ justify-content: center; white-space: nowrap; }
+      /* THE SUB NAV'S 767 RULES ARE GONE - see the reset note in the base styles for the full
+         list and why. It was a three-column grid here, links centred and nowrap, giving 3 + 3 + 3
+         from 767 all the way down. Nothing replaces it yet: the bar wraps as a plain flex row at
+         this width like every other. The reasoning that produced the grid is worth reading before
+         anything is put back, so it is kept here rather than deleted:
+           Left to itself the bar wrapped 5 + 1 - the links needed 656px and the column was 636 at
+           a 700px viewport - and a lone "Terms" on its own row read as a mistake rather than a
+           second row. It was briefly 4 + 2, forced with a full-width flex item; Kiron's call was
+           3 + 3, the same shape the band below already used, so the two merged into one rule and
+           the break element came out of the markup entirely.
+           GRID, NOT A FLEX BREAK: three equal columns wrap six items into 2 x 3 with nothing to
+           place, the two rows align in columns, and the cells stay even as the column narrows. At
+           767 each cell was 229px and the widest link ("Downloads", icon included) needed 100.
+           THE COST, stated because it was real: at 720-767 all six links still FIT on one line
+           (the column is 656-703 there), and it put them in two rows anyway. The alternative was
+           a breakpoint at 719, not a --site step, and the first off-ladder breakpoint in the
+           file. Kiron chose the consistent shape over the extra row of 48px. */
 
       /* ICON STATS BECOME A TABLE (Kiron, 2026-08-27: "a full format adjustment here, where we
          have these all stacked, with the value sitting to the right of the description" —
@@ -2090,9 +2330,21 @@
         border-bottom: 1px solid var(--color-border); padding: 10px 0; }
       /* The last row's rule would sit directly on the strip's own bottom border. */
       .ld-ovstats li:last-child{ border-bottom: 0; padding-bottom: 0; }
-      .ld-ovstats li > span{ display: flex; flex: 1; align-items: baseline;
-        justify-content: space-between; gap: var(--space-4); }
-      .ld-ovstats .l{ order: -1; text-align: left; margin-top: 0;
+      /* REWRITTEN FOR THE NEW CARD SHAPE (2026-09-02). This band used to make `li > span` - the
+         one wrapper that held figure and label - the flex row that spaced them apart. There are
+         two direct spans now, .ld-ovfig and the label, so that selector would have made a flex
+         row of each of them instead of one row of the pair. The <li> itself is the row now, and
+         it does the same job: space-between pushes the label and the figure to opposite edges.
+         `order: -1` on the label still leads the row, so the reading stays label-then-value and
+         the markup stays figure-then-label, exactly as before.
+         The icon is display: none from 1280 down, so .ld-ovfig is a box with one child here. */
+      /* ⚠ flex-direction MUST BE RESET TO ROW. The base rule makes the card a COLUMN - icon and
+         figure on row one, label under it - and a media query adds no specificity, so without
+         this the column survives into this band and every stat becomes a two-line block. It
+         measured 83px a row against the 42px this band intends. */
+      .ld-ovstats li{ flex-direction: row; justify-content: space-between; gap: var(--space-4); }
+      .ld-ovstats .ld-ovfig{ flex: none; }
+      .ld-ovstats .l{ order: -1; flex: 1; width: auto; text-align: left; margin-top: 0;
         font-family: var(--font-serif); font-size: 20px; font-weight: 500;
         line-height: 1.2; letter-spacing: normal; text-transform: none;
         color: var(--pc-navy); }
@@ -2193,9 +2445,10 @@
          ⚠ The VERTICAL padding is deliberately left at the 6px the 1279 band set. Each link
          is ~30px tall with it, and WCAG 2.2 SC 2.5.8 wants 24px minimum — there is no room
          to take height out of these targets, only width. */
-      .ld-jump-inner{ gap: 6px; }
-      .ld-jump a{ font-size: 12px; gap: 6px; padding-left: 6px; padding-right: 6px; }
-      .ld-jump svg{ width: 14px; height: 14px; }
+      /* THE SUB NAV'S 479 RULES ARE GONE - see the reset note in the base styles. They were
+         `.ld-jump-inner{ gap: 6px }`, `.ld-jump a{ font-size: 12px; gap: 6px; padding-left: 6px;
+         padding-right: 6px }` and `.ld-jump svg{ width: 14px; height: 14px }` - a smaller type
+         step for the narrowest screens. The bar now carries its 1536 styling all the way down. */
 
       /* ACCORDION CONTENT STEPS DOWN (Kiron, 2026-08-27). The body copy has been 16px since
          1536, where it sits in a 932px column; here the column is 280-439px, so 16px was
@@ -2557,26 +2810,39 @@
                for Tillable only, so it was left; raise it when the pool is next reviewed. -->
           <ul class="ld-ovstats">
             <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
-              <span><span class="n">136.57</span><span class="l">Total acres M/L</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
+                <span class="n">136.57</span></span>
+              <span class="l">Total acres M/L</span>
             </li>
             <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-              <span><span class="n">80.31</span><span class="l">Tillable acres M/L</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
+                <span class="n">80.31</span></span>
+              <span class="l">Tillable acres M/L</span>
             </li>
             <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v8H3z"/><path d="M3 13h18v8H3z"/></svg>
-              <!-- 4, NOT 2: Tracts 3 and 4 are demonstration blocks in the Tracts
+              <!-- THE FOUR-SQUARE ICON IS THE SUB NAV'S (Kiron, 2026-09-02: "I like the sub-nav
+                   better, with 4 squares ... can you use that for the stat cards?"). This card used
+                   to draw two stacked bars while the "Tracts" link in the jump nav drew four
+                   squares - one concept, two glyphs, about eight inches apart on the page. The four
+                   squares also say the right thing: tracts are parcels side by side, not layers.
+                   THE PATHS ARE COPIED, THE STROKE WEIGHT IS NOT. The nav sets stroke-width 2 for
+                   every one of its icons; the stat strip sets 1.8 for every one of its own. Taking
+                   the shape and keeping the local weight is what makes it match BOTH places.
+                   4, NOT 2: Tracts 3 and 4 are demonstration blocks in the Tracts
                    accordion (see the warning there). REVERT TO 2 when they come out. -->
-              <span><span class="n">4</span><span class="l">Tracts</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                <span class="n">4</span></span>
+              <span class="l">Tracts</span>
             </li>
             <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
-              <span><span class="n">39.5</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
+                <span class="n">39.5</span></span>
+              <span class="l">Average <span data-field="productivity-type">CSR2</span></span>
             </li>
             <li>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
-              <span><span class="n">$1,868</span><span class="l">Net taxes</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+                <span class="n">$1,868</span></span>
+              <span class="l">Net taxes</span>
             </li>
           </ul>
 
@@ -2666,60 +2932,87 @@
             <ul class="ld-ovstats ld-ovstats-pool">
               <li>
                 <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
-                <span><span class="n">136.57</span><span class="l">Total acres M/L</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
+                  <span class="n">35,987</span></span>
+                <!-- ⚠ STRESS VALUE, NOT THE LISTING'S (Kiron, 2026-09-02: "what does total
+                     acres look like with 35,987?"). #19282 is 136.57 acres and the LIVE strip
+                     above still says so. Put 136.57 back when the exercise is over. -->
+                <span class="l">Total acres M/L</span>
               </li>
               <li>
                 <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-                <span><span class="n">80.31</span><span class="l">Tillable acres M/L</span></span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-                <span><span class="n">56.26</span><span class="l">Non-tillable acres</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
+                  <span class="n">80.31</span></span>
+                <span class="l">Tillable acres M/L</span>
               </li>
               <li>
                 <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
-                <span><span class="n">39.5</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
+                  <span class="n">39.5</span></span>
+                <span class="l">Average <span data-field="productivity-type">CSR2</span></span>
               </li>
               <li>
                 <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v8H3z"/><path d="M3 13h18v8H3z"/></svg>
-                <span><span class="n">4</span><span class="l">Tracts</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                  <span class="n">35</span></span>
+                <!-- ⚠ STRESS VALUE, NOT THE LISTING'S (Kiron, 2026-09-02). #19282's real figure is
+                     4 tracts, and the live strip above still carries it where it appears there.
+                     Restore before this page is used as data. -->
+                <span class="l">Tracts</span>
               </li>
               <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
-                <span><span class="n">$2,014</span><span class="l">Gross taxes</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+                  <span class="n">$24,014</span></span>
+                <!-- ⚠ STRESS VALUE, NOT THE LISTING'S (Kiron, 2026-09-02). #19282's real figure is
+                     $2,014 gross, and the live strip above still carries it where it appears there.
+                     Restore before this page is used as data. -->
+                <span class="l">Gross taxes</span>
               </li>
               <li>
                 <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
-                <span><span class="n">$1,868</span><span class="l">Net taxes</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+                  <span class="n">$21,868</span></span>
+                <!-- ⚠ STRESS VALUE, NOT THE LISTING'S (Kiron, 2026-09-02). #19282's real figure is
+                     $1,868 net, and the live strip above still carries it where it appears there.
+                     Restore before this page is used as data. -->
+                <span class="l">Net taxes</span>
               </li>
               <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V3h5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M21 16v5h-5"/><path d="M12 8v8M8 12h8"/></svg>
-                <span><span class="n">1.24 ac</span><span class="l">Lot size</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V3h5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M21 16v5h-5"/><path d="M12 8v8M8 12h8"/></svg>
+                  <span class="n">12.45</span></span>
+                <!-- ⚠ STRESS VALUE AND A RENAMED LABEL (Kiron, 2026-09-02: "change Lot Size to 12.45
+                     and change title to Lot Size (acres)"). THE UNIT MOVED OUT OF THE FIGURE AND
+                     INTO THE LABEL: it read "1.24 ac", which was the only card in the catalogue
+                     mixing a unit into its value - every other figure is a bare number and its
+                     label carries the unit ("Total acres M/L", "Square Feet"). Now it matches.
+                     ⚠ IT IS ALSO THE ONE LABEL WITH PARENTHESES. Worth a look next to the others
+                     when the wording is settled. -->
+                <span class="l">Lot Size (acres)</span>
               </li>
               <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M8 16l8-8"/><path d="M12 8h4v4"/></svg>
-                <span><span class="n">2,480</span><span class="l">Sq ft</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M8 16l8-8"/><path d="M12 8h4v4"/></svg>
+                  <span class="n">2,480</span></span>
+                <span class="l">Square Feet</span>
               </li>
               <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18"/><path d="M7 10V7h6v3"/></svg>
-                <span><span class="n">4</span><span class="l">Bedrooms</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18"/><path d="M7 10V7h6v3"/></svg>
+                  <span class="n">4</span></span>
+                <span class="l">Bedrooms</span>
               </li>
               <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M7 12V6a2 2 0 0 1 4 0"/></svg>
-                <span><span class="n">2.5</span><span class="l">Bathrooms</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M7 12V6a2 2 0 0 1 4 0"/></svg>
+                  <span class="n">2.5</span></span>
+                <span class="l">Bathrooms</span>
               </li>
               <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
-                <span><span class="n">1977</span><span class="l">Year built</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+                  <span class="n">1977</span></span>
+                <span class="l">Year built</span>
               </li>
               <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21h16"/><path d="M6 21V10h12v11"/><path d="M6 15h12"/><path d="M9 3h6v7H9z"/></svg>
-                <span><span class="n">1.5</span><span class="l">Stories</span></span>
+                <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21h16"/><path d="M6 21V10h12v11"/><path d="M6 15h12"/><path d="M9 3h6v7H9z"/></svg>
+                  <span class="n">1.5</span></span>
+                <span class="l">Stories</span>
               </li>
             </ul>
           </div>
@@ -4560,7 +4853,7 @@
              structural, not a reading-order preference. Moving it back would silently return
              the window to two side-by-side boxes.
              ON A PHONE THE IMAGE GOES BACK ON TOP, which is simply the float coming off in the
-             767 block - the same call .ld-tside makes at 1023 and for the same reason. -->
+             767 block - the same call .ld-tside makes at 1279 and for the same reason. -->
         <div class="xtw-media">
           <div class="xtw-frame">
             <img class="xtw-img" alt="" />
@@ -4981,22 +5274,19 @@
            are cleaned up even at widths where no break may be inserted. */
         var isFlex = window.getComputedStyle(jumpInner).display === "flex";
 
-        if(isFlex && links.length >= 3){
-          for(var pass = 0; pass < links.length; pass++){
-            var rows = jumpRows(links);
-            if(rows.length < 2) break;
-            var orphan = -1;
-            for(var r = rows.length - 1; r >= 1; r--){
-              if(rows[r].length === 1){ orphan = rows[r][0]; break; }
-            }
-            if(orphan === -1) break;     // nothing left to fix
-            if(orphan < 2) break;        // would strand row one - see the guard note above
-            var br = document.createElement("span");
-            br.className = "ld-jump-break";
-            br.setAttribute("aria-hidden", "true");
-            jumpInner.insertBefore(br, links[orphan - 1]);
-          }
-        }
+        /* ---- BOTH ROW-BALANCING RULES ARE GONE (Kiron, 2026-09-02: reset the sub nav to one
+           state and work back down the ladder) ----
+           WHAT STOOD HERE, in the order it ran:
+             1. EIGHT OR NINE LINKS PUT THREE ON THE LAST ROW. A .ld-jump-break was inserted
+                before links[length - 3], the result measured, and the break removed again unless
+                the bar came out on exactly two rows - so it was attempted, never assumed.
+             2. NO SECONDARY ROW HOLDS A SINGLE LINK. A loop that walked the rendered rows from
+                the bottom, found a row of one, and inserted a break before the link ahead of it
+                to pull a second one down. Guarded against stranding row one.
+           The bar now wraps wherever its width runs out and nothing rearranges it.
+           THE MACHINERY IS ALL STILL HERE: jumpRows() still measures the rendered rows, the old
+           breaks are still stripped on every pass, and .ld-jump-wrapped is still set. Putting a
+           rule back is writing the rule, not rebuilding the scaffolding. */
 
         /* MARK THE STATE, AT EVERY WIDTH AND IN EITHER LAYOUT - the three-column grid below
            768 wraps too, and wants the same tight rows. This is the last thing done, so it

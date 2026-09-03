@@ -411,8 +411,20 @@
        Tracts), so a template that can produce four or seven items needs this track
        count driven by the item count rather than hardcoded at 5. */
     .ld-ovstats{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-auto-rows: 1fr;
       gap: var(--space-4); list-style: none;
-      margin: 0 0 var(--space-6); padding: var(--space-5) 0;
+      /* TIGHTENED (Kiron, 2026-09-02: "this vertical white space has gotten away from us ... can
+         we tighten it up?"). It was 24px of padding top and bottom with 32px of margin below -
+         values set when a card was a 22px figure over a label with no fixed height, and never
+         revisited as the card became a measured 43.8px tile. Measured before: 40px of air above
+         the first card (16 from the jump nav, 24 of padding) and 57px below it (24 padding, the
+         1px rule, 32 margin) - 97px of space around 44px of content.
+         NOW 12 / 12 / 24: 28px above the card and 37px below, and the strip's own box drops from
+         92.8px to 68.8px. The 16px above comes from the page grid, not from here, so it is left
+         alone - taking this to zero would butt the figures against the sub nav.
+         THE BOTTOM RULE IS UNCHANGED and still does the separating; what came off is air that
+         was doing the same job twice. */
+      margin: 0 0 var(--space-5); padding: var(--space-3) 0;
       /* NO BORDER-TOP (2026-08-26). This strip used to be ruled top and bottom, which
          was right while a visible "Property Overview" heading sat between it and the
          jump nav. That heading is .sr-only now, and .sr-only is position: absolute, so
@@ -422,73 +434,60 @@
          its bottom rule is drawn.
          ⚠ If the heading is ever made visible again, put this border back with it. */
       border-bottom: 1px solid var(--color-border); }
-    .ld-ovstats li{ display: flex; align-items: center; gap: var(--space-3); }
-    /* ---- the stat card pool: same cards, set apart as a catalogue ----
-       A TINT AND A LABEL, not a dashed review box. The cards have to look EXACTLY like the live
-       ones - that is what is being judged - so the only thing separating the two blocks is the
-       ground they sit on and one line of text. Without either, ten identical cards read as a
-       ten-card design rather than five live and the rest available.
-       THE LABEL IS GONE (Kiron, 2026-08-31) - the developer notes carry the explanation. The
-       tint is all that is left, and it is enough only because this block does not ship. */
-    .ld-statpool{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
-      border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
-      margin: 0 0 var(--space-6); }
-    /* Inherits .ld-ovstats' 5 columns, and loses the rule and the margin that separate the live
-       strip from the prose below it - inside a panel it is neither the top nor the bottom of
-       anything. Wraps to a second and third row on its own, which is what a pool does. */
-    .ld-ovstats-pool{ margin: 0; padding: 0; border-bottom: 0; }
-
-    /* ================= MOCK-UP NOTE (Kiron, 2026-09-01) =================
-       "Would you be able to add some mark up to some of the sections, to explain what is going
-       on here." The device that keeps appearing on these two pages is A SET OF THINGS OF WHICH
-       THE REAL PAGE RENDERS ONE, or a catalogue of which the real page renders five — and until
-       now nothing ON THE PAGE said so. The record was the HTML comments and DEVELOPER-NOTES.md,
-       which is fine for a developer reading the source and no use at all to anyone LOOKING at
-       the page, which is how this mock-up is actually reviewed.
-
-       THIS REVERSES TWO EARLIER CALLS ON PURPOSE, both from 2026-08-31: the statpool's "no
-       visible label, I am fine with the developer notes handling that", and the "there is no
-       on-page note saying this any more" on the Tracts and Auction Details variant sets. Kiron
-       asked for them back on 2026-09-01. The comments recording the removals are left in place
-       and annotated rather than deleted, so the history reads straight.
-
-       DELIBERATELY OFF-PALETTE. Amber, dashed, left-barred — nothing in the PC palette looks
-       like this, and that is the entire point: a reviewer must never have to wonder whether the
-       note is part of the design. Anything drawn in Navy or Medium Blue would raise that
-       question every time.
-
-       ⚠ NONE OF THIS SHIPS. The block, its CSS and every element carrying .mock-note come out
-       together, along with the sections they annotate. Deleting on the class name is safe: the
-       class is used for nothing else on either page.
-
-       PLACED ABOVE the thing it explains, never inside it — the annotated component has to be
-       judged exactly as it will ship, so nothing here may sit within its box or change its
-       metrics. Margin-bottom only. */
-    .mock-note{ background: #FFFAEF; border: 1px dashed #C2870B; border-left: 4px solid #C2870B;
-      border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4);
-      margin: 0 0 var(--space-4); }
-    .mock-note-tag{ margin: 0 0 var(--space-2); font-family: var(--font-sans); font-size: 10px;
-      font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; }
-    /* NO ch MEASURE CAP, DELIBERATELY (Kiron, 2026-09-01: "adjust the width of the text, so that
-       it populates the entire mock-up note"). The site's 45-75ch rule governs REAL BODY COPY —
-       prose a visitor reads at length — and it was applied here first out of habit. It was wrong
-       for this element: at 68ch the text stopped well short of the panel's right edge, leaving a
-       ragged band of empty amber that made the note read as a half-filled box rather than as a
-       label. A mock-up note is scaffolding, it is short, and it is read once; filling its own box
-       is what makes it look deliberate. In the 380px rail the column is narrower than any cap
-       would be anyway, so this changes nothing there.
-       ⚠ DO NOT "RESTORE" THE CAP ON THE 45-75ch RULE. It has been considered and declined — and
-       none of this ships regardless. */
-    .mock-note-body{ margin: 0; font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
-      color: var(--color-text); }
-    .mock-note-body + .mock-note-body{ margin-top: var(--space-2); }
-    .mock-note-body b{ font-weight: 600; }
+    /* ---- THE LIVE STRIP TAKES THE CATALOGUE'S CARD (Kiron, 2026-09-02: "apply these new card
+       designs to the 3 pages actual 5 card layouts") ----
+       The tile was designed in the stat-card pool over the course of the day and is now the card
+       itself, so the strip and the catalogue are one component again - which was the rule here
+       before the pool was given its own geometry, and is the rule again.
+       WHAT CHANGED FOR THE LIVE STRIP, all of it at 1280+:
+         * THE CARD IS CENTRED IN ITS CELL rather than left-aligned, and the figure is centred
+           over its label. Left-aligned, the five figures sat at five different distances from
+           the middle of their own labels, because each pair has a different length difference.
+         * EQUAL HEIGHTS. grid-auto-rows: 1fr with height: 100% on the card, so a card whose
+           label runs to two lines does not make itself taller than the four beside it.
+         * THE TEXT IS TOPPED OUT AND THE ICON IS CENTRED. align-items: flex-start puts every
+           figure on one ceiling however many lines the label below it runs to; align-self on
+           the icon overrides that for the icon alone, so it sits on the middle of the card.
+           The two rules do different jobs on the same axis and both are wanted.
+       THE NARROW BANDS ARE NOT TOUCHED. 1024-1279 still sizes the five cards to their content
+       with space-between and hides the icon; 639 and below is still a stack of label-left /
+       value-right rows. Those bands are tuned for widths this design was not reviewed at - see
+       the note on each - and Kiron's scope for this pass was desktop.
+       ⚠ SO THE CARD IS THE TILE AT 1280+ AND SOMETHING ELSE BELOW IT. That is a deliberate hold,
+       not a finished state. */
+    .ld-ovstats li{ height: 100%; display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-start; gap: 0; text-align: center; }
+    /* ROW ONE OF THE CARD: the icon and the figure, centred as a pair. The label is row two and
+       spans the card, so it no longer pays for the icon's 38px column - which is what lets the
+       three acreage labels set on one line inside a 146.6px cell instead of needing an authored
+       <br />. Those breaks are gone from all three strips as of 2026-09-02.
+       Shrink-wraps its children, so `align-items: center` on the card is what centres the pair;
+       it must not be full width or there would be nothing to centre. */
+    .ld-ovstats .ld-ovfig{ display: flex; flex-direction: row; align-items: center;
+      justify-content: center; gap: var(--space-3); }
+    /* ================= STAT CARD CATALOGUE: REMOVED FROM THIS PAGE (2026-09-02) ==========
+       Kiron: "remove the pool of stat cards from residential and forsale ... that will leave
+       auction as the all scenario". The container and the twelve-tile grid built on 2026-09-02
+       had exactly one caller each - the panel in Property Overview - and came out with it.
+       ⚠ THE CARD ITSELF STAYS, .ld-ovfig included. The tile treatment was worked out in that
+       catalogue and is what the LIVE five-card strip now uses, so the card rules above this line
+       are load-bearing on this page. Only the catalogue's own container and grid went.
+       THE FULL BLOCK IS ON listings-details-auction.html to copy back from. */
+    /* ================= MOCK-UP NOTE: REMOVED FROM THIS PAGE (2026-09-02) =================
+       Kiron: "remove the Mock Up Notes on residential and forsale ... will leave all mock up
+       notes on the auction to cover all options". This page carried exactly one - above the stat
+       card catalogue - so with it gone the .mock-note rules had no callers here and came out
+       with it rather than sitting as dead weight in a file that is already long.
+       THE FULL TREATMENT LIVES ON listings-details-auction.html, which keeps all three of its
+       notes and is the page to copy from if one is ever wanted back here: .mock-note,
+       .mock-note-tag, .mock-note-body and the two notes on why it is off-palette and why it
+       carries no ch measure cap. None of it ships from any page. */
     .ld-ovstats svg{ width: 26px; height: 26px; flex: none; color: var(--pc-medium-blue); }
-    .ld-ovstats .n{ display: block; font-family: var(--font-serif); font-size: 22px;
-      font-weight: 600; color: var(--color-text); line-height: 1.1; }
-    .ld-ovstats .l{ display: block; font-family: var(--font-sans); font-size: 11px;
-      font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
-      color: var(--pc-navy); margin-top: 3px; }
+    .ld-ovstats .n{ display: block; text-align: center; font-family: var(--font-serif);
+      font-size: 22px; font-weight: 600; color: var(--color-text); line-height: 1.1; }
+    .ld-ovstats .l{ display: block; text-align: center; font-family: var(--font-sans);
+      font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--pc-navy); margin-top: 3px; line-height: 1.35; }
 
 
     /* ======================= JUMP NAV =======================
@@ -1404,9 +1403,21 @@
         border-bottom: 1px solid var(--color-border); padding: 10px 0; }
       /* The last row's rule would sit directly on the strip's own bottom border. */
       .ld-ovstats li:last-child{ border-bottom: 0; padding-bottom: 0; }
-      .ld-ovstats li > span{ display: flex; flex: 1; align-items: baseline;
-        justify-content: space-between; gap: var(--space-4); }
-      .ld-ovstats .l{ order: -1; text-align: left; margin-top: 0;
+      /* REWRITTEN FOR THE NEW CARD SHAPE (2026-09-02). This band used to make `li > span` - the
+         one wrapper that held figure and label - the flex row that spaced them apart. There are
+         two direct spans now, .ld-ovfig and the label, so that selector would have made a flex
+         row of each of them instead of one row of the pair. The <li> itself is the row now, and
+         it does the same job: space-between pushes the label and the figure to opposite edges.
+         `order: -1` on the label still leads the row, so the reading stays label-then-value and
+         the markup stays figure-then-label, exactly as before.
+         The icon is display: none from 1280 down, so .ld-ovfig is a box with one child here. */
+      /* ⚠ flex-direction MUST BE RESET TO ROW. The base rule makes the card a COLUMN - icon and
+         figure on row one, label under it - and a media query adds no specificity, so without
+         this the column survives into this band and every stat becomes a two-line block. It
+         measured 83px a row against the 42px this band intends. */
+      .ld-ovstats li{ flex-direction: row; justify-content: space-between; gap: var(--space-4); }
+      .ld-ovstats .ld-ovfig{ flex: none; }
+      .ld-ovstats .l{ order: -1; flex: 1; width: auto; text-align: left; margin-top: 0;
         font-family: var(--font-serif); font-size: 20px; font-weight: 500;
         line-height: 1.2; letter-spacing: normal; text-transform: none;
         color: var(--pc-navy); }
@@ -1832,16 +1843,19 @@
                hardcode "CSR2" back into the label. -->
           <ul class="ld-ovstats">
             <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V3h5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M21 16v5h-5"/><path d="M12 8v8M8 12h8"/></svg>
-            <span><span class="n">1.24 ac</span><span class="l">Lot size</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V3h5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M21 16v5h-5"/><path d="M12 8v8M8 12h8"/></svg>
+                <span class="n">1.24</span></span>
+              <span class="l">Lot Size (acres)</span>
             </li>
             <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M8 16l8-8"/><path d="M12 8h4v4"/></svg>
-            <span><span class="n">2,480</span><span class="l">Sq ft</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M8 16l8-8"/><path d="M12 8h4v4"/></svg>
+                <span class="n">2,480</span></span>
+              <span class="l">Square Feet</span>
             </li>
             <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18"/><path d="M7 10V7h6v3"/></svg>
-            <span><span class="n">4</span><span class="l">Bedrooms</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18"/><path d="M7 10V7h6v3"/></svg>
+                <span class="n">4</span></span>
+              <span class="l">Bedrooms</span>
             </li>
             <!-- BATHROOMS IS TWO CMS FIELDS, Full Bathrooms + Half Bathrooms, composed to the US
                  convention where 2 full and 1 half reads 2.5 - the same join HOA Dues uses.
@@ -1850,268 +1864,34 @@
                  list spells out "2 full / 1 half". Same two fields, two renderings - a field list
                  has room to be explicit and a stat card does not. -->
             <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M7 12V6a2 2 0 0 1 4 0"/></svg>
-            <span><span class="n">2.5</span><span class="l">Bathrooms</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M7 12V6a2 2 0 0 1 4 0"/></svg>
+                <span class="n">2.5</span></span>
+              <span class="l">Bathrooms</span>
             </li>
             <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21h16"/><path d="M6 21V10h12v11"/><path d="M6 15h12"/><path d="M9 3h6v7H9z"/></svg>
-            <span><span class="n">1.5</span><span class="l">Stories</span></span>
+              <span class="ld-ovfig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21h16"/><path d="M6 21V10h12v11"/><path d="M6 15h12"/><path d="M9 3h6v7H9z"/></svg>
+                <span class="n">1.5</span></span>
+              <span class="l">Stories</span>
             </li>
           </ul>
 
-          <!-- ================= THE STAT CARD POOL: EVERY AVAILABLE OPTION =================
-               THE FIVE ABOVE ARE THE LIVE MODEL - how the strip ships, five cards chosen per
-               listing. THIS PANEL IS THE FULL CATALOGUE THEY ARE CHOSEN FROM (Kiron, 2026-08-31:
-               "let's put all available options in the pool area so we can fully understand what
-               is available").
-
-               IT IS A SUPERSET, NOT THE LEFTOVERS. Until now the pool held only the cards that
-               were NOT live, which meant you could not see the whole menu in one place and the
-               two pages' pools differed for reasons that had nothing to do with the menu. Every
-               card an eligible listing can offer is now here, live ones included, each marked
-               with a one-line comment in the markup. So a card that is live appears TWICE on
-               screen, once in the strip and once in the catalogue, and that is the intent.
-
-               HOW IT WORKS IN THE BUILD: the CMS user flags up to FIVE of these to surface, per
-               listing. A residential listing has no use for tillable acres and every use for
-               square feet and bed/bath; farmland is the other way round. The strip is five SLOTS
-               drawing on this catalogue, not five fixed fields.
-
-               WARNING THIS BLOCK DOES NOT SHIP. It exists so the candidate cards can be judged
-               together. Delete it and let the CMS drive the strip.
-
-               WARNING THE COLUMN COUNT IS HARDCODED `repeat(5, ...)` in .ld-ovstats. Driven by
-               the CMS it has to follow the number of CHOSEN fields, because five is the cap and
-               not the count - four chosen fields must not leave a gap in the row.
-
-               EVERY CARD IS THE SAME COMPONENT as the live strip, deliberately - .ld-ovstats
-               again, so what is being judged is the field and its value, not a mock-up of one.
-
-               THREE CARDS THAT ARE MORE THAN ONE CMS FIELD, or fewer:
-                 * BATHROOMS is Full Bathrooms + Half Bathrooms, composed to the US convention
-                   where 2 full and 1 half reads 2.5. Same join as HOA Dues.
-                   THE CARD SAID "Baths" UNTIL 2026-09-02 (Kiron: change it to BATHROOMS on the
-                   card). The Building section calls the same field Bathrooms, so the short form
-                   was the only place on the page where one field wore two names. The card has
-                   the room - "Bathrooms" is the longest label in the catalogue and it still sets
-                   on one line at every width in the ladder, because .ld-ovstats' 767 block
-                   turns the strip into label-left / figure-right rows.
-                 * AVERAGE CSR2 IS ONE CARD, NOT TWO. The label is the state's productivity index
-                   name - CSR2 in Iowa, PI in Illinois and Indiana - and it is driven by the
-                   data-field="productivity-type" span, not by a second card. An earlier pool
-                   listed "Average PI" separately, which read as a fourteenth option; it was the
-                   same option wearing the other label.
-                 * NON-TILLABLE ACRES is Total minus Tillable. Arithmetic on two published
-                   figures rather than a field of its own, so it can always be offered wherever
-                   those two are.
-
-               ONE CARD IS MISSING FROM THIS PAGE'S CATALOGUE ON PURPOSE: TRACTS, which the
-               auction page offers. A tract is an auction construct - a farm is subdivided into
-               tracts so it can be bid Buyer's Choice - and a For Sale listing is one parcel, so
-               the card has nothing to count.
-               PER ACRE IS THE MIRROR OF THAT: it is in this catalogue and absent from the
-               auction page's, because it is computed from an asking price and an auction has no
-               price until the gavel falls. Everything else is common to both pages. -->
-          <!-- ON-PAGE NOTE, ADDED BACK (Kiron, 2026-09-01: "the stat cards, where we list the
-               locked in 5, and then we display all options ... I want to somehow label those as
-               available"). This reverses the 2026-08-31 call recorded in the panel below, which
-               said the developer notes could carry it. They can carry it for a developer reading
-               the source; they carry nothing at all for someone LOOKING at the page, and looking
-               at the page is how this mock-up gets reviewed. The tint stays and does its job -
-               this note says out loud what the tint could only hint at.
-               ⚠ IT SITS OUTSIDE .ld-statpool, above it, never within the panel: the cards in
-               there have to be judged as the live strip's, so nothing may share their box. -->
-          <div class="mock-note">
-            <p class="mock-note-tag">Mock-up note &mdash; not part of the design</p>
-            <p class="mock-note-body"><b>Available stat cards.</b> The five cards above are this
-              listing&rsquo;s chosen five &mdash; the strip exactly as it ships. The panel below is
-              the full catalogue those five are picked from: every stat card a listing can offer,
-              including the five that are already live, so a live card deliberately appears in
-              both places.</p>
-            <p class="mock-note-body"> The CMS flags up to
-              five of these per listing and the strip renders only those. A residential listing takes square feet and bed/bath; farmland
-              takes tillable acres and productivity index. This panel is here so the whole menu
-              can be judged in one place, and it comes out before launch.</p>
-          </div>
-          <div class="ld-statpool">
-            <!-- SUPERSEDED 2026-09-01 - THERE IS A VISIBLE LABEL NOW, the .mock-note
-                 immediately above this panel. Kept as the record of the earlier call, which was:
-                 NO VISIBLE LABEL (Kiron, 2026-08-31: "I am fine with the developer notes
-                 handling that"). THE TINT AND THE PANEL STAY - and they do still stay. They are
-                 no longer the ONLY thing telling a reader that these cards are a catalogue
-                 rather than more of the strip above. See DEVELOPER-NOTES.md SS2. -->
-            <ul class="ld-ovstats ld-ovstats-pool">
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 3v18"/></svg>
-                <span><span class="n">161.03</span><span class="l">Total acres M/L</span></span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-                <span><span class="n">149.72</span><span class="l">Tillable acres M/L</span></span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c4-6 14-6 18 0"/><path d="M12 3v9"/><path d="M8 7c1.5 1 2.8 2.5 4 5"/><path d="M16 7c-1.5 1-2.8 2.5-4 5"/></svg>
-                <span><span class="n">11.31</span><span class="l">Non-tillable acres</span></span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M4 16h16"/><path d="M6 16V9l6-4 6 4v7"/></svg>
-                <span><span class="n">84.6</span><span class="l">Average <span data-field="productivity-type">CSR2</span></span></span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.2 1.2-4.2 3s1.6 2.6 4.4 3.2c2.9.6 4.6 1.5 4.6 3.4 0 2-1.9 3.4-4.8 3.4-2.4 0-4.2-1-4.9-2.7"/></svg>
-                <span><span class="n">$14,500</span><span class="l">Per acre</span></span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
-                <span><span class="n">$5,412</span><span class="l">Gross taxes</span></span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
-                <span><span class="n">$5,038</span><span class="l">Net taxes</span></span>
-              </li>
-              <li>
-                <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V3h5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="M21 16v5h-5"/><path d="M12 8v8M8 12h8"/></svg>
-                <span><span class="n">1.24 ac</span><span class="l">Lot size</span></span>
-              </li>
-              <li>
-                <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M8 16l8-8"/><path d="M12 8h4v4"/></svg>
-                <span><span class="n">2,480</span><span class="l">Sq ft</span></span>
-              </li>
-              <li>
-                <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18"/><path d="M7 10V7h6v3"/></svg>
-                <span><span class="n">4</span><span class="l">Bedrooms</span></span>
-              </li>
-              <li>
-                <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><path d="M7 12V6a2 2 0 0 1 4 0"/></svg>
-                <span><span class="n">2.5</span><span class="l">Bathrooms</span></span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
-                <span><span class="n">1977</span><span class="l">Year built</span></span>
-              </li>
-              <li>
-                <!-- LIVE in the strip above on this page. -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21h16"/><path d="M6 21V10h12v11"/><path d="M6 15h12"/><path d="M9 3h6v7H9z"/></svg>
-                <span><span class="n">1.5</span><span class="l">Stories</span></span>
-              </li>
-            </ul>
-          </div>
-
-
-          <!-- LOREM IPSUM PLACEHOLDER (Kiron, 2026-08-26). This was #19651's real
-               six-paragraph description, verbatim from the listing. It is filler now
-               because what this block is here to show is how a long description SITS in
-               the column, not what it says.
-               ⚠ The figures around it are still REAL — 161.03 acres, 149.72 tillable,
-               CSR2 84.6, $14,500 an acre, the price and the address all come from the
-               listing. So the page now mixes real data with placeholder prose, which is
-               fine for a layout review and is exactly the kind of thing that has to be
-               swept before anyone outside the team sees it. See the pre-launch checklist
-               in DEVELOPER-NOTES.md. -->
-          <p class="ld-copy">Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Donec ullamcorper nulla non metus auctor fringilla. Maecenas sed diam eget risus varius blandit sit amet non magna. Aenean lacinia bibendum nulla sed consectetur, nullam quis risus eget urna mollis ornare vel eu leo.</p>
-          <p class="ld-copy">Curabitur blandit tempus porttitor. Nulla vitae elit libero, a pharetra augue. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Etiam porta sem malesuada magna mollis euismod, donec id elit non mi porta gravida at eget metus.</p>
-          <p class="ld-copy">Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Sed posuere consectetur est at lobortis. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-          <p class="ld-copy">Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam quis risus eget urna mollis ornare vel eu leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed odio dui. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum, cras mattis consectetur purus sit amet fermentum.</p>
-        </section>
-
-        <!-- PROPERTY DETAIL. One <article class="ld-tract"> here because a For Sale
-             listing is normally a single parcel. Add a second article, with its own
-             heading, photographs and download list, for a multi-tract listing —
-             nothing outside this section has to change.
-             NO STAT CHIPS HERE AT ALL (Kiron, 2026-08-25). Every figure that used to
-             sit in this section is in the Property Overview icon row: it was the same
-             numbers twice, a screen apart. This section is prose and documents. -->
-        <!-- ============ LAND DETAILS + BUILDING DETAILS (Kiron, 2026-08-31) ============
-             ONE "Details" ACCORDION BECAME TWO, and the split is by what the fields describe:
-             the CMS groups them as "Property Features" (the land) and "Building Features" (the
-             structures), and Kiron's names for those two groups are LAND DETAILS and BUILDING
-             DETAILS. Both use the Terms treatment - .ld-fields.ld-fields-prose, bold label in a
-             column sized to the longest label, value wrapping beside it, top aligned.
-
-             LAND FIRST, BUILDINGS SECOND, which is the CMS document's own order and the field
-             spec's page order. It is also the only order that degrades properly: on a farmland
-             listing Building Details is entirely empty and disappears, so leading with the
-             section that always populates keeps the page from opening on a gap. Kiron named
-             Building first when describing them - if that was the intended sequence rather than
-             just how they came out, swapping the two <details> blocks is the whole change.
-
-             ⚠ PLACEHOLDER VALUES. Kiron, 2026-08-31: "this is for visual approval only ... not
-             an actual listing". #19651 is a real 161-acre Palo Alto County farm and none of the
-             values below are its published data - they are format-correct stand-ins chosen to
-             exercise the layout, deliberately mixing one-word values with ones that wrap to
-             three lines, because that is what tests a two-column list. Zoning and Net taxes are
-             the exceptions: those two agree with the figures already on the page.
-
-             EVERY ROW IS CONDITIONAL IN THE BUILD. An empty field takes its whole row away,
-             label included, and a section with no populated fields takes itself away along with
-             its sub nav link. The conditions are per the CMS document:
-               · Land Details rows 1-7 populate on ALL listings; Wildlife, Water Access,
-                 Improvements, Fencing, Horse Amenities and Possible Uses only on Farmland,
-                 Recreational, Building Site or Acreage; Recreation drops Farmland from that set.
-               · BUILDING DETAILS IS RESIDENTIAL OR COMMERCIAL ONLY, so on this farmland listing
-                 the whole accordion would be absent. It is here because this page houses every
-                 possible display. Bedrooms, Full and Half Bathrooms, Style, Builder, Trim,
-                 Appliances, Family Room, Dining Room, Other Rooms, Basement, Fireplaces and
-                 Fireplace Type are RESIDENTIAL ONLY - a commercial listing shows the other 13. -->
-        <details id="ld-land" class="reveal ld-acc">
-          <summary><h2>Land</h2><span class="ld-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
-          <div class="ld-acc-body">
-            <!-- STARTS ON THE FIELD LIST. THERE IS NO INTRO PARAGRAPH.
-                 PORTED FROM listings-details-auction.html (Kiron, 2026-09-01), where it was settled first.
-                 (Kiron: "remove the lorem ipsum text in the Land accordion - just start with
-                 the sections".) What stood here was a lorem ipsum block standing in for the
-                 LEGAL DESCRIPTION, and it was in the wrong section anyway: the CMS document
-                 puts Legal Description in LOCATION, beside the map and the directions.
-                 SO THE OPEN QUESTION IS SMALLER, NOT ANSWERED. Nothing here says Legal
-                 Description should not appear on the page - only that it does not belong at
-                 the top of Land. If it is wanted, it goes in Location per the document.
-                 .ld-fields carries margin: 0, so the list sits flush on .ld-acc-body's 24px
-                 padding-top and the removal leaves no orphaned gap. -->
-            <dl class="ld-fields ld-fields-prose">
-              <dt>Road Access &amp; Frontage</dt>
-              <dd>Gravel frontage along the north boundary, approximately 1,320 feet, with a field entrance at the northwest corner.</dd>
-              <dt>Water Source</dt>
-              <dd>Rural water available at the road.</dd>
-              <dt>Sewer</dt>
-              <dd>None. A septic system would be required for any building site.</dd>
-              <dt>Utilities</dt>
-              <dd>Electric and rural water at the road. Natural gas is approximately one mile east.</dd>
-              <dt>Zoning</dt>
-              <dd>Agricultural</dd>
-              <dt>Gross Taxes</dt>
-              <dd>$5,412.00</dd>
-              <dt>Net Taxes</dt>
-              <dd>$5,038.00</dd>
-              <dt>Wildlife</dt>
-              <dd>Whitetail deer, turkey and upland birds along the timbered draws on the south end.</dd>
-              <dt>Recreation</dt>
-              <dd>Hunting, with a private building site on the northeast corner.</dd>
-              <dt>Water Access</dt>
-              <dd>A seasonal creek crosses the southeast quarter.</dd>
-              <dt>Improvements</dt>
-              <dd>Terraces across the west half in good repair, tile outlets draining to the road ditch, and a stock pond in the southwest corner.</dd>
-              <dt>Fencing</dt>
-              <dd>Perimeter fence in serviceable condition on three sides.</dd>
-              <dt>Horse Amenities</dt>
-              <dd>None</dd>
-              <dt>Possible Uses</dt>
-              <dd>Row crop production, hay ground, hunting and recreation, or a rural building site.</dd>
-              <!-- TWO ROWS THAT ARE NOT IN THE CMS DOCUMENT'S PROPERTY FEATURES LIST, kept
-                   because they are already on the page and removing content is its own decision:
-                     · PARCEL NUMBER(S) is a CMS field, but the document places it in PROPERTY
-                       OVERVIEW, not here.
-                     · SCHOOL DISTRICT does not appear anywhere in the document. Either it is a
-                       field missing from that list, or it is invented and should come off. -->
-              <dt>Parcel(s)</dt>
-              <dd>270010002030, 270010002040, 270010003020, 270010003010</dd>
-              <dt>School district</dt>
-              <dd>Graettinger-Terril</dd>
-            </dl>
-          </div>
+          <!-- THE STAT CARD CATALOGUE AND ITS MOCK-UP NOTE ARE BOTH GONE FROM THIS PAGE
+               (Kiron, 2026-09-02: "remove the pool of stat cards from residential and forsale ...
+               that will leave auction as the all scenario", following "remove the Mock Up Notes on
+               residential and forsale").
+               WHAT STOOD HERE: an amber mock-up note, then a tinted panel holding every stat card
+               a listing can offer - twelve of them - so the whole menu could be judged in one
+               place. The five cards above are chosen from that menu by the CMS, and that has not
+               changed; what changed is where the menu is shown.
+               IT IS SHOWN ON THE AUCTION PAGE, ONCE. listings-details-auction.html is now the
+               "all options" page - every mock-up note and the full catalogue - and these two pages
+               show only what a real listing renders. Three copies of one catalogue was three
+               places for it to drift, and two of them were never the reference.
+               ⚠ SO THIS PAGE NO LONGER SHOWS WHICH CARDS ARE AVAILABLE, only which five are
+               chosen. That is the intent, not an omission - the auction page has the menu.
+               THE CSS WENT WITH IT, and .ld-ovfig did NOT: the card treatment worked out in that
+               catalogue is what the live strip above now uses. Everything removed is still on the
+               auction page to copy back from. NONE OF IT EVER SHIPPED from any page. -->
         </details>
 
         <details id="ld-building" class="reveal ld-acc">
