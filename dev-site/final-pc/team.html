@@ -14,9 +14,11 @@
   <!-- Single source of truth for the final PC direction -->
   <link href="pc.css?v=20260827a" rel="stylesheet" />
 
-  <!-- Page-local: TEAM INDEX (skeleton). Layout scaffolding only — the roster, titles,
-       offices and photos are all sample data. Colour, type, buttons and spacing come
-       from pc.css tokens, so a design-system change reaches this page for free.
+  <!-- Page-local: TEAM INDEX (skeleton). Layout scaffolding only — the roster and titles
+       are sample data. THE HEADSHOTS ARE THE REAL ONES: each src is that person's own file
+       in the live contacts bucket, `peoples-listings.nyc3.digitaloceanspaces.com/contacts/`.
+       Colour, type, buttons and spacing come from pc.css tokens, so a design-system change
+       reaches this page for free.
 
        Structure: intro + service filter row → 4-up grid of people cards → pager.
 
@@ -369,9 +371,22 @@
       .tm-card.is-in{ animation: none; }
     }
 
-    /* Portrait. 4:5 is the headshot crop — see developer-team.md for the export spec.
-       The gradient is the empty state: until a real photo exists the onerror hides the
-       <img> and the brand gradient shows through, so the grid never breaks. */
+    /* Portrait. See developer-team.md for the export spec.
+       The gradient is the empty state: if a photo fails to load the onerror hides the
+       <img> and the brand gradient shows through, so the grid never breaks — worth keeping
+       even now that all twenty-five srcs are live files, because they are HOTLINKED to the
+       contacts bucket and a renamed or re-uploaded file changes its URL.
+
+       WHERE THE URLS CAME FROM (2026-09-03): the live /team page's own markup. The filename
+       is an opaque per-contact token — `Ca6ikQiZu9C5gtWxZjbmNH8Fh2JyycbbdetvHmzx.jpg` is Molli
+       Hagge — so it CANNOT be derived from a name; a few older records are named instead
+       (`andrew-zellmer.jpg`, `eric-geiger-2019-12-10-200808.jpg`) and one form is no more
+       reliable than the other. In the real build the CMS emits the field; do not pattern-match it.
+
+       THE ORIGINALS ARE SQUARE. The live page renders them `grayscale` and this page does not:
+       ⚠ NO GRAYSCALE, AND NO GRAYSCALE-TO-COLOUR ON HOVER (Kiron, 2026-09-03). The headshots are
+       full colour at rest and full colour on hover. There is no filter on `.tm-ph img` and none
+       should be added — the live page's treatment is a deliberate departure, not an oversight. */
     /* SQUARE (Kiron, 2026-09-01). Was a 4:5 portrait; every tile is now 1:1, so the tile's height
        is its width at every rung - 256px square at 1600, 575px square at 639 - and 154px comes
        off the tallest card in the process.
@@ -385,9 +400,62 @@
        4:5 master will still render correctly here - `cover` crops it - but it crops blind, so the
        framing is only as good as the export. */
     .tm-ph{ position: relative; aspect-ratio: 1 / 1; overflow: hidden;
-      background: linear-gradient(135deg, var(--pc-black), var(--pc-navy)); }
+      background: linear-gradient(135deg, var(--pc-black), var(--pc-navy));
+      /* Sizing context for the award badges below — see .tm-awards. */
+      container-type: inline-size; }
     .tm-ph img{ display: block; width: 100%; height: 100%; object-fit: cover;
       object-position: center top; }
+
+    /* AWARD BADGES — top right of the headshot. ⚠ THE ART IS A PLACEHOLDER. Both glyphs are
+       drawn here as <symbol>s (`#ic-award-hat`, `#ic-award-diamond`, just above the grid); when
+       the real artwork arrives, replace the two symbol bodies and nothing else — every badge on
+       the page is a <use> of them, so the swap is one edit and every size follows.
+
+       ⚠ NO DISC, NO CIRCLE (Kiron, 2026-09-03) — the glyph sits directly on the photograph. That
+       is the whole difficulty, because these headshots are not a controlled set: some are shot on
+       PC Black, others on bright studio white, a sky, or foliage. A WHITE glyph vanishes on the
+       light ones; a DARK glyph vanishes on the dark ones. With no backing to sit on, the only
+       thing that survives both is a glyph that carries BOTH VALUES ITSELF:
+
+         WHITE FILL + A DARK KEYLINE, via `paint-order: stroke` so the stroke is painted BEHIND
+         the fill and only its outer half shows. On a dark photo the white body reads; on a light
+         photo the body disappears and the dark keyline draws the shape. Neither can fail at the
+         same time as the other, because they are opposite ends of the range.
+
+       THE KEYLINE IS WHY THE ART MUST BE FILLED SHAPES, not strokes. `stroke` on already-stroked
+       line art thickens the line instead of outlining it. The hat below is drawn as the reference
+       is drawn — a filled white shape whose outline reads as the line art — and the crown and brim
+       are SUBPATHS OF ONE PATH on purpose: they union into one white body with one outer keyline,
+       and the crown's base still shows as a line across the brim, which is the reference look. Two
+       separate <path>s would stroke the seam twice and put a doubled line through the brim.
+
+       `drop-shadow` is the third layer, for the mid-tone case: a background that matches neither
+       end still separates the glyph from its own halo. It is soft and cheap — do not lean on it.
+
+       BOTH GLYPHS GET THE SAME TREATMENT, deliberately — shape distinguishes them, not hue, so the
+       pair reads as one system. `--tm-award-ink` / `--tm-award-line` are the two values, in one
+       place, if that ever needs to change.
+
+       SIZE TRACKS THE TILE, via `cqw` against `.tm-ph`. The tile runs 254px to 573px across the
+       responsive ladder (developer-team.md §4) — a fixed px badge would be heavy on the 254 and
+       lost on the 573. 11cqw with a 24–36px clamp lands 28px on the 254 and holds 36px once the
+       tile passes ~325, so the badge grows with the card and then stops before it starts
+       competing with the face. Without a disc the glyph reads a little smaller than its box, which
+       is why this clamp is larger than a chipped badge's would be. */
+    .tm-awards{ position: absolute; top: 0; right: 0; z-index: 2;
+      display: flex; gap: clamp(3px, 1.2cqw, 6px); padding: clamp(6px, 2.4cqw, 11px);
+      /* Decorative overlay — never take the click off the card's stretched link. */
+      pointer-events: none;
+      --tm-award-ink: #FFFFFF;              /* the body */
+      --tm-award-line: rgba(7,22,44,.92); } /* the keyline, PC Black */
+    .tm-award{ display: block; width: clamp(24px, 11cqw, 36px); aspect-ratio: 1 / 1;
+      filter: drop-shadow(0 1px 3px rgba(7,22,44,.45)); }
+    .tm-award svg{ display: block; width: 100%; height: 100%;
+      fill: var(--tm-award-ink);
+      stroke: var(--tm-award-line); stroke-width: 1.5;
+      stroke-linejoin: round; stroke-linecap: round;
+      /* Stroke behind fill: the keyline is an OUTER edge, not a line drawn over the shape. */
+      paint-order: stroke fill; }
 
     /* HORIZONTAL PADDING IS 14px, NOT --space-4 (16px), and it is bought deliberately: every
        pixel here is a pixel the name does not have. 2px a side is 4px of line, which is what
@@ -944,23 +1012,67 @@
            ⚠ THE OFFICE IS NOT PUBLISHED PER PERSON on the live team page — only the corporate
            address. Any per-person office on this page would be invented, which is why the card
            no longer carries one.
-           ⚠ EVERY CARD LINKS TO THE SAME `team-member.html`. Real per-person URLs are §7. -->
+           ⚠ EVERY CARD LINKS TO THE SAME `team-member.html`. Real per-person URLs are §7.
+
+           ⚠ WHO HOLDS AN AWARD IS INVENTED (Kiron, 2026-09-03). The badge treatment is real; the
+           ten assignments below are not. They were spread on purpose, to exercise the cases the
+           design has to survive rather than to look tidy:
+             BOTH BADGES  Paul Anderson, Kyle Walker, Andrew Zellmer — proves two fit without
+                          crowding the face
+             HAT ONLY     Mollie Aronowitz, Jared Chambers, Connie Kreikemeier, Emily Oberbroeckling
+             DIAMOND ONLY Dean Batie, Maddie Coury, Jason Lestina, Toby Trowbridge III
+           Eleven of twenty-five, chosen to land on BOTH LIGHT AND DARK headshots — that is the point
+           of the spread, because the disc-and-ring treatment is exactly what has to be judged
+           against a bright studio background and a near-black one on the same screen.
+           `data-awards` is on the <article> so the CMS shape is obvious and so the pills could
+           filter on it later; nothing reads it today. The awards are NOT in `data-name`, so a
+           search for "diamond" returns nobody — a credential is not a name (same reasoning as
+           the designations above). -->
+      <!-- AWARD GLYPHS, defined once. ⚠ PLACEHOLDER ART — these two paths stand in for the
+           real marks and are the ONLY place the drawing lives. Keep the 0 0 24 24 viewBox and
+           keep the shapes filled with `currentColor`; the badge sizes and colours itself. -->
+      <svg class="tm-award-defs" width="0" height="0" aria-hidden="true" focusable="false"
+           style="position:absolute;overflow:hidden">
+        <symbol id="ic-award-hat" viewBox="0 0 24 24">
+          <!-- ONE path, two subpaths: crown then brim. See the CSS note above for why. -->
+          <path d="M7.5 13.3c-.5-2.6-.5-5 .2-6.8.5-1.3 1.4-1.8 2.2-1.2.7.5 1.2 1.1 2.1 1.1s1.4-.6 2.1-1.1c.8-.6 1.7-.1 2.2 1.2.7 1.8.7 4.2.2 6.8z
+                   M1.7 13.5c-.5-.2-.9.4-.6 1.1C2.9 18 7.1 20.2 12 20.2s9.1-2.2 10.9-5.6c.3-.7-.1-1.3-.6-1.1-2.1.9-5.9 1.5-10.3 1.5s-8.2-.6-10.3-1.5z"/>
+        </symbol>
+        <symbol id="ic-award-diamond" viewBox="0 0 24 24">
+          <!-- Four-point diamond with concave sides, per the reference. -->
+          <path d="M12 1.6c1 5.2 5.2 9.4 10.4 10.4C17.2 13 13 17.2 12 22.4 11 17.2 6.8 13 1.6 12 6.8 11 11 6.8 12 1.6z"/>
+        </symbol>
+      </svg>
+
       <div class="tm-grid reveal" id="tmGrid">
 
-        <article class="tm-card" data-service="management" data-name="paul anderson">
+        <article class="tm-card" data-service="management" data-awards="hat diamond" data-name="paul anderson">
           <div class="tm-ph">
-            <img src="../assets/team/paul-anderson.jpg" alt="Paul Anderson" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/Vzf01O2AiiJz7BNRchzWrZGCuRI7wfyrGjw7vQfq.jpg" alt="Paul Anderson" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              </span>
+              <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Paul Anderson</a><span class="tm-desig">, AFM</span></h2>
             <p class="tm-role">Land Manager</p>
           </div>
         </article>
-        <article class="tm-card" data-service="management" data-name="mollie aronowitz">
+        <article class="tm-card" data-service="management" data-awards="hat" data-name="mollie aronowitz">
           <div class="tm-ph">
-            <img src="../assets/team/mollie-aronowitz.jpg" alt="Mollie Aronowitz" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/Ltt80HzVf5honcUFheENJZH95qBBoivvodta4i6U.jpg" alt="Mollie Aronowitz" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Mollie Aronowitz</a><span class="tm-desig">, AFM</span></h2>
@@ -969,7 +1081,7 @@
         </article>
         <article class="tm-card" data-service="management" data-name="george baird">
           <div class="tm-ph">
-            <img src="../assets/team/george-baird.jpg" alt="George Baird" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/muQGkVfanKBteWsWy0AZRZRlCO4uIWbJlLA3xu05.jpg" alt="George Baird" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -977,10 +1089,15 @@
             <p class="tm-role">Owner, Landmark Ag &amp; Senior Land Manager</p>
           </div>
         </article>
-        <article class="tm-card" data-service="appraisal" data-name="dean batie">
+        <article class="tm-card" data-service="appraisal" data-awards="diamond" data-name="dean batie">
           <div class="tm-ph">
-            <img src="../assets/team/dean-batie.jpg" alt="Dean Batie" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/CtEE7Y5GfVMTKbpjjtLnXMozluKVc45bNUoVT2eG.jpg" alt="Dean Batie" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Dean Batie</a><span class="tm-desig">, ARA</span></h2>
@@ -989,7 +1106,7 @@
         </article>
         <article class="tm-card" data-service="corporate" data-name="eric bohnenkamp">
           <div class="tm-ph">
-            <img src="../assets/team/eric-bohnenkamp.jpg" alt="Eric Bohnenkamp" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/joCZqioGkHI2T6Hl08kRd66jXagbnZz1TXjALJed.jpg" alt="Eric Bohnenkamp" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -999,7 +1116,7 @@
         </article>
         <article class="tm-card" data-service="brokerage" data-name="ray brownfield">
           <div class="tm-ph">
-            <img src="../assets/team/ray-brownfield.jpg" alt="Ray Brownfield" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/wQYQxAysx8OXdvfSQLThgnbRiTlstL65YRqB0YTy.jpg" alt="Ray Brownfield" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1007,10 +1124,15 @@
             <p class="tm-role">Designated Managing Broker</p>
           </div>
         </article>
-        <article class="tm-card" data-service="brokerage" data-name="jared chambers">
+        <article class="tm-card" data-service="brokerage" data-awards="hat" data-name="jared chambers">
           <div class="tm-ph">
-            <img src="../assets/team/jared-chambers.jpg" alt="Jared Chambers" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/iwGX3X9aGpGJf3cvayrFjLbV0IWEoyqngqAnd39o.jpg" alt="Jared Chambers" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Jared Chambers</a><span class="tm-desig">, CAI</span></h2>
@@ -1019,7 +1141,7 @@
         </article>
         <article class="tm-card" data-service="energy" data-name="jake costanzo">
           <div class="tm-ph">
-            <img src="../assets/team/jake-costanzo.jpg" alt="Jake Costanzo" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/iHdGcOsbWvE5n2ih3TJxLyu4SjlEAni0PGP5UJcR.jpg" alt="Jake Costanzo" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1027,10 +1149,15 @@
             <p class="tm-role">Energy Analyst</p>
           </div>
         </article>
-        <article class="tm-card" data-service="operations" data-name="maddie coury">
+        <article class="tm-card" data-service="operations" data-awards="diamond" data-name="maddie coury">
           <div class="tm-ph">
-            <img src="../assets/team/maddie-coury.jpg" alt="Maddie Coury" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/CfFEsu9RzL0bZ8oBpo51VZ4HXTBB09N4kTJguVGR.jpg" alt="Maddie Coury" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Maddie Coury</a></h2>
@@ -1039,7 +1166,7 @@
         </article>
         <article class="tm-card" data-service="brokerage" data-name="wendy forthun">
           <div class="tm-ph">
-            <img src="../assets/team/wendy-forthun.jpg" alt="Wendy Forthun" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/05CWlx2ooGqoY0jayUQgiU9ojvh9XwY4hfHAzKiJ.jpg" alt="Wendy Forthun" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1049,7 +1176,7 @@
         </article>
         <article class="tm-card" data-service="management" data-name="eric geiger">
           <div class="tm-ph">
-            <img src="../assets/team/eric-geiger.jpg" alt="Eric Geiger" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/eric-geiger-2019-12-10-200808.jpg" alt="Eric Geiger" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1059,7 +1186,7 @@
         </article>
         <article class="tm-card" data-service="corporate" data-name="jaxon goedken">
           <div class="tm-ph">
-            <img src="../assets/team/jaxon-goedken.jpg" alt="Jaxon Goedken" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/vkFs3GAbhTivyyjZ59mm6pSFgo10GNuXtszgVFb2.jpg" alt="Jaxon Goedken" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1069,7 +1196,7 @@
         </article>
         <article class="tm-card" data-service="management" data-name="peter isaacson">
           <div class="tm-ph">
-            <img src="../assets/team/peter-isaacson.jpg" alt="Peter Isaacson" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/doZ7CYVQeyy6DIm6ZiENEUKKsinoDDMzmFII7anI.jpg" alt="Peter Isaacson" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1077,10 +1204,15 @@
             <p class="tm-role">Senior Land Manager</p>
           </div>
         </article>
-        <article class="tm-card" data-service="management crop" data-name="connie kreikemeier">
+        <article class="tm-card" data-service="management crop" data-awards="hat" data-name="connie kreikemeier">
           <div class="tm-ph">
-            <img src="../assets/team/connie-kreikemeier.jpg" alt="Connie Kreikemeier" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/0izT2nd5DjFeA4XIfl4NuDCp5CQWJFcx3768DVrU.jpg" alt="Connie Kreikemeier" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Connie Kreikemeier</a></h2>
@@ -1089,7 +1221,7 @@
         </article>
         <article class="tm-card" data-service="brokerage" data-name="landon larkin">
           <div class="tm-ph">
-            <img src="../assets/team/landon-larkin.jpg" alt="Landon Larkin" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/g5hV6665FbxRxjJD1jV29vJqUitOQV5bCNdqQqVl.jpg" alt="Landon Larkin" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1097,10 +1229,15 @@
             <p class="tm-role">Land Agent</p>
           </div>
         </article>
-        <article class="tm-card" data-service="management" data-name="jason lestina">
+        <article class="tm-card" data-service="management" data-awards="diamond" data-name="jason lestina">
           <div class="tm-ph">
-            <img src="../assets/team/jason-lestina.jpg" alt="Jason Lestina" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/Y3Txy3yhaI43C4sX50BXTmHXg9oI4GgFfAx0NWIl.jpg" alt="Jason Lestina" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Jason Lestina</a><span class="tm-desig">, ALC, AFM</span></h2>
@@ -1109,7 +1246,7 @@
         </article>
         <article class="tm-card" data-service="appraisal" data-name="kim mcginnis">
           <div class="tm-ph">
-            <img src="../assets/team/kim-mcginnis.jpg" alt="Kim McGinnis" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/oOuZ5pbMDNwCbumUEjJQC3dZ1tPpxx7PsGgt7X57.jpg" alt="Kim McGinnis" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1119,7 +1256,7 @@
         </article>
         <article class="tm-card" data-service="brokerage" data-name="mike nelson">
           <div class="tm-ph">
-            <img src="../assets/team/mike-nelson.jpg" alt="Mike Nelson" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/SlHFW7naGg8WxHUB9WvWxwiDWApj6DTl2SHTw5aC.jpg" alt="Mike Nelson" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1129,7 +1266,7 @@
         </article>
         <article class="tm-card" data-service="capital" data-name="hunter norland">
           <div class="tm-ph">
-            <img src="../assets/team/hunter-norland.jpg" alt="Hunter Norland" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/oBCf8wNg7rZHiaL2xSXzvvukpRNAUWWqMwImXGRl.jpg" alt="Hunter Norland" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1137,10 +1274,15 @@
             <p class="tm-role">Director of Acquisitions</p>
           </div>
         </article>
-        <article class="tm-card" data-service="appraisal" data-name="emily oberbroeckling">
+        <article class="tm-card" data-service="appraisal" data-awards="hat" data-name="emily oberbroeckling">
           <div class="tm-ph">
-            <img src="../assets/team/emily-oberbroeckling.jpg" alt="Emily Oberbroeckling" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/txSP2PfbsEJi35RbEd7eB6oFhzAnPaRVJC6Cyc9O.jpg" alt="Emily Oberbroeckling" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Emily Oberbroeckling</a><span class="tm-desig">, ARA</span></h2>
@@ -1149,7 +1291,7 @@
         </article>
         <article class="tm-card" data-service="operations" data-name="chase rupiper">
           <div class="tm-ph">
-            <img src="../assets/team/chase-rupiper.jpg" alt="Chase Rupiper" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/chase-rupiper-2021-06-21-155200.jpg" alt="Chase Rupiper" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1159,7 +1301,7 @@
         </article>
         <article class="tm-card" data-service="capital" data-name="jonathan shively">
           <div class="tm-ph">
-            <img src="../assets/team/jonathan-shively.jpg" alt="Jonathan Shively" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/7Innv97SbhNSO4WVETn3TxTVO3kMETc73633f3A0.jpg" alt="Jonathan Shively" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
           </div>
           <div class="tm-cardbody">
@@ -1167,30 +1309,51 @@
             <p class="tm-role">Director of Capital Partnerships</p>
           </div>
         </article>
-        <article class="tm-card" data-service="brokerage" data-name="toby trowbridge iii">
+        <article class="tm-card" data-service="brokerage" data-awards="diamond" data-name="toby trowbridge iii">
           <div class="tm-ph">
-            <img src="../assets/team/toby-trowbridge.jpg" alt="Toby Trowbridge III" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/pzNlDrNapnRMIFw8gKxzGydtmLzFOyTfjnfUvSNb.jpg" alt="Toby Trowbridge III" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Toby Trowbridge III</a><span class="tm-desig">, CCIM</span></h2>
             <p class="tm-role">Licensing &amp; Compliance Broker</p>
           </div>
         </article>
-        <article class="tm-card" data-service="leadership" data-name="kyle walker">
+        <article class="tm-card" data-service="leadership" data-awards="hat diamond" data-name="kyle walker">
           <div class="tm-ph">
-            <img src="../assets/team/kyle-walker.jpg" alt="Kyle Walker" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/SIIh5rDCEeIE0DWmv9FkFJ97DyBuIDKVUNvh1kJS.jpg" alt="Kyle Walker" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              </span>
+              <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Kyle Walker</a><span class="tm-desig">, AFM, AAC, CAC</span></h2>
             <p class="tm-role">Director of Land Management</p>
           </div>
         </article>
-        <article class="tm-card" data-service="brokerage" data-name="andrew zellmer">
+        <article class="tm-card" data-service="brokerage" data-awards="hat diamond" data-name="andrew zellmer">
           <div class="tm-ph">
-            <img src="../assets/team/andrew-zellmer.jpg" alt="Andrew Zellmer" loading="lazy" decoding="async"
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/andrew-zellmer.jpg" alt="Andrew Zellmer" loading="lazy" decoding="async"
                  onerror="this.style.display='none';this.onerror=null;" />
+            <span class="tm-awards">
+              <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              </span>
+              <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              </span>
+            </span>
           </div>
           <div class="tm-cardbody">
             <h2 class="tm-name"><a href="./team-member.html">Andrew Zellmer</a><span class="tm-desig">, ALC</span></h2>
