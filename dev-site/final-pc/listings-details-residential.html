@@ -437,18 +437,37 @@
          NOW 12 / 12 / 24: 28px above the card and 37px below, and the strip's own box drops from
          92.8px to 68.8px. The 16px above comes from the page grid, not from here, so it is left
          alone - taking this to zero would butt the figures against the sub nav.
-         THE BOTTOM RULE IS UNCHANGED and still does the separating; what came off is air that
-         was doing the same job twice. */
-      margin: 0 0 var(--space-5); padding: var(--space-3) 0;
-      /* NO BORDER-TOP (2026-08-26). This strip used to be ruled top and bottom, which
+         THE BOTTOM RULE WAS UNCHANGED BY THAT PASS and did the separating then; it is gone now -
+         see the note where it used to be declared.
+         PADDING 12 -> 6px (2026-09-03), because the cards have their own now. This vertical
+         padding was air AROUND transparent cards; the boxes behind them carry 10px of interior
+         space instead, so keeping both would have paid for the same gap twice and put the strip
+         back at the 92.8px this pass had just brought it down from. 6px is what is left doing a
+         job the cards cannot do themselves: holding the top and bottom boxes off the sub nav
+         above and the description below. */
+      margin: 0 0 var(--space-5); padding: 6px 0;
+      /* ---- NO RULES AT ALL NOW, TOP OR BOTTOM ----
+         NO BORDER-TOP (2026-08-26). This strip used to be ruled top and bottom, which
          was right while a visible "Property Overview" heading sat between it and the
          jump nav. That heading is .sr-only now, and .sr-only is position: absolute, so
          it takes NO SPACE IN FLOW — the strip's top rule landed directly against the
          jump nav's border-bottom and read as a doubled hairline. The nav's rule came off
-         too, later the same day, so the strip is now open at the top by design and only
-         its bottom rule is drawn.
-         ⚠ If the heading is ever made visible again, put this border back with it. */
-      border-bottom: 1px solid var(--color-border); }
+         too, later the same day, so the strip was open at the top by design and only its
+         bottom rule was drawn.
+         AND NOW NO BORDER-BOTTOM EITHER (Kiron, 2026-09-03: "remove the thin horizontal rule
+         below the cards"). THE CARDS DREW THEIR OWN EDGES EARLIER THE SAME DAY, so this hairline
+         was a sixth line under five boxes that each already close themselves - #D7EFFB drawn
+         underneath five #f3fbfe boxes bordered in the same #D7EFFB. It read as the strip being
+         underlined rather than as the cards being separated from the description below.
+         THE SPACING IS UNTOUCHED: margin-bottom stays 24px, so nothing below moves and the strip's
+         own box just loses 1px (78.8 -> 77.8px).
+         ⚠ THIS MATCHES listings-details-forsale.html, WHICH LOST THE SAME RULE FOR A DIFFERENT
+         REASON. There it was competing with the sub nav's 2px full-width rule - two lines
+         bracketing the cards. Here it is competing with the cards' own borders. Same removal, two
+         separate arguments, so neither page's note explains the other's.
+         ⚠ If the "Property Overview" heading is ever made visible again, the TOP border comes back
+         with it - that was always the condition. The bottom one is now a separate decision. */
+      border-bottom: 0; }
     /* ---- THE LIVE STRIP TAKES THE CATALOGUE'S CARD (Kiron, 2026-09-02: "apply these new card
        designs to the 3 pages actual 5 card layouts") ----
        The tile was designed in the stat-card pool over the course of the day and is now the card
@@ -470,8 +489,37 @@
        the note on each - and Kiron's scope for this pass was desktop.
        ⚠ SO THE CARD IS THE TILE AT 1280+ AND SOMETHING ELSE BELOW IT. That is a deliberate hold,
        not a finished state. */
+    /* ---- A COLOURED BOX BEHIND EACH CARD (Kiron, 2026-09-03: "create a colored box behind each
+       of the 5 stat cards") ----
+       PC SOFT WHITE, NOT THE BAND'S PC LIGHT BLUE, and this is the one real decision here. The sub
+       nav band 26px above these cards is #D7EFFB. Filling the cards with the same tint would put
+       two identical tinted rows in a row and merge them into one field - which is exactly what the
+       band was introduced to stop doing (see .ld-subbar). #f3fbfe is the palette's next step down,
+       so the band stays the stronger shape and the cards read as five objects sitting under it
+       rather than as a second band. If they should match the band instead, that is a decision to
+       take TOGETHER with what the band then does - not a one-line fill swap.
+       THE 1px BORDER IS WHAT MAKES IT A BOX. #f3fbfe against white is a 1.19:1 difference - real
+       but very quiet - so at this fill the edge does most of the work of saying "card". Border is
+       --color-border (#D7EFFB), the same hairline used everywhere else on the page.
+       RADIUS 12px = --radius-md, matching pc.css's own .card, the accordion frames and the video /
+       360 embeds. The sub nav band is --radius-sm (8px) on purpose: a 31px bar and a 68px card
+       should not carry the same corner.
+       PADDING 10px / 8px, AND THE STRIP'S OWN PADDING PAYS FOR MOST OF IT (12 -> 6px, below). A
+       transparent card needed no interior space; a filled one does, or the figures sit on the
+       fill's edge. MEASURED: the card goes 43.8 -> 65.8px (20px of padding plus 2px of border -
+       the border is easy to forget and it is 2px of the total) and the strip's box 68.8 -> 78.8px,
+       so the whole change costs 10px of page height. It would have cost 26px without moving the
+       strip's padding inward, which would have put the strip back at 94.8px - past the 92.8px the
+       2026-09-02 tightening pass brought it down FROM. That route was not available.
+       WIDTH IS NOT A PROBLEM AT ANY BAND, which was the risk worth checking: the five boxes need
+       868px of a 932px column at 1536, 748 of 812 at 1280, and 473.5 of 588 at 1024-1279 - the
+       band whose own note calls 588px "the budget". No overflow anywhere, and the cards keep equal
+       heights (grid-auto-rows: 1fr with height: 100%) so a two-line label cannot make one box
+       taller than the four beside it. */
     .ld-ovstats li{ height: 100%; display: flex; flex-direction: column; align-items: center;
-      justify-content: flex-start; gap: 0; text-align: center; }
+      justify-content: flex-start; gap: 0; text-align: center;
+      background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: 10px 8px; }
     /* ROW ONE OF THE CARD: the icon and the figure, centred as a pair. The label is row two and
        spans the card, so it no longer pays for the icon's 38px column - which is what lets the
        three acreage labels set on one line inside a 146.6px cell instead of needing an authored
@@ -529,25 +577,32 @@
     /* NO BORDER-BOTTOM (Kiron, 2026-08-26, for consistency with the rules removed
        elsewhere on the page). The bar still needs its opaque background: it is sticky,
        so without a fill the prose would scroll THROUGH the links rather than under them.
-       THE FILL IS PC LIGHT BLUE, NOT WHITE (Kiron, 2026-09-03: "pull the sub-nav out away from
-       all the icons in that section of the page ... thinking about putting a color bar behind
-       the subnav"). SAME IDEA AS THE STICKY FILTER BAR on listings.html and team.html — a
-       tinted band behind a bar — one step up in weight, because this bar has a harder job:
-       it is the THIRD icon row in eight vertical inches. Save and Share sit above it, the five
-       stat tiles sit below it, and the eight jump links carry icons of their own, so on a white
-       page all three read as one undifferentiated field of small glyphs. The tint gives the
-       middle row an edge without a rule and without moving anything.
-       #D7EFFB IS ALSO --color-border, so a hairline top or bottom would be invisible against
-       it. That is fine — the fill IS the edge now, which is what the 2026-08-26 decision
-       above wanted the white to do and white could not.
-       CONTRAST HOLDS: the links are --pc-navy on #D7EFFB at 8.9:1, the medium-blue hover
-       underline and focus ring at 4.6:1 against the tint (over the 3:1 non-text floor). No
-       link colour changed — this is on-light to on-light. A PC Black band was the other
-       candidate and would have meant flipping the whole bar to the on-dark scheme.
-       RADIUS 8px, and it is what keeps a COLUMN-WIDTH band from reading as a failed
-       full-bleed one. The band stops at the column edge because a full-bleed bar in this slot
-       was already rejected for cutting the page in half (see the note at the top of this
-       section); square corners at that stop look like the fill ran out, a radius looks chosen. */
+       THE FILL IS WHITE AGAIN — THE TINTED BAND IS GONE (Kiron, 2026-09-03: "remove the
+       background color of the subnav", in the same breath as removing the hairline under the stat
+       cards).
+       ⚠ WHITE, NOT `transparent` — AND THIS BAR CANNOT BE TRANSPARENT. It is sticky, so with no
+       fill the prose would scroll THROUGH the links instead of under them. On a white page white IS
+       "no background colour", so the visible result is what was asked for; the declaration simply
+       cannot be removed. That constraint has been recorded here since 2026-08-26 and is the reason
+       the bar carried a fill at all before it ever carried a tint.
+       WHAT THE TINT WAS FOR, AND WHAT REPLACED IT: this bar is the third icon row in a short
+       stretch — Save and Share above, five stat cards below, eight icon links in the bar itself —
+       and on a plain white page all three read as one field of small glyphs. The band was one
+       answer. THE COLOURED BOXES BEHIND THE STAT CARDS ARE ANOTHER, and they arrived first
+       (2026-09-03, same day): once the five cards are objects with their own fill and edge, the row
+       below the sub nav is no longer an undifferentiated icon row, so the sub nav no longer needs
+       its own shape to be told apart from it. The separation moved down a row rather than
+       disappearing.
+       ⚠ SO VARIANT B NO LONGER HAS A SUB-NAV TREATMENT. The A/B against listings-details-forsale.html
+       started as "a rule under the bar" vs "a band behind the bar"; it is now "a rule under the bar"
+       vs "nothing, and boxed stat cards instead". That is a legitimate comparison but it is a
+       DIFFERENT one, and the pages should be described that way when they are shown.
+       NO RADIUS ANY MORE either — it was 8px --radius-sm, and its whole job was to stop a
+       COLUMN-WIDTH tinted band from reading as a full-bleed one that had run out of fill. With
+       nothing to see, a radius on an invisible box is dead weight, so it came off with the tint.
+       NOTHING ELSE IN THIS RULE CHANGES: still sticky at --navH, still z 20, still 31px one row /
+       63px wrapped, still the same margins. See the margin note below for why those two numbers
+       still hold with the fill gone. */
     /* THE STICKY LIVES ON .ld-subbar, not on the nav. It held the nav PLUS the Save/Share
        pair until 2026-08-27; the pair moved to its own row, so the bar is now the links
        alone and its height is theirs. --ld-jump-h is measured by JS either way, so nothing
@@ -572,7 +627,7 @@
        spacing and undo the 31px in the same stroke. Margin is the only lever that moves the
        content below without touching the fill: PADDING GROWS THE BAND, MARGIN MOVES IT.
        MEASURED, AND THE NUMBERS ARE DERIVED RATHER THAN CHOSEN - each one is the gap this bar is
-       meant to draw, minus the 3px the band now contributes to it:
+       meant to draw, minus the 3px the link padding contributes to it:
          ABOVE  26px from the headline to the first label. 26 - 3 = 23px.
          BELOW  26px from the last label to the first stat card, of which the stat strip's own
                 padding provides 12. 26 - 3 - 12 = 11px.
@@ -582,9 +637,15 @@
        padding drew; both pages went to 26 together, so variant A and variant B are still being
        judged on the sub nav treatment alone and not on their spacing.
        WHICH MAKES THE TWO GAPS EQUAL, 26 above and 26 below, where the page has never had them
-       matched before - it was 18/26 for one edit and 4+14 / 14+12 before that. The band is now
-       centred in its own white space, which is what a filled bar wants and an unfilled one does
-       not care about either way.
+       matched before - it was 18/26 for one edit and 4+14 / 14+12 before that.
+       ⚠ BOTH NUMBERS SURVIVED THE TINT COMING OFF, and it is worth saying why rather than leaving
+       it to look like luck. They were derived as 26 minus what the BAND contributed; with the fill
+       gone the same 3px is contributed by the LINK PADDING instead, which is where it always
+       physically was - the band merely made it visible as an inset. So the arithmetic is unchanged
+       and 26/26 now reads ink-to-ink, which is the only way it can be read on an unfilled bar.
+       THE ONE THING THAT DID CHANGE is that the 17px band-edge-to-card-edge measurement is gone
+       with the edge that defined it. There is no visible boundary above the stat cards now except
+       the cards' own top edge, 17px below where the bar's fill used to stop.
        HOW THE 22px CAME OUT IN THE FIRST PLACE: the padding trim took 3px off the top gap and 11px
        off the bottom one, because only the bottom gap was being drawn by that padding alone. THAT
        asymmetry is why the change read as everything below the bar coming up.
@@ -600,8 +661,7 @@
        outside the background box, so none of this is tinted. */
     .ld-subbar{ position: sticky; top: var(--navH); z-index: 20;
       margin-top: 23px; margin-bottom: 11px;
-      background: var(--pc-light-blue);
-      border-radius: var(--radius-sm);
+      background: var(--pc-white);
       display: flex; align-items: center; gap: var(--space-4); }
     /* Takes the slack so the buttons pin right. min-width: 0 lets the link list shrink
        rather than forcing the bar wider than the column. */
@@ -1565,10 +1625,26 @@
          figure and description are ITS children, so it has to be the flex container, and
          `order: -1` on the description puts it before the value it belongs to without
          touching the markup. */
+      /* ⚠ THE BOXES COME OFF HERE, and they have to. Below 640 the strip is not five cards in a
+         row - it is a stacked list of label-left / value-right rows, separated by hairlines. Five
+         full-width tinted boxes stacked with 16px between them would read as five panels, not as
+         one compact spec list, and the row hairline would be drawing a divider INSIDE a box that
+         already has its own edge.
+         ALL FOUR DECLARATIONS ARE NEEDED. `border-bottom` alone would leave the other three sides
+         of the box drawn, and the fill and the radius would both survive it. So background, border
+         and radius are reset explicitly and the row treatment is declared from scratch. */
       .ld-ovstats{ display: block; padding: var(--space-3) 0 0; }
       .ld-ovstats li{ display: flex; align-items: baseline;
+        background: transparent; border: 0; border-radius: 0;
         border-bottom: 1px solid var(--color-border); padding: 10px 0; }
-      /* The last row's rule would sit directly on the strip's own bottom border. */
+      /* ⚠ THE ROW RULES BELOW 640 ARE NOT THE RULE THAT WAS REMOVED. Down here the strip is a
+         stacked list and each row's hairline is a DIVIDER BETWEEN ROWS, a different job from the
+         single line that used to close the strip off. Those stay.
+         THE LAST ROW STILL HAS NO RULE, but the reason changed. It was dropped because it would
+         have sat directly on the strip's own bottom border and read as a doubled line; that border
+         is gone now, so nothing is doubled - and it stays dropped because a line under the last
+         card is exactly what "remove the thin horizontal rule below the cards" asks not to draw.
+         So the strip ends open at every width. */
       .ld-ovstats li:last-child{ border-bottom: 0; padding-bottom: 0; }
       /* REWRITTEN FOR THE NEW CARD SHAPE (2026-09-02). This band used to make `li > span` - the
          one wrapper that held figure and label - the flex row that spaced them apart. There are
