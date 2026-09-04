@@ -14,124 +14,40 @@
   <!-- Single source of truth for the final PC direction -->
   <link href="pc.css?v=20260827a" rel="stylesheet" />
 
-  <!-- Page-local: TEAM INDEX (skeleton). Layout scaffolding only — the roster and titles
-       are sample data. THE HEADSHOTS ARE THE REAL ONES: each src is that person's own file
-       in the live contacts bucket, `peoples-listings.nyc3.digitaloceanspaces.com/contacts/`.
-       Colour, type, buttons and spacing come from pc.css tokens, so a design-system change
-       reaches this page for free.
-
-       Structure: intro + service filter row → 4-up grid of people cards → pager.
-
-       THE CARD IS NOT A LINK. The name is the link, and the phone and email are their own
-       links beside it — a card-wide <a> would swallow them (you cannot nest interactive
-       elements). If a whole-card click target is wanted later, use a stretched-link
-       pseudo-element on the name and give the contact links a higher z-index; do not wrap
-       the card in an <a>.
-
-       .tm-card is DUPLICATED in team-member.html for its "More from the team" row. That
-       is deliberate — page-local CSS keeps a skeleton page from ever affecting a real one
-       (same convention as .lc-* in listings.html). Promote the block into pc.css when the
-       pattern is adopted, and delete both copies.
-
-       Responsive: the grid steps 4 → 3 → 2 → 1 on the shared --site ladder. -->
   <style>
     .tm-body{ background: var(--pc-white); }
     .tm-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
     /* ---- intro ---- */
-    /* EYEBROW AND LEAD COPY REMOVED (Kiron, 2026-09-01) - the only thing above the finder is
-       the h1. The `.tm-intro .hp-eyebrow` rule went with the eyebrow, and so did
-       `.tm-intro p:not(.hp-eyebrow)`, which had styled the lead - it was also landing on the
-       count line, more specifically than `.tm-count` itself. Nothing left in .tm-intro is a
-       plain <p>, so do not reintroduce a bare `.tm-intro p` rule. */
     .tm-intro{ padding: var(--space-8) 0 var(--space-6); }
 
-    /* ================= SEARCH / FILTER BAR =================
-       Order is SEARCH BY NAME · SERVICE · REGION · STATE, then VIEW ALL hard right.
-       REGION LEADS STATE (Kiron, 2026-09-01: "flip the Regions and States in the search"), which
-       is also broad-to-narrow - a region contains states - so the geography now reads outside-in
-       rather than the other way round.
-
-       THIS IS LISTINGS.HTML'S FILTER BAR (Kiron, 2026-09-01: "for formatting consistency, just
-       the same structure that is on listings.html"). Same `ls-*` class names, same sticky band
-       under the header, same elastic text field on the left, same pill-plus-popover picklist,
-       same filters-left / actions-right split. A visitor who has used the property search meets
-       one instrument on both pages, not two that merely rhyme.
-
-       IT REPLACED THE PILL ROW. Nine service pills laid flat could not survive a second
-       dimension: State would have meant a second flat row and no way to tell which row was
-       which. A pill-with-popover collapses each dimension to one control of fixed height, which
-       is why the listings bar is built that way and why copying it solves this page's problem
-       rather than merely matching its looks.
-
-       ⚠ SECOND COPY OF THESE RULES. The originals are page-local in `listings.html`, whose
-       own note says "promote them into pc.css when the pattern is adopted". IT IS NOW ADOPTED:
-       two pages use it, so this is the moment that note was written for, and until the promotion
-       happens EVERY CHANGE HERE HAS TO BE MADE TWICE. Only the subset this page uses was taken
-       - no ranges, no checkbox tree, no roll-up, no two-column popover, no MORE FILTERS panel,
-       no grid/map switch. The listings copy stays the reference; if the two ever disagree, that
-       one is right. Deliberate divergences from it are marked ≠ below and there are three.
-       See developer-team.md §2.4b. */
-
-    /* --ls-pill-w is the shared width of the SERVICE, STATE and REGION pills, and the derivation is
-       this page's own - it is NOT listings' 160px (≠ 1). The widest resting label here is
-       "Service"; the widest CHOSEN VALUE is "Land Brokerage & Auctions", which wraps to two
-       lines exactly as a listings pill does, so the pill has to hold the widest LINE wrapping
-       produces - "Brokerage &" at ~92px - not the whole string. 180px leaves ~130px of label
-       per line - "Pacific Northwest", the longest region, sits on ONE line at ~118px - and the
-       three pills plus a 240px field plus the two actions still fit one row at 1280 (measured). Two 14px lines measure 32px inside the 44px min-height, so a wrapped pill never
-       changes the height of the bar. */
     .tm-body{ --ls-pill-w: 180px; }
 
-    /* STICKY UNDER THE HEADER, exactly as on listings, so the controls keep their place while
-       the roster scrolls. `top: var(--navH)` is the live header height, written to the DOM by
-       the sync at the foot of this page.
-       z-40 sits under the sticky header (45) and the hamburger drawer (42/41) and above the
-       announcement toast (25).
-       ⚠ THIS PAGE HAS THE INTERACTIVE MAP TAB and listings does not - the tab is z-39, so the
-       bar draws over it. That is correct: the tab overhangs the top of the page and the bar is
-       below it, so they never occupy the same band, but if the tab is ever moved the order of
-       these two numbers is the thing to check.
-       ⚠ Sticky dies inside an ancestor with overflow other than visible. Nothing between here
-       and <html> clips today. */
+    /* THE MAP LAYER MUST CLEAR THIS BAR. `.ls-bar` is z-40 and sticky, so it forms a stacking
+       context that beat the shared map layer (z-31) and its backdrop (z-30) - the map opened
+       BEHIND the filter bar. Raised here, page-locally, rather than in pc.css: this is the only
+       page that has both a sticky filter bar and the map tab, and the shared values are correct
+       everywhere else. 44/43 sits above the bar (40) and the map tab (39) and below the site
+       header (45), which is what the layer hangs from. */
+    .md-layer{ z-index: 44; }
+    .md-backdrop{ z-index: 43; }
+
     .ls-bar{ position: sticky; top: var(--navH); z-index: 40;
       background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border); }
-    /* `position: relative` HERE IS LOAD-BEARING for the wide STATE panel only - that one panel
-       hangs off the BAR's content box rather than off its pill (see .ls-pop-wide for why it has
-       to). Every other popover is positioned by its own .ls-f and is unaffected. */
     .ls-bar-in{ position: relative; max-width: var(--site); margin: 0 auto;
       padding: var(--space-4) var(--rail);
       display: flex; align-items: center; justify-content: space-between;
       gap: var(--space-2); flex-wrap: wrap; }
-    /* The four filter controls, packed LEFT at a tight --space-2 gap, so the leftover width
-       collects in ONE place - between STATE and VIEW ALL - and the bar reads as
-       filters-left / actions-right.
-       flex-basis 0, NOT auto: a wrapping flex container decides where to break from each item's
-       max-content size BEFORE any shrinking happens, so on auto this group can measure wider
-       than its slot and throw the actions onto a second row without ever asking the text field
-       to give width back. At 0 it always fits the line and the elastic field absorbs the
-       difference, which is where it belongs. */
     .ls-controls{ display: flex; align-items: center; justify-content: flex-start;
       gap: var(--space-2); flex-wrap: nowrap; flex: 1 1 0; min-width: 0; }
-    /* VIEW ALL: the bar's one ACTION, held hard right and kept OUT of .ls-controls so the filter
-       group stays a group. Same slot listings gives SORT BY and the grid/map switch.
-       IT USED TO BE TWO. Clear Filters stood beside it for one day and came off (Kiron,
-       2026-09-01) because it did the same thing - the page's entire state is the four controls to
-       the left, so "show everybody" and "empty the controls" are one operation. See the markup
-       note for the condition under which a second button earns its place back. */
     .ls-right{ display: flex; align-items: center; gap: var(--space-4); flex: none; }
 
     /* ---- shared pill trigger: SERVICE, STATE and REGION ---- */
     .ls-f{ position: relative; }
-    /* All three pills share --ls-pill-w so the bar reads as one rhythm, content centred.
-       A chosen VALUE is allowed to WRAP TO TWO LINES rather than spill over its neighbour -
-       hence no white-space: nowrap, and hence a min-height rather than a height. */
     .ls-pill{ display: inline-flex; align-items: center; justify-content: center;
       width: var(--ls-pill-w); gap: var(--space-2); text-align: center;
       min-height: 44px; padding: 4px 16px; background: var(--pc-white);
-      /* One step down the palette from --color-border (PC Light Blue) to PC Blue - the same
-         hairline listings uses, carried over deliberately so the two bars are the same weight. */
       border: 1px solid var(--pc-blue); border-radius: var(--radius-pill);
       font-family: var(--font-sans); font-size: 14px; font-weight: 500; line-height: 1.15;
       color: var(--pc-black); cursor: pointer; }
@@ -140,19 +56,12 @@
       box-shadow: inset 0 0 0 1px var(--pc-navy); }
     .ls-pill:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .ls-chev{ font-size: 10px; color: var(--pc-medium-blue); }
-    /* A pill holding a selection REPLACES ITS LABEL WITH IT, so the set state is readable as
-       words: the value itself when exactly one thing is picked, "3 services" when more than one
-       is - listings' own rule. The navy fill is reinforcement, never the signal. */
     .ls-pill.is-set{ background: var(--pc-navy); border-color: var(--pc-navy);
       color: var(--pc-white); }
     .ls-pill.is-set .ls-chev{ color: var(--pc-light-blue); }
     .ls-pill.is-set:focus-visible{ outline-color: var(--pc-black); }
 
     /* ---- SEARCH BY NAME: a real text field, not a popover ---- */
-    /* Listings' .ls-loc, with a magnifier for its pin (≠ 2 - the field takes a person's name,
-       not a place). THE ONLY ELASTIC CONTROL IN THE BAR: it gives width back down to 200px
-       before anything is forced to wrap, and never grows past 340px because the leftover
-       belongs between the filters and the actions. */
     .ls-loc{ display: flex; align-items: center; gap: var(--space-2); min-height: 44px;
       padding: 0 16px; background: var(--pc-white); border: 1px solid var(--pc-blue);
       border-radius: var(--radius-pill); flex: 0 1 340px; min-width: 200px; }
@@ -163,112 +72,27 @@
     .ls-loc input:focus{ outline: none; }
 
     /* ---- popover shared by SERVICE, STATE and REGION ---- */
-    /* z-44 is a DESCENDANT of the z-40 bar, so it resolves inside that layer and can never beat
-       the header - which is the behaviour wanted. Raising it past 45 would have no effect; if a
-       popover ever needs to cross the header, .ls-bar's z-index is the one to change. */
     .ls-pop{ position: absolute; top: calc(100% + 8px); left: 0; z-index: 44;
       min-width: 280px; max-width: calc(100vw - 40px);
       background: var(--pc-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-md); box-shadow: 0 8px 28px rgba(7,22,44,.18);
       padding: var(--space-4); }
     .ls-pop[hidden]{ display: none; }
-    /* ≠ 3: a SCROLLING option list. No listings popover needs one - its longest is nine property
-       types. It exists here as the safety on a long list: the options scroll inside the popover
-       while the Clear/Done row below stays put and reachable, so a list can never run off the
-       bottom of a laptop screen with its actions unreachable.
-       ⚠ STATE NO LONGER RELIES ON IT - 50 states in ten rows measure ~360px and fit outright.
-       It still catches a short viewport, and it is what any future list longer than ten rows will
-       land on. Bounded by the viewport minus the header and the bar, the arithmetic listings'
-       MORE FILTERS panel uses: --ls-bar-h is the bar's measured height (space-4 + 44px control +
-       space-4 + 1px border = 77, rounded to 78). */
     .ls-poplist{ max-height: min(46vh, calc(100vh - var(--navH, 120px) - var(--ls-bar-h, 78px) - 120px));
       overflow-y: auto; overscroll-behavior: contain; }
     .ls-opt{ display: flex; align-items: center; gap: 10px; padding: 9px 4px; cursor: pointer;
       font-family: var(--font-sans); font-size: 14px; line-height: 1.3; color: var(--pc-black); }
     .ls-opt input{ flex: none; width: 18px; height: 18px; accent-color: var(--pc-navy); }
     .ls-opt:hover{ color: var(--pc-navy); }
-    /* .ls-pop-right is UNUSED as of 2026-09-01 - Region gave it up when it and State swapped
-       places, and State's panel is anchored to the bar instead. It is kept because it is part of
-       the listings vocabulary this bar is a copy of (§2.4b), and because the next control added
-       to the right-hand end of the group will want it. Overridden back to left-anchored and
-       viewport-wide at <=639, as it is there. */
     .ls-pop-right{ left: auto; right: 0; }
 
-    /* ---- .ls-pop-wide: the STATE popover, 50 states in 5 columns of 10 ----
-       KIRON, 2026-09-01: all 50, five columns of ten. This is listings' own answer to a list that
-       will not fit one column (.ls-pop-2col there, at nine property types) taken one step further,
-       and the WIDTH is why it needs its own class: a stock .ls-pop is min-width 280px, and
-       min-width beats max-width in CSS, so a wide popover has to override the min or it can never
-       be clamped by the viewport.
-
-       ⚠ IT IS ANCHORED TO THE BAR, NOT TO ITS PILL, AND IT HAS TO BE. STATE is the third of four
-       controls, so a panel this wide cannot hang off it: LEFT-anchored it runs 48px past the
-       viewport at 1280 (measured), and RIGHT-anchored it runs 145px off the LEFT edge at 1279,
-       where the text field has given back its width and the pill has slid left. There is no
-       anchor on that pill that survives both ends of the range. Hanging it from .ls-bar-in's
-       content box instead pins it to the page's own rail, which is a line the visitor can already
-       see, and it cannot overflow at any width the bar is one row at.
-       That is what `.ls-f-static` is for: the State .ls-f gives up `position: relative` so this
-       panel resolves against .ls-bar-in. THE OTHER TWO POPOVERS STILL HANG OFF THEIR PILLS.
-       ⚠ Consequence: the panel does not visually point at the pill that opened it. `aria-controls`
-       and `aria-expanded` still tie the two together for a screen reader, and the panel's own
-       `<legend>State</legend>` names it on screen - which is why the legend is not decoration.
-
-       WHY 50 AND NOT A FOOTPRINT. The twelve-state placeholder was a guess at where PC has people
-       and it read as data; a complete list of states is not a guess at anything. It is honest
-       about being a picker rather than a footprint - and the real footprint, whatever it turns out
-       to be, is a SUBSET of this, so nothing here has to be unlearned. The build should still trim
-       it to the states that have somebody in them (see developer-team.md §2.4c), because 50 rows
-       where 12 have people is a list that lies by omission of the count, not of the names.
-
-       745px = 5 columns of 133 + 4 gaps of 16 + 2 x 16 of popover padding. 133 holds an 18px
-       checkbox, a 10px gap and ~105px of label, which clears the longest state name
-       ("Massachusetts", "South Carolina", "West Virginia" all land near 100px at 14px Inter).
-       Clamped to the viewport, so it is the min() that saves it on a narrow window rather than
-       .ls-pop's max-width, which the min-width override has just disarmed. */
-    /* 900px = 5 columns of ~161 + 4 gaps of 16 + 2 x 16 of popover padding. 161 holds an 18px
-       checkbox, a 10px gap and ~133px of label - and the longest name left on the list,
-       "North Carolina" / "South Carolina", measures ~105px, so every one of the thirty clears its
-       column with ~28px to spare. THAT HEADROOM IS THE POINT: `white-space: nowrap` on its own
-       only converts a wrap into a clip, and the ask was that no name wraps, not that the wrapping
-       be hidden. Width and nowrap together mean nothing wraps AND nothing is cut off.
-
-       THE WIDTH WAS WALKED UP TWICE, so the failures are on the record: 745px left 101px of label
-       and five names wrapped to two lines, which took the row pitch 36 -> 56 and made the block
-       scroll inside its own max-height; 840px stopped the wrap with nowrap but left only ~15px of
-       slack - close enough to the longest name that any font change would have clipped it.
-
-       `top` is 8px under the BAR's content box rather than under the pill, which is where the
-       other two popovers start; the 16px difference is invisible because two popovers can never
-       be open at once.
-
-       `left: var(--rail)`, NOT 0. .ls-bar-in carries the rail as PADDING, so `left: 0` resolves to
-       its border box and the panel opened 32px outside the page's content column - hanging into
-       the margin, out of line with the h1, the cards and every other left edge on the page. The
-       rail puts it back on that line, which is the whole benefit of anchoring to the bar. */
     .ls-pop-wide{ min-width: 0; max-width: none;
-      width: min(900px, calc(100vw - 40px)); left: var(--rail); right: auto; }
-    /* The State .ls-f opts out of being a positioning context - see the .ls-pop-wide note. */
+      width: min(900px, calc(100% - 2 * var(--rail))); left: var(--rail); right: auto; }
     .ls-f-static{ position: static; }
 
-    /* COLUMN-MAJOR, and that is the whole reason this is a grid rather than CSS columns.
-       `grid-auto-flow: column` with 6 explicit rows fills DOWN each column and then across, so
-       the alphabet reads Arkansas..Idaho in the first column - which is how anyone scans for a
-       state, and how a printed list works. CSS multi-column would balance the columns and could
-       leave 5 in one and 7 in another as the box flexes; six rows is six rows.
-       6 x 5 = 30 EXACTLY, so there is no ragged last column. If the list changes length, the row
-       count is the number to change - it is what keeps the column count at five.
-       THE DOM STAYS ALPHABETICAL, so tab order and the visual order agree - the flow is presentation
-       only and no screen-reader user meets a shuffled list. */
-    .ls-checks5{ display: grid; grid-auto-flow: column;
-      grid-template-rows: repeat(6, auto); gap: 2px var(--space-4); }
-    /* minmax(0,1fr) rather than 1fr: a grid column's default min is auto, so one nowrap label
-       wider than its share would push the whole track out and overflow the panel rather than
-       being clipped inside it. */
+    .ls-checks5{ display: grid; grid-auto-flow: row;
+      gap: 2px var(--space-4); }
     .ls-checks5{ grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    /* NOWRAP holds the 36px row pitch. A wrapped label is what broke the first version of this
-       panel; with nowrap a too-narrow column is visible immediately as clipped text rather than
-       silently doubling every row's height. */
     .ls-checks5 .ls-opt{ white-space: nowrap; }
 
     .ls-fieldset{ border: 0; padding: 0; margin: 0; }
@@ -277,10 +101,6 @@
       text-transform: uppercase; color: var(--pc-navy); }
 
     /* ---- popover footer, and the bar's own two actions ---- */
-    /* .ls-clear / .ls-apply are listings' popover-footer pair. They are used in BOTH places
-       here: inside each popover, where listings puts them, and in the bar itself for CLEAR
-       FILTERS and VIEW ALL - which is the same vocabulary doing the same two jobs (undo, and
-       commit) one level up, rather than a second pair of button styles invented for the bar. */
     .ls-actions{ display: flex; align-items: center; justify-content: space-between;
       gap: var(--space-4); margin-top: var(--space-5);
       padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
@@ -294,26 +114,10 @@
     .ls-apply:hover{ background: var(--pc-black); border-color: var(--pc-black); }
     .ls-apply:focus-visible{ outline: 2px solid var(--pc-black); outline-offset: 2px; }
 
-    /* THE COUNT LINE IS NOW INVISIBLE, NOT GONE (Kiron, 2026-09-01: "remove the people count
-       below the filter, and eliminate some of that space").
-
-       IT CARRIES .sr-only, so it takes no space and paints nothing, and it is still in the
-       accessibility tree. THAT IS DELIBERATE AND IT SHOULD STAY THAT WAY: it is a `role="status"`
-       live region, and once the cards are reconnected it is the ONLY thing that tells a
-       screen-reader user the grid changed under them - cards are removed in silence otherwise.
-       Deleting the element would take a sighted visitor's line away AND a blind visitor's only
-       announcement; hiding it takes away only the line.
-       ⚠ .sr-only IS NOT display:none. Do not "tidy" it into one.
-
-       The rules below are dormant while .sr-only holds it: .sr-only is position:absolute with a
-       1px clip, so the type and the margin here have nothing to act on. They are left in place
-       because a count line is the obvious thing to want back next to a 178-person roster. */
     .tm-count{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
       color: var(--color-text-muted); margin: var(--space-5) 0 0; }
     .tm-count b{ color: var(--pc-black); }
 
-    /* Empty state. Not an error - a filter combination with nobody in it is a normal outcome,
-       so it explains and offers the way back rather than apologising. */
     .tm-empty{ padding: var(--space-8) 0; }
     .tm-empty p{ font-family: var(--font-sans); font-size: var(--body-lg);
       color: var(--color-text-muted); margin: 0 0 var(--space-4); max-width: 52ch; }
@@ -322,418 +126,74 @@
       border-radius: var(--radius-pill); padding: 10px 18px; cursor: pointer; }
     .tm-reset:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
-    /* ---- people grid ----
-       FIVE ACROSS (Kiron, 2026-08-31), up from four. At 178 people the row count is what makes
-       the page read as a roster rather than a gallery, and five 4:5 portraits still hold at the
-       top rung. The ladder gains a rung at 1535 so the step down is 5 -> 4 -> 3 -> 2 -> 1 rather
-       than shedding two columns at once. */
-    /* SPACE UNDER THE BAR, and it is the grid's own margin that owns it now (Kiron, 2026-09-01:
-       "eliminate some of that space"). It was --space-7 (48px) under a visible count line that
-       itself sat --space-5 (24px) below the bar, so the bar-to-first-card gap measured ~89px
-       including the line. With the count line hidden the grid hangs straight off the bar, and
-       --space-6 (32px) is what is left: 57px removed, and the gap is now one value in one place
-       rather than two stacked on a line between them. */
     .tm-grid{ display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-5);
       margin-top: var(--space-6); }
 
-    /* `position: relative` IS LOAD-BEARING: it is what the stretched link below anchors to.
-       Without it the overlay would size itself to the nearest positioned ancestor instead. */
     .tm-card{ position: relative; display: flex; flex-direction: column; background: var(--pc-white);
       border: 1px solid var(--color-border); border-radius: var(--radius-md);
       overflow: hidden; transition: box-shadow .18s ease, transform .18s ease; }
     .tm-card:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
     @media (prefers-reduced-motion: reduce){ .tm-card:hover{ transform: none; } }
 
-    /* ---- the entrance: cards LOAD IN when the filter changes ----
-       (Kiron, 2026-08-31: the grid was stagnant - the cards simply appeared.) Filtering used to
-       be a `hidden` toggle, so a set of twenty became a set of three between two frames with
-       nothing to say it had happened. The result set now rises and fades in, staggered, which is
-       what makes it read as the page fetching people rather than the page cutting to them.
-
-       A KEYFRAME ANIMATION, NOT A TRANSITION, and that is the whole reason this is not two lines.
-       `.tm-card` already transitions `transform` for its 3px hover lift. A transition-based
-       entrance would drive the same property from the same element, so a card entering under the
-       pointer would fight its own hover, and the two durations (.18s and .34s) would cross-fade
-       into a wobble. An animation runs on its own timeline and hands `transform` back untouched.
-       ⚠ THE CLASS IS REMOVED ON `animationend`, and it has to be: `both` holds the final frame,
-       which would keep `transform: none` pinned on the card and kill the hover lift for good.
-
-       CAPPED STAGGER. 26ms a card, but no card waits longer than 260ms however many there are -
-       at 178 an uncapped stagger would take four and a half seconds to finish drawing a page. */
     @keyframes tm-cardin{
       from{ opacity: 0; transform: translateY(10px) scale(.985); }
       to{ opacity: 1; transform: none; }
     }
     .tm-card.is-in{ animation: tm-cardin .34s cubic-bezier(.2,.7,.3,1) both; }
-    /* The result still changes, it just changes at once. The count line is the announcement
-       either way, which is what a reduced-motion user is relying on. */
     @media (prefers-reduced-motion: reduce){
       .tm-card.is-in{ animation: none; }
     }
 
-    /* Portrait. See developer-team.md for the export spec.
-       The gradient is the empty state: if a photo fails to load the onerror hides the
-       <img> and the brand gradient shows through, so the grid never breaks — worth keeping
-       even now that all twenty-five srcs are live files, because they are HOTLINKED to the
-       contacts bucket and a renamed or re-uploaded file changes its URL.
-
-       WHERE THE URLS CAME FROM (2026-09-03): the live /team page's own markup. The filename
-       is an opaque per-contact token — `Ca6ikQiZu9C5gtWxZjbmNH8Fh2JyycbbdetvHmzx.jpg` is Molli
-       Hagge — so it CANNOT be derived from a name; a few older records are named instead
-       (`andrew-zellmer.jpg`, `eric-geiger-2019-12-10-200808.jpg`) and one form is no more
-       reliable than the other. In the real build the CMS emits the field; do not pattern-match it.
-
-       THE ORIGINALS ARE SQUARE. The live page renders them `grayscale` and this page does not:
-       ⚠ NO GRAYSCALE, AND NO GRAYSCALE-TO-COLOUR ON HOVER (Kiron, 2026-09-03). The headshots are
-       full colour at rest and full colour on hover. There is no filter on `.tm-ph img` and none
-       should be added — the live page's treatment is a deliberate departure, not an oversight. */
-    /* SQUARE (Kiron, 2026-09-01). Was a 4:5 portrait; every tile is now 1:1, so the tile's height
-       is its width at every rung - 256px square at 1600, 575px square at 639 - and 154px comes
-       off the tallest card in the process.
-
-       `object-position: center top` MATTERS MORE AT 1:1, NOT LESS, and it is why this is not just
-       a ratio swap. A square crop of a portrait original throws away more of the frame than a 4:5
-       one does, and it throws it away from the BOTTOM - so a subject framed centre-frame keeps
-       their head and loses their chest, which is what a headshot wants. Anchored `center` instead,
-       the same crop would take a slice off the top of the head.
-       ⚠ THE CROP SPEC CHANGED WITH IT: 1000 x 1000, not 800 x 1000. See developer-team.md §4. A
-       4:5 master will still render correctly here - `cover` crops it - but it crops blind, so the
-       framing is only as good as the export. */
-    /* NO `container-type` ANY MORE. It was here for one reason - the award badges used to sit on
-       this photo and sized themselves in `cqw` against it. They moved to the card's lower right on
-       2026-09-03 and no longer scale with the tile, so the containment came off with them rather
-       than being left as a layout mode nothing reads. Nothing else in this file uses cq units. */
     .tm-ph{ position: relative; aspect-ratio: 1 / 1; overflow: hidden;
       background: linear-gradient(135deg, var(--pc-black), var(--pc-navy)); }
     .tm-ph img{ display: block; width: 100%; height: 100%; object-fit: cover;
       object-position: center top; }
 
-    /* ---- AWARD BADGES — LOWER RIGHT OF THE CARD, NOT ON THE PHOTOGRAPH ----
-       (Kiron, 2026-09-03: "move the icons off the image and down to the lower right corner of the
-       card (not the photo)".)
-
-       BOTH GLYPHS ARE THE REAL VECTORS, AND NEITHER IS TRACED ANY MORE (Kiron, 2026-09-04, as
-       PC_Logomark-Navy.svg and cowboy-hat.svg in dev-site/assets). Each is drawn as a <symbol>
-       (`#ic-award-hat`, `#ic-award-diamond`, just above the grid) whose paths are lifted
-       byte-for-byte from its file, so both have real curves and no tracing loss. Every badge on
-       the page is a <use> of them, so replacing a glyph is one edit and every size and colour
-       follows.
-       ⚠ THEY NO LONGER SHARE A viewBox, and neither is `0 0 24 24`: each symbol keeps its own
-       file's coordinate space, cropped to that file's ink. The hat is `62.99 60.33 224.05 123.82`
-       and the diamond is `36 36 216 216`. Each symbol's note explains why; a <symbol> carries its
-       own viewBox, so the badges' `<svg viewBox="0 0 24 24">` scales both correctly.
-       ⚠ BOTH ARE NONZERO FILL-RULE, per their files. Do not add `fill-rule="evenodd"` to either —
-       both get their internal white detail from winding direction, and even-odd would wreck it.
-
-       ⚠ A HAT NEVER APPEARS WITHOUT A DIAMOND (Kiron, 2026-09-04: "there will never be a hat
-       where there is no diamond — there could just be a diamond, but the hat will never sit
-       alone"). So a card carries a diamond, or a hat AND a diamond, and never a hat by itself.
-       ORDER IS HAT THEN DIAMOND, left to right, on every card that has both. Nothing enforces
-       either rule in code today: it is a property of the award data, and whatever feeds these
-       badges from the CMS is where it has to hold (see developer-team.md §4.1).
-
-       ============ WHAT MOVING THEM OFF THE PHOTO CHANGED, AND IT IS NOT JUST POSITION ============
-       THE WHOLE TWO-VALUE GLYPH IS GONE, and this is the substantive part of this edit. On the
-       photograph the badge had an unsolvable background: these headshots are not a controlled set —
-       some are shot on PC Black, others on studio white, a sky, foliage — so a white glyph vanished
-       on the light ones and a dark glyph on the dark ones. The answer was a glyph carrying BOTH
-       values itself: white fill plus a dark keyline via `paint-order: stroke`, so the white body
-       read on dark photos and the keyline drew the shape on light ones, plus a drop-shadow for the
-       mid-tones that defeated both.
-       ON A WHITE CARD THERE IS NO SUCH PROBLEM. The background is known, fixed, and the same on
-       every card, so the badge is simply a dark filled glyph. THREE DECLARATIONS CAME OFF WITH THE
-       MOVE — the white fill, the keyline stroke, and the drop-shadow — because each existed only to
-       survive a background this position does not have. Keeping them would have been actively
-       wrong: a white fill on white is invisible, and what would have shown is the 1.5px keyline
-       alone, i.e. a hollow outline of the intended mark.
-       ⚠ IF A BADGE IS EVER PUT BACK OVER A PHOTOGRAPH, that system has to come back with it. It is
-       in the git history at this line; do not reinvent it.
-       THE ART CONSTRAINT SURVIVES THOUGH: the glyphs must be FILLED SHAPES, not stroked line art.
-       Both supplied vectors are, and that still matters — a dark fill on stroked line art would
-       paint the strokes and leave the enclosed areas white, which is a different mark entirely.
-       ⚠ SO IF EITHER GLYPH IS EVER REISSUED, CHECK FOR STROKES BEFORE DROPPING IT IN. Expanding
-       an Illustrator stroke to a filled outline is the fix; painting a stroke with
-       `--tm-award-ink` is not.
-
-       PC NAVY, per the palette's own division of labour: Navy carries fills and accents on white,
-       PC Black is reserved for type. These are marks, not text. 10.7:1 on white — far past any
-       floor, which is what a 20px glyph wants.
-
-       ============ POSITION: ABSOLUTE, AND THE CARD HEIGHT IS WHY ============
-       Absolutely positioned against `.tm-card` (already `position: relative` for the stretched
-       name link), NOT placed in `.tm-cardbody`'s flow. THE FLOW VERSION WOULD BREAK THE GRID: every
-       card is the same height by reserving two title lines on `.tm-role` (see its note), and a
-       badge row in the body would add height to the 11 carded people and not to the other 14 — CSS
-       grid stretches every card in a ROW to the tallest, so 11 awards would have made five rows
-       taller than the rest. That is the exact fault `.tm-role`'s min-height was introduced to fix.
-       Absolute costs zero height, so all 25 cards stay 363px.
-       IT FITS INSIDE THE BODY'S BOTTOM PADDING AND SO CANNOT TOUCH THE TYPE. `.tm-cardbody` ends
-       in 24px of bottom padding, and an 18px badge at `bottom: 3px` sits entirely inside it. So no
-       `padding-right` reserve is needed on `.tm-role`, and the longest title on the page — "Land
-       Management Administrator, UFARM & Crop Insurance Manager", which IS a Cowboy Hat card — keeps
-       its full two-line width.
-       18px, NOT 20px, AND ONE CARD IS WHY. Measured at 20px: Connie Kreikemeier's second line ran
-       7.3px past the badge's left edge with 2.8px of vertical clearance from its ink - not a
-       collision, but a job title tucked under a glyph. 18px lifts that to 4.84px at the same
-       position, and that is the figure the badge size is set by.
-       ⚠ THE BINDING CONSTRAINT IS A TWO-LINE TITLE ON AN AWARD CARD, and pairing every hat with a
-       diamond on 2026-09-04 made it tighter in one axis. RE-MEASURED AT 1536 AFTER THE PAIRING
-       (five across, 256px card, the narrowest the card ever gets):
-         • the cluster is 41px wide now, not 18, so it reaches 23px further left
-         • Connie Kreikemeier's second line runs 16.05px UNDER the cluster horizontally, where a
-           single badge cleared it - and Mollie Aronowitz's title wraps to two lines at this width
-           too, though her line stops 108.52px short of the badges
-         • VERTICAL CLEARANCE IS UNCHANGED AT 4.84px, because a second badge adds width and no
-           height. Nothing touches: the horizontal overlap is under a line that ends 4.84px above
-           the glyph.
-       Every one-line award card clears by 23.33px, because `.tm-role` reserves a second line
-       whether or not it is used, so the badge sits in an empty reserved line.
-       Re-measure BOTH two-line cards if the badge grows, if `--space-5` shrinks, if a third badge
-       is ever added to the cluster, or if another long-titled person wins something. The clearance
-       is not the padding - it is the gap between this glyph and the descenders of a line that only
-       two people on the page have at all.
-       RIGHT: 14px, matching `.tm-cardbody`'s own horizontal padding, so the badge lines up with the
-       left edge of the name above it rather than floating in the corner.
-
-       FIXED px, NOT `cqw`. Sizing tracked the tile when the badge lived on a photograph that ran
-       254px to 573px wide — a fixed badge would have been heavy on the small tile and lost on the
-       large. In the corner of a card it is a mark on a fixed 24px band of padding, so it wants one
-       size at every width; scaling it here would only make it collide with the type on wide cards.
-
-       BOTH GLYPHS GET THE SAME INK, deliberately — shape distinguishes them, not hue, so the pair
-       reads as one system. `--tm-award-ink` is the single value if that changes.
-       ⚠ THEY DO NOT FILL THE SAME BOX, though. See the `.tm-award-diamond` / `.tm-award-hat` note
-       below: both glyphs are sized to ONE shared visible height, 16.2px, which the hat reaches
-       through its width because its art is 1.81:1 rather than square. */
     .tm-awards{ position: absolute; right: 14px; bottom: 3px; z-index: 2;
       display: flex; gap: 5px;
-      /* Decorative overlay — never take the click off the card's stretched link. */
       pointer-events: none;
       --tm-award-ink: var(--pc-navy);
-      /* THE BOX BOTH BADGES OCCUPY. Not the size of either glyph - see below. */
       --tm-award-size: 18px;
 
-      /* ⚠ THE VISIBLE HEIGHT BOTH GLYPHS SHARE (Kiron, 2026-09-04: "I want them to have the same
-         height. With the diamond at 16.2, do the same with the hat"). 16.2px.
-         THIS IS THE NUMBER TO CHANGE if the pair should be bigger or smaller. Both glyphs are
-         derived from it, so they cannot drift apart. */
       --tm-award-glyph: calc(var(--tm-award-size) * 0.9);
 
-      /* THE HAT ART'S OWN ASPECT RATIO, 224.05 / 123.82 from its viewBox - measured with getBBox
-         on the supplied vector, not chosen. It is here because the hat has to be sized by WIDTH
-         (see its rule) while the requirement is about HEIGHT, and this is what converts one to the
-         other. ⚠ RE-MEASURE THIS IF THE HAT ART IS EVER REPLACED: a new file with different
-         proportions would silently break the equal-height match. */
       --tm-hat-aspect: 1.809481; }
+
+    .tm-awards{ display: none; }
+
     .tm-award{ display: block; width: var(--tm-award-size); aspect-ratio: 1 / 1; }
 
-    /* ---- THE TWO GLYPHS MATCH ON VISIBLE HEIGHT, NOT ON BOX SIZE ----
-       (Kiron, 2026-09-04, in three steps: "increase the size of the cowboy hat by 10% and decrease
-       the size of the diamond 10%", then "bump up the size of the hat a little bit", then "I want
-       them to have the same height. With the diamond at 16.2, do the same with the hat.")
-
-       BOTH GLYPHS ARE 16.2px TALL. That is the whole rule, and it is why neither is sized in
-       percentages any more - a percentage of the box is a statement about the box, and what was
-       actually wanted was a statement about the ink.
-
-       ⚠ EQUAL BOXES DO NOT GIVE EQUAL GLYPHS, which is the trap this replaced. The diamond fills
-       its box corner to corner; the hat is wide art, 1.81:1, in a square viewport, so
-       `preserveAspectRatio` fits it to WIDTH and it uses only 1/1.81 of the box vertically. At one
-       box size the hat therefore rendered 18 x 9.95px against the diamond's 17.98 x 18 - little
-       over half the height. Two intermediate steps (+10%, then +20% on the hat) were chasing that
-       gap by eye before it was pinned to a number.
-
-       HOW THE HAT GETS THERE. It cannot be given a height directly - height does not drive its
-       rendered size, width does - so its WIDTH is set to the shared height times the art's own
-       aspect ratio: 16.2 x 1.809481 = 29.31px, which renders 29.31 x 16.2. The arithmetic is in
-       the CSS rather than in a literal, so the two glyphs stay locked together if either the
-       shared height or the art changes.
-
-       ⚠ THE HAT IS STILL THE WIDER MARK, AND THAT IS UNAVOIDABLE. Equal height on a 1.81:1 shape
-       and a 1:1 shape means the hat is 29.31px across where the diamond is 16.2 - nearly twice the
-       width, and more ink overall. Matching height is what was asked for; matching visual WEIGHT
-       would mean the hat ending up shorter than the diamond again.
-
-       WHAT MOVED WITH THIS: the cluster is 50.5px wide now (29.31 + 5 gap + 16.2), up from 42.8, so
-       it reaches further left across a two-line title - see the clearance note above, which is
-       measured against the current numbers.
-       WHAT DID NOT: the vertical clearance, because both boxes are still 18px tall. */
     .tm-award-diamond{ width: var(--tm-award-glyph); }
     .tm-award-hat{ width: calc(var(--tm-award-glyph) * var(--tm-hat-aspect));
-      /* ⚠ THE HEIGHT PIN IS LOAD-BEARING, and more so now that the width is 29.31px. Without it
-         `aspect-ratio: 1/1` would make the box 29.31px SQUARE, putting 13px of unused space above
-         the glyph; because the cluster is anchored `bottom: 3px`, that space pushes the cluster's
-         TOP up into the title. Measured when this was first tried at a width of 19.8px, the
-         two-line cards' clearance fell from 4.84px to 3.05px - the same case the badge size was
-         chosen to avoid (see the note above). At 29.31px square it would be far worse.
-         18px is also the ceiling on the shared glyph height: the pin clips nothing while the ink
-         is 16.2px tall, but a shared height above 18px would need this raised with it. */
       height: var(--tm-award-size); }
     .tm-award svg{ display: block; width: 100%; height: 100%;
       fill: var(--tm-award-ink); stroke: none; }
 
-    /* HORIZONTAL PADDING IS 14px, NOT --space-4 (16px), and it is bought deliberately: every
-       pixel here is a pixel the name does not have. 2px a side is 4px of line, which is what
-       moved the worst name from 2px of slack to 6px. The vertical padding is untouched - it does
-       no work for the name and dropping it would only crowd the card. */
     .tm-cardbody{ display: flex; flex-direction: column; gap: 3px; flex: 1;
       padding: var(--space-4) 14px var(--space-5); }
 
-    /* ================= THE NAME MUST NOT WRAP (Kiron, 2026-09-01) =================
-       "adjust the spacing/sizing so that none of these names wrap."
-
-       WHAT THE NUMBERS SAID. The narrowest the card ever gets is 256px, at 1536 - five across a
-       shrinking box - which left 220px of line under the old 32px of padding. Against that, with
-       everything set at one size:
-         name at 22px, letters at 22px  ->  288px  ("Kyle Walker, AFM, AAC, CAC")
-         name at 22px alone             ->  214px  ("Emily Oberbroeckling")
-       So the 22px name was ALREADY within 6px of overflowing before a single designation was
-       added, and holding 22px for the whole string needed a 17px face, which is smaller than the
-       card's own job title.
-
-       THE FIX IS TWO TYPE SIZES, NOT ONE SMALLER ONE. The name steps 22 -> 20px and the letters
-       are set as their own 12px sans run. That is also how credentials are set in print - they
-       are not part of the name, they qualify it - so the typography and the data agree.
-
-       MEASURED ON THE PAGE, at every rung from 1600 down to 375: NOTHING WRAPS and nothing is
-       clipped. The widest line is 205px against 226px of available line in the narrowest card -
-       21px of slack at 1600 and 1536, 26px at 900, and more everywhere else.
-
-       ⚠ 22px WAS RE-TESTED IN PLACE BEFORE SETTLING ON 20, because 22 was the size Kiron had
-       chosen: at 22px the widest line is 222px against the same 226px of line. It FITS - by 4px.
-       Four pixels is not a margin, it is a coincidence: one longer surname, one font fallback on
-       a machine without EB Garamond, one browser rounding differently, and it wraps. 20px buys
-       21px of slack for 2px of headline. If 22px is wanted back, that is the trade being made,
-       and this is the number to make it against.
-
-       ⚠ THE BINDING CASE IS NOT THE LONGEST NAME. It is "Emily Oberbroeckling, ARA" - a long
-       SURNAME with a short designation beats a short name with three designations
-       ("Kyle Walker, AFM, AAC, CAC"), because the surname is set 8px larger than the letters.
-       Test any new card against that string, not against Kyle Walker.
-
-       ⚠ THERE IS NO `white-space: nowrap` HERE, on purpose. Nowrap would turn the next name too
-       long for the card into CLIPPED TEXT with no sign anything was lost; wrapping is ugly and
-       obvious, which is the failure mode to want. The 21px of slack is the real guarantee, and it
-       is only a guarantee for the 25 names on the page today. */
-    .tm-name{ font-family: var(--font-serif); font-weight: 500; font-size: 20px;
+    .tm-name{ font-family: var(--font-serif); font-weight: 500; font-size: 18px;
       line-height: 1.2; margin: 0;
-      /* A HARD ONE-LINE BOX (Kiron, 2026-09-04). The 2026-09-01 rule was "none of these names
-         wrap", and the sizing below is what makes that true of today's roster - but nothing
-         ENFORCED it, so one long name would have wrapped and taken 24px of card height with it.
-         The clamp makes the rule structural: a name too long for the line ellipsizes instead.
-         ⚠ THE DESIGNATIONS ARE INSIDE THIS BOX. `.tm-desig` is an inline span on the same line,
-         so the clamp measures name + designations together - which is correct, they are one line
-         of type, but it means a short name with four designations is as much at risk as a long
-         name with none. See the measurements in the note above.
-         ⚠ `overflow: hidden` HERE DOES NOT CLIP THE STRETCHED LINK. The `.tm-name a::after`
-         overlay is absolutely positioned against `.tm-card`, not against this element, and an
-         ancestor's overflow only clips descendants whose containing block it is (or contains).
-         Verified: the whole card is still the click target. */
       display: -webkit-box; -webkit-box-orient: vertical;
       -webkit-line-clamp: 1; line-clamp: 1; overflow: hidden; }
-    /* The letters ride the name's baseline at 12px semibold sans, in the muted grey the job title
-       uses - so they read as an annotation on the name rather than as part of it, and the eye
-       still lands on the name first. They sit OUTSIDE the anchor (see the markup note), so they
-       do not take the link's hover colour; that is intended - they are not part of the link. */
     .tm-desig{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
       letter-spacing: .02em; color: var(--color-text-muted); white-space: nowrap; }
     .tm-name a{ color: var(--pc-black); text-decoration: none; }
     .tm-name a:hover{ color: var(--pc-medium-blue); }
 
-    /* ---- THE WHOLE CARD IS THE CLICK TARGET (Kiron, 2026-08-31) ----
-       A STRETCHED LINK, NOT AN ANCHOR WRAPPING THE CARD. The overlay is a pseudo-element on the
-       name's `<a>` covering the card, so the markup keeps ONE anchor whose text is the person's
-       name - which is what a screen reader reads out and what the link list shows. Wrapping the
-       <article> in an <a> would instead give every link the accessible name "Paul Anderson Land
-       Manager" and put a heading inside a link.
-       THIS ONLY BECAME SAFE WHEN THE CARD LOST ITS PHONE AND EMAIL. Interactive elements do not
-       nest, so while those were present an overlay would have covered them and stopped them
-       working. The card now holds exactly one interactive thing, so there is nothing to cover.
-       ⚠ IF A SECOND CONTROL EVER RETURNS TO THE CARD - a save star, a direct-dial link - it needs
-       `position: relative; z-index: 1` to sit above this overlay, or it stops being clickable
-       with no visible sign that anything is wrong. */
     .tm-name a::after{ content: ""; position: absolute; inset: 0; }
 
-    /* THE FOCUS RING GOES ON THE CARD, NOT THE ANCHOR. Keyboard focus lands on a link that is now
-       the size of the card, so a ring drawn around just the name would point at the wrong shape.
-       It cannot go on the ::after either: `.tm-card` is `overflow: hidden`, which clips a
-       descendant's outline - an element's own outline is not clipped by its own overflow, so the
-       ring has to be drawn by the card itself. */
     .tm-card:has(.tm-name a:focus-visible){ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-    /* Fallback for anything without :has() - rings the name rather than nothing at all. */
     @supports not selector(:has(*)){
       .tm-name a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     }
-    /* EVERY CARD IS THE SAME HEIGHT, AND NOW IT IS LOCKED RATHER THAN MERELY TRUE
-       (Kiron, 2026-09-01: all cards at 363, one-line title or two. Kiron, 2026-09-04: "each card
-       has a locked in size of the light blue border - the job title wrapping or not wrapping
-       should not change the height of the card".)
-
-       THE TITLE IS A HARD TWO-LINE BOX - `height: 2.9em` (2 x the 1.45 line-height at this
-       element's own 13px, so it tracks the type rather than hard-coding 38px) plus
-       `-webkit-line-clamp: 2`. RESERVE AND CAP ARE THE SAME NUMBER, which is the whole point: a
-       one-line title cannot shrink the box and a three-line title cannot grow it.
-
-       ⚠ IT WAS A FLOOR BEFORE THIS, AND THAT IS WHY THE HEIGHT WAS NOT ACTUALLY LOCKED.
-       `min-height: 2.9em` held every card at the same height only because no title on the roster
-       needed a third line. Measured by injecting longer text into a live card at 1536: a three-line
-       title grew the card 18.84px, a four-line title 37.69px, and a wrapped name 24px. None of
-       those can happen now.
-
-       WHAT THE CAP COSTS. A title longer than two lines at the narrowest card ellipsizes. NOTHING
-       ON THE PAGE DOES - the longest, "Land Management Administrator, UFARM & Crop Insurance
-       Manager", is exactly two lines at 256px - so this changed no pixel of the page as it stands;
-       it changed what happens to data that has not arrived yet. That is a deliberate reversal of
-       the earlier note here, which said not to clamp because a truncated title reads as a bug. The
-       trade was put to Kiron on 2026-09-04 with the alternative (reserve and cap THREE lines, every
-       card 18.84px taller, two empty lines under the 22 one-line titles) and the clamp was chosen.
-       ⚠ SO A TRUNCATED TITLE IS NOW POSSIBLE, AND IT IS THE ACCEPTED FAILURE MODE. If real data
-       starts ellipsizing, the fix is to reserve and cap three lines - change BOTH the `height` and
-       the `line-clamp` on `.tm-role` together, never one of them.
-
-       WHY THIS AND NOT A HEIGHT ON THE CARD. A height on .tm-card would have to be re-derived
-       every time the tile ratio, the name size or the padding changed - four numbers, one of which
-       (the tile) is a ratio of a width that changes at every breakpoint. Reserving the line where
-       the variation actually comes from means the card's height is still the sum of its parts, and
-       the only thing that changed is that one part stopped being elastic.
-
-       WHAT IT LOOKS LIKE. A one-line title now carries an empty line under it, so the card's
-       bottom padding effectively grows by 19px on those cards. That is the trade: dead space
-       inside a card, in exchange for a grid that never steps.
-
-       ⚠ WHY THE ROWS LOOKED WRONG IN THE FIRST PLACE, because it is worth knowing before touching
-       this: CSS grid stretches every card in a ROW to the tallest one, so a single long title made
-       all five cards in its row 19px taller while the neighbouring rows stayed short. It was never
-       one odd card - it was one odd row, which is why it read as the grid being uneven.
-       At 1600 with 25 people, rows 1 and 3 were 363px (Aronowitz and Baird; Kreikemeier) against
-       344px for rows 2, 4 and 5.
-
-       THE NAME IS CAPPED THE SAME WAY, at one line - see `.tm-name`. It is the other half of the
-       lock: the title was the elastic part anyone would think of, but `.tm-name` had no reserve at
-       all, so a wrapping name was the second way the grid could step.
-
-       ⚠ WHY THE ROWS LOOKED WRONG IN THE FIRST PLACE is still worth knowing before touching this,
-       because it is what the lock is protecting: CSS grid stretches every card in a ROW to the
-       tallest one, so a single long title made all five cards in its row taller while the
-       neighbouring rows stayed short. It was never one odd card - it was one odd row, which is why
-       it read as the grid being uneven.
-
-       MEASURED AFTER THE LOCK - all 25 cards, spread 0px at every breakpoint, and the same two
-       stress tests that used to grow a card now hold it:
-         1536 five across   card 256 x 362.69
-         1280 four across   card 286 x 392.69
-         1100 three across  card 304 x 410.69
-          899 two across    card 405.5 x 512.19 */
-    .tm-role{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45;
+    .tm-role{ font-family: var(--font-sans); font-size: 13px; line-height: 1.3;
       color: var(--pc-black); margin: 2px 0 0;
-      /* A HARD TWO-LINE BOX, NOT A FLOOR. `height`, not `min-height`, plus the clamp below. */
-      height: 2.9em;
+      height: 2.6em;
       display: -webkit-box; -webkit-box-orient: vertical;
       -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
     .tm-office{ font-family: var(--font-sans); font-size: 12px; line-height: 1.4;
       color: var(--pc-navy); margin: 0; }
-    /* Contact rows sit at the bottom of the card so every card's contact block lines up
-       regardless of how many lines the name and role take. */
     .tm-contact{ display: flex; flex-direction: column; gap: 4px; margin-top: auto;
       padding-top: var(--space-4); }
     .tm-contact a{ font-family: var(--font-sans); font-size: 13px; color: var(--pc-navy);
@@ -743,14 +203,6 @@
     .tm-contact a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
     /* ---- pager ---- */
-    /* THE PAGER BAND WAS 224px OF MOSTLY NOTHING (Kiron, 2026-09-01: "reduce the vertical
-       spacing/white space in this section"). It stacked three of the largest steps on the scale
-       around four 44px buttons: --space-8 (64px) of margin above the rule, --space-8 again below
-       it, then --space-9 (96px) under the buttons.
-       Now 32 / 24 / 48. Each still comes off the scale, and the SHAPE of the rhythm is kept -
-       more air above the rule than below it, most air under the buttons where the footer is
-       coming - it is just two steps down the scale instead of at the top of it.
-       The 44px buttons and the 8px gap are untouched: this is white space, not target size. */
     .tm-pager{ display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
       gap: 8px; padding: var(--space-5) 0 var(--space-7);
       border-top: 1px solid var(--color-border); margin-top: var(--space-6); }
@@ -765,70 +217,125 @@
     .tm-page[aria-current="page"]{ background: var(--pc-navy); border-color: var(--pc-navy);
       color: var(--pc-white); }
 
-    /* ---- responsive: steps sit on the shared --site ladder ---- */
+    /* ================= RESPONSIVE =================
+       Every step sits on a --site rung. The rungs, and only these:
+         max-width  1535 . 1279 . 1023 . 899 . 767 . 639 . 503 . 479
+         min-width   480 .  504 .  640 . 768 . 900 . 1024 . 1280 . 1536
+       Blocks run widest to narrowest and several rely on that order. */
+
+    /* ---- 1280-1535: 4-up, card 286 ---- */
     @media (max-width: 1535px){ .tm-grid{ grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 1279px){ .tm-grid{ grid-template-columns: repeat(3, 1fr); } }
+
+    /* ---- 1024-1279: 4-up holds, card 222 - the narrowest on the page.
+           220px of line holds six words, so the title reserves THREE.
+           3.9em is 3 x the 1.3 line-height; change the pair together. ---- */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .tm-role{ height: 3.9em; -webkit-line-clamp: 3; line-clamp: 3; }
+    }
+
+    /* ---- 900-1023: 3-up. The bar keeps ONE row here by narrowing the
+           pills; the STATE panel drops to four columns. ---- */
+    @media (max-width: 1023px){ .tm-grid{ grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 900px) and (max-width: 1023px){
+      .tm-body{ --ls-pill-w: 160px; }
+      .ls-checks5{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    /* ---- 640-899: 2-up, and the card type steps back UP because every
+           card below this rung is wider than every card above it.
+           The bar becomes two rows: search, then pills + VIEW ALL.
+           `display: contents` on .ls-controls is what lets the pills and
+           VIEW ALL share a row - they are in sibling containers. ---- */
     @media (max-width: 899px){
       .tm-grid{ grid-template-columns: repeat(2, 1fr); }
       .tm-intro{ padding-top: var(--space-7); }
-    }
-    /* ---- the bar's own ladder, lifted from listings so both bars break at the same widths.
-         The team bar has two pills where listings has five, so it survives to a narrower
-         viewport before it needs two rows - but the RUNGS are the same, because a visitor
-         moving between the pages should not meet two different reflow points. ---- */
-    @media (max-width: 1023px){
-      /* The filters take a full row and the two actions right-align beneath them. Letting the
-         bar wrap on its own orphans VIEW ALL at the left edge. */
-      .ls-controls{ width: 100%; flex-wrap: wrap; }
-      .ls-right{ width: 100%; justify-content: flex-end; }
-      .ls-loc{ flex: 1 1 240px; }
-    }
-    @media (max-width: 767px){
+      .tm-name{ font-size: 22px; }
+      .tm-role{ font-size: 14px; }
+      .ls-bar-in{ justify-content: flex-start; }
+      .ls-controls{ display: contents; }
       .ls-loc{ flex: 1 1 100%; }
+      .ls-right{ margin-left: auto; }
     }
+    @media (min-width: 640px) and (max-width: 899px){
+      .ls-checks5{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    /* Row two is 3 pills + VIEW ALL; 180px pills need 728px of viewport. */
+    @media (min-width: 640px) and (max-width: 767px){
+      .tm-body{ --ls-pill-w: 144px; }
+    }
+
+    /* ---- 320-767: THE PILL GIVES UP SIDE PADDING AND CHEVRON GAP.
+           Below 768 a pill is 136-149px wide, and the longest chosen value
+           ("Land Brokerage & Auctions") then wraps to a THIRD line, pushing
+           the pill past its 44px min-height so the bar's height moves with
+           the selection. The binding line is "Land Brokerage" at ~100px;
+           16 -> 8 padding and 8 -> 4 gap leave ~106px. Padding alone is not
+           enough. ~6px of slack - re-check if a longer service is added. ---- */
+    @media (max-width: 767px){
+      .ls-f > .ls-pill{ padding: 4px 8px; gap: 4px; }
+    }
+
+    /* ---- 320-639: the phone shape. Each pill takes a full row, the bar
+           stops being sticky, popovers go full width. The two blocks
+           below override parts of this and must stay after it. ---- */
     @media (max-width: 639px){
       .tm-grid{ grid-template-columns: 1fr; }
-      /* Was a step DOWN from 22px; the base is 20px now, so this is a no-op kept as the hook
-         for whatever the phone card wants when responsive is picked up again. */
-      .tm-name{ font-size: 20px; }
-      /* EACH PILL TAKES ITS OWN FULL-WIDTH ROW here, and the third picklist is what forced it.
-         Two pills split a 375px row into 164px each, which a wrapped value survives; THREE split
-         it into 101px, and at 101px a single chosen "Land Brokerage & Auctions" wraps to four
-         lines and pushes the pill past its 44px min-height, so the bar's own height starts moving
-         with the selection. Full width also means a chosen value is readable rather than
-         guessable. Same shape listings takes when its five pills stretch and wrap. */
+      .tm-name{ font-size: 22px; }
       .ls-f{ flex: 1 1 100%; min-width: 0; }
       .ls-f > .ls-pill{ width: 100%; justify-content: space-between; text-align: left; }
       .ls-pop{ left: 0; right: auto; min-width: 0; width: calc(100vw - 40px); }
       .ls-actions{ flex-direction: column-reverse; align-items: stretch; }
       .ls-apply{ width: 100%; }
-      /* ≠ 4, AND IT IS A DIVERGENCE FROM LISTINGS: THE BAR STOPS BEING STICKY HERE.
-         Four filters and two actions stacked full width measure ~320px. Sticky, that parks a
-         third of a phone screen permanently under a 100px header and leaves the roster reading
-         through a slot. listings' bar has the same problem and keeps sticky; this page has one
-         more control than it does and the arithmetic tipped over. The trade is deliberate: on a
-         phone you set the filters once and then scroll the results, so the bar has less to earn
-         its keep than it does on a desktop where it costs 76px and never moves.
-         ⚠ It is STILL STICKY AT 640 AND UP, which is where it was measured and where it stays
-         one row. If a phone-sticky bar is wanted back, the fix is a collapsed
-         "Filters (2)" summary row that expands - not this rule. */
       .ls-bar{ position: static; }
-      /* One action, full width. The `.ls-right .ls-clear` rule that stacked the second button
-         went with Clear Filters. */
       .ls-right{ flex-wrap: wrap; gap: var(--space-3); }
       .ls-right .ls-apply{ flex: 1 1 100%; }
     }
+
+    /* ---- 480-639: two cards across at 208-287px, so the card takes the
+           narrow-card type. The bar is three rows - search, three pills,
+           VIEW ALL full width. All three popovers give up their pill as a
+           positioning context and anchor to the bar instead, or REGION's
+           and STATE's would open off the right edge. ---- */
+    @media (min-width: 480px) and (max-width: 639px){
+      .ls-f{ flex: 1 1 0; min-width: 0; position: static; }
+      .ls-right{ flex: 1 1 100%; justify-content: center; margin-left: 0; }
+      .ls-right .ls-apply{ flex: 1 1 100%; width: 100%; }
+      .ls-pop{ left: var(--rail); right: auto;
+        width: calc(100% - 2 * var(--rail)); padding: var(--space-3); }
+      .ls-checks5{ grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: var(--space-2); }
+      .ls-opt{ gap: 6px; padding: 5px 0; }
+      .tm-grid{ grid-template-columns: repeat(2, 1fr); }
+      .tm-name{ font-size: 18px; }
+      .tm-role{ font-size: 13px; height: 3.9em;
+        -webkit-line-clamp: 3; line-clamp: 3; }
+    }
+
+    /* ---- 320-479: STATE is dropped, so SERVICE and REGION share row two.
+           Picklist rows tighten to 28px (24px of content + 2px a side);
+           24px is the WCAG 2.5.8 target-size floor, do not go below 2px.
+           The pill gives up side padding and chevron gap so a long chosen
+           value stays on two lines and the bar's height cannot move with
+           the selection. Fifteen cards, two pager numbers. ---- */
+    @media (max-width: 479px){
+      .ls-f-static{ display: none; }
+      .ls-f{ flex: 1 1 0; min-width: 0; position: static; }
+      .ls-right{ flex: 1 1 100%; }
+      .ls-pop{ left: var(--rail); right: auto;
+        width: calc(100% - 2 * var(--rail)); }
+      .ls-opt{ gap: 6px; padding: 2px 0; }
+      .tm-grid > .tm-card:nth-of-type(n+16){ display: none; }
+      .tm-pager > .tm-page:nth-of-type(3){ display: none; }
+    }
+
   </style>
 </head>
-
 
 <body>
   <!-- ================= HEADER ================= -->
   <header class="pcf">
     <div class="pcf-inner">
       <div class="pcf-brandrow">
-        <!-- Hamburger: left edge, shown only <=1023 where the inline menus don't fit.
-             Opens #navDrawer, which is built from the same NAV array as the mega panels. -->
         <button class="pcf-burger" id="navBurger" type="button"
                 aria-label="Menu" aria-expanded="false" aria-controls="navDrawer">
           <span></span><span></span><span></span>
@@ -866,13 +373,11 @@
     </div>
   </header>
 
-  <!-- Hamburger drawer (<=1023). Sits under the sticky header; content injected from NAV. -->
   <div class="pcf-drawer-backdrop" hidden></div>
   <div class="pcf-drawer" id="navDrawer" role="region" aria-label="Menu" hidden>
     <div class="pcf-drawer-in"></div>
   </div>
 
-  <!-- ============ INTERACTIVE MAP pull-down tab → map layer ============ -->
   <div class="md-tabwrap">
     <button class="md-tab" type="button" aria-expanded="false" aria-controls="md-layer">Interactive Map <span class="md-chev" aria-hidden="true">▾</span></button>
   </div>
@@ -885,7 +390,6 @@
     </div>
   </div>
 
-  <!-- ================= PAGE CONTENT — team index (skeleton) ================= -->
   <main class="tm-body" aria-label="Page content">
     <div class="tm-wrap">
 
@@ -895,64 +399,16 @@
     </div>
 
     <!-- ---------- search / filter bar ---------- -->
-    <!-- FULL BLEED AND STICKY, so it must be a SIBLING of .tm-wrap and not a child - the wrap is
-         width-capped and rail-padded, and a band inside it would stop at the content edge
-         instead of crossing the page. That is why the wrap closes above and reopens below, and
-         it is the same relationship listings.html has between .listings-wrap and .ls-bar.
-
-         THE STRUCTURE IS LISTINGS.HTML'S, class for class (Kiron, 2026-09-01). Six controls:
-         SEARCH BY NAME as the elastic .ls-loc field, then SERVICE, STATE and REGION as .ls-f
-         pill-plus-popover picklists, then VIEW ALL and CLEAR FILTERS in the .ls-right actions
-         slot. Four filters beside a text field is exactly what listings carries, so the bar is
-         being asked for no more one-row budget than that page already proves.
-
-         ⚠ NOTHING HERE TOUCHES THE CARDS. The controls open, close, write their chosen value
-         back onto their pill and clear each other; the grid does not respond. That is deliberate
-         and it is one flag away - see WIRED in the script at the foot of this page and
-         developer-team.md §2.4a. -->
     <div class="ls-bar">
       <div class="ls-bar-in">
         <div class="ls-controls">
 
-          <!-- SEARCH BY NAME. FIRST in the bar: at 178 people, someone who already knows the
-               name should not have to read a service list first. A plain text field - no
-               autocomplete and no suggestion list is wired, the CMS owns that.
-               `type="search"` keeps the browser's own clear affordance, exactly as listings'
-               location field does; the bespoke × button this page used to draw was dropped with
-               the pill row, because two pages should not offer the same field two ways. -->
           <div class="ls-loc">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
             <input type="search" id="tmSearch" placeholder="Search by Name" aria-label="Search by name"
                    autocomplete="off" spellcheck="false" />
           </div>
 
-          <!-- SERVICE — MULTI-SELECT, so checkboxes, and the popover STAYS OPEN while you pick
-               (Kiron, 2026-09-01: "the user should be able to pick more than one service ... or
-               more than one state"). That is listings.html's own SALE TYPE and PROPERTY TYPE
-               behaviour, so this page is now closer to it than the first pass was, not further.
-               A person genuinely holds more than one service - `data-service` is a LIST - so
-               multi-select is also the shape of the data.
-
-               ⚠ THERE IS NO "ANY SERVICE" OPTION. Kiron, same day: "you can probably eliminate
-               'All Services' as an option ... or any state." NOTHING CHECKED IS THE RESTING
-               STATE, and the pill's own label is what says so - it reads "Service" until
-               something is picked. That is the ONE divergence from listings, which keeps an
-               "Any sale type" leaf inside the popover as a visible clear; here that job belongs
-               to the popover's Clear button and to CLEAR FILTERS in the bar, both of which are
-               plainly reachable. The consequence to know: an empty set and "any" are the same
-               query, so unchecking the last box is not a dead end - it is simply back to
-               unfiltered.
-               NINE services, IN KIRON'S OWN ORDER (2026-09-01), which is no longer the live team
-               page's section order and no longer alphabetical:
-                 Leadership · Corporate Services · Land Brokerage & Auctions · Agricultural
-                 Appraisal · Land Management · Energy Management · Crop Insurance ·
-                 Capital Markets · Operations
-               ⚠ IT IS A SEQUENCE HE GAVE VERBATIM. It is not derived from anything on this page or
-               the live one, so there is no rule to re-derive it from - do not "restore" it to the
-               live page's order, to the mega-menu's order, or to alphabetical. If a tenth service
-               appears, ask where it goes rather than appending it.
-               ⚠ MARKETING IS FOLDED INTO OPERATIONS - the live team page lists Marketing as its
-               own section and those people are Operations here. -->
           <div class="ls-f">
             <button class="ls-pill" id="tmServiceBtn" type="button" data-label="Service"
                     aria-expanded="false" aria-controls="tmServicePop">Service <span class="ls-chev" aria-hidden="true">▾</span></button>
@@ -960,14 +416,6 @@
               <fieldset class="ls-fieldset">
                 <legend>Service</legend>
                 <div class="ls-poplist">
-                  <!-- LEADERSHIP (Kiron, 2026-09-01). FIRST, because the list is the live team
-                       page's own section order and Leadership is that page's first section - move
-                       it if it should sit elsewhere.
-                       ⚠ NO CARD IS LEADERSHIP. The 20-person sample deliberately EXCLUDES
-                       Leadership (see developer-team.md §5) - Steve Bruere and Eric Sarff came off
-                       the roster for it. So this is the one service that, once the cards are
-                       reconnected, returns an EMPTY GRID until Leadership people are put back on
-                       the roster. Every other service has at least one person by design. -->
                   <label class="ls-opt"><input type="checkbox" name="tm-service" value="Leadership" data-key="leadership" /> Leadership</label>
                   <label class="ls-opt"><input type="checkbox" name="tm-service" value="Corporate Services" data-key="corporate" /> Corporate Services</label>
                   <label class="ls-opt"><input type="checkbox" name="tm-service" value="Land Brokerage &amp; Auctions" data-key="brokerage" /> Land Brokerage &amp; Auctions</label>
@@ -986,27 +434,6 @@
             </div>
           </div>
 
-          <!-- REGION — the third control (Kiron, 2026-09-01: "flip the Regions and States in the
-               search", so Region now leads State). Same control, same rules - multi-select, no
-               "any" option.
-               IT GAVE THE RIGHT-ANCHORED POPOVER BACK when it stopped being the last pill: a
-               stock 280px popover opens left-anchored from here with room to spare (measured).
-
-               THE SEVEN REGIONS ARE KIRON'S LIST, verbatim, and they are the PC REGIONAL
-               FOOTPRINT MAP's own region names — which makes this the one geographic control on
-               the page with a real vocabulary behind it. That map also labels Mountain,
-               Appalachian, Northeast and Pacific; those are NOT here, and their absence is
-               Kiron's call rather than an oversight. Do not add them back from the map.
-
-               ⚠ REGION AND STATE OVERLAP, and it is worth deciding before either is wired. Region
-               is the broader cut of the same dimension (Iowa is Midwest), so the two can
-               contradict each other: Iowa + Pacific West is a combination with nobody in it by
-               definition, not because the roster is thin. Three ways out — constrain the State
-               list to whatever Region is chosen, treat the two as OR rather than AND, or drop one.
-               Nothing is decided here; today they are independent single-selects.
-
-               ⚠ NO CARD CARRIES A `data-region`, exactly as none carries a `data-state`. This
-               cannot be wired until the roster has the field. See developer-team.md §2.4c. -->
           <div class="ls-f">
             <button class="ls-pill" id="tmRegionBtn" type="button" data-label="Region"
                     aria-expanded="false" aria-controls="tmRegionPop">Region <span class="ls-chev" aria-hidden="true">▾</span></button>
@@ -1030,31 +457,6 @@
             </div>
           </div>
 
-          <!-- STATE — the fourth control, and now the LAST pill in the group (Kiron,
-               2026-09-01, flipped with Region). Same control, same rules: multi-select checkboxes,
-               no "any" option, nothing checked is unfiltered.
-               ITS POSITION DOES NOT MATTER TO ITS POPOVER, which is the useful part of the flip:
-               the wide panel is anchored to the BAR, not to this pill, so moving the pill moved
-               nothing. Region, by contrast, had to hand back its right-anchor.
-               TWO things are different about this control, both size:
-
-               THIRTY STATES, IN 5 COLUMNS OF 6 (Kiron, 2026-09-01), in a widened popover - see
-               .ls-pop-wide and .ls-checks5 in the <style> for the 900px derivation and for why
-               the grid is column-major. The DOM order is plain alphabetical, so tab order and
-               reading order agree; the columns are presentation only.
-
-               THIS LIST IS KIRON'S, AND IT IS THE FIRST REAL ONE. It went 12 (a Midwest guess
-               that read as data) -> 50 (a picker, honest about being a picker) -> 30, which Kiron
-               produced by checking off the twenty that do not belong and having them removed:
-               Alabama, Alaska, Arizona, Connecticut, Delaware, Hawaii, Maine, Maryland,
-               Massachusetts, New Hampshire, New Jersey, New Mexico, New York, Oklahoma,
-               Pennsylvania, Rhode Island, Texas, Vermont, Virginia, West Virginia.
-               ⚠ DO NOT RE-ADD ANY OF THOSE TWENTY from a state list, a map or a footprint graphic.
-               Their absence is a decision.
-
-               ⚠ NO CARD CARRIES A `data-state`. The live team page publishes no per-person state -
-               the same reason the invented office lines came off the cards. This cannot be wired
-               until the roster has the field. See developer-team.md §2.4c. -->
           <div class="ls-f ls-f-static">
             <button class="ls-pill" id="tmStateBtn" type="button" data-label="State"
                     aria-expanded="false" aria-controls="tmStatePop">State <span class="ls-chev" aria-hidden="true">▾</span></button>
@@ -1103,18 +505,6 @@
 
         </div>
 
-        <!-- The right-hand group. Both sit OUTSIDE .ls-controls so the filter group stays a
-             group and the leftover width collects in one place - the slot listings gives SORT BY
-             and the grid/map switch. See the .ls-right note in the <style> for why there are two
-             buttons here doing one job, and how they are ranked. -->
-        <!-- ONE ACTION, NOT TWO. CLEAR FILTERS came off (Kiron, 2026-09-01: "remove the Clear
-             Filters since it does the same thing as View All") - which it did, exactly: the
-             page's whole state is the four controls to the left, so "show everybody" and "empty
-             the controls" were the same operation wearing two labels. VIEW ALL kept the job
-             because it names the RESULT rather than the mechanism.
-             ⚠ If the page ever gains state that is NOT one of those four controls - a page
-             number, a sort, a saved set - the two stop being synonyms and the second button has a
-             real job again. That is the condition to bring it back on, not a change of mind. -->
         <div class="ls-right">
           <button class="ls-apply" id="tmViewAll" type="button">View All</button>
         </div>
@@ -1122,236 +512,21 @@
     </div>
 
     <div class="tm-wrap">
-      <!-- VISUALLY HIDDEN, STILL ANNOUNCED. See the .tm-count note in the <style> for why this
-           is .sr-only rather than deleted - it is the grid's only live region. -->
       <p class="tm-count sr-only" id="tmCount" role="status" aria-live="polite"></p>
 
-      <!-- ============ SAMPLE ROSTER — 25 REAL PEOPLE ============
-           REAL NAMES AND REAL TITLES, transcribed from peoplescompany.com/team (2026-08-31, the
-           five additions and every designation re-checked against the live page 2026-09-01), so
-           the grid can be judged against the length of actual names and job titles rather than
-           invented ones. Sorted BY LAST NAME (Kiron's call), which is what someone hunting a
-           person they already know expects.
-
-           DESIGNATIONS ARE NOW PRINTED (Kiron, 2026-09-01: "I need to include the AFM or PhD, or
-           any other acronyms after their names"). This REVERSES the earlier call to show
-           "First Name Last Name and the job title" only.
-           NINE of the twenty-five carry one; the other sixteen publish none and NONE IS INVENTED
-           FOR THEM. AFM, AAC, ARA, ALC, CAI, CCIM, CAC, MAI and PhD are professional
-           qualifications - a plausible guess is far worse than an obvious blank.
-           ⚠ THE DESIGNATION IS IN THE <h2> ONLY, AND OUTSIDE THE <a>. `alt` and `data-name` keep
-           the plain name, and all three are on purpose:
-             alt names the person in the photograph - the letters belong to the visible line.
-             data-name is what the search matches; put the letters in it and a search for "alc"
-             returns every ALC on the roster, a credential search dressed up as a name search.
-             OUTSIDE THE ANCHOR, so the link's accessible name is "Emily Oberbroeckling" and not
-             "Emily Oberbroeckling , ARA" - a link list and a screen reader's element list both
-             read better for it, and the stretched ::after still covers the whole card either way.
-           The <h2>'s own text is still the full "Name, LETTERS", so the document outline and
-           anything scraping headings get the credential.
-
-           FIVE PEOPLE ADDED (Kiron, 2026-09-01): "from the list of names that we have not used,
-           find the 5 longest names remaining". Ranked by the DISPLAYED STRING - name plus
-           designations - because that is what the card actually has to fit, and fitting it is the
-           point of the exercise:
-             Kyle Walker, AFM, AAC, CAC   26 characters
-             Toby Trowbridge III, CCIM    25
-             Peter Isaacson, AFM, AAC     24
-             Jason Lestina, ALC, AFM      23
-             Eric Geiger, AFM, AAC        21
-           ⚠ KYLE WALKER IS LEADERSHIP, which had been excluded from this roster - he is the
-           longest unused name on the live page, so he came in with the other four. Two useful
-           side-effects: the Leadership pill is no longer a service with nobody in it, and
-           Leadership is back on the page after being taken off. Steve Bruere and Eric Sarff are
-           still off it. If Leadership should stay out, Walker is the card to pull and the pill
-           goes back to returning nothing.
-
-           TWENTY-FIVE, NOT 178. The live roster is 178 and the page paginates at 28; twenty-five
-           is enough to exercise the grid, every pill and the search. **Every one of the nine
-           services now has at least one person** - that was true of eight of them before and is
-           true of Leadership as of this pass — which is the property that matters: a pill that
-           returns an empty grid would be testing the empty state, not the filter.
-           CONNIE KREIKEMEIER CARRIES TWO SERVICES (`data-service="management crop"`) because the
-           live page lists her under both. That is not a demo convenience: a person genuinely
-           belongs to more than one service, so the field is a LIST and the filter has to match
-           any one of them. Several Leadership entries are double-listed the same way.
-           ⚠ THE OFFICE IS NOT PUBLISHED PER PERSON on the live team page — only the corporate
-           address. Any per-person office on this page would be invented, which is why the card
-           no longer carries one.
-           ⚠ EVERY CARD LINKS TO THE SAME `team-member.html`. Real per-person URLs are §7.
-
-           ⚠ WHO HOLDS AN AWARD IS INVENTED (Kiron, 2026-09-03). The badge treatment is real; the
-           eleven assignments below are not.
-             HAT + DIAMOND  Paul Anderson, Mollie Aronowitz, Jared Chambers, Connie Kreikemeier,
-                            Emily Oberbroeckling, Kyle Walker, Andrew Zellmer
-             DIAMOND ONLY   Dean Batie, Maddie Coury, Jason Lestina, Toby Trowbridge III
-           ⚠ THERE IS NO HAT-ONLY ROW, AND THERE CANNOT BE (Kiron, 2026-09-04: "there will never be
-           a hat where there is no diamond"). Four cards were hat-only and each was given a diamond
-           on 2026-09-04; a hat by itself is invalid award data, not a layout choice. If the CMS ever
-           feeds a hat with no diamond, that is a data fault to fix upstream — nothing on this page
-           checks for it.
-           Eleven of twenty-five, and the seven two-badge cards are what the spacing was measured
-           against: two badges are 41px of card, which is the widest the cluster ever gets.
-           `data-awards` is on the <article> so the CMS shape is obvious and so the pills could
-           filter on it later; nothing reads it today. The awards are NOT in `data-name`, so a
-           search for "diamond" returns nobody — a credential is not a name (same reasoning as
-           the designations above). -->
-      <!-- AWARD GLYPHS, defined once. These are the real marks and the ONLY place the drawing
-           lives — every badge on the page is a <use> of one of them, so replacing a glyph is one
-           edit and every size and colour follows from `.tm-award`.
-           BOTH ARE THE SUPPLIED BRAND VECTORS, LIFTED VERBATIM — the diamond from
-           PC_Logomark-Navy.svg, the hat from cowboy-hat.svg, both in dev-site/assets. Nothing on
-           this page is traced. Each symbol's own note carries its source, what was dropped from it
-           and why. If either is reissued, RE-LIFT THE `d` ATTRIBUTES — do not redraw by eye.
-           ⚠ EACH SYMBOL KEEPS ITS OWN FILE'S COORDINATE SPACE, cropped to that file's ink: the hat
-           is `62.99 60.33 224.05 123.82` and the diamond `36 36 216 216`. Neither is `0 0 24 24`
-           and neither should be made square — see each note.
-           ⚠ THE BADGE <svg> ELEMENTS CARRY NO viewBox, deliberately, so a symbol's viewBox does the
-           ONE AND ONLY fit into the badge's CSS box. Giving them one letterboxes the glyph twice and
-           breaks the sizing outright — the full explanation is in the `.tm-awards` note. -->
       <svg class="tm-award-defs" width="0" height="0" aria-hidden="true" focusable="false"
            style="position:absolute;overflow:hidden">
-        <!-- =============== THE COWBOY HAT, VERBATIM FROM THE SUPPLIED VECTOR ===============
-             (Kiron, 2026-09-04, supplied as dev-site/assets/cowboy-hat.svg - an Illustrator 30.1
-             export, 2,156 bytes, `viewBox="0 0 345 237"`. "The difference is it is black, and
-             needs to be PC Navy, like the diamond.")
-
-             NOT TRACED. NOT REDRAWN. The four `d` attributes below are BYTE-FOR-BYTE the ink paths
-             in that file. This replaced a pixel trace of a 345x237 PNG of the same art, so the
-             bounds are unchanged - the trace measured 224 x 124 and the vector measures
-             224.05 x 123.82 - but the outline is real curves now instead of a staircase of
-             axis-aligned segments, in a quarter of the path data.
-
-             ⚠ THE COLOUR NEEDED NO CHANGE, AND THAT IS WORTH UNDERSTANDING BEFORE EDITING THIS.
-             The file's ink paths carry NO fill attribute at all, so on their own they render black
-             by SVG default - which is what Kiron saw. They are not black by instruction. The badge
-             paints them from the cascade: `.tm-award svg{ fill: var(--tm-award-ink) }`, which is
-             `--pc-navy`. So lifting the paths without their `fill`/`class` IS the fix, and the hat
-             and the diamond are now painted from ONE value. DO NOT hard-code navy on these paths:
-             it would put the colour in two places and break the single-ink rule the pair relies on.
-
-             ⚠ TWO PATHS FROM THE FILE ARE DELIBERATELY NOT HERE, and dropping them was the whole
-             job of importing this:
-               1. A FULL-BLEED WHITE RECTANGLE. The file's first path is `class="st0"` (#fff) and
-                  begins `M0,236.5V0h345v237H0v-.5Z` - measured with getBBox, its bounds are exactly
-                  0,0 345x237, the entire canvas. It is the white ground the art was drawn on. Kept,
-                  and repainted by the cascade, it would have rendered THE BADGE AS A SOLID NAVY
-                  RECTANGLE with the hat invisible inside it. This is the same white plate that had
-                  to be thresholded away when the PNG of this art was traced.
-               2. A REDUNDANT WHITE COUNTER - the file's last path, the swirl inside the crown at
-                  177.8,63.9. It is the SAME outline as a subpath already inside the first ink path,
-                  traversed in the opposite direction, and the file paints it white on top. Here
-                  that subpath is already a HOLE by winding, so the region reads as background
-                  without it. ⚠ APPENDING IT BACK IS NOT HARMLESS: rendered and compared, the two
-                  coincident windings cancel and the crown detail collapses from a clean swoosh to
-                  a thin crescent. Verified against the file as supplied at 250px - the four ink
-                  paths alone reproduce the artwork exactly.
-
-             ⚠ FILL-RULE IS NONZERO - THE FILE'S DEFAULT - AND MUST STAY THAT WAY, same as the
-             diamond. Do not add `fill-rule="evenodd"`. The internal white detail (the crown swirl,
-             the band line, the brim highlights) comes from WINDING DIRECTION, not from even-odd.
-             The trace this replaced needed evenodd because a trace winds every loop the same way;
-             that is now gone from this page entirely and both glyphs are nonzero.
-
-             ⚠ SO THE HIGHLIGHTS ARE HOLES, NOT WHITE INK, and the caveat is the same as the
-             diamond's: this reads correctly only on a known light ground, which on the card is
-             white. Over a photograph the crown swirl and brim lines would fill with whatever pixels
-             sat under them and the hat would lose its internal drawing. If a badge is ever moved
-             back onto the image, those highlights have to become real white paths drawn on top.
-
-             ⚠ THE viewBox IS THE INK'S OWN BOX, "62.99 60.33 224.05 123.82", measured with getBBox
-             rather than assumed - the art sits off-centre in the supplied canvas, with margins of
-             62.99 left, 60.33 top, 57.97 right and 52.85 bottom. Cropping to the ink is what makes
-             the glyph fill the badge; handing it the full 0 0 345 237 would render the hat at 65%
-             of its size, adrift in its box. Keeping the file's coordinate space is what makes
-             "verbatim" true - see the diamond's note, which explains the same decision.
-             THE ART IS WIDE - 1.81:1 - which is why `.tm-award-hat` sizes it by WIDTH: the badge
-             fits this viewBox to whichever side runs out first, and for a 1.81:1 shape in a box
-             wider than it is tall, that is the width. The two glyphs are matched on VISIBLE HEIGHT,
-             16.2px each, measured off the rendered page; see the `.tm-award-hat` rule for how the
-             width is derived from that.
-             ⚠ DO NOT PAD THIS viewBox TOWARDS SQUARE to change the balance - that letterboxes the
-             art inside its own symbol and puts the sizing back in the state described in the
-             .tm-awards viewBox warning. Change `--tm-award-glyph`, or the width factor. -->
         <symbol id="ic-award-hat" viewBox="62.99 60.33 224.05 123.82">
           <path d="M125.4,84.7c1.2-7.1,3.6-13.5,7.6-18.4,4.4-4.5,9-4.7,14.1-2.1l7.2,3.6c-9.5,12.6-14.1.8-18,5.1s0,4.4,1.7,5.3c7,3.8,15.4,1.1,20-5.1,9.6-13.3,27-16.7,41-7.9,16.8,10.6,24.8,32,24.4,51.2-7.4,4.7-13.8,9.3-20.2,15.1-25.6,7.8-60.5,12.2-86.3,1.5l8.4-48.2ZM192.3,92.7c-14.3-14.4-3.8-28-9.9-28.8s-7.7,19.4,5.6,33.2,29.4,18.2,30.8,11.3-12.9-2.1-26.5-15.7Z"/>
           <path d="M257.3,146.9c1,.3,3.2-.8,3.6-1.6,3.1-7.2-25.2-12.7-52,9.7-12.1,10.2-25.8,18.3-41.9,21.2,11.5-8.7,23.9-16.2,31.8-28.3,14.2-22,37.1-35.7,63.8-33.3,5.5.5,11.2,1.9,15.8,4.9,9.5,6.1,11.5,18.4,4.3,27.1-15.1,18.1-53.8,24.7-76.9,19.2,14.5-13.1,31.4-24.6,51.6-18.8Z"/>
           <path d="M181.9,157.3c-9.1,7.2-18.1,14.4-29,19.6-28.9,13.8-67.7,8.5-85.5-21.2-5.1-8.4-7.4-26,2.2-34.5,11.4,9.3,24.1,14.6,38.4,19.2.8,3.4-3.3,8-1.8,10.7s2.2,2,3.4,2.5c23,9,48.3,6.7,72.3,3.7Z"/>
           <path d="M190,149.5c-24.9,4.2-52.7,7.5-77.2-1.3l2.6-9.1c26.8,10.2,53.5,6.9,81.3.9l-6.7,9.5Z"/>
         </symbol>
-        <!-- ================== THE PC LOGOMARK, VERBATIM FROM THE BRAND VECTOR ==================
-             (Kiron, 2026-09-04, supplied as dev-site/assets/PC_Logomark-Navy.svg - an Illustrator
-             30.1 export, 884 bytes, three paths, `viewBox="0 0 288 288"`, fill #11416A.)
-
-             NOT TRACED. NOT REDRAWN. The three `d` attributes below are BYTE-FOR-BYTE the ones in
-             that file. The previous diamond was a pixel trace of the 900x900 pc_blue_mark.png and
-             carried the faceting that comes with tracing; this is the real geometry with real
-             curves, at 1/6th the path data. If the brand file is ever reissued, re-lift the `d`
-             attributes from it rather than editing these.
-
-             ⚠ THE viewBox IS "36 36 216 216", NOT "0 0 24 24" LIKE EVERY OTHER GLYPH HERE, and
-             that is deliberate. Two reasons, and they both point the same way:
-               1. LIFTING THE PATHS VERBATIM MEANS KEEPING THEIR COORDINATE SPACE. Rescaling
-                  288-unit coordinates into a 24-unit box would mean rewriting every number and
-                  reintroducing exactly the rounding loss this file exists to avoid.
-               2. THE ARTWORK IS INSET IN ITS OWN BOX. Measured with getBBox in the browser, the
-                  ink is 215.8 x 216 sitting at x=36.1, y=36 - so the supplied file carries 36
-                  units (12.5%) of padding on all four sides. Handing the badge the full 0 0 288 288
-                  would have rendered the mark 25% smaller than the diamond it replaces, for no
-                  reason. Cropping to the artwork's own square makes it fill the badge box corner
-                  to corner, which is what the previous diamond did.
-             The 0.1 of slack on the left edge is deliberate too - 36 reads as the artwork's
-             intended margin where 36.1 reads as a measurement, and 0.1 of 216 is 0.008px at the
-             badge's rendered size.
-             A <symbol> carries its own viewBox, and the badge <svg>s carry none, so this viewBox
-             does the single fit into the badge's CSS box.
-
-             ⚠ FILL-RULE IS NONZERO - THE FILE'S DEFAULT - AND MUST STAY THAT WAY. Do not add
-             `fill-rule="evenodd"` here. The traced diamond needed evenodd because its subpaths were
-             all wound the same way; an Illustrator compound path instead relies on WINDING
-             DIRECTION, so the "PC" is knocked out of the diamond by being wound against it. Forcing
-             evenodd would re-fill the counters inside the P and the C and turn the letters to mush.
-             THE SECOND AND THIRD PATHS ARE THOSE COUNTERS - the island inside the P's bowl and the
-             one inside the C, painted back in as ink because the letterforms they sit in are holes.
-             That is also why there are three paths and not one.
-
-             ⚠ SO THE LETTERS ARE STILL HOLES, and the caveat from the traced version stands
-             unchanged: this reads correctly only on a known light ground, which on the card is
-             white. Over a photograph the "PC" would fill with whatever pixels sat under it. If a
-             badge is ever moved back onto the image, the letters have to become a real white path
-             drawn on top.
-
-             THE FILE'S OWN NAVY IS #11416A; THE BADGE PAINTS IT #12406A (`--pc-navy`, via
-             `--tm-award-ink`). The `class="st0"` that carried the file's colour is dropped on
-             purpose so the fill comes from the cascade - one ink for the hat and the diamond both,
-             which is what makes the pair read as one system (see the .tm-awards note). The two
-             values are one unit apart per channel and indistinguishable at 18px; if the brand navy
-             is meant to win, change `--tm-award-ink`, not these paths. -->
         <symbol id="ic-award-diamond" viewBox="36 36 216 216">
           <path d="M182,160.5c-4.6-2.5-6.3-6.9-6.3-15.9s1.9-15.1,6.9-17.5c2.5-1.2,6.1-1.7,13.6-1.7h12s25.3,0,25.3,0l-89.4-89.4-108,108,108,108,89.5-89.5h-36c-9.8,0-12.4-.4-15.5-2.1ZM166.7,160.9c-2.5,1.3-6.1,1.7-13.6,1.7h-24v12.1h-14.9v-49.2h37.6c9.8,0,12.4.4,15.5,2.1,4.6,2.5,6.3,6.9,6.3,15.9s-1.9,15.1-6.9,17.5Z"/>
           <path d="M150.8,137.4h-21.8v13.2h21.8c6.1,0,7.9-1.3,7.9-6s-1.4-7.2-7.9-7.2Z"/>
           <path d="M220.2,137.4h0s-21.8,0-21.8,0c-6.1,0-7.9,1.3-7.9,6s1.4,7.2,7.9,7.2h4.7s31.9,0,31.9,0v10.3l16.9-16.9-16.9-16.9v10.3h-14.9Z"/>
         </symbol>
-        <!-- ================= THE SUPERSEDED PLACEHOLDER MARKS, KEPT FOR COMPARISON =============
-             (Kiron, 2026-09-03: "change a couple of the people back to the original diamond and
-             cowboy hat, just to show the differences between the old hat and new hat, as well as
-             the two different diamonds".)
-             ⚠ NOTHING REFERENCES THESE AND THEY MUST NOT SHIP (Kiron, 2026-09-04: "change out the
-             other hat and other diamond with these where applicable"). The comparison is over: Paul
-             Anderson and Kyle Walker, the two cards that were showing the old pair, now point at
-             the real art like every other badge. These two <symbol>s are kept only so the old and
-             new drawings can still be put side by side while the vector originals are being
-             sourced. DELETING THIS BLOCK IS THE WHOLE CLEANUP - no <use> resolves to it.
-             WHAT THEY WERE: hand-authored approximations made before either piece of real art was
-             available - the hat from a verbal description, the diamond as a four-point star with
-             concave sides that was never the PC mark at all.
-             THEY ARE SHOWN IN THE NEW TREATMENT, NOT THE OLD ONE - same 18px box, same PC Navy
-             fill, same corner position - which is the only fair way to compare artwork. Their
-             original treatment was a white fill with a dark keyline and a drop-shadow, because they
-             used to sit on the photograph; rendered that way here they would be white on white. So
-             this compares the DRAWINGS, not the two positions.
-             NOTE THE HAT HAS NO fill-rule: it is two solid subpaths, crown and brim, with no
-             knocked-out highlights - which is most of what distinguishes it from the real art. -->
         <symbol id="ic-award-hat-legacy" viewBox="0 0 24 24">
           <path d="M7.5 13.3c-.5-2.6-.5-5 .2-6.8.5-1.3 1.4-1.8 2.2-1.2.7.5 1.2 1.1 2.1 1.1s1.4-.6 2.1-1.1c.8-.6 1.7-.1 2.2 1.2.7 1.8.7 4.2.2 6.8z M1.7 13.5c-.5-.2-.9.4-.6 1.1C2.9 18 7.1 20.2 12 20.2s9.1-2.2 10.9-5.6c.3-.7-.1-1.3-.6-1.1-2.1.9-5.9 1.5-10.3 1.5s-8.2-.6-10.3-1.5z"/>
         </symbol>
@@ -1691,17 +866,11 @@
 
       </div>
 
-      <!-- EMPTY STATE. Hidden until a filter combination returns nobody. -->
       <div class="tm-empty" id="tmEmpty" hidden>
         <p>No one matches that combination. Try a different service, or clear the search.</p>
         <button class="tm-reset" id="tmReset" type="button">Show all 20 people</button>
       </div>
 
-      <!-- ⚠ THE PAGER IS A STATIC PLACEHOLDER, and with 20 sample people it cannot be
-           anything else: the live page holds 178 and paginates at 28, which is seven pages.
-           It is left visible so the control is on the page to be designed against, and it is
-           HIDDEN BY SCRIPT the moment a filter or search is active, because three results
-           obviously do not span three pages. Wire it to the real roster with the filters. -->
       <nav class="tm-pager" id="tmPager" aria-label="Team pages">
         <a class="tm-page" href="./team.html" aria-current="page">1</a>
         <a class="tm-page" href="./internal.html">2</a>
@@ -1712,7 +881,6 @@
     </div>
   </main>
 
-
   <!-- ================= FOOTER ================= -->
   <footer class="pff">
     <div class="pff-main">
@@ -1721,8 +889,6 @@
         <a class="pff-connect-logo" href="./internal.html" aria-label="Peoples Company home">
           <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
         </a>
-        <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
-             Keeps one line where it fits (>=1536) instead of a hard <br> everywhere. -->
         <p class="pff-connect-line">Stay Connected and Subscribe to&nbsp;Our&nbsp;Newsletter.</p>
         <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
           <input type="email" placeholder="Email Address" aria-label="Email address" required />
@@ -1732,16 +898,10 @@
 
       <div class="pff-inner pff-grid">
         <div class="pff-brand pff-col">
-          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
-               design puts it between the rule and "Corporate Office". Exactly one footer
-               lockup is visible at any width. -->
           <a class="pff-brand-logo" href="./internal.html" aria-label="Peoples Company home">
             <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
           </a>
           <h3>Corporate Office</h3>
-          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
-               row separated by "|" (CSS can't attach a separator to a bare text node). The
-               <br>s are kept for every other width, where the block still stacks. -->
           <p class="pff-contact">
             <span>1108 S. 44th Street, Suite 102</span><br />
             <span>Cumming, IA 50061</span><br />
@@ -1828,9 +988,6 @@
     </div>
   </footer>
 
-  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
-       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
-       The open card carries the same alert icon as the handle. -->
   <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
     <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
     <div class="pc-toast-body">
@@ -1844,32 +1001,13 @@
     <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
   </aside>
 
-  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
-       open; at <=1279px the JS starts minimized and this handle shows instead. -->
   <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
     <span>Auction Alerts</span>
   </button>
 
   <script>
-    /* ================= THE TEAM FINDER =================
-       Five controls: Search by Name · Service · State · View All · Clear Filters.
 
-       THE CONTROLLERS ARE LISTINGS.HTML'S (Kiron, 2026-09-01, "the same structure that is on
-       listings.html"). The popover controller below is that page's, verbatim: one popover open at
-       a time, Esc closes and returns focus, an outside click closes, and a pill's label is
-       rewritten from data-label when its value is cleared. Keeping the code identical rather than
-       merely similar is what stops the two bars drifting apart in behaviour while looking alike.
-
-       ⚠ SECOND COPY. See the note above .ls-bar in the <style>: these rules and this controller
-       live in listings.html too, and until the pattern is promoted out of both pages every
-       change has to be made twice. listings.html is the reference copy.
-
-       ⚠ THE CARDS DO NOT RESPOND. Everything here is chrome - see WIRED below. */
-
-    /* ---- popover pills (SERVICE, STATE, REGION) ----
-       Lifted from listings.html unchanged. ONE controller for all three, so they cannot drift -
-       it binds every `.ls-f > .ls-pop` on the page, so a fourth picklist would need no JS. */
     (function(){
       var pops = [].slice.call(document.querySelectorAll(".ls-f > .ls-pop")).map(function(pop){
         return { pop: pop, btn: document.querySelector('[aria-controls="' + pop.id + '"]') };
@@ -1892,9 +1030,6 @@
           if(!isOpen){
             p.pop.hidden = false;
             p.btn.setAttribute("aria-expanded", "true");
-            /* Focus the FIRST CHECKED box rather than the top of the list - opening a picklist
-               should land on where you already are. Falls back to the first focusable thing,
-               which is what happens in the resting state, since nothing is checked then. */
             var first = p.pop.querySelector("input:checked") || p.pop.querySelector("input, button");
             if(first) first.focus();
           }
@@ -1906,23 +1041,12 @@
         var open = pops.filter(function(p){ return !p.pop.hidden; });
         if(open.length) closeAll(null, true);
       });
-      /* A click anywhere outside every .ls-f closes whatever is open. Guarded on the popover's
-         own subtree so choosing an option inside one does not close its neighbour. */
       document.addEventListener("click", function(e){
         if(e.target.closest && e.target.closest(".ls-f")) return;
         closeAll(null, false);
       });
     })();
 
-    /* ---- SERVICE, STATE and REGION, and the bar's two actions ----
-       MULTI-SELECT (Kiron, 2026-09-01), so checkboxes, and the popover does NOT close when
-       something is picked - you are usually picking more than one thing. Getting out is Esc, an
-       outside click, the pill itself (all three come free from the shared popover controller
-       above) or the Done button. That is listings' SALE TYPE / PROPERTY TYPE behaviour exactly.
-
-       ⚠ NO "ANY" OPTION IN ANY OF THE THREE, and that IS the divergence from listings. Nothing
-       checked is the resting state, and the pill's own label carries it. Clearing therefore means
-       unchecking, which the popover's Clear and the bar's CLEAR FILTERS both do. */
     (function(){
       var grid   = document.getElementById("tmGrid");
       var search = document.getElementById("tmSearch");
@@ -1937,33 +1061,8 @@
       var total = cards.length;
       var lastSig = null;
 
-      /* ================================================================================
-         ⚠ THE FILTER BAR IS DISCONNECTED FROM THE CARDS (Kiron, 2026-09-01).
-
-         WHAT IS DISCONNECTED: not one card is hidden, shown, counted or re-animated by anything
-         in the bar. All `total` cards stand at all times, the count line reads the flat total,
-         the empty state cannot appear and the pager always stands.
-
-         WHAT WORKS, deliberately, so the bar can be designed against: all three picklists open,
-         close, take any number of values, write the selection back onto their pill, take the
-         navy is-set fill and clear themselves; the search field accepts text; View All and Clear
-         Filters reset all four controls.
-
-         TO RECONNECT: flip this flag and give apply() its filtering body back. The matching rule
-         is at §2.4c of developer-team.md - substring, case-insensitive, anywhere in the
-         pre-lowercased data-name; data-service is a SPACE-SEPARATED LIST compared with both sides
-         padded, so " crop " can never match inside a neighbouring token.
-         ⚠ MULTI-SELECT CHANGES THE QUERY SHAPE: within one picklist several values are an OR
-         (Land Management OR Crop Insurance), while the picklists AND with each other and with
-         the name. Getting that backwards is the easy mistake - an AND inside a picklist returns
-         only the handful of people carded under every service picked at once.
-         ⚠ NEITHER STATE NOR REGION CAN BE WIRED AT ALL: no card carries a data-state or a
-         data-region, and those two dimensions also overlap (see the REGION markup).
-         ================================================================================ */
       var WIRED = false;
 
-      /* Clear the entrance class the moment it finishes, so `animation-fill-mode: both` stops
-         holding `transform: none` on the card and the hover lift works again. */
       for(var k = 0; k < cards.length; k++){
         cards[k].addEventListener("animationend", function(){
           this.classList.remove("is-in");
@@ -1971,9 +1070,6 @@
         });
       }
 
-      /* ONE REFLOW, NOT ONE PER CARD. Removing the class from all of them, reading a layout
-         property ONCE, then adding it back is what restarts the animation; the read inside the
-         loop would force twenty synchronous layouts here and 178 on the real page. */
       function play(visible){
         for(var i = 0; i < visible.length; i++){
           visible[i].classList.remove("is-in");
@@ -1986,10 +1082,6 @@
         }
       }
 
-      /* One pill = one checkbox group. `plural` is the word the pill uses when it has to count
-         instead of name ("3 services"), so each group says its own noun rather than sharing a
-         vague one. `keys` is what a wired filter would compare against - data-key on the service
-         boxes, the visible value elsewhere. */
       var chev = ' <span class="ls-chev" aria-hidden="true">\u25be</span>';
       function pillGroup(btnId, popId, boxName, plural){
         var btn = document.getElementById(btnId), pop = document.getElementById(popId);
@@ -2000,10 +1092,6 @@
 
         function on(){ return boxes.filter(function(b){ return b.checked; }); }
 
-        /* THE PILL NAMES THE SELECTION WHEN IT CAN AND COUNTS WHEN IT CANNOT - listings' rule,
-           and the reason is width: "Land Brokerage & Auctions" already wraps to two lines inside
-           a 180px pill, so two or three of them could never be spelled out. One value is named
-           because that is the case where naming fits and is worth more than a number. */
         g.paint = function(){
           var sel = on();
           g.keys   = sel.map(function(b){ return b.getAttribute("data-key") || b.value; });
@@ -2018,12 +1106,9 @@
           g.paint();
         };
 
-        /* NO CLOSE ON CHANGE - multi-select. Just repaint and let apply() run. */
         boxes.forEach(function(b){
           b.addEventListener("change", function(){ g.paint(); apply(); });
         });
-        /* Clear leaves the popover OPEN, because you are still choosing. Done closes it and
-           hands focus back to the pill, which is now carrying what you picked. */
         var c = pop.querySelector("[data-clear]"), d = pop.querySelector("[data-done]");
         if(c) c.addEventListener("click", function(){ g.clear(); apply(); });
         if(d) d.addEventListener("click", function(){
@@ -2036,15 +1121,11 @@
       var svcG = pillGroup("tmServiceBtn", "tmServicePop", "tm-service", "services");
       var stG  = pillGroup("tmStateBtn",   "tmStatePop",   "tm-state",   "states");
       var rgG  = pillGroup("tmRegionBtn",  "tmRegionPop",  "tm-region",  "regions");
-      /* The order here is the order they clear in, and it matches the bar left to right. */
       var groups = [svcG, stG, rgG].filter(Boolean);
 
       function apply(){
         var q = search ? search.value.trim().toLowerCase() : "";
 
-        /* THE DISCONNECTED PATH (see WIRED above). Every card shown, nothing counted, nothing
-           hidden. `lastSig` is still set so the entrance plays exactly once - on load - rather
-           than restarting under the reader on every keystroke. */
         if(!WIRED){
           for(var n = 0; n < cards.length; n++){ cards[n].hidden = false; }
           if(count) count.innerHTML = "<b>" + total + "</b> people";
@@ -2055,18 +1136,8 @@
           return;
         }
 
-        /* THE WIRED PATH IS DELIBERATELY NOT LEFT HALF-WRITTEN HERE. Reconnecting the cards is
-           its own pass (Kiron: the filter section first, the cards second), and a body that
-           filters on Service and silently ignores State - the dimension the cards have no data
-           for - would look finished and be wrong. developer-team.md §2.4 holds the matching
-           rule to build it from. */
       }
 
-      /* VIEW ALL empties all four controls: the page's whole state IS those four, so "show
-         everybody" and "empty the controls" are the same operation - which is why there is only
-         one button here now (§ the .ls-right note in the <style>).
-         Focus goes to the search field afterwards, so the keyboard is left at the top of the bar
-         ready to start again rather than on a button that has just stopped doing anything. */
       function clearEverything(){
         if(search) search.value = "";
         groups.forEach(function(g){ g.clear(); });
@@ -2074,7 +1145,6 @@
         if(search) search.focus();
       }
       if(viewAll) viewAll.addEventListener("click", clearEverything);
-      /* The empty state's own reset, kept wired for when the cards come back. */
       if(reset) reset.addEventListener("click", clearEverything);
 
       if(search) search.addEventListener("input", apply);
@@ -2382,9 +1452,22 @@
         els.forEach(function(el){ el.classList.add("in"); });
         return;
       }
+      // THRESHOLD 0 + A ROOT MARGIN, NOT A PERCENTAGE - AND THE GRID IS WHY (fixed 2026-09-04).
+      // A ratio threshold asks for a FRACTION OF THE ELEMENT to be on screen, which is fine for
+      // a band a few hundred pixels tall and impossible for one taller than the window.
+      // `.tm-grid` is a single .reveal element holding all 25 cards, so its height moves with the
+      // column count: 1,877px at 1536, but 4,517 at 480 and 11,646 at 375. At the old 0.12 that
+      // asked for 1,397px of it to be visible at once on a 375px phone - more than the viewport
+      // has - so it NEVER intersected, `.in` was never added, and `.reveal{ opacity: 0 }` left
+      // THE WHOLE ROSTER INVISIBLE below about 480. The page looked empty under the filter bar.
+      // Threshold 0 fires as soon as any part of the element enters, which cannot fail on height;
+      // the -64px bottom margin keeps the "reveal slightly after it appears" feel the ratio was
+      // there for.
+      // NOTE: every page carrying this block has the same observer. Only team.html has an element
+      // tall enough to trip it today, but the fix belongs anywhere the pattern is copied.
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
-      }, { threshold: 0.12 });
+      }, { threshold: 0, rootMargin: "0px 0px -64px 0px" });
       els.forEach(function(el){ io.observe(el); });
     })();
 
@@ -2410,11 +1493,6 @@
       if(x){ x.addEventListener("click", minimize); }
       if(reopen){ reopen.addEventListener("click", restore); }
 
-      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
-         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
-         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
-         never auto-restores, so once the visitor opens the handle it stays open, and a
-         toast never pops itself back open mid-resize. */
       var TOAST_NARROW = 1279, userChose = false;
       function narrowCheck(){
         if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
