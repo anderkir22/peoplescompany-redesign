@@ -412,9 +412,25 @@
        (Kiron, 2026-09-03: "move the icons off the image and down to the lower right corner of the
        card (not the photo)".)
 
-       ⚠ THE ART IS STILL A PLACEHOLDER. Both glyphs are drawn as <symbol>s (`#ic-award-hat`,
-       `#ic-award-diamond`, just above the grid); when the real artwork arrives, replace the two
-       symbol bodies and nothing else — every badge is a <use> of them, so the swap is one edit.
+       BOTH GLYPHS ARE THE REAL VECTORS, AND NEITHER IS TRACED ANY MORE (Kiron, 2026-09-04, as
+       PC_Logomark-Navy.svg and cowboy-hat.svg in dev-site/assets). Each is drawn as a <symbol>
+       (`#ic-award-hat`, `#ic-award-diamond`, just above the grid) whose paths are lifted
+       byte-for-byte from its file, so both have real curves and no tracing loss. Every badge on
+       the page is a <use> of them, so replacing a glyph is one edit and every size and colour
+       follows.
+       ⚠ THEY NO LONGER SHARE A viewBox, and neither is `0 0 24 24`: each symbol keeps its own
+       file's coordinate space, cropped to that file's ink. The hat is `62.99 60.33 224.05 123.82`
+       and the diamond is `36 36 216 216`. Each symbol's note explains why; a <symbol> carries its
+       own viewBox, so the badges' `<svg viewBox="0 0 24 24">` scales both correctly.
+       ⚠ BOTH ARE NONZERO FILL-RULE, per their files. Do not add `fill-rule="evenodd"` to either —
+       both get their internal white detail from winding direction, and even-odd would wreck it.
+
+       ⚠ A HAT NEVER APPEARS WITHOUT A DIAMOND (Kiron, 2026-09-04: "there will never be a hat
+       where there is no diamond — there could just be a diamond, but the hat will never sit
+       alone"). So a card carries a diamond, or a hat AND a diamond, and never a hat by itself.
+       ORDER IS HAT THEN DIAMOND, left to right, on every card that has both. Nothing enforces
+       either rule in code today: it is a property of the award data, and whatever feeds these
+       badges from the CMS is where it has to hold (see developer-team.md §4.1).
 
        ============ WHAT MOVING THEM OFF THE PHOTO CHANGED, AND IT IS NOT JUST POSITION ============
        THE WHOLE TWO-VALUE GLYPH IS GONE, and this is the substantive part of this edit. On the
@@ -433,9 +449,11 @@
        ⚠ IF A BADGE IS EVER PUT BACK OVER A PHOTOGRAPH, that system has to come back with it. It is
        in the git history at this line; do not reinvent it.
        THE ART CONSTRAINT SURVIVES THOUGH: the glyphs must be FILLED SHAPES, not stroked line art.
-       The hat's crown and brim are subpaths of ONE path so they union into a single body — that
-       still matters, because a dark fill on stroked line art would paint the strokes and leave the
-       enclosed areas white, which is a different mark from the reference.
+       Both supplied vectors are, and that still matters — a dark fill on stroked line art would
+       paint the strokes and leave the enclosed areas white, which is a different mark entirely.
+       ⚠ SO IF EITHER GLYPH IS EVER REISSUED, CHECK FOR STROKES BEFORE DROPPING IT IN. Expanding
+       an Illustrator stroke to a filled outline is the fix; painting a stroke with
+       `--tm-award-ink` is not.
 
        PC NAVY, per the palette's own division of labour: Navy carries fills and accents on white,
        PC Black is reserved for type. These are marks, not text. 10.7:1 on white — far past any
@@ -456,13 +474,24 @@
        its full two-line width.
        18px, NOT 20px, AND ONE CARD IS WHY. Measured at 20px: Connie Kreikemeier's second line ran
        7.3px past the badge's left edge with 2.8px of vertical clearance from its ink - not a
-       collision, but a job title tucked under a glyph. 18px lifts that to 4.8px at the same
-       position. Nothing else on the roster came close: every other award card has a one-line title,
-       which clears by 21.7px because `.tm-role` reserves a second line whether or not it is used.
-       ⚠ SO THE BINDING CONSTRAINT IS A TWO-LINE TITLE ON AN AWARD CARD, and there is exactly one
-       today. Re-measure that card if the badge grows, if `--space-5` shrinks, or if a second
-       long-titled person wins something. The clearance is not the padding - it is the gap between
-       this glyph and the descenders of a line that only two people on the page have at all.
+       collision, but a job title tucked under a glyph. 18px lifts that to 4.84px at the same
+       position, and that is the figure the badge size is set by.
+       ⚠ THE BINDING CONSTRAINT IS A TWO-LINE TITLE ON AN AWARD CARD, and pairing every hat with a
+       diamond on 2026-09-04 made it tighter in one axis. RE-MEASURED AT 1536 AFTER THE PAIRING
+       (five across, 256px card, the narrowest the card ever gets):
+         • the cluster is 41px wide now, not 18, so it reaches 23px further left
+         • Connie Kreikemeier's second line runs 16.05px UNDER the cluster horizontally, where a
+           single badge cleared it - and Mollie Aronowitz's title wraps to two lines at this width
+           too, though her line stops 108.52px short of the badges
+         • VERTICAL CLEARANCE IS UNCHANGED AT 4.84px, because a second badge adds width and no
+           height. Nothing touches: the horizontal overlap is under a line that ends 4.84px above
+           the glyph.
+       Every one-line award card clears by 23.33px, because `.tm-role` reserves a second line
+       whether or not it is used, so the badge sits in an empty reserved line.
+       Re-measure BOTH two-line cards if the badge grows, if `--space-5` shrinks, if a third badge
+       is ever added to the cluster, or if another long-titled person wins something. The clearance
+       is not the padding - it is the gap between this glyph and the descenders of a line that only
+       two people on the page have at all.
        RIGHT: 14px, matching `.tm-cardbody`'s own horizontal padding, so the badge lines up with the
        left edge of the name above it rather than floating in the corner.
 
@@ -471,14 +500,75 @@
        large. In the corner of a card it is a mark on a fixed 24px band of padding, so it wants one
        size at every width; scaling it here would only make it collide with the type on wide cards.
 
-       BOTH GLYPHS GET THE SAME TREATMENT, deliberately — shape distinguishes them, not hue, so the
-       pair reads as one system. `--tm-award-ink` is the single value if that changes. */
+       BOTH GLYPHS GET THE SAME INK, deliberately — shape distinguishes them, not hue, so the pair
+       reads as one system. `--tm-award-ink` is the single value if that changes.
+       ⚠ THEY DO NOT FILL THE SAME BOX, though. See the `.tm-award-diamond` / `.tm-award-hat` note
+       below: both glyphs are sized to ONE shared visible height, 16.2px, which the hat reaches
+       through its width because its art is 1.81:1 rather than square. */
     .tm-awards{ position: absolute; right: 14px; bottom: 3px; z-index: 2;
       display: flex; gap: 5px;
       /* Decorative overlay — never take the click off the card's stretched link. */
       pointer-events: none;
-      --tm-award-ink: var(--pc-navy); }
-    .tm-award{ display: block; width: 18px; aspect-ratio: 1 / 1; }
+      --tm-award-ink: var(--pc-navy);
+      /* THE BOX BOTH BADGES OCCUPY. Not the size of either glyph - see below. */
+      --tm-award-size: 18px;
+
+      /* ⚠ THE VISIBLE HEIGHT BOTH GLYPHS SHARE (Kiron, 2026-09-04: "I want them to have the same
+         height. With the diamond at 16.2, do the same with the hat"). 16.2px.
+         THIS IS THE NUMBER TO CHANGE if the pair should be bigger or smaller. Both glyphs are
+         derived from it, so they cannot drift apart. */
+      --tm-award-glyph: calc(var(--tm-award-size) * 0.9);
+
+      /* THE HAT ART'S OWN ASPECT RATIO, 224.05 / 123.82 from its viewBox - measured with getBBox
+         on the supplied vector, not chosen. It is here because the hat has to be sized by WIDTH
+         (see its rule) while the requirement is about HEIGHT, and this is what converts one to the
+         other. ⚠ RE-MEASURE THIS IF THE HAT ART IS EVER REPLACED: a new file with different
+         proportions would silently break the equal-height match. */
+      --tm-hat-aspect: 1.809481; }
+    .tm-award{ display: block; width: var(--tm-award-size); aspect-ratio: 1 / 1; }
+
+    /* ---- THE TWO GLYPHS MATCH ON VISIBLE HEIGHT, NOT ON BOX SIZE ----
+       (Kiron, 2026-09-04, in three steps: "increase the size of the cowboy hat by 10% and decrease
+       the size of the diamond 10%", then "bump up the size of the hat a little bit", then "I want
+       them to have the same height. With the diamond at 16.2, do the same with the hat.")
+
+       BOTH GLYPHS ARE 16.2px TALL. That is the whole rule, and it is why neither is sized in
+       percentages any more - a percentage of the box is a statement about the box, and what was
+       actually wanted was a statement about the ink.
+
+       ⚠ EQUAL BOXES DO NOT GIVE EQUAL GLYPHS, which is the trap this replaced. The diamond fills
+       its box corner to corner; the hat is wide art, 1.81:1, in a square viewport, so
+       `preserveAspectRatio` fits it to WIDTH and it uses only 1/1.81 of the box vertically. At one
+       box size the hat therefore rendered 18 x 9.95px against the diamond's 17.98 x 18 - little
+       over half the height. Two intermediate steps (+10%, then +20% on the hat) were chasing that
+       gap by eye before it was pinned to a number.
+
+       HOW THE HAT GETS THERE. It cannot be given a height directly - height does not drive its
+       rendered size, width does - so its WIDTH is set to the shared height times the art's own
+       aspect ratio: 16.2 x 1.809481 = 29.31px, which renders 29.31 x 16.2. The arithmetic is in
+       the CSS rather than in a literal, so the two glyphs stay locked together if either the
+       shared height or the art changes.
+
+       ⚠ THE HAT IS STILL THE WIDER MARK, AND THAT IS UNAVOIDABLE. Equal height on a 1.81:1 shape
+       and a 1:1 shape means the hat is 29.31px across where the diamond is 16.2 - nearly twice the
+       width, and more ink overall. Matching height is what was asked for; matching visual WEIGHT
+       would mean the hat ending up shorter than the diamond again.
+
+       WHAT MOVED WITH THIS: the cluster is 50.5px wide now (29.31 + 5 gap + 16.2), up from 42.8, so
+       it reaches further left across a two-line title - see the clearance note above, which is
+       measured against the current numbers.
+       WHAT DID NOT: the vertical clearance, because both boxes are still 18px tall. */
+    .tm-award-diamond{ width: var(--tm-award-glyph); }
+    .tm-award-hat{ width: calc(var(--tm-award-glyph) * var(--tm-hat-aspect));
+      /* ⚠ THE HEIGHT PIN IS LOAD-BEARING, and more so now that the width is 29.31px. Without it
+         `aspect-ratio: 1/1` would make the box 29.31px SQUARE, putting 13px of unused space above
+         the glyph; because the cluster is anchored `bottom: 3px`, that space pushes the cluster's
+         TOP up into the title. Measured when this was first tried at a width of 19.8px, the
+         two-line cards' clearance fell from 4.84px to 3.05px - the same case the badge size was
+         chosen to avoid (see the note above). At 29.31px square it would be far worse.
+         18px is also the ceiling on the shared glyph height: the pin clips nothing while the ink
+         is 16.2px tall, but a shared height above 18px would need this raised with it. */
+      height: var(--tm-award-size); }
     .tm-award svg{ display: block; width: 100%; height: 100%;
       fill: var(--tm-award-ink); stroke: none; }
 
@@ -492,7 +582,7 @@
     /* ================= THE NAME MUST NOT WRAP (Kiron, 2026-09-01) =================
        "adjust the spacing/sizing so that none of these names wrap."
 
-       WHAT THE NUMBERS SAID. The narrowest the card ever gets is 252px, at 1536 - five across a
+       WHAT THE NUMBERS SAID. The narrowest the card ever gets is 256px, at 1536 - five across a
        shrinking box - which left 220px of line under the old 32px of padding. Against that, with
        everything set at one size:
          name at 22px, letters at 22px  ->  288px  ("Kyle Walker, AFM, AAC, CAC")
@@ -526,7 +616,21 @@
        obvious, which is the failure mode to want. The 21px of slack is the real guarantee, and it
        is only a guarantee for the 25 names on the page today. */
     .tm-name{ font-family: var(--font-serif); font-weight: 500; font-size: 20px;
-      line-height: 1.2; margin: 0; }
+      line-height: 1.2; margin: 0;
+      /* A HARD ONE-LINE BOX (Kiron, 2026-09-04). The 2026-09-01 rule was "none of these names
+         wrap", and the sizing below is what makes that true of today's roster - but nothing
+         ENFORCED it, so one long name would have wrapped and taken 24px of card height with it.
+         The clamp makes the rule structural: a name too long for the line ellipsizes instead.
+         ⚠ THE DESIGNATIONS ARE INSIDE THIS BOX. `.tm-desig` is an inline span on the same line,
+         so the clamp measures name + designations together - which is correct, they are one line
+         of type, but it means a short name with four designations is as much at risk as a long
+         name with none. See the measurements in the note above.
+         ⚠ `overflow: hidden` HERE DOES NOT CLIP THE STRETCHED LINK. The `.tm-name a::after`
+         overlay is absolutely positioned against `.tm-card`, not against this element, and an
+         ancestor's overflow only clips descendants whose containing block it is (or contains).
+         Verified: the whole card is still the click target. */
+      display: -webkit-box; -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1; line-clamp: 1; overflow: hidden; }
     /* The letters ride the name's baseline at 12px semibold sans, in the muted grey the job title
        uses - so they read as an annotation on the name rather than as part of it, and the eye
        still lands on the name first. They sit OUTSIDE the anchor (see the markup note), so they
@@ -560,9 +664,32 @@
     @supports not selector(:has(*)){
       .tm-name a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     }
-    /* EVERY CARD IS THE SAME HEIGHT (Kiron, 2026-09-01: all cards at 363, one-line title or two).
-       THE TITLE ALWAYS RESERVES TWO LINES - `min-height: 2.9em`, which is 2 x the 1.45
-       line-height at this element's own 13px, so it tracks the type rather than hard-coding 38px.
+    /* EVERY CARD IS THE SAME HEIGHT, AND NOW IT IS LOCKED RATHER THAN MERELY TRUE
+       (Kiron, 2026-09-01: all cards at 363, one-line title or two. Kiron, 2026-09-04: "each card
+       has a locked in size of the light blue border - the job title wrapping or not wrapping
+       should not change the height of the card".)
+
+       THE TITLE IS A HARD TWO-LINE BOX - `height: 2.9em` (2 x the 1.45 line-height at this
+       element's own 13px, so it tracks the type rather than hard-coding 38px) plus
+       `-webkit-line-clamp: 2`. RESERVE AND CAP ARE THE SAME NUMBER, which is the whole point: a
+       one-line title cannot shrink the box and a three-line title cannot grow it.
+
+       ⚠ IT WAS A FLOOR BEFORE THIS, AND THAT IS WHY THE HEIGHT WAS NOT ACTUALLY LOCKED.
+       `min-height: 2.9em` held every card at the same height only because no title on the roster
+       needed a third line. Measured by injecting longer text into a live card at 1536: a three-line
+       title grew the card 18.84px, a four-line title 37.69px, and a wrapped name 24px. None of
+       those can happen now.
+
+       WHAT THE CAP COSTS. A title longer than two lines at the narrowest card ellipsizes. NOTHING
+       ON THE PAGE DOES - the longest, "Land Management Administrator, UFARM & Crop Insurance
+       Manager", is exactly two lines at 256px - so this changed no pixel of the page as it stands;
+       it changed what happens to data that has not arrived yet. That is a deliberate reversal of
+       the earlier note here, which said not to clamp because a truncated title reads as a bug. The
+       trade was put to Kiron on 2026-09-04 with the alternative (reserve and cap THREE lines, every
+       card 18.84px taller, two empty lines under the 22 one-line titles) and the clamp was chosen.
+       ⚠ SO A TRUNCATED TITLE IS NOW POSSIBLE, AND IT IS THE ACCEPTED FAILURE MODE. If real data
+       starts ellipsizing, the fix is to reserve and cap three lines - change BOTH the `height` and
+       the `line-clamp` on `.tm-role` together, never one of them.
 
        WHY THIS AND NOT A HEIGHT ON THE CARD. A height on .tm-card would have to be re-derived
        every time the tile ratio, the name size or the padding changed - four numbers, one of which
@@ -581,14 +708,28 @@
        At 1600 with 25 people, rows 1 and 3 were 363px (Aronowitz and Baird; Kreikemeier) against
        344px for rows 2, 4 and 5.
 
-       ⚠ A THREE-LINE TITLE WOULD BREAK IT AGAIN. Nothing on the live roster needs three lines at
-       254px, the narrowest the card gets, but this reserves two - it does not cap at two. If a
-       longer title ever turns up, this is the number to revisit, and the choice then is reserving
-       three lines for everybody or clamping. Do NOT clamp today: the longest title on the page,
-       "Land Management Administrator, UFARM & Crop Insurance Manager", would lose its second half,
-       and a truncated job title is a data loss that reads as a bug. */
+       THE NAME IS CAPPED THE SAME WAY, at one line - see `.tm-name`. It is the other half of the
+       lock: the title was the elastic part anyone would think of, but `.tm-name` had no reserve at
+       all, so a wrapping name was the second way the grid could step.
+
+       ⚠ WHY THE ROWS LOOKED WRONG IN THE FIRST PLACE is still worth knowing before touching this,
+       because it is what the lock is protecting: CSS grid stretches every card in a ROW to the
+       tallest one, so a single long title made all five cards in its row taller while the
+       neighbouring rows stayed short. It was never one odd card - it was one odd row, which is why
+       it read as the grid being uneven.
+
+       MEASURED AFTER THE LOCK - all 25 cards, spread 0px at every breakpoint, and the same two
+       stress tests that used to grow a card now hold it:
+         1536 five across   card 256 x 362.69
+         1280 four across   card 286 x 392.69
+         1100 three across  card 304 x 410.69
+          899 two across    card 405.5 x 512.19 */
     .tm-role{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45;
-      color: var(--pc-black); margin: 2px 0 0; min-height: 2.9em; }
+      color: var(--pc-black); margin: 2px 0 0;
+      /* A HARD TWO-LINE BOX, NOT A FLOOR. `height`, not `min-height`, plus the clamp below. */
+      height: 2.9em;
+      display: -webkit-box; -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
     .tm-office{ font-family: var(--font-sans); font-size: 12px; line-height: 1.4;
       color: var(--pc-navy); margin: 0; }
     /* Contact rows sit at the bottom of the card so every card's contact block lines up
@@ -1040,85 +1181,167 @@
            ⚠ EVERY CARD LINKS TO THE SAME `team-member.html`. Real per-person URLs are §7.
 
            ⚠ WHO HOLDS AN AWARD IS INVENTED (Kiron, 2026-09-03). The badge treatment is real; the
-           ten assignments below are not. They were spread on purpose, to exercise the cases the
-           design has to survive rather than to look tidy:
-             BOTH BADGES  Paul Anderson, Kyle Walker, Andrew Zellmer — proves two fit without
-                          crowding the face
-             HAT ONLY     Mollie Aronowitz, Jared Chambers, Connie Kreikemeier, Emily Oberbroeckling
-             DIAMOND ONLY Dean Batie, Maddie Coury, Jason Lestina, Toby Trowbridge III
-           Eleven of twenty-five, chosen to land on BOTH LIGHT AND DARK headshots — that is the point
-           of the spread, because the disc-and-ring treatment is exactly what has to be judged
-           against a bright studio background and a near-black one on the same screen.
+           eleven assignments below are not.
+             HAT + DIAMOND  Paul Anderson, Mollie Aronowitz, Jared Chambers, Connie Kreikemeier,
+                            Emily Oberbroeckling, Kyle Walker, Andrew Zellmer
+             DIAMOND ONLY   Dean Batie, Maddie Coury, Jason Lestina, Toby Trowbridge III
+           ⚠ THERE IS NO HAT-ONLY ROW, AND THERE CANNOT BE (Kiron, 2026-09-04: "there will never be
+           a hat where there is no diamond"). Four cards were hat-only and each was given a diamond
+           on 2026-09-04; a hat by itself is invalid award data, not a layout choice. If the CMS ever
+           feeds a hat with no diamond, that is a data fault to fix upstream — nothing on this page
+           checks for it.
+           Eleven of twenty-five, and the seven two-badge cards are what the spacing was measured
+           against: two badges are 41px of card, which is the widest the cluster ever gets.
            `data-awards` is on the <article> so the CMS shape is obvious and so the pills could
            filter on it later; nothing reads it today. The awards are NOT in `data-name`, so a
            search for "diamond" returns nobody — a credential is not a name (same reasoning as
            the designations above). -->
-      <!-- AWARD GLYPHS, defined once. ⚠ PLACEHOLDER ART — these two paths stand in for the
-           real marks and are the ONLY place the drawing lives. Keep the 0 0 24 24 viewBox and
-           keep the shapes filled with `currentColor`; the badge sizes and colours itself. -->
+      <!-- AWARD GLYPHS, defined once. These are the real marks and the ONLY place the drawing
+           lives — every badge on the page is a <use> of one of them, so replacing a glyph is one
+           edit and every size and colour follows from `.tm-award`.
+           BOTH ARE THE SUPPLIED BRAND VECTORS, LIFTED VERBATIM — the diamond from
+           PC_Logomark-Navy.svg, the hat from cowboy-hat.svg, both in dev-site/assets. Nothing on
+           this page is traced. Each symbol's own note carries its source, what was dropped from it
+           and why. If either is reissued, RE-LIFT THE `d` ATTRIBUTES — do not redraw by eye.
+           ⚠ EACH SYMBOL KEEPS ITS OWN FILE'S COORDINATE SPACE, cropped to that file's ink: the hat
+           is `62.99 60.33 224.05 123.82` and the diamond `36 36 216 216`. Neither is `0 0 24 24`
+           and neither should be made square — see each note.
+           ⚠ THE BADGE <svg> ELEMENTS CARRY NO viewBox, deliberately, so a symbol's viewBox does the
+           ONE AND ONLY fit into the badge's CSS box. Giving them one letterboxes the glyph twice and
+           breaks the sizing outright — the full explanation is in the `.tm-awards` note. -->
       <svg class="tm-award-defs" width="0" height="0" aria-hidden="true" focusable="false"
            style="position:absolute;overflow:hidden">
-        <symbol id="ic-award-hat" viewBox="0 0 24 24">
-          <!-- ===== THE REAL COWBOY HAT ART. NOT A PLACEHOLDER, AND NOT DRAWN BY EYE. =====
-               (Kiron, 2026-09-03, supplied as a 345x237 PNG.) TRACED, not authored: the PNG was
-               decoded, thresholded to an ink mask (luminance < 110 on the opaque pixels, which
-               separates the black art from its light grey plate), its boundaries followed as
-               directed edges, the loops stitched, and each simplified with Douglas-Peucker at
-               0.7px of the source - 0.062 units here, about 1/20th of a pixel at the badge's
-               rendered size. Five subpaths came out: the hat's silhouette plus the four white
-               highlights.
-               ⚠ THE HIGHLIGHTS ARE HOLES, NOT WHITE INK - hence fill-rule="evenodd". The crown
-               crease, the band line, the brim highlight and the line in the swept right brim are
-               all gaps knocked through to whatever is behind the badge, which on the card is white.
-               SAME CAVEAT AS THE DIAMOND: this only reads correctly on a known light background.
-               Over a photograph the highlights would fill with the pixels underneath and the hat
-               would lose its internal drawing.
-               ⚠ RE-TRACE, DO NOT REDRAW, if better art arrives. The source PNG is Kiron's file
-               (Desktop/549c1b0e-2e8f-4eca-8669-2fb249824ef7.png at the time of writing, NOT in
-               this repo - ask for it again rather than trusting that path). An SVG original would
-               be better still: it would drop straight in with no tracing loss at all.
-               THE ART IS WIDE - 224 x 124 in the source, so it fills the 24-unit box horizontally
-               and is 13.29 units tall, centred vertically (y-offset 5.36). The diamond fills the
-               same box corner to corner, so at one badge size the hat reads as the lighter of the
-               two. That is the artwork's proportions, not a sizing bug; if they should look
-               optically matched, scale THIS symbol's contents rather than changing .tm-award. -->
-          <path fill-rule="evenodd" d="M20.36 11.14 L21.32 11.14 L21.32 11.25 L22.39 11.36 L22.39 11.46 L22.93 11.57 L23.04 11.79 L23.25 11.79 L23.25 11.89 L23.68 12.21 L23.68 12.43 L23.79 12.43 L23.79 12.64 L23.89 12.64 L23.89 12.96 L24.00 12.96 L24.00 13.82 L23.89 13.82 L23.89 14.14 L23.79 14.14 L23.79 14.36 L23.57 14.46 L23.57 14.68 L23.46 14.68 L23.04 15.21 L22.82 15.21 L22.61 15.54 L22.39 15.54 L22.39 15.64 L22.18 15.64 L22.18 15.75 L21.96 15.75 L21.96 15.86 L21.75 15.86 L21.75 15.96 L21.54 15.96 L21.54 16.07 L21.32 16.07 L21.32 16.18 L21.00 16.18 L21.00 16.29 L20.68 16.29 L20.68 16.39 L20.36 16.39 L20.36 16.50 L19.93 16.50 L19.93 16.61 L18.75 16.71 L18.75 16.82 L17.46 16.82 L17.46 16.93 L16.93 16.93 L16.93 16.82 L15.75 16.82 L15.75 16.71 L15.32 16.71 L15.32 16.61 L15.43 16.61 L15.64 16.29 L15.86 16.29 L16.18 15.86 L16.39 15.86 L16.50 15.64 L16.71 15.64 L16.82 15.43 L17.04 15.43 L17.14 15.21 L17.36 15.21 L17.36 15.11 L17.57 15.11 L17.57 15.00 L17.79 15.00 L17.79 14.89 L18.00 14.89 L18.00 14.79 L18.32 14.79 L18.32 14.68 L18.64 14.68 L18.64 14.57 L19.29 14.57 L19.29 14.46 L20.04 14.46 L20.04 14.57 L21.11 14.68 L21.11 14.57 L21.21 14.57 L21.21 14.14 L20.89 14.04 L20.89 13.93 L20.46 13.93 L20.46 13.82 L18.96 13.82 L18.96 13.93 L18.11 14.04 L18.11 14.14 L17.89 14.14 L17.89 14.25 L17.57 14.25 L17.57 14.36 L17.36 14.36 L17.36 14.46 L16.71 14.68 L16.61 14.89 L16.39 14.89 L16.29 15.11 L16.07 15.11 L16.07 15.21 L15.96 15.21 L15.86 15.43 L15.64 15.43 L15.32 15.86 L15.11 15.86 L14.89 16.18 L14.68 16.18 L14.68 16.29 L14.36 16.39 L14.25 16.61 L13.82 16.71 L13.71 16.93 L13.50 16.93 L13.50 17.04 L13.29 17.04 L13.29 17.14 L13.07 17.14 L13.07 17.25 L12.75 17.25 L12.75 17.36 L12.54 17.36 L12.54 17.46 L12.21 17.46 L12.21 17.57 L11.25 17.79 L11.36 17.57 L11.57 17.57 L11.68 17.36 L11.89 17.36 L12.11 17.04 L12.32 17.04 L12.54 16.71 L12.75 16.71 L13.29 16.07 L13.50 16.07 L13.50 15.96 L14.14 15.43 L14.14 15.21 L14.57 14.89 L14.57 14.68 L14.79 14.57 L14.79 14.36 L15.00 14.25 L15.00 14.04 L15.11 14.04 L16.39 12.64 L16.61 12.64 L16.82 12.32 L17.25 12.21 L17.36 12.00 L17.57 12.00 L17.57 11.89 L17.79 11.89 L17.79 11.79 L18.00 11.79 L18.00 11.68 L18.32 11.68 L18.32 11.57 L18.64 11.57 L18.64 11.46 L18.96 11.46 L18.96 11.36 L19.50 11.36 L19.50 11.25 L20.36 11.25 ZM12.32 5.36 L13.29 5.36 L13.29 5.46 L14.04 5.57 L14.04 5.68 L14.68 5.89 L14.89 6.21 L15.11 6.21 L15.11 6.32 L15.75 6.86 L15.75 7.07 L15.86 7.07 L15.86 7.18 L16.07 7.29 L16.07 7.50 L16.29 7.61 L16.29 7.82 L16.39 7.82 L16.39 8.04 L16.50 8.04 L16.50 8.25 L16.61 8.25 L16.61 8.57 L16.71 8.57 L16.71 8.79 L16.82 8.79 L16.93 9.54 L17.04 9.54 L17.04 10.07 L17.14 10.07 L17.14 11.14 L17.25 11.14 L17.25 11.36 L17.14 11.36 L17.04 11.57 L16.61 11.68 L16.50 11.89 L16.29 11.89 L16.07 12.21 L15.86 12.21 L15.86 12.32 L15.75 12.32 L15.43 12.75 L15.21 12.75 L15.00 13.07 L14.57 13.07 L14.57 13.18 L14.14 13.18 L14.14 13.29 L13.71 13.29 L13.71 13.39 L13.29 13.39 L13.29 13.50 L12.75 13.50 L12.75 13.61 L11.14 13.71 L11.14 13.82 L8.25 13.82 L8.25 13.71 L7.50 13.71 L7.50 13.61 L7.07 13.61 L7.07 13.50 L6.64 13.50 L6.64 13.39 L6.32 13.39 L6.32 13.29 L5.79 13.18 L5.89 12.32 L6.00 12.32 L6.00 11.79 L6.11 11.79 L6.11 11.25 L6.21 11.25 L6.21 10.61 L6.32 10.61 L6.32 9.96 L6.43 9.96 L6.43 9.32 L6.54 9.32 L6.54 8.57 L6.64 8.57 L6.75 7.39 L6.86 7.39 L6.86 7.07 L6.96 7.07 L6.96 6.86 L7.07 6.86 L7.29 6.21 L7.39 6.21 L7.71 5.79 L7.93 5.79 L7.93 5.68 L8.14 5.68 L8.14 5.57 L8.57 5.57 L8.57 5.68 L9.11 5.79 L9.21 6.00 L9.86 6.11 L9.43 6.64 L8.89 6.75 L8.89 6.86 L8.57 6.86 L8.57 6.75 L8.36 6.75 L8.36 6.64 L7.93 6.64 L7.93 6.75 L7.82 6.75 L7.82 7.18 L7.93 7.18 L7.93 7.29 L8.14 7.29 L8.14 7.39 L8.36 7.39 L8.36 7.50 L9.11 7.50 L9.11 7.39 L9.43 7.39 L9.43 7.29 L9.86 7.18 L9.86 7.07 L10.29 6.75 L10.29 6.54 L10.39 6.54 L10.82 6.00 L11.04 6.00 L11.14 5.79 L11.36 5.79 L11.36 5.68 L11.57 5.68 L11.57 5.57 L12.32 5.46 ZM0.64 11.89 L0.96 12.00 L0.96 12.11 L1.07 12.11 L1.18 12.32 L1.39 12.32 L1.50 12.54 L1.71 12.54 L1.82 12.75 L2.04 12.75 L2.04 12.86 L2.25 12.86 L2.25 12.96 L2.46 12.96 L2.46 13.07 L2.68 13.07 L2.68 13.18 L2.89 13.18 L2.89 13.29 L3.11 13.29 L3.11 13.39 L3.43 13.39 L3.43 13.50 L3.64 13.50 L3.64 13.61 L3.96 13.61 L3.96 13.71 L4.29 13.71 L4.29 13.82 L4.50 13.82 L4.50 13.93 L4.82 13.93 L4.82 14.36 L4.71 14.36 L4.71 14.68 L4.61 14.68 L4.61 15.21 L4.82 15.21 L4.82 15.32 L5.04 15.32 L5.04 15.43 L5.25 15.43 L5.25 15.54 L5.57 15.54 L5.57 15.64 L6.00 15.64 L6.00 15.75 L6.43 15.75 L6.43 15.86 L7.07 15.86 L7.07 15.96 L8.04 15.96 L8.04 16.07 L10.29 16.07 L10.29 15.96 L11.57 15.96 L11.57 15.86 L12.43 15.86 L12.43 15.75 L12.64 15.75 L12.64 15.86 L12.54 15.86 L12.32 16.18 L12.11 16.18 L11.79 16.61 L11.57 16.61 L11.46 16.82 L11.25 16.82 L11.04 17.14 L10.61 17.25 L10.50 17.46 L9.86 17.68 L9.75 17.89 L9.43 17.89 L9.43 18.00 L9.21 18.00 L9.21 18.11 L8.89 18.11 L8.89 18.21 L8.57 18.21 L8.57 18.32 L8.25 18.32 L8.25 18.43 L6.86 18.54 L6.86 18.64 L5.36 18.64 L5.36 18.54 L4.18 18.43 L4.18 18.32 L3.54 18.21 L3.54 18.11 L3.32 18.11 L3.32 18.00 L3.00 18.00 L2.89 17.79 L2.68 17.79 L2.68 17.68 L2.46 17.68 L2.36 17.46 L2.14 17.46 L2.04 17.25 L1.82 17.25 L1.82 17.14 L0.86 16.29 L0.86 16.07 L0.75 16.07 L0.64 15.75 L0.43 15.64 L0.32 15.11 L0.21 15.11 L0.21 14.79 L0.11 14.79 L0.11 14.25 L0.00 14.25 L0.00 13.18 L0.11 13.18 L0.11 12.75 L0.21 12.75 L0.21 12.54 L0.32 12.54 L0.32 12.32 L0.54 12.21 ZM5.57 13.82 L6.11 13.93 L6.11 14.04 L6.43 14.04 L6.43 14.14 L6.75 14.14 L6.75 14.25 L7.29 14.25 L7.29 14.36 L7.82 14.36 L7.82 14.46 L8.89 14.46 L8.89 14.57 L11.57 14.46 L11.57 14.36 L12.32 14.36 L12.32 14.25 L13.50 14.14 L13.50 14.04 L13.93 14.04 L13.93 13.93 L14.36 13.93 L14.36 14.04 L14.25 14.04 L14.14 14.36 L13.71 14.68 L13.71 14.89 L13.39 14.89 L13.39 15.00 L12.11 15.11 L12.11 15.21 L11.25 15.21 L11.25 15.32 L9.54 15.32 L9.54 15.43 L8.89 15.43 L8.89 15.32 L7.29 15.32 L7.29 15.21 L6.64 15.21 L6.64 15.11 L6.21 15.11 L6.21 15.00 L5.46 14.89 L5.36 14.57 L5.46 14.57 ZM12.64 5.79 L12.54 5.79 L12.43 6.11 L12.32 6.11 L12.32 7.50 L12.43 7.50 L12.54 8.14 L12.64 8.14 L12.86 8.79 L13.18 9.00 L13.18 9.21 L13.29 9.21 L13.61 9.64 L13.82 9.64 L14.04 9.96 L14.25 9.96 L14.36 10.18 L14.57 10.18 L14.57 10.29 L14.79 10.29 L14.79 10.39 L15.11 10.39 L15.11 10.50 L15.64 10.61 L15.64 10.71 L16.50 10.82 L16.50 10.71 L16.71 10.61 L16.61 10.18 L15.86 10.07 L15.86 9.96 L15.54 9.96 L15.54 9.86 L15.32 9.86 L15.32 9.75 L15.00 9.75 L15.00 9.64 L14.79 9.64 L14.68 9.43 L14.46 9.43 L14.36 9.21 L14.14 9.21 L14.14 9.11 L13.61 8.68 L13.61 8.46 L13.39 8.36 L13.39 8.14 L13.29 8.14 L13.29 7.93 L13.18 7.93 L13.18 7.71 L13.07 7.71 L13.07 7.29 L12.96 7.29 L12.96 6.32 L13.07 6.32 L13.07 6.00 L12.96 6.00 L12.96 5.79 Z"/>
+        <!-- =============== THE COWBOY HAT, VERBATIM FROM THE SUPPLIED VECTOR ===============
+             (Kiron, 2026-09-04, supplied as dev-site/assets/cowboy-hat.svg - an Illustrator 30.1
+             export, 2,156 bytes, `viewBox="0 0 345 237"`. "The difference is it is black, and
+             needs to be PC Navy, like the diamond.")
+
+             NOT TRACED. NOT REDRAWN. The four `d` attributes below are BYTE-FOR-BYTE the ink paths
+             in that file. This replaced a pixel trace of a 345x237 PNG of the same art, so the
+             bounds are unchanged - the trace measured 224 x 124 and the vector measures
+             224.05 x 123.82 - but the outline is real curves now instead of a staircase of
+             axis-aligned segments, in a quarter of the path data.
+
+             ⚠ THE COLOUR NEEDED NO CHANGE, AND THAT IS WORTH UNDERSTANDING BEFORE EDITING THIS.
+             The file's ink paths carry NO fill attribute at all, so on their own they render black
+             by SVG default - which is what Kiron saw. They are not black by instruction. The badge
+             paints them from the cascade: `.tm-award svg{ fill: var(--tm-award-ink) }`, which is
+             `--pc-navy`. So lifting the paths without their `fill`/`class` IS the fix, and the hat
+             and the diamond are now painted from ONE value. DO NOT hard-code navy on these paths:
+             it would put the colour in two places and break the single-ink rule the pair relies on.
+
+             ⚠ TWO PATHS FROM THE FILE ARE DELIBERATELY NOT HERE, and dropping them was the whole
+             job of importing this:
+               1. A FULL-BLEED WHITE RECTANGLE. The file's first path is `class="st0"` (#fff) and
+                  begins `M0,236.5V0h345v237H0v-.5Z` - measured with getBBox, its bounds are exactly
+                  0,0 345x237, the entire canvas. It is the white ground the art was drawn on. Kept,
+                  and repainted by the cascade, it would have rendered THE BADGE AS A SOLID NAVY
+                  RECTANGLE with the hat invisible inside it. This is the same white plate that had
+                  to be thresholded away when the PNG of this art was traced.
+               2. A REDUNDANT WHITE COUNTER - the file's last path, the swirl inside the crown at
+                  177.8,63.9. It is the SAME outline as a subpath already inside the first ink path,
+                  traversed in the opposite direction, and the file paints it white on top. Here
+                  that subpath is already a HOLE by winding, so the region reads as background
+                  without it. ⚠ APPENDING IT BACK IS NOT HARMLESS: rendered and compared, the two
+                  coincident windings cancel and the crown detail collapses from a clean swoosh to
+                  a thin crescent. Verified against the file as supplied at 250px - the four ink
+                  paths alone reproduce the artwork exactly.
+
+             ⚠ FILL-RULE IS NONZERO - THE FILE'S DEFAULT - AND MUST STAY THAT WAY, same as the
+             diamond. Do not add `fill-rule="evenodd"`. The internal white detail (the crown swirl,
+             the band line, the brim highlights) comes from WINDING DIRECTION, not from even-odd.
+             The trace this replaced needed evenodd because a trace winds every loop the same way;
+             that is now gone from this page entirely and both glyphs are nonzero.
+
+             ⚠ SO THE HIGHLIGHTS ARE HOLES, NOT WHITE INK, and the caveat is the same as the
+             diamond's: this reads correctly only on a known light ground, which on the card is
+             white. Over a photograph the crown swirl and brim lines would fill with whatever pixels
+             sat under them and the hat would lose its internal drawing. If a badge is ever moved
+             back onto the image, those highlights have to become real white paths drawn on top.
+
+             ⚠ THE viewBox IS THE INK'S OWN BOX, "62.99 60.33 224.05 123.82", measured with getBBox
+             rather than assumed - the art sits off-centre in the supplied canvas, with margins of
+             62.99 left, 60.33 top, 57.97 right and 52.85 bottom. Cropping to the ink is what makes
+             the glyph fill the badge; handing it the full 0 0 345 237 would render the hat at 65%
+             of its size, adrift in its box. Keeping the file's coordinate space is what makes
+             "verbatim" true - see the diamond's note, which explains the same decision.
+             THE ART IS WIDE - 1.81:1 - which is why `.tm-award-hat` sizes it by WIDTH: the badge
+             fits this viewBox to whichever side runs out first, and for a 1.81:1 shape in a box
+             wider than it is tall, that is the width. The two glyphs are matched on VISIBLE HEIGHT,
+             16.2px each, measured off the rendered page; see the `.tm-award-hat` rule for how the
+             width is derived from that.
+             ⚠ DO NOT PAD THIS viewBox TOWARDS SQUARE to change the balance - that letterboxes the
+             art inside its own symbol and puts the sizing back in the state described in the
+             .tm-awards viewBox warning. Change `--tm-award-glyph`, or the width factor. -->
+        <symbol id="ic-award-hat" viewBox="62.99 60.33 224.05 123.82">
+          <path d="M125.4,84.7c1.2-7.1,3.6-13.5,7.6-18.4,4.4-4.5,9-4.7,14.1-2.1l7.2,3.6c-9.5,12.6-14.1.8-18,5.1s0,4.4,1.7,5.3c7,3.8,15.4,1.1,20-5.1,9.6-13.3,27-16.7,41-7.9,16.8,10.6,24.8,32,24.4,51.2-7.4,4.7-13.8,9.3-20.2,15.1-25.6,7.8-60.5,12.2-86.3,1.5l8.4-48.2ZM192.3,92.7c-14.3-14.4-3.8-28-9.9-28.8s-7.7,19.4,5.6,33.2,29.4,18.2,30.8,11.3-12.9-2.1-26.5-15.7Z"/>
+          <path d="M257.3,146.9c1,.3,3.2-.8,3.6-1.6,3.1-7.2-25.2-12.7-52,9.7-12.1,10.2-25.8,18.3-41.9,21.2,11.5-8.7,23.9-16.2,31.8-28.3,14.2-22,37.1-35.7,63.8-33.3,5.5.5,11.2,1.9,15.8,4.9,9.5,6.1,11.5,18.4,4.3,27.1-15.1,18.1-53.8,24.7-76.9,19.2,14.5-13.1,31.4-24.6,51.6-18.8Z"/>
+          <path d="M181.9,157.3c-9.1,7.2-18.1,14.4-29,19.6-28.9,13.8-67.7,8.5-85.5-21.2-5.1-8.4-7.4-26,2.2-34.5,11.4,9.3,24.1,14.6,38.4,19.2.8,3.4-3.3,8-1.8,10.7s2.2,2,3.4,2.5c23,9,48.3,6.7,72.3,3.7Z"/>
+          <path d="M190,149.5c-24.9,4.2-52.7,7.5-77.2-1.3l2.6-9.1c26.8,10.2,53.5,6.9,81.3.9l-6.7,9.5Z"/>
         </symbol>
-        <symbol id="ic-award-diamond" viewBox="0 0 24 24">
-          <!-- ===== THE REAL PC MARK. NOT A PLACEHOLDER, AND NOT DRAWN BY EYE. =====
-               (Kiron, 2026-09-03: "change the cowboy hat and diamond icon to these two".)
-               TRACED FROM dev-site/shared/logos/pc_blue_mark.png, the 900x900 brand asset already
-               in this repo and the same mark Kiron supplied as the reference. The trace was
-               mechanical, not authored: the PNG was decoded, thresholded to an ink mask, its
-               boundaries followed as directed edges, the loops stitched and simplified
-               (Douglas-Peucker, 2.2px at 900px = 0.06 units here), then scaled by 24/900. So the
-               diamond's corners and the letterform's proportions are the asset's, to within a
-               sixteenth of a unit.
-               ⚠ THE "PC" IS A HOLE, NOT WHITE INK - hence fill-rule="evenodd". Four subpaths: the
-               diamond outline, the P's outline, the P's counter (an ink island inside that hole),
-               and the C. Even-odd makes the letters knock through to whatever is behind the badge,
-               which on the card is white. THAT IS WHY IT WORKS HERE AND WOULD NOT ON A PHOTOGRAPH:
-               knocked-out letters show the background, so over a headshot the "PC" would fill with
-               whatever pixels sat under it. If this badge is ever moved back onto the image, the
-               letters have to become a real white path drawn on top instead.
-               THE PREVIOUS SHAPE WAS A GUESS - a four-point star with concave sides, authored from
-               a description before the asset was located. It was not the PC mark.
-               Keep the 0 0 24 24 viewBox; the mark fills the box corner to corner, which is why
-               the diamond reads larger than the hat at the same badge size. -->
-          <path fill-rule="evenodd" d="M11.97 0.00 L21.92 9.89 L17.01 9.95 L16.19 10.16 L15.76 10.59 L15.55 11.31 L15.52 12.53 L15.60 13.01 L15.81 13.49 L16.21 13.84 L16.80 14.03 L21.95 14.05 L12.03 24.00 L0.00 12.03 ZM8.72 9.95 L8.69 15.41 L10.32 15.41 L10.35 14.08 L14.05 14.03 L14.67 13.81 L15.04 13.41 L15.28 12.45 L15.25 11.25 L15.04 10.59 L14.53 10.13 L13.68 9.95 ZM22.11 10.13 L24.00 11.97 L22.16 13.87 L22.11 12.75 L17.65 12.72 L17.36 12.61 L17.23 12.45 L17.23 11.52 L17.63 11.28 L22.11 11.28 ZM10.35 11.28 L13.28 11.31 L13.60 11.63 L13.60 12.43 L13.47 12.61 L12.96 12.75 L10.35 12.75 Z"/>
+        <!-- ================== THE PC LOGOMARK, VERBATIM FROM THE BRAND VECTOR ==================
+             (Kiron, 2026-09-04, supplied as dev-site/assets/PC_Logomark-Navy.svg - an Illustrator
+             30.1 export, 884 bytes, three paths, `viewBox="0 0 288 288"`, fill #11416A.)
+
+             NOT TRACED. NOT REDRAWN. The three `d` attributes below are BYTE-FOR-BYTE the ones in
+             that file. The previous diamond was a pixel trace of the 900x900 pc_blue_mark.png and
+             carried the faceting that comes with tracing; this is the real geometry with real
+             curves, at 1/6th the path data. If the brand file is ever reissued, re-lift the `d`
+             attributes from it rather than editing these.
+
+             ⚠ THE viewBox IS "36 36 216 216", NOT "0 0 24 24" LIKE EVERY OTHER GLYPH HERE, and
+             that is deliberate. Two reasons, and they both point the same way:
+               1. LIFTING THE PATHS VERBATIM MEANS KEEPING THEIR COORDINATE SPACE. Rescaling
+                  288-unit coordinates into a 24-unit box would mean rewriting every number and
+                  reintroducing exactly the rounding loss this file exists to avoid.
+               2. THE ARTWORK IS INSET IN ITS OWN BOX. Measured with getBBox in the browser, the
+                  ink is 215.8 x 216 sitting at x=36.1, y=36 - so the supplied file carries 36
+                  units (12.5%) of padding on all four sides. Handing the badge the full 0 0 288 288
+                  would have rendered the mark 25% smaller than the diamond it replaces, for no
+                  reason. Cropping to the artwork's own square makes it fill the badge box corner
+                  to corner, which is what the previous diamond did.
+             The 0.1 of slack on the left edge is deliberate too - 36 reads as the artwork's
+             intended margin where 36.1 reads as a measurement, and 0.1 of 216 is 0.008px at the
+             badge's rendered size.
+             A <symbol> carries its own viewBox, and the badge <svg>s carry none, so this viewBox
+             does the single fit into the badge's CSS box.
+
+             ⚠ FILL-RULE IS NONZERO - THE FILE'S DEFAULT - AND MUST STAY THAT WAY. Do not add
+             `fill-rule="evenodd"` here. The traced diamond needed evenodd because its subpaths were
+             all wound the same way; an Illustrator compound path instead relies on WINDING
+             DIRECTION, so the "PC" is knocked out of the diamond by being wound against it. Forcing
+             evenodd would re-fill the counters inside the P and the C and turn the letters to mush.
+             THE SECOND AND THIRD PATHS ARE THOSE COUNTERS - the island inside the P's bowl and the
+             one inside the C, painted back in as ink because the letterforms they sit in are holes.
+             That is also why there are three paths and not one.
+
+             ⚠ SO THE LETTERS ARE STILL HOLES, and the caveat from the traced version stands
+             unchanged: this reads correctly only on a known light ground, which on the card is
+             white. Over a photograph the "PC" would fill with whatever pixels sat under it. If a
+             badge is ever moved back onto the image, the letters have to become a real white path
+             drawn on top.
+
+             THE FILE'S OWN NAVY IS #11416A; THE BADGE PAINTS IT #12406A (`--pc-navy`, via
+             `--tm-award-ink`). The `class="st0"` that carried the file's colour is dropped on
+             purpose so the fill comes from the cascade - one ink for the hat and the diamond both,
+             which is what makes the pair read as one system (see the .tm-awards note). The two
+             values are one unit apart per channel and indistinguishable at 18px; if the brand navy
+             is meant to win, change `--tm-award-ink`, not these paths. -->
+        <symbol id="ic-award-diamond" viewBox="36 36 216 216">
+          <path d="M182,160.5c-4.6-2.5-6.3-6.9-6.3-15.9s1.9-15.1,6.9-17.5c2.5-1.2,6.1-1.7,13.6-1.7h12s25.3,0,25.3,0l-89.4-89.4-108,108,108,108,89.5-89.5h-36c-9.8,0-12.4-.4-15.5-2.1ZM166.7,160.9c-2.5,1.3-6.1,1.7-13.6,1.7h-24v12.1h-14.9v-49.2h37.6c9.8,0,12.4.4,15.5,2.1,4.6,2.5,6.3,6.9,6.3,15.9s-1.9,15.1-6.9,17.5Z"/>
+          <path d="M150.8,137.4h-21.8v13.2h21.8c6.1,0,7.9-1.3,7.9-6s-1.4-7.2-7.9-7.2Z"/>
+          <path d="M220.2,137.4h0s-21.8,0-21.8,0c-6.1,0-7.9,1.3-7.9,6s1.4,7.2,7.9,7.2h4.7s31.9,0,31.9,0v10.3l16.9-16.9-16.9-16.9v10.3h-14.9Z"/>
         </symbol>
         <!-- ================= THE SUPERSEDED PLACEHOLDER MARKS, KEPT FOR COMPARISON =============
              (Kiron, 2026-09-03: "change a couple of the people back to the original diamond and
              cowboy hat, just to show the differences between the old hat and new hat, as well as
              the two different diamonds".)
-             ⚠ THESE ARE FOR REVIEW ONLY AND MUST NOT SHIP. Two cards point at them - Paul Anderson
-             and Kyle Walker, the two people carrying BOTH awards, so each of those cards shows the
-             old hat and the old diamond together. Andrew Zellmer, the third both-award person, sits
-             beside Walker and keeps the new marks, which puts the two treatments next to each other
-             at the bottom of the grid; Anderson does the same at the top, one card from Mollie
-             Aronowitz (new hat) and three from Dean Batie (new diamond).
-             HOW TO UNDO THIS: point those two cards' <use href> back at #ic-award-hat and
-             #ic-award-diamond and delete this block. Nothing else references it.
+             ⚠ NOTHING REFERENCES THESE AND THEY MUST NOT SHIP (Kiron, 2026-09-04: "change out the
+             other hat and other diamond with these where applicable"). The comparison is over: Paul
+             Anderson and Kyle Walker, the two cards that were showing the old pair, now point at
+             the real art like every other badge. These two <symbol>s are kept only so the old and
+             new drawings can still be put side by side while the vector originals are being
+             sourced. DELETING THIS BLOCK IS THE WHOLE CLEANUP - no <use> resolves to it.
              WHAT THEY WERE: hand-authored approximations made before either piece of real art was
              available - the hat from a verbal description, the diamond as a four-point star with
              concave sides that was never the PC mark at all.
@@ -1150,10 +1373,10 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat-legacy"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
             </span>
             <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond-legacy"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1168,7 +1391,10 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+            </span>
+            <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1193,7 +1419,7 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1228,7 +1454,10 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+            </span>
+            <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1253,7 +1482,7 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1308,7 +1537,10 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+            </span>
+            <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1333,7 +1565,7 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1378,7 +1610,10 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+            </span>
+            <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1413,7 +1648,7 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1428,10 +1663,10 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat-legacy"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
             </span>
             <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond-legacy"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
@@ -1446,10 +1681,10 @@
           </div>
           <span class="tm-awards">
             <span class="tm-award tm-award-hat" role="img" aria-label="Cowboy Hat Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-hat"/></svg>
             </span>
             <span class="tm-award tm-award-diamond" role="img" aria-label="Diamond Award winner">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
+              <svg aria-hidden="true" focusable="false"><use href="#ic-award-diamond"/></svg>
             </span>
           </span>
         </article>
