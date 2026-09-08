@@ -19,35 +19,132 @@
        .io-scope component block (the same card used by the homepage Insights module),
        so a change to the design system reaches this page for free.
 
-       Structure: intro + category filter row → one featured post (horizontal, full
-       content width) → a 3-up grid of posts → a light-blue interstitial (categories +
-       newsletter) → a second 3-up grid → pager.
+       Structure: title → sticky search / filter bar (the team.html component) → one
+       featured post (horizontal, full content width) → a 2-up row of wide cards → a
+       3-up grid of the remaining posts → pager. The page opens 1 / 2 / 3.
 
-       Responsive: the grid steps 3 → 2 → 1 on the shared --site ladder (1279 / 899 /
-       639), so the breakpoints line up with the header and footer rather than sitting
+       Responsive: the grid steps 3 → 2 → 1 on the shared --site ladder (1279 / 767),
+       so the breakpoints line up with the header and footer rather than sitting
        between them. -->
   <style>
-    .blg-body{ background: var(--pc-white); }
+    .blg-body{ background: var(--pc-white); --ls-pill-w: 180px; }
     .blg-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+
+    /* THE MAP LAYER MUST CLEAR THE FILTER BAR. `.ls-bar` is z-40 and sticky, so it forms a
+       stacking context that beats the shared map layer (z-31) and its backdrop (z-30) - the
+       map would open BEHIND the bar. Raised here, page-locally, because the shared values are
+       correct on every page that has no sticky bar. 44/43 sits above the bar (40) and the map
+       tab (39) and below the site header (45), which is what the layer hangs from. */
+    .md-layer{ z-index: 44; }
+    .md-backdrop{ z-index: 43; }
 
     /* ---- intro ---- */
     .blg-intro{ padding: var(--space-8) 0 var(--space-6); }
-    .blg-intro .hp-eyebrow{ margin: 0 0 var(--space-3); }
-    /* :not() so the lead-paragraph size can't land on the eyebrow, which is also a <p>. */
-    .blg-intro p:not(.hp-eyebrow){ font-size: var(--body-lg); line-height: 1.7;
-      color: var(--color-text-muted); max-width: 62ch; margin: var(--space-4) 0 0; }
 
-    /* Category filter row. Chips are links, not buttons — on the live site each one is a
-       real category archive URL. The active chip is filled AND first in the row, so the
-       current filter is never carried by colour alone. */
-    .blg-filters{ display: flex; flex-wrap: wrap; gap: 8px; margin: var(--space-6) 0 0; }
-    .blg-chip{ font-family: var(--font-sans); font-size: 13px; font-weight: 600; line-height: 1;
-      color: var(--pc-navy); background: var(--pc-white); border: 1px solid var(--color-border);
-      border-radius: var(--radius-pill); padding: 9px 16px; text-decoration: none;
-      transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
-    .blg-chip:hover{ background: var(--pc-light-blue); border-color: var(--pc-light-blue); }
-    .blg-chip:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-    .blg-chip.is-active{ background: var(--pc-navy); border-color: var(--pc-navy); color: var(--pc-white); }
+    /* ---- search / filter bar. Same component as team.html and listings.html: identical
+       class names, identical rules, identical popover behaviour. Keep it that way - when one
+       copy changes, change all of them. ---- */
+    .ls-bar{ position: sticky; top: var(--navH); z-index: 40;
+      background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border); }
+    .ls-bar-in{ position: relative; max-width: var(--site); margin: 0 auto;
+      padding: var(--space-4) var(--rail);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-2); flex-wrap: wrap; }
+    .ls-controls{ display: flex; align-items: center; justify-content: flex-start;
+      gap: var(--space-2); flex-wrap: nowrap; flex: 1 1 0; min-width: 0; }
+    .ls-right{ display: flex; align-items: center; gap: var(--space-4); flex: none; }
+
+    /* ---- shared pill trigger ---- */
+    .ls-f{ position: relative; }
+    .ls-pill{ display: inline-flex; align-items: center; justify-content: center;
+      width: var(--ls-pill-w); gap: var(--space-2); text-align: center;
+      min-height: 44px; padding: 4px 16px; background: var(--pc-white);
+      border: 1px solid var(--pc-blue); border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; line-height: 1.15;
+      color: var(--pc-black); cursor: pointer; }
+    .ls-pill:hover{ border-color: var(--pc-navy); }
+    .ls-pill[aria-expanded="true"]{ border-color: var(--pc-navy);
+      box-shadow: inset 0 0 0 1px var(--pc-navy); }
+    .ls-pill:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-chev{ font-size: 10px; color: var(--pc-medium-blue); }
+    .ls-pill.is-set{ background: var(--pc-navy); border-color: var(--pc-navy);
+      color: var(--pc-white); }
+    .ls-pill.is-set .ls-chev{ color: var(--pc-light-blue); }
+    .ls-pill.is-set:focus-visible{ outline-color: var(--pc-black); }
+
+    /* ---- the search field: a real text input, not a popover ---- */
+    .ls-loc{ display: flex; align-items: center; gap: var(--space-2); min-height: 44px;
+      padding: 0 16px; background: var(--pc-white); border: 1px solid var(--pc-blue);
+      border-radius: var(--radius-pill); flex: 0 1 340px; min-width: 200px; }
+    .ls-loc:focus-within{ border-color: var(--pc-navy); box-shadow: inset 0 0 0 1px var(--pc-navy); }
+    .ls-loc svg{ flex: none; color: var(--pc-medium-blue); }
+    .ls-loc input{ width: 100%; min-width: 0; padding: 12px 0; border: 0; background: none;
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .ls-loc input:focus{ outline: none; }
+
+    /* ---- the popover every pill opens ---- */
+    .ls-pop{ position: absolute; top: calc(100% + 8px); left: 0; z-index: 44;
+      min-width: 280px; max-width: calc(100vw - 40px);
+      background: var(--pc-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); box-shadow: 0 8px 28px rgba(7,22,44,.18);
+      padding: var(--space-4); }
+    .ls-pop[hidden]{ display: none; }
+    .ls-poplist{ max-height: min(46vh, calc(100vh - var(--navH, 120px) - var(--ls-bar-h, 78px) - 120px));
+      overflow-y: auto; overscroll-behavior: contain; }
+    .ls-opt{ display: flex; align-items: center; gap: 10px; padding: 9px 4px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 14px; line-height: 1.3; color: var(--pc-black); }
+    .ls-opt input{ flex: none; width: 18px; height: 18px; accent-color: var(--pc-navy); }
+    .ls-opt:hover{ color: var(--pc-navy); }
+    .ls-pop-right{ left: auto; right: 0; }
+
+    .ls-pop-wide{ min-width: 0; max-width: none;
+      width: min(900px, calc(100% - 2 * var(--rail))); left: var(--rail); right: auto; }
+    .ls-f-static{ position: static; }
+
+    .ls-checks5{ display: grid; grid-auto-flow: row; gap: 2px var(--space-4);
+      grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .ls-checks5 .ls-opt{ white-space: nowrap; }
+
+    /* ---- date range, a blog-only extension of the shared bar. team.html and
+       listings.html have no equivalent; if one is added there, move this with it. ---- */
+    .ls-daterow{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+    .ls-datefield{ display: flex; flex-direction: column; gap: 6px; }
+    .ls-datelabel{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      letter-spacing: .09em; text-transform: uppercase; color: var(--pc-navy); }
+    .ls-datefield input{ min-height: 44px; padding: 0 12px; background: var(--pc-white);
+      border: 1px solid var(--pc-blue); border-radius: var(--radius-sm);
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .ls-datefield input:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    .ls-fieldset{ border: 0; padding: 0; margin: 0; }
+    .ls-fieldset legend{ padding: 0; margin-bottom: var(--space-3);
+      font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--pc-navy); }
+
+    /* ---- popover footer, and the bar's own action ---- */
+    .ls-actions{ display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4); margin-top: var(--space-5);
+      padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+    .ls-clear{ border: 0; background: none; padding: 8px 4px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-navy);
+      text-decoration: underline; text-underline-offset: 3px; }
+    .ls-clear:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-apply{ min-height: 44px; padding: 0 22px; border: 1px solid var(--pc-navy);
+      border-radius: var(--radius-pill); background: var(--pc-navy); color: var(--pc-white);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; cursor: pointer; }
+    .ls-apply:hover{ background: var(--pc-black); border-color: var(--pc-black); }
+    .ls-apply:focus-visible{ outline: 2px solid var(--pc-black); outline-offset: 2px; }
+    /* Secondary action next to a filled one: same box, no fill, so the two read as a
+       pair with one obvious primary. Blog-only - team.html has a single bar action. */
+    .ls-ghost{ background: none; color: var(--pc-navy); }
+    .ls-ghost:hover{ background: var(--pc-navy); color: var(--pc-white); }
+
+    /* Submitted-criteria readout. Sits under the bar, inside the content box. It is a
+       live region, so it is also what a screen-reader user hears on submit. */
+    .blg-status{ font-family: var(--font-sans); font-size: 13px; line-height: 1.5;
+      color: var(--color-text-muted); margin: var(--space-5) 0 0; }
+    .blg-status b{ color: var(--pc-black); font-weight: 600; }
 
     /* ---- featured post: photo left, copy right ---- */
     .blg-feature{ display: grid; grid-template-columns: 1.15fr 1fr; gap: 0;
@@ -68,41 +165,20 @@
       letter-spacing: .13em; text-transform: uppercase; color: var(--pc-medium-blue); }
 
     /* ---- post grid ---- */
+    /* ---- row 2: a pair of wide cards ----
+       Same .io-card as the grid, two-up. It exists to break the run of 3-up rows
+       straight after the featured post, so the page opens 1 / 2 / 3 rather than
+       1 / 3 / 3. Type is stepped up to suit the wider column: at 1376 a duo card is
+       676px against the grid's 443. */
+    .blg-duo{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);
+      margin: 0 0 var(--space-5); }
+    .blg-duo .io-title{ font-size: 26px; }
+    .blg-duo .io-teaser{ font-size: 16px; }
+    .blg-duo .io-body{ padding: var(--space-5) var(--space-5) var(--space-6); }
+
     .blg-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
     .blg-grid .io-title{ font-size: 22px; }
     .blg-grid .io-body{ padding: var(--space-4) var(--space-4) var(--space-5); }
-
-    /* ---- interstitial: categories + newsletter ---- */
-    .blg-inter{ display: grid; grid-template-columns: 1fr 1.25fr; gap: var(--space-8);
-      background: var(--pc-light-blue); border-radius: var(--radius-md);
-      padding: var(--space-7); margin: var(--space-8) 0; }
-    .blg-inter h2{ font-size: 28px; margin: 0 0 var(--space-4); }
-    .blg-inter p{ font-size: 15px; line-height: 1.65; color: var(--color-text-muted);
-      margin: 0 0 var(--space-5); max-width: 54ch; }
-    /* Two columns of category links, hairline-separated. The rule is on the link so the
-       last one in each column doesn't leave a dangling line. */
-    .blg-catgrid{ display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--space-6); }
-    .blg-catlink{ display: block; font-family: var(--font-sans); font-size: 14px;
-      color: var(--pc-black); text-decoration: none; padding: 11px 0;
-      border-bottom: 1px solid rgba(18,64,106,.22); }
-    .blg-catlink:hover{ color: var(--pc-medium-blue); }
-    .blg-catlink:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-
-    /* Newsletter form. Fields are white on the light-blue panel so the input area is
-       unambiguous; the required marker is an asterisk PLUS the label's title text. */
-    .blg-form{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
-    .blg-field{ display: flex; flex-direction: column; gap: 6px; }
-    .blg-field--full{ grid-column: 1 / -1; }
-    .blg-field label{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
-      letter-spacing: .04em; color: var(--pc-navy); }
-    .blg-field label abbr{ text-decoration: none; border: 0; }
-    .blg-field input, .blg-field textarea{ font-family: var(--font-sans); font-size: 14px;
-      color: var(--pc-black); background: var(--pc-white); border: 1px solid rgba(18,64,106,.25);
-      border-radius: var(--radius-sm); padding: 11px 14px; width: 100%; }
-    .blg-field textarea{ min-height: 96px; resize: vertical; }
-    .blg-field input:focus-visible, .blg-field textarea:focus-visible{
-      outline: 2px solid var(--pc-navy); outline-offset: 1px; border-color: var(--pc-navy); }
-    .blg-form .btn{ grid-column: 1 / -1; justify-self: start; }
 
     /* ---- pager ---- */
     .blg-pager{ display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
@@ -123,25 +199,68 @@
     /* ---- responsive: steps sit on the shared --site ladder ---- */
     @media (max-width: 1279px){
       .blg-grid{ grid-template-columns: repeat(2, 1fr); }
+      .blg-duo .io-title{ font-size: 24px; }
       .blg-feature-body{ padding: var(--space-6); }
       .blg-feature-body .io-title{ font-size: 30px; }
     }
-    @media (max-width: 1023px){
-      .blg-inter{ grid-template-columns: 1fr; gap: var(--space-6); }
+    @media (min-width: 900px) and (max-width: 1023px){
+      .blg-body{ --ls-pill-w: 160px; }
+      .ls-checks5{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
+    /* Below 900 the search field takes its own full-width row and the pills sit under it.
+       `display: contents` on .ls-controls is what lets the pills and the field wrap
+       independently inside .ls-bar-in instead of moving as one block. */
     @media (max-width: 899px){
       .blg-feature{ grid-template-columns: 1fr; }
       .blg-intro{ padding-top: var(--space-7); }
+      .ls-bar-in{ justify-content: flex-start; }
+      .ls-controls{ display: contents; }
+      .ls-loc{ flex: 1 1 100%; }
+      .ls-right{ margin-left: auto; }
+    }
+    @media (min-width: 640px) and (max-width: 899px){
+      .ls-checks5{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (min-width: 640px) and (max-width: 767px){
+      .blg-body{ --ls-pill-w: 144px; }
     }
     @media (max-width: 767px){
       .blg-grid{ grid-template-columns: 1fr; }
-      .blg-inter{ padding: var(--space-6); }
+      .blg-duo{ grid-template-columns: 1fr; }
+      .ls-f > .ls-pill{ padding: 4px 8px; gap: 4px; }
     }
     @media (max-width: 639px){
-      .blg-catgrid{ grid-template-columns: 1fr; }
-      .blg-form{ grid-template-columns: 1fr; }
       .blg-feature-body .io-title{ font-size: 26px; }
+      .blg-duo .io-title{ font-size: 22px; }
       .blg-grid .io-title{ font-size: 20px; }
+      /* The bar stops sticking here: at this height a sticky bar plus the header eats too
+         much of the viewport. */
+      .ls-bar{ position: static; }
+      .ls-f{ flex: 1 1 100%; min-width: 0; }
+      .ls-f > .ls-pill{ width: 100%; justify-content: space-between; text-align: left; }
+      .ls-pop{ left: 0; right: auto; min-width: 0; width: calc(100vw - 40px); }
+      .ls-actions{ flex-direction: column-reverse; align-items: stretch; }
+      .ls-apply{ width: 100%; }
+      .ls-right{ flex-wrap: wrap; gap: var(--space-3); }
+      .ls-right .ls-apply{ flex: 1 1 100%; }
+    }
+    @media (min-width: 480px) and (max-width: 639px){
+      .ls-f{ flex: 1 1 0; min-width: 0; position: static; }
+      .ls-right{ flex: 1 1 100%; justify-content: center; margin-left: 0; }
+      .ls-right .ls-apply{ flex: 1 1 100%; width: 100%; }
+      .ls-pop{ left: var(--rail); right: auto;
+        width: calc(100% - 2 * var(--rail)); min-width: 0; }
+      .ls-checks5{ grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2px var(--space-3); }
+      .ls-opt{ gap: 6px; padding: 5px 0; }
+    }
+    @media (max-width: 479px){
+      .ls-daterow{ grid-template-columns: 1fr; gap: var(--space-3); }
+      .ls-f{ flex: 1 1 0; min-width: 0; position: static; }
+      .ls-right{ flex: 1 1 100%; }
+      .ls-pop{ left: var(--rail); right: auto;
+        width: calc(100% - 2 * var(--rail)); min-width: 0; }
+      .ls-opt{ gap: 6px; padding: 2px 0; }
     }
   </style>
 </head>
@@ -212,28 +331,129 @@
 
   <!-- ================= PAGE CONTENT — blog index ================= -->
   <main class="blg-body" aria-label="Page content">
-    <div class="blg-wrap io-scope">
-
-      <!-- Intro + category filters -->
+    <div class="blg-wrap">
       <div class="blg-intro reveal">
-        <p class="hp-eyebrow">Insights &amp; News</p>
         <h1>Peoples Perspective Blog</h1>
-        <p>Market updates, land management guidance, and the people behind the transactions.
-          Written by the Peoples Company team for landowners, operators, and investors.</p>
-        <nav class="blg-filters" aria-label="Filter by category">
-          <a class="blg-chip is-active" href="./blog.html" aria-current="page">All Posts</a>
-          <a class="blg-chip" href="./internal.html">Agriculture</a>
-          <a class="blg-chip" href="./internal.html">Crop Insurance</a>
-          <a class="blg-chip" href="./internal.html">Energy Management</a>
-          <a class="blg-chip" href="./internal.html">Industry Insights</a>
-          <a class="blg-chip" href="./internal.html">Land Auctions</a>
-          <a class="blg-chip" href="./internal.html">Land Investment Expo</a>
-          <a class="blg-chip" href="./internal.html">Land Management</a>
-          <a class="blg-chip" href="./internal.html">Land Values</a>
-          <a class="blg-chip" href="./internal.html">News &amp; Events</a>
-          <a class="blg-chip" href="./internal.html">Real Estate</a>
-        </nav>
       </div>
+    </div>
+
+    <!-- ---------- search / filter bar ----------
+         The same component as team.html: same classes, same popover script, same
+         behaviour. The bar is full-bleed and sticky, so it sits OUTSIDE .blg-wrap; the
+         content box is re-established by .ls-bar-in.
+         Only CATEGORY is defined so far. A second pill is a copy of the .ls-f block below
+         with a new id pair and a new checkbox name - nothing else has to change. -->
+    <div class="ls-bar">
+      <form class="ls-bar-in" id="blgFilters" action="#" onsubmit="return false;"
+            role="search" aria-label="Filter posts">
+        <div class="ls-controls">
+
+          <div class="ls-loc">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+            <input type="search" id="blgSearch" placeholder="Search Posts" aria-label="Search posts"
+                   autocomplete="off" spellcheck="false" />
+          </div>
+
+          <div class="ls-f">
+            <button class="ls-pill" id="blgCatBtn" type="button" data-label="Category"
+                    aria-expanded="false" aria-controls="blgCatPop">Category <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
+            <div class="ls-pop" id="blgCatPop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Category</legend>
+                <div class="ls-poplist">
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Agriculture" /> Agriculture</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Crop Insurance" /> Crop Insurance</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Energy Management" /> Energy Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Industry Insights" /> Industry Insights</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Land Auctions" /> Land Auctions</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Land Investment Expo" /> Land Investment Expo</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Land Management" /> Land Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Land Values" /> Land Values</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="News &amp; Events" /> News &amp; Events</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Real Estate" /> Real Estate</label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="category">Clear</button>
+                <button class="ls-apply" type="button" data-done="category">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="ls-f">
+            <button class="ls-pill" id="blgAuthorBtn" type="button" data-label="Author"
+                    aria-expanded="false" aria-controls="blgAuthorPop">Author <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
+            <div class="ls-pop" id="blgAuthorPop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Author</legend>
+                <div class="ls-poplist">
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Mollie Aronowitz" /> Mollie Aronowitz</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="George Baird" /> George Baird</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Eric Bohnenkamp" /> Eric Bohnenkamp</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Jared Chambers" /> Jared Chambers</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Wendy Forthun" /> Wendy Forthun</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Connie Kreikemeier" /> Connie Kreikemeier</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Jason Lestina" /> Jason Lestina</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Kim McGinnis" /> Kim McGinnis</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Emily Oberbroeckling" /> Emily Oberbroeckling</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Kyle Walker" /> Kyle Walker</label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="author">Clear</button>
+                <button class="ls-apply" type="button" data-done="author">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Publish Date is a RANGE, not a picklist: two native date inputs, so the
+               browser supplies its own calendar and its own locale formatting.
+               The default range is the last two months: FROM is today minus two months,
+               TO is today. Both dates are hardcoded here; the CMS should compute them at
+               render so the window keeps moving.
+               That default is a UI starting point, NOT an applied filter - the pill stays
+               in its resting "Publish Date" state until someone actually changes a field,
+               and Reset puts both back to the default window. When the filtering is
+               wired, do not apply the untouched default or the index silently loses every
+               post older than two months. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="blgDateBtn" type="button" data-label="Publish Date"
+                    aria-expanded="false" aria-controls="blgDatePop">Publish Date <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
+            <div class="ls-pop ls-pop-right" id="blgDatePop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Publish Date</legend>
+                <div class="ls-daterow">
+                  <label class="ls-datefield">
+                    <span class="ls-datelabel">From</span>
+                    <input type="date" id="blgDateStart" name="blg-date-start" value="2026-07-08" max="2026-09-08" />
+                  </label>
+                  <label class="ls-datefield">
+                    <span class="ls-datelabel">To</span>
+                    <input type="date" id="blgDateEnd" name="blg-date-end" value="2026-09-08" max="2026-09-08" />
+                  </label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="date">Reset</button>
+                <button class="ls-apply" type="button" data-done="date">Done</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Nothing filters on change. The criteria are only committed when SEARCH is
+             pressed, which is also what Enter in the search field does. -->
+        <div class="ls-right">
+          <button class="ls-apply" id="blgSubmit" type="submit">Search</button>
+          <button class="ls-apply ls-ghost" id="blgClear" type="button">Clear Filters</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="blg-wrap io-scope">
+      <p class="blg-status" id="blgStatus" role="status" aria-live="polite">Showing all posts.</p>
+
 
       <!-- Featured post: the newest article, given the full content width. Same content
            model as a grid card (photo, category, date, headline, teaser) at a larger size. -->
@@ -247,8 +467,8 @@
         </div>
       </a>
 
-      <!-- First run of posts -->
-      <div class="blg-grid">
+      <!-- Row 2: a pair of wide cards, so the page opens 1 / 2 / 3 instead of 1 / 3 / 3. -->
+      <div class="blg-duo">
 
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Peoples Company Acquires Murray Wise Associates LLC" loading="lazy" decoding="async" /></div>
@@ -260,20 +480,25 @@
         </a>
 
         <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="From the Ground Up" loading="lazy" decoding="async" /></div>
-          <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Management</span><span class="io-date">April 13, 2026</span></span>
-            <h2 class="io-title">From the Ground Up: How Strategic Land Management Unlocks Long-Term Appreciation</h2>
-            <p class="io-teaser">Discover how proactive land management decisions, from soil health to tenant relationships, can drive meaningful appreciation over time.</p>
-          </div>
-        </a>
-
-        <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Argentina Agriculture" loading="lazy" decoding="async" /></div>
           <div class="io-body">
             <span class="io-metarow"><span class="io-chip">Industry Insights</span><span class="io-date">April 13, 2026</span></span>
             <h2 class="io-title">Argentina: U.S. Partnership Opportunities in Agriculture, Energy &amp; Fertilizer</h2>
             <p class="io-teaser">An overview of emerging cross-border opportunities between the U.S. and Argentina across agriculture, energy production, and fertilizer supply chains.</p>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- The remaining posts, 3-up. -->
+      <div class="blg-grid">
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="From the Ground Up" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-chip">Land Management</span><span class="io-date">April 13, 2026</span></span>
+            <h2 class="io-title">From the Ground Up: How Strategic Land Management Unlocks Long-Term Appreciation</h2>
+            <p class="io-teaser">Discover how proactive land management decisions, from soil health to tenant relationships, can drive meaningful appreciation over time.</p>
           </div>
         </a>
 
@@ -312,62 +537,6 @@
             <p class="io-teaser">Peoples Company&#8217;s Q4 auction results reflect continued investor confidence in Midwest farmland, with several tracts selling above pre-auction estimates.</p>
           </div>
         </a>
-
-      </div>
-
-      <!-- ===== INTERSTITIAL: categories + newsletter ===== -->
-      <div class="blg-inter reveal">
-        <div>
-          <h2>Blog Categories</h2>
-          <div class="blg-catgrid">
-            <a class="blg-catlink" href="./internal.html">Agriculture</a>
-            <a class="blg-catlink" href="./internal.html">Crop Insurance</a>
-            <a class="blg-catlink" href="./internal.html">Energy Management</a>
-            <a class="blg-catlink" href="./internal.html">Industry Insights</a>
-            <a class="blg-catlink" href="./internal.html">Land Auctions</a>
-            <a class="blg-catlink" href="./internal.html">Land Investment Expo</a>
-            <a class="blg-catlink" href="./internal.html">Land Management</a>
-            <a class="blg-catlink" href="./internal.html">Land Values</a>
-            <a class="blg-catlink" href="./internal.html">News &amp; Events</a>
-            <a class="blg-catlink" href="./internal.html">Real Estate</a>
-          </div>
-        </div>
-
-        <div>
-          <h2>Subscribe To Our Newsletter</h2>
-          <p>Peoples Company proactively works to anticipate the needs of those in the
-            agricultural sector. Our monthly email publication keeps readers in the know
-            about everything land.</p>
-          <!-- Inert on this mockup (onsubmit returns false). On the live site this posts to
-               the same newsletter endpoint as the footer subscribe pill. -->
-          <form class="blg-form" action="#" onsubmit="return false;">
-            <div class="blg-field">
-              <label for="nl-first">First Name <abbr title="required">*</abbr></label>
-              <input type="text" id="nl-first" name="first_name" autocomplete="given-name" required />
-            </div>
-            <div class="blg-field">
-              <label for="nl-last">Last Name <abbr title="required">*</abbr></label>
-              <input type="text" id="nl-last" name="last_name" autocomplete="family-name" required />
-            </div>
-            <div class="blg-field">
-              <label for="nl-email">Email <abbr title="required">*</abbr></label>
-              <input type="email" id="nl-email" name="email" autocomplete="email" required />
-            </div>
-            <div class="blg-field">
-              <label for="nl-mobile">Mobile</label>
-              <input type="tel" id="nl-mobile" name="mobile" autocomplete="tel" />
-            </div>
-            <div class="blg-field blg-field--full">
-              <label for="nl-comments">Comments or Questions</label>
-              <textarea id="nl-comments" name="comments"></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Submit</button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Second run of posts -->
-      <div class="blg-grid">
 
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Crop Insurance" loading="lazy" decoding="async" /></div>
@@ -465,6 +634,24 @@
             <span class="io-metarow"><span class="io-chip">Land Values</span><span class="io-date">October 14, 2025</span></span>
             <h2 class="io-title">Midwest Farmland Market Outlook: Fall 2025</h2>
             <p class="io-teaser">Our market analysts weigh in on land values, buyer demand, and the factors most likely to shape farmland pricing heading into year-end and beyond.</p>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Crop insurance decisions" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-chip">Crop Insurance</span><span class="io-date">October 7, 2025</span></span>
+            <h2 class="io-title">Choosing Coverage Levels: A Practical Guide to Crop Insurance Decisions</h2>
+            <p class="io-teaser">Revenue protection, yield protection, and enterprise units all change the math. Here is how operators think through coverage before the sales closing date.</p>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Wind turbines on farmland" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-chip">Energy Management</span><span class="io-date">September 29, 2025</span></span>
+            <h2 class="io-title">Reading the Fine Print on Wind and Solar Easements</h2>
+            <p class="io-teaser">Term length, decommissioning obligations, and setback language decide what a lease is really worth. A closer look at the clauses that matter most.</p>
           </div>
         </a>
 
@@ -620,6 +807,198 @@
   </button>
 
   <script>
+
+    /* ---- filter bar: popover open/close, and the pill's own label state ----
+       Same script as team.html. The filtering itself is NOT wired: the bar records a
+       selection and repaints its pill, and nothing on the page is hidden. That is
+       deliberate while the filter set is still being decided. */
+    (function(){
+      var pops = [].slice.call(document.querySelectorAll(".ls-f > .ls-pop")).map(function(pop){
+        return { pop: pop, btn: document.querySelector('[aria-controls="' + pop.id + '"]') };
+      }).filter(function(p){ return p.btn; });
+      if(!pops.length) return;
+
+      function closeAll(except, returnFocus){
+        pops.forEach(function(p){
+          if(p.pop === except || p.pop.hidden) return;
+          p.pop.hidden = true;
+          p.btn.setAttribute("aria-expanded", "false");
+          if(returnFocus) p.btn.focus();
+        });
+      }
+
+      pops.forEach(function(p){
+        p.btn.addEventListener("click", function(){
+          var isOpen = p.btn.getAttribute("aria-expanded") === "true";
+          closeAll(null, false);
+          if(!isOpen){
+            p.pop.hidden = false;
+            p.btn.setAttribute("aria-expanded", "true");
+            var first = p.pop.querySelector("input:checked") || p.pop.querySelector("input, button");
+            if(first) first.focus();
+          }
+        });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key !== "Escape" && e.key !== "Esc") return;
+        var open = pops.filter(function(p){ return !p.pop.hidden; });
+        if(open.length) closeAll(null, true);
+      });
+      document.addEventListener("click", function(e){
+        if(e.target.closest && e.target.closest(".ls-f")) return;
+        closeAll(null, false);
+      });
+    })();
+
+    (function(){
+      var chev = ' <span class="ls-chev" aria-hidden="true">\u25be</span>';
+
+      function pillGroup(btnId, popId, boxName, plural){
+        var btn = document.getElementById(btnId), pop = document.getElementById(popId);
+        if(!btn || !pop) return null;
+        var boxes = [].slice.call(pop.querySelectorAll('input[name="' + boxName + '"]'));
+        var g = { btn: btn, pop: pop, boxes: boxes,
+                  resting: btn.getAttribute("data-label"), labels: [] };
+
+        function on(){ return boxes.filter(function(b){ return b.checked; }); }
+
+        g.paint = function(){
+          var sel = on();
+          g.labels = sel.map(function(b){ return b.value; });
+          var text = !sel.length ? null
+                   : (sel.length === 1 ? sel[0].value : sel.length + " " + plural);
+          btn.innerHTML = (text || g.resting) + chev;
+          btn.classList.toggle("is-set", !!text);
+        };
+        g.clear = function(){
+          boxes.forEach(function(b){ b.checked = false; });
+          g.paint();
+        };
+
+        boxes.forEach(function(b){ b.addEventListener("change", g.paint); });
+        var c = pop.querySelector("[data-clear]"), d = pop.querySelector("[data-done]");
+        if(c) c.addEventListener("click", g.clear);
+        if(d) d.addEventListener("click", function(){
+          pop.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
+        });
+        g.paint();
+        return g;
+      }
+
+      var groups = [
+        pillGroup("blgCatBtn",    "blgCatPop",    "blg-category", "categories"),
+        pillGroup("blgAuthorBtn", "blgAuthorPop", "blg-author",   "authors")
+      ].filter(Boolean);
+
+      /* ---- Publish Date: a range, not a picklist ----
+         The fields start on a two-month window (today minus two months, to today).
+         `dirty` is what keeps the pill from announcing a filter nobody asked for: until a
+         field is actually changed the pill reads "Publish Date", even though the inputs
+         hold values. Reset returns to that state. Dates are split by hand rather than passed to `new Date(str)`, which
+         reads a bare YYYY-MM-DD as UTC and can render the previous day west of GMT. */
+      var dateG = (function(){
+        var btn = document.getElementById("blgDateBtn");
+        var pop = document.getElementById("blgDatePop");
+        var a   = document.getElementById("blgDateStart");
+        var b   = document.getElementById("blgDateEnd");
+        if(!btn || !pop || !a || !b) return null;
+
+        var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        var DEF_A = a.value, DEF_B = b.value;
+        var g = { btn: btn, pop: pop, dirty: false, labels: [] };
+
+        function parts(v){
+          var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || "");
+          return m ? { y: +m[1], m: +m[2] - 1, d: +m[3] } : null;
+        }
+        /* The pill is a fixed width, so the range label is kept short: the year is
+           dropped from a same-year range and shown two-digit when the years differ. */
+        function label(){
+          var s = parts(a.value), e = parts(b.value);
+          if(!s && !e) return null;
+          if(s && e){
+            if(a.value === b.value) return MON[s.m] + " " + s.d + ", " + s.y;
+            if(s.y === e.y)         return MON[s.m] + " " + s.d + " \u2013 " + MON[e.m] + " " + e.d;
+            return MON[s.m] + " " + s.d + ", " + String(s.y).slice(2) + " \u2013 " +
+                   MON[e.m] + " " + e.d + ", " + String(e.y).slice(2);
+          }
+          var one = s || e;
+          return (s ? "From " : "To ") + MON[one.m] + " " + one.d + ", " + one.y;
+        }
+
+        g.paint = function(){
+          var text = g.dirty ? label() : null;
+          g.labels = text ? [text] : [];
+          btn.innerHTML = (text || btn.getAttribute("data-label")) + chev;
+          btn.classList.toggle("is-set", !!text);
+        };
+        g.clear = function(){
+          a.value = DEF_A; b.value = DEF_B;
+          g.dirty = false;
+          g.paint();
+        };
+
+        /* Both fields carry max="today" in the markup - there are no posts published in
+           the future. Nothing here enforces start <= end; that belongs with the real
+           filtering, and constraining the two inputs against each other while both start
+           on the same day leaves the range unable to open at all. */
+        [a, b].forEach(function(inp){
+          inp.addEventListener("change", function(){ g.dirty = true; g.paint(); });
+        });
+
+        var c = pop.querySelector("[data-clear]"), d = pop.querySelector("[data-done]");
+        if(c) c.addEventListener("click", g.clear);
+        if(d) d.addEventListener("click", function(){
+          pop.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
+        });
+        g.paint();
+        return g;
+      })();
+      if(dateG) groups.push(dateG);
+
+      /* ---- commit ----
+         Nothing filters as the criteria change. The pills repaint their own labels,
+         because that is the control showing its own state, but the RESULTS only move
+         when Search is pressed. That is the single entry point: when the real filtering
+         is wired, call it from commit() and nowhere else. */
+      var form   = document.getElementById("blgFilters");
+      var search = document.getElementById("blgSearch");
+      var status = document.getElementById("blgStatus");
+      var clear  = document.getElementById("blgClear");
+
+      function esc(t){
+        return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+      function criteria(){
+        var out = [];
+        var q = search ? search.value.trim() : "";
+        /* The readout is written with innerHTML, so the typed term is escaped. */
+        if(q) out.push('matching "' + esc(q) + '"');
+        groups.forEach(function(g){
+          if(!g.btn.classList.contains("is-set")) return;
+          out.push(g.btn.getAttribute("data-label").toLowerCase() + ": " +
+                   (g.labels ? g.labels.join(", ") : g.btn.textContent.trim()));
+        });
+        return out;
+      }
+
+      function commit(){
+        if(!status) return;
+        var c = criteria();
+        status.innerHTML = c.length
+          ? "Showing posts <b>" + c.join("</b>, <b>") + "</b>."
+          : "Showing all posts.";
+        /* The real filter pass goes here. */
+      }
+
+      if(form) form.addEventListener("submit", function(e){ e.preventDefault(); commit(); });
+      if(clear) clear.addEventListener("click", function(){
+        groups.forEach(function(g){ g.clear(); });
+        if(search) search.value = "";
+        commit();
+      });
+    })();
     // Mega-menu nav built from the real IA. "The Company" panel carries three
     // affiliation badges on the right (this tab only).
     (function(){
