@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Peoples Company · Final (PC) — Team Member Pages</title>
-  <meta name="description" content="The two team member detail pages — agent and support — and the rule that a section with no data is absent, not empty." />
+  <title>Peoples Company · Final (PC) — Kim Lacey, Executive Assistant</title>
+  <meta name="description" content="Kim Lacey, Executive Assistant at Peoples Company. The support variant of the team member page: two tabs, and three options for a rail with nothing to put in it." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,88 +14,284 @@
   <!-- Single source of truth for the final PC direction -->
   <link href="pc.css?v=20260827a" rel="stylesheet" />
 
+  <!-- ================= TEAM MEMBER DETAIL =================
+       Two-column shell under a compact identity band. The LEFT column is a tab panel group -
+       one panel visible at a time - and the RIGHT rail persists beside every panel so the
+       contact form and the licences never leave the screen. The rail is why the cards inside
+       the panels run 2-up rather than the 3-up of listings.html.
+
+       THE SUB-NAV IS BUILT FROM THE PANELS THAT EXIST. buildTabs() reads every
+       .tmd-panel[data-label] in the DOM and writes one tab per panel; there is no hard-coded
+       tab list. An agent with no sold listings has no Sold panel, so no Sold tab is drawn and
+       the remaining tabs close the gap. The first surviving panel opens. Delete a panel from
+       the markup to see it - that is exactly what the CMS will do.
+
+       RAIL BLOCKS follow the same rule and are independent of the tabs: each is its own
+       section and simply is not output when the agent has nothing for it.
+
+       CARDS ARE THE SHARED ONES. .lc / .lc-grid come from pc.css and are not redefined here -
+       only the column count is overridden for the narrower measure. -->
   <style>
-    .sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
-      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
-      border: 0; }
+    /* ---------------------------------------------------------------
+       Team member (tmd-). Page-local only; everything shared is pc.css.
+       --------------------------------------------------------------- */
+    .tmd{ background: var(--pc-white); }
+    .tmd-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
-    .lx-body{ background: var(--pc-white); }
-    .lx-wrap{ max-width: var(--site); margin: 0 auto; padding: var(--space-8) var(--rail) var(--space-9); }
+    /* ---- breadcrumb ---- */
+    .tmd-crumb{ padding: var(--space-5) 0 0; font-size: 13px; color: rgba(7,22,44,.62); }
+    .tmd-crumb a{ color: rgba(7,22,44,.62); text-decoration: none; }
+    .tmd-crumb a:hover{ color: var(--pc-navy); text-decoration: underline; }
+    .tmd-crumb span{ margin: 0 8px; }
 
-    .lx-eyebrow{ font-family: var(--font-sans); font-size: var(--label); font-weight: 400;
-      letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-subtle);
-      margin: 0 0 var(--space-3); }
-    .lx-wrap h1{ margin: 0 0 var(--space-4); }
-    .lx-intro{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
-      color: var(--color-text-muted); max-width: 68ch; margin: 0 0 var(--space-7); }
+    /* ---- identity band ----
+       Deliberately CONTAINED, not bled: it sits inside .tmd-wrap and ends on a hairline.
+       Portrait is fixed at 168px so the band's height is set by the copy, not the photo. */
+    /* CONTAINED TINT, not a bleed: the band is a panel inside .tmd-wrap with its own
+       radius, so the colour stops at the site measure on both sides. */
+    .tmd-id{ display: grid; grid-template-columns: 193px minmax(0,1fr) auto;
+      gap: var(--space-6); align-items: start; margin: var(--space-4) 0 0;
+      padding: var(--space-6); border: 1px solid rgba(18,64,106,.16);
+      border-radius: var(--radius-md); background: var(--pc-soft-white); }
+    /* 168 -> 193px, the 15% Kiron asked for. The band's height still comes from the copy. */
+    .tmd-portrait{ width: 193px; aspect-ratio: 4 / 5; border-radius: var(--radius-md);
+      overflow: hidden; background: #F4F6F8; }
+    .tmd-portrait img{ width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* ---- the developer note ----
-       Same colours as the mock-up notes on the listing pages themselves: #FFFAEF on a dashed
-       #C2870B edge, 4px solid down the left. Full width of the content area - no measure cap on
-       the prose, unlike ordinary body copy - and one step down in size, because this block is
-       reference material rather than something to read straight through. */
-    .lx-callout{ background: #FFFAEF; border: 1px dashed #C2870B; border-left: 4px solid #C2870B;
-      border-radius: var(--radius-sm); padding: var(--space-4) var(--space-5);
-      margin: 0 0 var(--space-7); }
-    .lx-tag{ margin: 0 0 var(--space-2); font-family: var(--font-sans); font-size: 10px;
-      font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; }
-    .lx-callout h2{ margin: 0 0 var(--space-2); font-family: var(--font-sans);
-      font-size: 15px; font-weight: 700; letter-spacing: 0; color: #8A5D00; }
-    .lx-callout p{ font-family: var(--font-sans); font-size: 13px; line-height: 1.6;
-      color: var(--color-text); margin: 0 0 var(--space-3); }
-    .lx-callout p:last-child{ margin-bottom: 0; }
-    .lx-callout b{ font-weight: 600; }
-    .lx-callout code{ font-size: 12px; }
-    .lx-callout dl{ display: grid; gap: 2px var(--space-4); margin: 0 0 var(--space-3); }
-    .lx-callout dt{ font-family: var(--font-sans); font-size: 10px; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; }
-    .lx-callout dd{ font-family: var(--font-sans); font-size: 13px; line-height: 1.6;
-      color: var(--color-text); margin: 0; }
-    .lx-callout .lx-flag{ font-weight: 700; color: #8A5D00; }
-    @media (min-width: 768px){
-      .lx-callout dl{ grid-template-columns: max-content minmax(0, 1fr); align-items: baseline; }
+    .tmd-idmain{ min-width: 0; padding-top: 2px; }
+    /* The site H1, not a page-local size: --h1-size / 1.1 / -0.01em, same as every other
+       page's headline. Only the colour is stated, and it matches the global h1 anyway. */
+    .tmd-name{ font-family: var(--font-serif); font-weight: 500; font-size: var(--h1-size);
+      line-height: 1.1; letter-spacing: -0.01em; color: var(--pc-black); margin: 0; }
+    .tmd-desig{ font-family: var(--font-sans); font-size: 17px; font-weight: 500;
+      color: rgba(7,22,44,.60); letter-spacing: .01em; }
+    .tmd-role{ font-family: var(--font-sans); font-size: 15px; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--pc-navy); margin: 8px 0 0; }
+    .tmd-meta{ list-style: none; margin: var(--space-4) 0 0; padding: 0;
+      display: flex; flex-wrap: wrap; gap: 6px var(--space-5); }
+    .tmd-meta li{ display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-sans); font-size: 14.5px; color: rgba(7,22,44,.78); }
+    .tmd-meta svg{ width: 15px; height: 15px; flex: none; fill: var(--pc-navy); opacity: .85; }
+    .tmd-meta a{ color: inherit; text-decoration: none; }
+    .tmd-meta a:hover{ color: var(--pc-navy); text-decoration: underline; }
+    .tmd-tag{ color: rgba(7,22,44,.50); font-size: 12.5px; letter-spacing: .05em;
+      text-transform: uppercase; }
+
+    /* ---- social ---- */
+    .tmd-idside{ display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-4);
+      padding-top: 4px; }
+    .tmd-social{ display: flex; gap: 8px; }
+    .tmd-social a{ width: 38px; height: 38px; border-radius: var(--radius-pill);
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(18,64,106,.28); color: var(--pc-navy); background: var(--pc-white);
+      transition: background .18s ease, color .18s ease, border-color .18s ease; }
+    .tmd-social a:hover{ background: var(--pc-navy); border-color: var(--pc-navy); color: #fff; }
+    .tmd-social svg{ width: 17px; height: 17px; fill: currentColor; }
+
+    /* ---- two-column shell ---- */
+    /* align-items is STRETCH, not start, and that is load-bearing: a sticky element can only
+       travel inside its own containing block, so .tmd-main has to run the full height of the
+       row or the sub-nav unsticks the moment the bio panel ends. */
+    .tmd-cols{ display: grid; grid-template-columns: minmax(0,1fr) 320px;
+      gap: var(--space-8); align-items: stretch;
+      padding: var(--space-6) 0 var(--space-9); }
+    .tmd-main{ min-width: 0; }
+
+    /* ---- sub-nav tabs ---- */
+    /* STICKY SUB-NAV, the same mechanism as .ld-subbar on the listing detail, but it does NOT
+       park at var(--navH): the Interactive Map tab is also sticky there, 340px wide and centred,
+       which puts it straight over the middle of this column - and at z-39 it wins. So the bar
+       parks below the map tab's full extent instead - and does it with PADDING rather than a
+       lower `top`, so the white ground reaches the header and nothing shows through the band.
+       --md-tab-h-peak, not --md-tab-h, because the tab's idle animation grows it to the peak;
+       +8px keeps them off each other. Both tokens are per-breakpoint, so this clears the tab at
+       every width without a second rule.
+       The padding-top plus the matching negative margin let the ground cover the gap above
+       the buttons without adding space when the bar is at rest. */
+    .tmd-tabs{ position: sticky; top: var(--navH); z-index: 20;
+      display: flex; gap: var(--space-6); border-bottom: 1px solid rgba(18,64,106,.20);
+      background: var(--pc-white);
+      /* The PADDING is the cover. The box parks at var(--navH) - flush under the header - and
+         its own white ground fills the whole band down to the buttons, so nothing scrolls
+         through the space the map tab occupies. The negative margin cancels .tmd-cols'
+         padding-top so the box starts level with the identity band instead of below it;
+         change one and change the other. */
+      margin: calc(-1 * var(--space-6)) 0 var(--space-6);
+      padding-top: calc(var(--md-tab-h-peak) + 8px);
+      overflow-x: auto; scrollbar-width: none; }
+    .tmd-tabs::-webkit-scrollbar{ display: none; }
+    .tmd-tab{ appearance: none; background: none; border: 0; cursor: pointer; white-space: nowrap;
+      font-family: var(--font-sans); font-size: 14px; font-weight: 600; letter-spacing: .07em;
+      text-transform: uppercase; color: rgba(7,22,44,.55);
+      padding: 0 0 14px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+      transition: color .18s ease, border-color .18s ease; }
+    .tmd-tab:hover{ color: var(--pc-navy); }
+    .tmd-tab[aria-selected="true"]{ color: var(--pc-black); border-bottom-color: var(--pc-blue); }
+    .tmd-tab:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px; }
+
+    .tmd-panel:focus{ outline: none; }
+    .tmd-h2{ font-family: var(--font-serif); font-weight: 500; font-size: 27px; line-height: 1.2;
+      color: var(--pc-black); margin: 0 0 var(--space-4); }
+
+    /* ---- bio ---- */
+    /* Bio copy runs the FULL panel width (Kiron, 2026-09-08) rather than sitting on a
+       measure cap - the panel is 992px here and a 68ch cap left a third of it empty. */
+    .tmd-bio p{ font-family: var(--font-sans); font-size: 16.5px; line-height: 1.75;
+      color: rgba(7,22,44,.86); margin: 0 0 var(--space-4); }
+    .tmd-bio p:last-child{ margin-bottom: 0; }
+    .tmd-facts{ margin: var(--space-6) 0 0; padding: var(--space-5) 0 0;
+      border-top: 1px solid rgba(18,64,106,.16);
+      display: flex; flex-direction: column; gap: var(--space-5); }
+    .tmd-fact h3{ font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--pc-navy); margin: 0 0 6px; }
+    .tmd-fact p{ font-family: var(--font-sans); font-size: 15px; line-height: 1.6;
+      color: rgba(7,22,44,.82); margin: 0; }
+
+    /* ---- testimonials: full-width stacked cards ----
+       Was a two-across carousel at 484px, which ran the quotes long and narrow. Now one card
+       per row across the whole panel: attribution in a fixed left column so every quote starts
+       on the same line, and the quote is set in the serif at 21px. No decorative quote glyph:
+       one was tried as a watermark behind the attribution and read as stray content. */
+    .tmd-quotes{ display: flex; flex-direction: column; gap: var(--space-4); }
+    /* margin:0 is required - <figure> carries a UA default of `1em 40px`, which was eating
+       80px of the card width and doubling the gap between cards. */
+    .tmd-quote{ margin: 0; display: grid; grid-template-columns: 244px minmax(0,1fr);
+      gap: var(--space-6); align-items: start;
+      background: #F4F6F8; border: 1px solid rgba(18,64,106,.18);
+      border-radius: var(--radius-md); padding: var(--space-6); }
+    /* Source order is quote then attribution; the grid puts the attribution in column 1. */
+    .tmd-quote blockquote{ grid-column: 2; margin: 0; font-family: var(--font-serif);
+      font-size: 21px; line-height: 1.55; color: var(--pc-black); }
+    .tmd-quote figcaption{ grid-column: 1; grid-row: 1;
+      font-family: var(--font-sans); font-size: 13.5px; line-height: 1.5;
+      color: rgba(7,22,44,.62); padding-left: var(--space-4);
+      border-left: 3px solid var(--pc-blue); }
+    .tmd-quote figcaption strong{ display: block; font-weight: 600; font-size: 15px;
+      color: var(--pc-black); margin-bottom: 3px; }
+
+    /* ---- listing cards: 3-up, two rows of three, inside the 992px panel ----
+       pc.css also runs .lc-grid at three columns, but against the full 1440 measure; this
+       restates it so the panel column keeps three across regardless of what the shared
+       grid does at a given width. Cards land at 314px. */
+    .tmd-main .lc-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .tmd-panelfoot{ margin: var(--space-6) 0 0; }
+
+    /* ---- photo gallery: two rows of three ---- */
+    .tmd-gal{ display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: var(--space-5); }
+    .tmd-gal figure{ margin: 0; }
+    .tmd-gal img{ width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block;
+      border-radius: var(--radius-md); background: #F4F6F8; }
+
+    /* ---- right rail ---- */
+    .tmd-rail{ display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+    .tmd-rcard{ background: var(--pc-white); border: 1px solid rgba(18,64,106,.22);
+      border-radius: var(--radius-md); padding: var(--space-5); }
+    .tmd-rcard.is-filled{ background: #F4F6F8; }
+    .tmd-rtitle{ font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--pc-navy); margin: 0 0 var(--space-4);
+      padding-bottom: 10px; border-bottom: 1px solid rgba(18,64,106,.18); }
+
+    /* contact form - lives in the panel column now, so it lays out across the measure */
+    .tmd-formlede{ font-family: var(--font-sans); font-size: 16px; line-height: 1.7;
+      color: rgba(7,22,44,.82); margin: 0 0 var(--space-5); }
+    /* No max-width: the form fills the panel measure like every other panel. */
+    .tmd-form{ display: flex; flex-direction: column; gap: var(--space-4); }
+    .tmd-frow{ display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-4); }
+    .tmd-field{ display: flex; flex-direction: column; gap: 6px; }
+    .tmd-fsubmit{ display: flex; }
+    .tmd-fsubmit .btn{ width: auto; min-width: 200px; }
+    .tmd-form label{ font-family: var(--font-sans); font-size: 12.5px; font-weight: 600;
+      color: rgba(7,22,44,.70); }
+    .tmd-form input, .tmd-form textarea{ font-family: var(--font-sans); font-size: 14.5px;
+      color: var(--pc-black); background: var(--pc-white);
+      border: 1px solid rgba(18,64,106,.30); border-radius: var(--radius-sm);
+      padding: 10px 12px; width: 100%; }
+    .tmd-form textarea{ resize: vertical; min-height: 88px; }
+    .tmd-form input:focus, .tmd-form textarea:focus{ outline: 2px solid var(--pc-blue);
+      outline-offset: 1px; border-color: var(--pc-navy); }
+    .tmd-formnote{ font-family: var(--font-sans); font-size: 12px; line-height: 1.5;
+      color: rgba(7,22,44,.55); margin: 4px 0 0; }
+
+    /* licences - a repeating list, never a single line: many states, many numbers */
+    .tmd-lic{ list-style: none; margin: 0; padding: 0; }
+    .tmd-lic li{ display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+      padding: 9px 0; border-bottom: 1px dashed rgba(18,64,106,.20); }
+    .tmd-lic li:first-child{ padding-top: 0; }
+    .tmd-lic li:last-child{ border-bottom: 0; padding-bottom: 0; }
+    .tmd-licwho{ font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .tmd-licwho small{ display: block; font-size: 12px; color: rgba(7,22,44,.55); margin-top: 1px; }
+    .tmd-licno{ font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-size: 13px;
+      color: rgba(7,22,44,.72); white-space: nowrap; }
+
+    /* awards - regional and national recognition. Name over years; the names run long
+       (up to 71 characters) so they wrap rather than sitting beside a badge. */
+    .tmd-awards{ list-style: none; margin: 0; padding: 0; }
+    .tmd-awards li{ padding: 10px 0 10px 14px; position: relative;
+      border-bottom: 1px solid rgba(18,64,106,.12); }
+    .tmd-awards li:first-child{ padding-top: 0; }
+    .tmd-awards li:first-child::before{ top: 7px; }
+    .tmd-awards li:last-child{ border-bottom: 0; padding-bottom: 0; }
+    .tmd-awards li::before{ content: ""; position: absolute; left: 0; top: 17px;
+      width: 5px; height: 5px; border-radius: 50%; background: var(--pc-blue); }
+    .tmd-awname{ display: block; font-family: var(--font-sans); font-size: 14px; line-height: 1.4;
+      color: var(--pc-black); }
+    .tmd-awyrs{ display: block; font-family: var(--font-sans); font-size: 12.5px;
+      font-variant-numeric: tabular-nums; color: rgba(7,22,44,.55); margin-top: 2px; }
+
+    /* memberships - a stacked list inside the last fact block */
+    .tmd-affil{ list-style: none; margin: 0; padding: 0; }
+    .tmd-affil li{ font-family: var(--font-sans); font-size: 15px; line-height: 1.5;
+      color: rgba(7,22,44,.82); padding: 4px 0; }
+    .tmd-fact sup{ font-size: .62em; }
+
+    /* blog stories - title and date only, five of them */
+    .tmd-posts{ list-style: none; margin: 0; padding: 0; }
+    .tmd-posts li{ padding: 11px 0; border-bottom: 1px solid rgba(18,64,106,.14); }
+    .tmd-posts li:first-child{ padding-top: 0; }
+    .tmd-posts li:last-child{ border-bottom: 0; padding-bottom: 0; }
+    .tmd-posts a{ display: block; font-family: var(--font-sans); font-size: 14.5px; line-height: 1.4;
+      font-weight: 500; color: var(--pc-black); text-decoration: none; }
+    .tmd-posts a:hover{ color: var(--pc-navy); text-decoration: underline; }
+    .tmd-posts time{ display: block; font-family: var(--font-sans); font-size: 12.5px;
+      color: rgba(7,22,44,.55); margin-top: 3px; }
+    .tmd-railmore{ display: inline-block; margin-top: var(--space-4); font-family: var(--font-sans);
+      font-size: 13px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--pc-navy); text-decoration: none; }
+    .tmd-railmore:hover{ text-decoration: underline; }
+
+    /* ---- responsive ---- */
+    @media (max-width: 1279px){
+      .tmd-cols{ grid-template-columns: minmax(0,1fr) 296px; gap: var(--space-6); }
     }
-
-    /* ---- the table ---- */
-    .lx-tablewrap{ overflow-x: auto; border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg); }
-    table.lx-table{ width: 100%; border-collapse: collapse;
-      font-family: var(--font-sans); background: var(--pc-white); }
-    .lx-table caption{ text-align: left; font-size: var(--body-sm); color: var(--pc-navy);
-      padding: var(--space-4) var(--space-5) 0; }
-    .lx-table th, .lx-table td{ text-align: left; padding: var(--space-4) var(--space-5);
-      border-bottom: 1px solid var(--color-border); vertical-align: middle; }
-    .lx-table thead th{ font-size: var(--label); font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; color: var(--pc-navy); background: var(--pc-soft-white);
-      border-bottom: 1px solid var(--color-border); white-space: nowrap; }
-    .lx-table tbody tr:last-child td{ border-bottom: 0; }
-    .lx-table tbody tr:hover{ background: var(--pc-soft-white); }
-
-    .lx-type{ font-family: var(--font-serif); font-size: var(--h4-size); font-weight: 500;
-      color: var(--color-text); margin: 0 0 2px; }
-    .lx-type a{ color: var(--color-text); text-decoration: underline;
-      text-underline-offset: 3px; text-decoration-thickness: 1px; }
-    .lx-type a:hover{ color: var(--color-accent); }
-    .lx-file{ font-family: var(--font-sans); font-size: var(--body-sm); color: var(--pc-navy); margin: 0; }
-    /* One line each, no wrap. The copy is written to fit; .lx-tablewrap already scrolls on
-       overflow, so a longer line degrades to a scroll rather than a ragged wrap. */
-    /* STATUS BADGE - mock-up scaffolding, and it comes out when the layout is signed off.
-       Deliberately NOT a <button>: nothing happens when it is clicked, so it is a status
-       label, not a control. Same amber as the mock-up notes elsewhere in the build. */
-    .lx-statuscol{ text-align: right; white-space: nowrap; width: 1%; }
-    .lx-status{ display: inline-flex; align-items: center; gap: 8px;
-      background: #FFFAEF; border: 1px dashed #C2870B; border-radius: var(--radius-pill);
-      padding: 8px 16px; font-family: var(--font-sans); font-size: 13px; font-weight: 700;
-      letter-spacing: .02em; color: #8A5D00; }
-    .lx-status svg{ width: 16px; height: 16px; flex: none; fill: #C2870B; }
-
-    .lx-desc{ font-family: var(--font-sans); font-size: var(--body-sm); line-height: 1.6;
-      color: var(--color-text-muted); margin: var(--space-2) 0 0; white-space: nowrap; }
-
-    /* ---- responsive: breakpoints sit on --site steps ---- */
+    @media (max-width: 1023px){
+      /* Rail drops under the panels. The tabs still swap one panel at a time; only the
+         columns collapse, so the contact form lands directly after the active panel. */
+      .tmd-cols{ grid-template-columns: minmax(0,1fr); gap: var(--space-7); }
+      .tmd-rail{ max-width: 560px; }
+      .tmd-id{ grid-template-columns: 170px minmax(0,1fr); }
+      .tmd-portrait{ width: 170px; }
+      .tmd-idside{ grid-column: 2; align-items: flex-start; padding-top: 0; }
+    }
     @media (max-width: 767px){
-      .lx-table th, .lx-table td{ padding: var(--space-3) var(--space-4); }
+      .tmd-id{ grid-template-columns: 120px minmax(0,1fr); gap: var(--space-4);
+        padding: var(--space-5) 0; }
+      .tmd-portrait{ width: 120px; }
+      .tmd-name{ font-size: 27px; }
+      .tmd-desig{ font-size: 15px; }
+      .tmd-meta{ gap: 6px var(--space-4); }
+      .tmd-tcar{ grid-auto-columns: minmax(0, 88%); }
+      .tmd-gal{ grid-auto-columns: minmax(0, 72%); }
+      .tmd-main .lc-grid{ grid-template-columns: minmax(0,1fr); }
+      .tmd-h2{ font-size: 23px; }
     }
+    @media (max-width: 519px){
+      /* Portrait goes over the copy - at this width a 120px column leaves the name no room. */
+      .tmd-id{ grid-template-columns: minmax(0,1fr); }
+      .tmd-idside{ grid-column: 1; }
+      .tmd-tabs{ gap: var(--space-5); }
+    }
+    .tmd-licno a{ color: inherit; }
   </style>
 </head>
 
@@ -163,81 +359,200 @@
     </div>
   </div>
 
-  <!-- ================= PAGE CONTENT ================= -->
-  <main class="lx-body" aria-label="Team member pages">
-    <div class="lx-wrap reveal">
-      <p class="lx-eyebrow">Final PC &middot; Team</p>
-      <h1>Team Member Pages</h1>
+  <!-- ================= PAGE CONTENT — team member (support) ================= -->
+  <main class="tmd" aria-label="Page content">
+    <div class="tmd-wrap">
+      <nav class="tmd-crumb" aria-label="Breadcrumb">
+        <a href="./internal.html">Home</a><span aria-hidden="true">/</span><a href="./team.html">Our Team</a><span aria-hidden="true">/</span>Kim Lacey
+      </nav>
 
-      <!-- HIDDEN, not deleted. The argument in here is the one thing on this page a developer
-           has to read, so it stays in the file - drop the `hidden` attribute to bring it back.
-           Kiron, 2026-09-08: hide it for now. -->
-      <div class="lx-callout" hidden>
-        <p class="lx-tag">Developer note</p>
-        <h2>One page. The person&rsquo;s record decides what it shows.</h2>
-        <p>There are two HTML files here and they are <b>not two designs</b>. They are the same
-          template rendering two kinds of person. An agent carries licenses, listings,
-          testimonials and awards; a support team member carries none of those and instead leads
-          with what they do and who they do it for. Both run the same identity band, the same
-          tabbed sub-nav and the same rail.</p>
-        <p><span class="lx-flag">A section with no data is absent, not empty.</span> The sub-nav is
-          built from the panels that exist, so a person with no sold listings has no Sold tab and
-          the remaining tabs close the gap. Never render an empty tab, an empty rail card, or a
-          &ldquo;nothing here yet&rdquo; message. The same rule governs every rail block.</p>
-        <p><span class="lx-flag">Do not build two templates.</span> Build one and drive it from the
-          record. The split below exists so both ends of the range can be seen at once &mdash;
-          the fullest possible profile and the leanest one.</p>
-        <p><b>These pages are visual mockups.</b> Every form control is inert and the styling comes
-          from one stylesheet, <code>pc.css</code>. The build specification &mdash; the field list,
-          the conditional sub-nav, the rail and the responsive ladder &mdash; is
-          <b>developer-team-member.md</b>.</p>
+      <header class="tmd-id">
+        <div class="tmd-portrait">
+          <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/aip61ydXhOCj3KNIGdvIykORqYe1XjxwKrRDTWDe.jpg"
+               alt="Kim Lacey" width="386" height="483" />
+        </div>
+
+        <div class="tmd-idmain">
+          <!-- No designations: the span is simply absent, which is why the comma lives inside it. -->
+          <h1 class="tmd-name">Kim Lacey</h1>
+          <p class="tmd-role">Executive Assistant</p>
+
+          <ul class="tmd-meta">
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              1108 S. 44th Street, Suite 102, Cumming, IA 50061
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>
+              <span class="tmd-tag">Office</span> <a href="tel:5155344090">515.534.4090</a>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>
+              <span class="tmd-tag">Corporate</span> <a href="tel:8558005263">855.800.5263</a>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg>
+              <a href="mailto:Kim.Lacey@PeoplesCompany.com">Kim.Lacey@PeoplesCompany.com</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tmd-idside">
+          <div class="tmd-social">
+            <a href="https://www.facebook.com/kim.b.lacey" aria-label="Kim Lacey on Facebook">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.1h-3.1V8.9c0-.9.25-1.5 1.55-1.5H16.7V4.6A22 22 0 0 0 14.3 4.5c-2.4 0-4 1.45-4 4.13V10.9H7.6V14h2.7v8z"/></svg>
+            </a>
+            <a href="https://x.com/kalacey1010_10" aria-label="Kim Lacey on X">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.53 3H20.5l-6.49 7.42L21.64 21h-5.98l-4.68-6.12L5.6 21H2.63l6.94-7.93L2.36 3h6.13l4.23 5.59zm-1.04 16.2h1.65L7.6 4.71H5.83z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/kimannlacey" aria-label="Kim Lacey on Instagram">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9s.68.82.9 1.38c.16.42.36 1.06.41 2.23.06 1.25.07 1.62.07 4.81s0 3.56-.07 4.81c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38s-.82.68-1.38.9c-.42.16-1.06.36-2.23.41-1.25.06-1.62.07-4.85.07s-3.6 0-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9s-.68-.82-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.56 2.2 15.19 2.2 12s0-3.56.07-4.81c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38s.82-.68 1.38-.9c.42-.16 1.06-.36 2.23-.41C8.44 2.21 8.81 2.2 12 2.2zm0 1.8c-3.14 0-3.5 0-4.73.07-.9.04-1.39.19-1.71.32-.43.17-.74.37-1.06.69s-.52.63-.69 1.06c-.13.32-.28.81-.32 1.71C3.42 8.5 3.4 8.86 3.4 12s0 3.5.07 4.73c.04.9.19 1.39.32 1.71.17.43.37.74.69 1.06s.63.52 1.06.69c.32.13.81.28 1.71.32 1.23.06 1.59.07 4.73.07s3.5 0 4.73-.07c.9-.04 1.39-.19 1.71-.32.43-.17.74-.37 1.06-.69s.52-.63.69-1.06c.13-.32.28-.81.32-1.71.06-1.23.07-1.59.07-4.73s0-3.5-.07-4.73c-.04-.9-.19-1.39-.32-1.71a2.85 2.85 0 0 0-.69-1.06 2.85 2.85 0 0 0-1.06-.69c-.32-.13-.81-.28-1.71-.32C15.5 4.02 15.14 4 12 4zm0 3.04a4.96 4.96 0 1 1 0 9.92 4.96 4.96 0 0 1 0-9.92zm0 1.8a3.16 3.16 0 1 0 0 6.32 3.16 3.16 0 0 0 0-6.32zm5.16-3.24a1.16 1.16 0 1 1 0 2.32 1.16 1.16 0 0 1 0-2.32z"/></svg>
+            </a>
+            <a href="mailto:Kim.Lacey@PeoplesCompany.com" aria-label="Email Kim Lacey">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg>
+            </a>
+            <a class="tmd-pdf" href="#" aria-label="Download Kim Lacey's bio (PDF)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm-1 7V3.5L18.5 9zM8.6 18.4v-5h1.9c1.2 0 1.9.7 1.9 1.8s-.7 1.8-1.9 1.8h-.8v1.4zm1.1-2.4h.7c.5 0 .8-.25.8-.7s-.3-.7-.8-.7h-.7zm3.6 2.4v-5h1.8c1.5 0 2.4 1 2.4 2.5s-.9 2.5-2.4 2.5zm1.1-1h.6c.9 0 1.3-.55 1.3-1.5s-.4-1.5-1.3-1.5h-.6z"/></svg>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div class="tmd-cols">
+
+        <div class="tmd-main">
+          <!-- TWO TABS, and that is the point of this page. Kim's record has no listings, no
+               testimonials, no photos and no licences, so those panels are not output and
+               buildTabs() never draws their tabs. Nothing here suppresses them. -->
+          <div class="tmd-tabs" role="tablist" aria-label="Kim Lacey profile sections" id="tmdTabs"></div>
+
+          <!-- ===== 1. BIO ===== -->
+          <section class="tmd-panel tmd-bio" data-label="Bio" id="tmdPanel-bio" role="tabpanel" tabindex="-1">
+            <h2 class="tmd-h2 sr-only">Biography</h2>
+            <p>Kim Lacey is Executive Assistant to the President at Peoples Company. She manages the
+              executive office and travel schedules, coordinates meetings and events, and assists
+              with document preparation and execution.</p>
+            <p>Kim previously served as Director of Human Resources at Peoples Company, where she
+              oversaw the onboarding of new team members and managed a wide range of HR functions
+              &mdash; employee relations, training, recruitment, benefits administration,
+              performance management, and compliance with employment law.</p>
+            <p>She brings more than twenty years of experience in administrative support and human
+              resources to the role.</p>
+
+            <div class="tmd-facts">
+              <div class="tmd-fact">
+                <h3>Education</h3>
+                <p>University of Northern Iowa &mdash; B.A., Human Resource Management</p>
+              </div>
+              <div class="tmd-fact">
+                <h3>Areas of Focus</h3>
+                <p>Executive support, meeting and event coordination, document preparation and
+                  execution, human resources</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== 2. CONTACT ===== -->
+          <section class="tmd-panel" data-label="Contact" id="tmdPanel-contact" role="tabpanel" tabindex="-1" hidden>
+            <h2 class="tmd-h2">Contact Kim</h2>
+            <p class="tmd-formlede">Reach Kim at the Cumming office on
+              <a href="tel:5155344090">515.534.4090</a>, or send a message here.</p>
+            <form class="tmd-form" action="#" onsubmit="return false;">
+              <div class="tmd-frow">
+                <div class="tmd-field">
+                  <label for="tmdName">Name</label>
+                  <input id="tmdName" name="name" type="text" autocomplete="name" required />
+                </div>
+                <div class="tmd-field">
+                  <label for="tmdEmail">Email</label>
+                  <input id="tmdEmail" name="email" type="email" autocomplete="email" required />
+                </div>
+                <div class="tmd-field">
+                  <label for="tmdPhone">Phone</label>
+                  <input id="tmdPhone" name="phone" type="tel" autocomplete="tel" />
+                </div>
+              </div>
+              <div class="tmd-field">
+                <label for="tmdMsg">How can Kim help?</label>
+                <textarea id="tmdMsg" name="message" rows="6"></textarea>
+              </div>
+              <div class="tmd-fsubmit">
+                <button class="btn btn-primary" type="submit">Send Message</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <!-- ---- RIGHT RAIL: three options, stacked for comparison ---- -->
+        <!-- ---- RIGHT RAIL ----
+             A support profile has no licences, awards or blog posts, so the rail carries the one
+             card that can be built from fields every employee record already holds. It cannot
+             come up empty, which is why it is a card and not a conditional block. -->
+        <aside class="tmd-rail" aria-label="At a glance">
+          <section class="tmd-rcard">
+            <h2 class="tmd-rtitle">At a Glance</h2>
+            <ul class="tmd-lic">
+              <li><span class="tmd-licwho">Role</span><span class="tmd-licno">Executive Assistant</span></li>
+              <li><span class="tmd-licwho">Team</span><span class="tmd-licno">Corporate</span></li>
+              <li><span class="tmd-licwho">Office</span><span class="tmd-licno">Cumming, IA</span></li>
+              <li><span class="tmd-licwho">With Peoples Company</span><span class="tmd-licno">Since 2019</span></li>
+              <li><span class="tmd-licwho">Education</span><span class="tmd-licno">Northern Iowa</span></li>
+            </ul>
+          </section>
+        </aside>
       </div>
-
-      <div class="lx-tablewrap">
-        <table class="lx-table">
-          <caption>The two team member pages.</caption>
-          <thead>
-            <tr>
-              <th scope="col">Person type</th>
-              <th scope="col" class="lx-statuscol">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-
-            <tr>
-              <th scope="row">
-                <p class="lx-type"><a href="./team-member-agent.html">Agent</a></p>
-                <p class="lx-file">team-member-agent.html</p>
-                <p class="lx-desc">Six tabs &mdash; biography, testimonials, available and sold listings, photos, contact &mdash; with licenses, awards and blogs in the rail.</p>
-              </th>
-              <td class="lx-statuscol">
-                <span class="lx-status">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22zm0 6 7.5 13h-15zM11 10h2v5h-2zm0 6.5h2V19h-2z"/></svg>
-                  Layout not approved
-                </span>
-              </td>
-            </tr>
-
-            <tr>
-              <th scope="row">
-                <p class="lx-type"><a href="./team-member-support.html">Support</a></p>
-                <p class="lx-file">team-member-support.html</p>
-                <p class="lx-desc">No listings, licenses, testimonials or photos &mdash; so two tabs, and a single At a Glance card in the rail.</p>
-              </th>
-              <td class="lx-statuscol">
-                <span class="lx-status">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22zm0 6 7.5 13h-15zM11 10h2v5h-2zm0 6.5h2V19h-2z"/></svg>
-                  Layout not approved
-                </span>
-              </td>
-            </tr>
-
-          </tbody>
-        </table>
-      </div>
-
     </div>
   </main>
+
+  <script>
+  (function(){
+    /* Identical to the agent page: the tablist is written from the panels that exist.
+       Here that yields two tabs rather than six, with no change to this code. */
+    var tabsBox = document.getElementById("tmdTabs");
+    var panels  = [].slice.call(document.querySelectorAll(".tmd-panel[data-label]"));
+    if(!tabsBox || !panels.length) return;
+
+    var tabs = panels.map(function(panel, i){
+      var b = document.createElement("button");
+      b.className = "tmd-tab";
+      b.type = "button";
+      b.id = panel.id.replace("tmdPanel-", "tmdTab-");
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-controls", panel.id);
+      b.textContent = panel.getAttribute("data-label");
+      panel.setAttribute("aria-labelledby", b.id);
+      tabsBox.appendChild(b);
+      b.addEventListener("click", function(){ select(i); });
+      return b;
+    });
+
+    function select(i, focusPanel){
+      tabs.forEach(function(t, n){
+        var on = n === i;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.setAttribute("tabindex", on ? "0" : "-1");
+        panels[n].hidden = !on;
+      });
+      if(focusPanel) panels[i].focus();
+    }
+
+    tabsBox.addEventListener("keydown", function(e){
+      var i = tabs.indexOf(document.activeElement);
+      if(i < 0) return;
+      var next = e.key === "ArrowRight" ? i + 1
+               : e.key === "ArrowLeft"  ? i - 1
+               : e.key === "Home"       ? 0
+               : e.key === "End"        ? tabs.length - 1 : -1;
+      if(next < 0 && next !== 0) return;
+      e.preventDefault();
+      next = (next + tabs.length) % tabs.length;
+      tabs[next].focus();
+      select(next);
+    });
+
+    select(0);
+  })();
+  </script>
 
   <!-- ================= FOOTER ================= -->
   <footer class="pff">
