@@ -19,15 +19,18 @@
        .io-scope component block (the same card used by the homepage Insights module),
        so a change to the design system reaches this page for free.
 
-       Structure: title → sticky search / filter bar (the team.html component) → one
-       featured post (horizontal, full content width) → a 2-up row of wide cards → a
-       3-up grid of the remaining posts → pager. The page opens 1 / 2 / 3.
+       Structure: title → sticky search / filter bar (the team.html component) → a
+       3-up grid of every post, newest first → pager. Every card is the same size: no
+       featured post, no wide row.
 
        Responsive: the grid steps 3 → 2 → 1 on the shared --site ladder (1279 / 767),
        so the breakpoints line up with the header and footer rather than sitting
        between them. -->
   <style>
-    .blg-body{ background: var(--pc-white); --ls-pill-w: 180px; }
+    .blg-body{ background: var(--pc-white); --ls-pill-w: 180px;
+      /* Matched width of Search and Clear once they stop flexing - see the 640-1023
+         block. Only read in that band; above it both buttons size to their labels. */
+      --ls-act-w: 88px; }
     .blg-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
     /* THE MAP LAYER MUST CLEAR THE FILTER BAR. `.ls-bar` is z-40 and sticky, so it forms a
@@ -146,35 +149,14 @@
       color: var(--color-text-muted); margin: var(--space-5) 0 0; }
     .blg-status b{ color: var(--pc-black); font-weight: 600; }
 
-    /* ---- featured post: photo left, copy right ---- */
-    .blg-feature{ display: grid; grid-template-columns: 1.15fr 1fr; gap: 0;
-      margin: var(--space-7) 0 var(--space-8); background: var(--pc-soft-white);
-      border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden;
-      text-decoration: none; color: inherit;
-      transition: box-shadow .15s ease, transform .15s ease; }
-    .blg-feature:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
-    @media (prefers-reduced-motion: reduce){ .blg-feature:hover{ transform: none; } }
-    .blg-feature:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-    .blg-feature .io-ph{ aspect-ratio: 16 / 9; }
-    .blg-feature-body{ display: flex; flex-direction: column; gap: var(--space-3);
-      padding: var(--space-7); align-self: center; }
-    .blg-feature-body .io-title{ font-size: 34px; }
-    .blg-feature-body .io-teaser{ font-size: 15px; line-height: 1.65; }
-    /* "Featured" is a word, not a colour — the flag reads on its own. */
-    .blg-flag{ font-family: var(--font-sans); font-size: 11px; font-weight: 700;
-      letter-spacing: .13em; text-transform: uppercase; color: var(--pc-medium-blue); }
-
     /* ---- post grid ---- */
-    /* ---- row 2: a pair of wide cards ----
-       Same .io-card as the grid, two-up. It exists to break the run of 3-up rows
-       straight after the featured post, so the page opens 1 / 2 / 3 rather than
-       1 / 3 / 3. Type is stepped up to suit the wider column: at 1376 a duo card is
-       676px against the grid's 443. */
-    .blg-duo{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);
-      margin: 0 0 var(--space-5); }
-    .blg-duo .io-title{ font-size: 26px; }
-    .blg-duo .io-teaser{ font-size: 16px; }
-    .blg-duo .io-body{ padding: var(--space-5) var(--space-5) var(--space-6); }
+    /* ---- card meta row: date first, category pushed to the right edge ----
+       Page-local. The shared .io-scope rule lays the row out chip-then-date, left
+       aligned; the blog index wants the date leading and the category trailing, so
+       the chip takes the free space with margin-left. pc.css is untouched, which
+       leaves the homepage Insights module reading the way it always has. */
+    .blg-body .io-metarow{ width: 100%; }
+    .blg-body .io-metarow .io-chip{ margin-left: auto; }
 
     .blg-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
     .blg-grid .io-title{ font-size: 22px; }
@@ -199,19 +181,63 @@
     /* ---- responsive: steps sit on the shared --site ladder ---- */
     @media (max-width: 1279px){
       .blg-grid{ grid-template-columns: repeat(2, 1fr); }
-      .blg-duo .io-title{ font-size: 24px; }
-      .blg-feature-body{ padding: var(--space-6); }
-      .blg-feature-body .io-title{ font-size: 30px; }
+    }
+    /* 768-1279: the pills come down to 160px, for two different reasons at the two ends
+       of the range. At 1024 the bar is still one row and the three 180px pills overrun
+       it - the controls need 764 against 716 of free space, so Search lands on top of
+       Publish Date. At 768 the bar has already broken into rows (search field, then
+       pills) and 180px pills leave only 148px beside them, so Search and Clear fall to a
+       third row. 160px fixes both: the row holds at 1024, and at 768 the pair comes back
+       up beside the pills. */
+    @media (min-width: 768px) and (max-width: 1279px){
+      .blg-body{ --ls-pill-w: 160px; }
+    }
+    /* Row 2 at 768 is packed: the pair fits, but not with a 16px gap between them. */
+    @media (min-width: 768px) and (max-width: 1023px){
+      .ls-right{ gap: var(--space-2); }
+    }
+
+    /* 640-1023, the two-row band: the five buttons on row 2 share the row rather than
+       sitting left-packed with a hole before Search. .ls-controls is `display: contents`
+       here, so the three .ls-f wrappers and .ls-right are all siblings in .ls-bar-in and
+       can be flexed directly. .ls-right has to grow as one unit and then re-divide, which
+       is why its two buttons get their own flex - and its margin-left: auto has to go, or
+       it would keep absorbing the free space before anything else can. */
+    @media (min-width: 640px) and (max-width: 1023px){
+      .ls-f{ flex: 1 1 0; min-width: 0; }
+      .ls-pill{ width: 100%; }
+      /* Search and Clear come out of the share and take a fixed matched width instead.
+         Letting them flex made them 65px at 640, and "Search" needs 47 of the 39 that
+         leaves inside the padding - the label was being squeezed. --ls-act-w is one token
+         so the two stay identical; the three pills then split whatever is left. */
+      .ls-right{ flex: 0 0 auto; margin-left: 0; }
+      .ls-right > button{ flex: 0 0 var(--ls-act-w); width: var(--ls-act-w);
+        min-width: 0; padding: 0 12px; }
+
+      /* Popovers stop hanging off a pill and span the content box instead. `position:
+         static` on .ls-f hands the containing block to .ls-bar-in, which is the element
+         that already IS the content box, so left/right: var(--rail) pins the panel to the
+         same rail as everything else and `top: 100%` drops it below the whole bar rather
+         than below one pill. Anchored to a pill, the date panel is 324px wide and runs
+         40px past the right edge - off the viewport - at 640. This is the .ls-pop-wide /
+         .ls-f-static mechanism that was already in this file, applied by breakpoint. */
+      .ls-f{ position: static; }
+      .ls-pop{ left: var(--rail); right: var(--rail);
+        min-width: 0; max-width: none; width: auto; }
     }
     @media (min-width: 900px) and (max-width: 1023px){
-      .blg-body{ --ls-pill-w: 160px; }
       .ls-checks5{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
-    /* Below 900 the search field takes its own full-width row and the pills sit under it.
+    /* Below 1024 the search field takes its own full-width row and the pills sit under it.
        `display: contents` on .ls-controls is what lets the pills and the field wrap
-       independently inside .ls-bar-in instead of moving as one block. */
-    @media (max-width: 899px){
-      .blg-feature{ grid-template-columns: 1fr; }
+       independently inside .ls-bar-in instead of moving as one block.
+
+       Pinned to 1023, NOT 899, because 1023 is where the content box changes character:
+       pc.css sets --site: 100% from 1023 down (see its 1023 footer block), so the box
+       stops being a 1024px rung and becomes viewport - 64 - 836px at 900 against the 960
+       the bar gets at 1024. One row cannot hold the controls on that budget. At 899 the
+       break came 124px too late and 900-1023 rendered Search on top of Publish Date. */
+    @media (max-width: 1023px){
       .blg-intro{ padding-top: var(--space-7); }
       .ls-bar-in{ justify-content: flex-start; }
       .ls-controls{ display: contents; }
@@ -221,23 +247,29 @@
     @media (min-width: 640px) and (max-width: 899px){
       .ls-checks5{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
+    /* 640-767: --ls-pill-w is not set in this band and nothing needs to set it. The
+       640-1023 block above puts .ls-f on `flex: 1 1 0` with `width: 100%` pills, so the
+       three share whatever the row has left after Search and Clear take --ls-act-w. At
+       640 that is 122.7 each; the fixed rail would only get in the way. */
     @media (min-width: 640px) and (max-width: 767px){
-      .blg-body{ --ls-pill-w: 144px; }
+      .ls-right{ gap: var(--space-2); }
     }
     @media (max-width: 767px){
       .blg-grid{ grid-template-columns: 1fr; }
-      .blg-duo{ grid-template-columns: 1fr; }
       .ls-f > .ls-pill{ padding: 4px 8px; gap: 4px; }
     }
     @media (max-width: 639px){
-      .blg-feature-body .io-title{ font-size: 26px; }
-      .blg-duo .io-title{ font-size: 22px; }
       .blg-grid .io-title{ font-size: 20px; }
       /* The bar stops sticking here: at this height a sticky bar plus the header eats too
          much of the viewport. */
       .ls-bar{ position: static; }
       .ls-f{ flex: 1 1 100%; min-width: 0; }
-      .ls-f > .ls-pill{ width: 100%; justify-content: space-between; text-align: left; }
+      /* Full width, but still centred. The pills sit three across at every width below
+         640 - both sub-blocks below put .ls-f back to `flex: 1 1 0` - so the label-left,
+         chevron-right treatment this rule used to carry was laying out for a stacked
+         full-width pill that never actually happens, and it read as misaligned against
+         the centred Search and Clear underneath. */
+      .ls-f > .ls-pill{ width: 100%; }
       .ls-pop{ left: 0; right: auto; min-width: 0; width: calc(100vw - 40px); }
       .ls-actions{ flex-direction: column-reverse; align-items: stretch; }
       .ls-apply{ width: 100%; }
@@ -254,10 +286,21 @@
         gap: 2px var(--space-3); }
       .ls-opt{ gap: 6px; padding: 5px 0; }
     }
+    /* Below 480 the bar becomes five stacked rows: search field, then one row per pill,
+       then Search and Clear sharing the last row.
+
+       Three pills across does not survive this width. At 320 the content box is 280, so
+       each pill is 88 and the label has 57.6 of it after the padding and chevron -
+       "Category" needs 61.9 and wraps "Publish Date" onto a second line inside a 44px
+       button. Giving each pill the full row retires the problem rather than shaving
+       padding at it: every label sits on one line with room to spare, and the labels are
+       free to get longer later. Search and Clear stay paired because they are one
+       decision, and at 280 they still clear 136 each. */
     @media (max-width: 479px){
       .ls-daterow{ grid-template-columns: 1fr; gap: var(--space-3); }
-      .ls-f{ flex: 1 1 0; min-width: 0; position: static; }
-      .ls-right{ flex: 1 1 100%; }
+      .ls-f{ flex: 1 1 100%; min-width: 0; position: static; }
+      .ls-right{ flex: 1 1 100%; flex-wrap: nowrap; gap: var(--space-2); }
+      .ls-right .ls-apply{ flex: 1 1 0; width: auto; min-width: 0; }
       .ls-pop{ left: var(--rail); right: auto;
         width: calc(100% - 2 * var(--rail)); min-width: 0; }
       .ls-opt{ gap: 6px; padding: 2px 0; }
@@ -419,7 +462,7 @@
           <div class="ls-f">
             <button class="ls-pill" id="blgDateBtn" type="button" data-label="Publish Date"
                     aria-expanded="false" aria-controls="blgDatePop">Publish Date <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
-            <div class="ls-pop ls-pop-right" id="blgDatePop" hidden>
+            <div class="ls-pop" id="blgDatePop" hidden>
               <fieldset class="ls-fieldset">
                 <legend>Publish Date</legend>
                 <div class="ls-daterow">
@@ -446,7 +489,7 @@
              pressed, which is also what Enter in the search field does. -->
         <div class="ls-right">
           <button class="ls-apply" id="blgSubmit" type="submit">Search</button>
-          <button class="ls-apply ls-ghost" id="blgClear" type="button">Clear Filters</button>
+          <button class="ls-apply ls-ghost" id="blgClear" type="button" aria-label="Clear filters">Clear</button>
         </div>
       </form>
     </div>
@@ -455,25 +498,22 @@
       <p class="blg-status" id="blgStatus" role="status" aria-live="polite">Showing all posts.</p>
 
 
-      <!-- Featured post: the newest article, given the full content width. Same content
-           model as a grid card (photo, category, date, headline, teaser) at a larger size. -->
-      <a class="blg-feature" href="./blog-story.html">
-        <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Growing Together: George Baird" /></div>
-        <div class="blg-feature-body">
-          <span class="blg-flag">Featured</span>
-          <span class="io-metarow"><span class="io-chip">Land Management</span><span class="io-date">April 15, 2026</span></span>
-          <h2 class="io-title">Growing Together: George Baird, Senior Land Manager</h2>
-          <p class="io-teaser">A look at George Baird&#8217;s career path and how he&#8217;s helping landowners navigate farm management decisions across the Midwest.</p>
-        </div>
-      </a>
+      <!-- Every post, 3-up. Newest first. -->
+      <div class="blg-grid">
 
-      <!-- Row 2: a pair of wide cards, so the page opens 1 / 2 / 3 instead of 1 / 3 / 3. -->
-      <div class="blg-duo">
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Growing Together: George Baird" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">April 15, 2026</span><span class="io-chip">Land Management</span></span>
+            <h2 class="io-title">Growing Together: George Baird, Senior Land Manager</h2>
+            <p class="io-teaser">A look at George Baird&#8217;s career path and how he&#8217;s helping landowners navigate farm management decisions across the Midwest.</p>
+          </div>
+        </a>
 
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Peoples Company Acquires Murray Wise Associates LLC" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">News &amp; Events</span><span class="io-date">April 14, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">April 14, 2026</span><span class="io-chip">News &amp; Events</span></span>
             <h2 class="io-title">Peoples Company Acquires Murray Wise Associates LLC</h2>
             <p class="io-teaser">Peoples Company expands its national reach with the acquisition of Murray Wise Associates, a leading farmland brokerage and auction firm.</p>
           </div>
@@ -482,21 +522,16 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Argentina Agriculture" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Industry Insights</span><span class="io-date">April 13, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">April 13, 2026</span><span class="io-chip">Industry Insights</span></span>
             <h2 class="io-title">Argentina: U.S. Partnership Opportunities in Agriculture, Energy &amp; Fertilizer</h2>
             <p class="io-teaser">An overview of emerging cross-border opportunities between the U.S. and Argentina across agriculture, energy production, and fertilizer supply chains.</p>
           </div>
         </a>
 
-      </div>
-
-      <!-- The remaining posts, 3-up. -->
-      <div class="blg-grid">
-
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="From the Ground Up" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Management</span><span class="io-date">April 13, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">April 13, 2026</span><span class="io-chip">Land Management</span></span>
             <h2 class="io-title">From the Ground Up: How Strategic Land Management Unlocks Long-Term Appreciation</h2>
             <p class="io-teaser">Discover how proactive land management decisions, from soil health to tenant relationships, can drive meaningful appreciation over time.</p>
           </div>
@@ -505,7 +540,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Transitional Farmland" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Values</span><span class="io-date">February 26, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">February 26, 2026</span><span class="io-chip">Land Values</span></span>
             <h2 class="io-title">Transitional Farmland: Investing in Land in the Path of Growth</h2>
             <p class="io-teaser">Learn why farmland near expanding cities can command premium value, and what factors beyond soil quality drive pricing in transitional markets.</p>
           </div>
@@ -514,7 +549,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Understanding CSR2 Ratings" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Values</span><span class="io-date">February 18, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">February 18, 2026</span><span class="io-chip">Land Values</span></span>
             <h2 class="io-title">Understanding CSR2 Ratings and What They Mean for Your Land Value</h2>
             <p class="io-teaser">CSR2 scores are one of the most widely used benchmarks in Iowa farmland. Here is how they are calculated and why they matter to buyers and sellers.</p>
           </div>
@@ -523,7 +558,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Cash Rent Trends" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Management</span><span class="io-date">February 10, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">February 10, 2026</span><span class="io-chip">Land Management</span></span>
             <h2 class="io-title">Cash Rent Trends: What Landowners Should Expect Heading Into 2026</h2>
             <p class="io-teaser">Commodity prices, input costs, and land demand are all shifting. We break down what cash rent negotiations may look like for the upcoming crop year.</p>
           </div>
@@ -532,7 +567,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Farmland Auction Results" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Auctions</span><span class="io-date">January 29, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">January 29, 2026</span><span class="io-chip">Land Auctions</span></span>
             <h2 class="io-title">Q4 Farmland Auction Results: Strong Demand Carries Into the New Year</h2>
             <p class="io-teaser">Peoples Company&#8217;s Q4 auction results reflect continued investor confidence in Midwest farmland, with several tracts selling above pre-auction estimates.</p>
           </div>
@@ -541,7 +576,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Crop Insurance" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Crop Insurance</span><span class="io-date">January 21, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">January 21, 2026</span><span class="io-chip">Crop Insurance</span></span>
             <h2 class="io-title">Crop Insurance Deadlines Are Coming: Are You Prepared for 2026?</h2>
             <p class="io-teaser">With sign-up season approaching, our crop insurance specialists outline the key decisions farmers need to make before the March deadline.</p>
           </div>
@@ -550,7 +585,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Energy Management" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Energy Management</span><span class="io-date">January 14, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">January 14, 2026</span><span class="io-chip">Energy Management</span></span>
             <h2 class="io-title">Solar and Wind Leases: What Landowners Need to Know Before Signing</h2>
             <p class="io-teaser">Energy lease opportunities are becoming more common on agricultural land. Here are the key terms and considerations every landowner should review carefully.</p>
           </div>
@@ -559,7 +594,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Succession Planning" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Agriculture</span><span class="io-date">January 7, 2026</span></span>
+            <span class="io-metarow"><span class="io-date">January 7, 2026</span><span class="io-chip">Agriculture</span></span>
             <h2 class="io-title">Farm Succession Planning: Starting the Conversation Before It&#8217;s Urgent</h2>
             <p class="io-teaser">Passing farmland to the next generation involves more than a will. Our team explains why early planning leads to better outcomes for families and operations alike.</p>
           </div>
@@ -568,7 +603,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Land Investment Expo" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Investment Expo</span><span class="io-date">December 19, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">December 19, 2025</span><span class="io-chip">Land Investment Expo</span></span>
             <h2 class="io-title">Recap: Peoples Company Land Investment Expo 2025</h2>
             <p class="io-teaser">Hundreds of investors gathered in Des Moines for our annual Land Investment Expo. Here are the top themes and takeaways from this year&#8217;s event.</p>
           </div>
@@ -577,7 +612,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Tile Drainage" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Management</span><span class="io-date">December 10, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">December 10, 2025</span><span class="io-chip">Land Management</span></span>
             <h2 class="io-title">The ROI of Tile Drainage: A Land Manager&#8217;s Perspective</h2>
             <p class="io-teaser">Improved drainage is one of the highest-returning capital improvements a landowner can make. We look at the numbers and the long-term impact on land value.</p>
           </div>
@@ -586,7 +621,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Farmland as an Asset Class" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Industry Insights</span><span class="io-date">December 2, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">December 2, 2025</span><span class="io-chip">Industry Insights</span></span>
             <h2 class="io-title">Farmland as an Asset Class: How It Stacks Up Against Stocks and Bonds</h2>
             <p class="io-teaser">Institutional investors have taken notice. We compare farmland&#8217;s historical returns, volatility, and income characteristics against traditional investment alternatives.</p>
           </div>
@@ -595,7 +630,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Appraisal" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Real Estate</span><span class="io-date">November 20, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">November 20, 2025</span><span class="io-chip">Real Estate</span></span>
             <h2 class="io-title">When and Why You Need a Farmland Appraisal</h2>
             <p class="io-teaser">Estate settlements, financing, and partnership buyouts all require accurate land valuations. Our appraisal team explains the process and what to expect.</p>
           </div>
@@ -604,7 +639,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Cover Crops" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Agriculture</span><span class="io-date">November 11, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">November 11, 2025</span><span class="io-chip">Agriculture</span></span>
             <h2 class="io-title">Cover Crops and Soil Health: What the Data Says About Long-Term Land Value</h2>
             <p class="io-teaser">Sustainable practices are not just good for the environment. They are increasingly influencing buyer demand and per-acre pricing in competitive markets.</p>
           </div>
@@ -613,7 +648,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="1031 Exchange" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Real Estate</span><span class="io-date">November 3, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">November 3, 2025</span><span class="io-chip">Real Estate</span></span>
             <h2 class="io-title">Using a 1031 Exchange to Reinvest Farmland Proceeds Tax-Deferred</h2>
             <p class="io-teaser">A 1031 exchange can be a powerful tool when selling appreciated farmland. Here is how the process works and what timelines and rules apply.</p>
           </div>
@@ -622,7 +657,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Tenant Relationships" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Management</span><span class="io-date">October 22, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">October 22, 2025</span><span class="io-chip">Land Management</span></span>
             <h2 class="io-title">Building Strong Landowner-Tenant Relationships That Last Decades</h2>
             <p class="io-teaser">The best farm leases are built on trust, communication, and shared goals. Our land managers share what makes a landowner-tenant relationship truly work.</p>
           </div>
@@ -631,7 +666,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Farmland Market Outlook" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Land Values</span><span class="io-date">October 14, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">October 14, 2025</span><span class="io-chip">Land Values</span></span>
             <h2 class="io-title">Midwest Farmland Market Outlook: Fall 2025</h2>
             <p class="io-teaser">Our market analysts weigh in on land values, buyer demand, and the factors most likely to shape farmland pricing heading into year-end and beyond.</p>
           </div>
@@ -640,7 +675,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Crop insurance decisions" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Crop Insurance</span><span class="io-date">October 7, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">October 7, 2025</span><span class="io-chip">Crop Insurance</span></span>
             <h2 class="io-title">Choosing Coverage Levels: A Practical Guide to Crop Insurance Decisions</h2>
             <p class="io-teaser">Revenue protection, yield protection, and enterprise units all change the math. Here is how operators think through coverage before the sales closing date.</p>
           </div>
@@ -649,7 +684,7 @@
         <a class="io-card" href="./blog-story.html">
           <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Wind turbines on farmland" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-chip">Energy Management</span><span class="io-date">September 29, 2025</span></span>
+            <span class="io-metarow"><span class="io-date">September 29, 2025</span><span class="io-chip">Energy Management</span></span>
             <h2 class="io-title">Reading the Fine Print on Wind and Solar Easements</h2>
             <p class="io-teaser">Term length, decommissioning obligations, and setback language decide what a lease is really worth. A closer look at the clauses that matter most.</p>
           </div>
