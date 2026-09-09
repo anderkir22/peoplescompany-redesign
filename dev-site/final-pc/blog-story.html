@@ -18,17 +18,15 @@
        card shell come from pc.css tokens, so a design-system change reaches this page.
 
        Structure: breadcrumb → title block (date · author · share, full content width) →
-       article + sidebar (recent posts, categories, newsletter) → tags. The lead photo
-       sits at the top of the ARTICLE column, so it is 922px wide at the top rung
-       (1376 content box - 390 sidebar - 64 gutter), not the full content box.
+       article + sidebar (recent posts, other blogs by the author, categories) → tags. The
+       lead photo sits at the top of the ARTICLE column, so it is 922px wide at the top rung
+       (1376 content box - 390 rail - 64 gutter), not the full content box.
 
-       PROSE MEASURE: there is deliberately NO ch cap on .bs-body. Beside the sidebar the
-       text runs the article column (922px at the top rung, matching the lead photo); once
-       it clears the sidebar it runs the full 1376px content box. Both are past the 45-75
-       character band that governs the rest of the site — this is a knowing trade, made to
-       cut the page's scroll length. If readability wins later, the fix is a max-width in
-       ch on .bs-body p, not a narrower column: the column width is load-bearing for the
-       photo and the float.
+       PROSE MEASURE: there is deliberately NO ch cap on .bs-body. The article runs its
+       column at every scroll position - 922px at the top rung, about 138 characters at
+       16px Inter, past the 45-75 band that governs the rest of the site. If readability
+       wins, the fix is a max-width in ch on .bs-body p, not a narrower column: the column
+       also carries the lead photo.
 
        Responsive: the article/sidebar split collapses on the shared --site ladder (1023),
        so the breakpoints line up with the header and footer. -->
@@ -55,7 +53,7 @@
     /* No measure cap on the headline: it runs the full content width (1376px at the top
        rung). A headline is not reading copy — there is no return sweep to lose — so the
        45-75ch band that governs .bs-body does not apply here. */
-    .bs-head h1{ font-size: 52px; line-height: 1.08; margin: var(--space-3) 0 0; }
+    .bs-head h1{ font-size: 52px; line-height: 1.08; margin: 0; }
     .bs-meta{ display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
       gap: var(--space-4); margin-top: var(--space-5);
       padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
@@ -78,34 +76,33 @@
     .bs-share a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .bs-share svg{ width: 17px; height: 17px; fill: currentColor; display: block; }
 
-    /* ---- lead photo: sits INSIDE the article column, beside the floated sidebar, so it
-       is 922px wide at the top rung rather than the full 1376px content box. overflow
-       :hidden makes it a BFC, which is what keeps its BOX (not just its line boxes) clear
-       of the float — without that it would slide under the sidebar. ---- */
+    /* ---- lead photo: sits INSIDE the article column, beside the rail, so it is 922px
+       wide at the top rung rather than the full 1376px content box. overflow: hidden is
+       what clips the image to the rounded corners. ---- */
     .bs-lead{ border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 16 / 9;
       margin: 0 0 var(--space-6);
       background: linear-gradient(135deg, var(--pc-black), var(--pc-navy)); }
     .bs-lead img{ display: block; width: 100%; height: 100%; object-fit: cover; }
 
     /* ---- article + sidebar ----
-       FLOAT, not grid. A grid column can only be one width for its whole length, so the
-       article text would stay narrow all the way down even after the sidebar has ended.
-       Floating the sidebar makes the article's LINE BOXES shorten only while they are
-       beside it, then run the full content width once they clear its bottom edge. That
-       is the "wrap to 100% below the sidebar" behaviour, and it is what removes a screen
-       or so of scrolling.
-       Consequence: the sidebar must come BEFORE the article in the DOM (a float only
-       affects content that follows it), so a "Skip to article" link precedes it. */
-    .bs-layout{ padding: var(--space-6) 0 var(--space-9); }
-    .bs-layout::after{ content: ""; display: block; clear: both; }
+       A two-column GRID: the article keeps one width for its whole length and never wraps
+       underneath the rail. --bs-side-w lives here, on the layout, because the grid track
+       and the <=1023 reset both read it - change the rail's width in one place.
+       minmax(0, 1fr) on the article track, not 1fr: a bare 1fr floors at the content's
+       min-content width, and a long unbroken URL in the copy would push the track wider
+       and shove the rail off the grid. */
+    .bs-layout{ --bs-side-w: 390px;
+      display: grid; grid-template-columns: minmax(0, 1fr) var(--bs-side-w);
+      gap: 0 var(--space-8); padding: var(--space-6) 0 var(--space-9); }
 
-    /* Prose is NOT measure-capped here. See the PROSE MEASURE note at the top of this
-       block — the width is deliberately driven by the float, not by a ch value. */
-    .bs-body p{ font-size: 17px; line-height: 1.8; color: var(--color-text-muted);
+    /* Prose is NOT measure-capped here — see the PROSE MEASURE note at the top of this
+       block. The article column's width sets the line length. */
+    /* One prose size for the whole article, the opening paragraph included — it is not
+       stepped up as a standfirst. --body is 16px, the site's base size, so the story
+       reads at the same size as the rest of the build. Nothing else in this file sizes
+       .bs-body p, at any width, so this is the only place to change it. */
+    .bs-body p{ font-size: var(--body); line-height: 1.8; color: var(--color-text-muted);
       margin: 0 0 var(--space-5); }
-    /* Standfirst. :first-of-type, not :first-child — the lead photo is now the article's
-       first child, so :first-child would no longer match the opening paragraph. */
-    .bs-body > p:first-of-type{ font-size: 19px; line-height: 1.72; }
     .bs-body h2{ font-family: var(--font-serif); font-weight: 500; font-size: 30px;
       line-height: 1.2; color: var(--pc-black);
       margin: var(--space-7) 0 var(--space-4); }
@@ -139,29 +136,28 @@
     .bs-tags a:hover{ background: var(--pc-medium-blue); color: var(--pc-white); }
     .bs-tags a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
-    /* ---- sidebar ---- */
-    /* 390px wide, floated right. --bs-side-w is read by the float and by the ≤1023
-       reset, so the width lives in one place. */
-    .bs-side{ --bs-side-w: 390px;
-      float: right; width: var(--bs-side-w); margin: 0 0 var(--space-6) var(--space-8);
-      display: flex; flex-direction: column; gap: var(--space-5); }
+    /* ---- sidebar ----
+       The aside is a grid item and is deliberately left to STRETCH to the row's full
+       height (the article's height). That tall box is what the sticky group below travels
+       inside - give the aside `align-self: start` and it collapses to its own content, and
+       the group stops moving the moment the last box scrolls past. */
+    .bs-side{ display: flex; flex-direction: column; gap: var(--space-5); }
 
-    /* Skip link: the sidebar leads the DOM so the float works, so give keyboard users a
-       way past its ~20 links straight to the article. Off-screen until focused. */
-    .bs-skip{ position: absolute; width: 1px; height: 1px; overflow: hidden;
-      clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
-    .bs-skip:focus{ position: static; width: auto; height: auto; overflow: visible;
-      clip: auto; clip-path: none; display: inline-block; margin-bottom: var(--space-4);
-      font-family: var(--font-sans); font-size: 14px; font-weight: 600;
-      color: var(--pc-white); background: var(--pc-navy);
-      border-radius: var(--radius-pill); padding: 10px 18px; text-decoration: none; }
+    /* Other Blogs + Blog Categories travel with the reader; Recent Posts scrolls away
+       above them. --navH is the real header height, JS-synced on resize, so the group pins
+       just under the header rather than behind it.
+       max-height + overflow keep it usable on a short window: if the two boxes are taller
+       than the space under the header, the group scrolls inside itself instead of having
+       its bottom cut off where nothing can reach it. */
+    .bs-sticky{ position: sticky; top: calc(var(--navH) + var(--space-5));
+      display: flex; flex-direction: column; gap: var(--space-5);
+      max-height: calc(100vh - var(--navH) - var(--space-6)); overflow-y: auto; }
+
     .bs-box{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-6); }
     .bs-box h2{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
       color: var(--pc-black); margin: 0 0 var(--space-3);
       padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
-    .bs-box p{ font-size: 14px; line-height: 1.6; color: var(--color-text-muted);
-      margin: 0 0 var(--space-4); }
     /* Categories run two-up: ten links as one column was the tallest thing in the
        sidebar. column-gap only — the hairline under each link is the row rhythm. */
     .bs-catgrid{ display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--space-5); }
@@ -184,36 +180,22 @@
     .bs-recent .d{ font-family: var(--font-sans); font-size: 12px; color: var(--pc-black);
       display: block; margin-top: 5px; }
 
-    /* Sidebar newsletter: the same rounded pill as the footer subscribe control, scaled
-       to the column. On the live site this slot holds the Pardot embed instead. */
-    .bs-subform{ display: flex; align-items: center; gap: 6px; background: var(--pc-white);
-      border: 1px solid var(--color-border); border-radius: var(--radius-pill); padding: 5px; }
-    .bs-subform:focus-within{ border-color: var(--pc-navy); }
-    .bs-subform input{ flex: 1 1 auto; min-width: 0; border: 0; background: transparent;
-      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black);
-      padding: 9px 12px; }
-    .bs-subform input:focus{ outline: none; }
-    .bs-subform button{ flex: none; border: 0; cursor: pointer;
-      background: var(--pc-medium-blue); color: var(--pc-white);
-      font-family: var(--font-sans); font-size: 13px; font-weight: 600;
-      border-radius: var(--radius-pill); padding: 10px 18px; }
-    .bs-subform button:hover{ background: var(--pc-navy); }
-    .bs-subform button:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-
     /* ---- responsive: steps sit on the shared --site ladder ---- */
     @media (max-width: 1279px){
       .bs-head h1{ font-size: 44px; }
       /* 960px content box at the 1024 rung: 390 would leave the article at 522. */
-      .bs-side{ --bs-side-w: 340px; margin-left: var(--space-7); }
+      .bs-layout{ --bs-side-w: 340px; column-gap: var(--space-7); }
     }
     @media (max-width: 1023px){
-      /* Float off — the sidebar drops below the article. .bs-layout becomes a flex
-         column purely so `order` can put the article back on top: the sidebar leads the
-         DOM for the float, and without this it would render above the story. */
+      /* One column: the rail drops below the article, which is already its DOM order,
+         so nothing needs re-ordering. */
       .bs-layout{ display: flex; flex-direction: column; gap: var(--space-7); }
-      .bs-body{ order: 1; }
-      .bs-side{ order: 2; float: none; width: auto; margin: 0;
-        display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); align-items: start; }
+      .bs-side{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);
+        align-items: start; }
+      /* Pin released. display: contents dissolves the wrapper so its two boxes become
+         grid items of .bs-side alongside Recent Posts - three boxes running two-up, the
+         same as before the group existed. */
+      .bs-sticky{ display: contents; }
     }
     @media (max-width: 899px){
       .bs-head h1{ font-size: 38px; max-width: none; }
@@ -222,11 +204,9 @@
     @media (max-width: 767px){
       .bs-side{ grid-template-columns: 1fr; }
       .bs-catgrid{ grid-template-columns: 1fr 1fr; }
-      .bs-body > p:first-of-type{ font-size: 18px; }
     }
     @media (max-width: 639px){
       .bs-head h1{ font-size: 32px; }
-      .bs-body p{ font-size: 16px; }
       .bs-body h2{ font-size: 26px; }
       .bs-body ol > li{ padding-left: 42px; }
       .bs-body ol > li::before{ font-size: 26px; }
@@ -313,7 +293,6 @@
       <!-- Title block. The article headline is the page h1; the section headings inside
            the body are h2, so the post reads as one clean outline to a screen reader. -->
       <header class="bs-head reveal">
-        <p class="hp-eyebrow">Land Values</p>
         <h1>Transitional Farmland: Investing in Land in the Path of Growth</h1>
 
         <div class="bs-meta">
@@ -322,7 +301,7 @@
             <span class="sep" aria-hidden="true">&ndash;</span>
             <span class="bs-author">Eric Bohnenkamp</span>
             <span class="sep" aria-hidden="true">&ndash;</span>
-            <span>6 min read</span>
+            <span>6 Min Read</span>
           </p>
 
           <div class="bs-share">
@@ -345,84 +324,8 @@
 
       <div class="bs-layout">
 
-        <!-- The sidebar leads the DOM so the float can shorten the article's line
-             boxes (see .bs-layout). This hands keyboard users a way straight past it. -->
-        <a class="bs-skip" href="#story">Skip to article</a>
-
-        <!-- ===== SIDEBAR ===== -->
-        <aside class="bs-side reveal" aria-label="More from the blog">
-
-          <section class="bs-box">
-            <h2>Recent Posts</h2>
-
-            <a class="bs-recent" href="./blog-story.html">
-              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Growing Together: George Baird" loading="lazy" decoding="async" />
-              <span>
-                <span class="t">Growing Together: George Baird, Senior Land Manager</span>
-                <span class="d">April 15, 2026</span>
-              </span>
-            </a>
-
-            <a class="bs-recent" href="./blog-story.html">
-              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Peoples Company Acquires Murray Wise Associates LLC" loading="lazy" decoding="async" />
-              <span>
-                <span class="t">Peoples Company Acquires Murray Wise Associates LLC</span>
-                <span class="d">April 14, 2026</span>
-              </span>
-            </a>
-
-            <a class="bs-recent" href="./blog-story.html">
-              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="From the Ground Up" loading="lazy" decoding="async" />
-              <span>
-                <span class="t">From the Ground Up: How Strategic Land Management Unlocks Long-Term Appreciation</span>
-                <span class="d">April 13, 2026</span>
-              </span>
-            </a>
-
-            <a class="bs-recent" href="./blog-story.html">
-              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Argentina Agriculture" loading="lazy" decoding="async" />
-              <span>
-                <span class="t">Argentina: U.S. Partnership Opportunities in Agriculture, Energy &amp; Fertilizer</span>
-                <span class="d">April 13, 2026</span>
-              </span>
-            </a>
-          </section>
-
-          <section class="bs-box">
-            <h2>Blog Categories</h2>
-            <div class="bs-catgrid">
-              <a class="bs-catlink" href="./internal.html">Agriculture</a>
-              <a class="bs-catlink" href="./internal.html">Crop Insurance</a>
-              <a class="bs-catlink" href="./internal.html">Energy Management</a>
-              <a class="bs-catlink" href="./internal.html">Industry Insights</a>
-              <a class="bs-catlink" href="./internal.html">Land Auctions</a>
-              <a class="bs-catlink" href="./internal.html">Land Investment Expo</a>
-              <a class="bs-catlink" href="./internal.html">Land Management</a>
-              <a class="bs-catlink" href="./internal.html">Land Values</a>
-              <a class="bs-catlink" href="./internal.html">News &amp; Events</a>
-              <a class="bs-catlink" href="./internal.html">Real Estate</a>
-            </div>
-          </section>
-
-          <section class="bs-box">
-            <h2>Subscribe To Our Newsletter</h2>
-            <p>Peoples Company proactively works to anticipate the needs of those in the
-              agricultural sector. Our monthly email publication keeps readers in the know
-              about everything land.</p>
-            <!-- DEVELOPER: the live page embeds the Pardot form in this slot
-                 (https://pc.peoplescompany.com/l/1040341/2023-09-06/9d5m, ~625px tall).
-                 The pill below is the design-system equivalent so the sidebar can be
-                 judged at its real height; swap in the embed at build. Inert here. -->
-            <form class="bs-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
-              <input type="email" placeholder="Email Address" aria-label="Email address" required />
-              <button type="submit">Subscribe</button>
-            </form>
-          </section>
-
-        </aside>
-
         <!-- ===== ARTICLE ===== -->
-        <article class="bs-body reveal" id="story" tabindex="-1">
+        <article class="bs-body reveal">
 
           <!-- Lead photo opens the article column (922px at the top rung), not the full
                content box. It is the article's own image, so it carries real alt text
@@ -497,6 +400,109 @@
             <a href="./blog.html">Land Values</a>
           </p>
         </article>
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="bs-side reveal" aria-label="More from the blog">
+
+          <section class="bs-box">
+            <h2>Recent Posts</h2>
+
+            <a class="bs-recent" href="./blog-story.html">
+              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Growing Together: George Baird" loading="lazy" decoding="async" />
+              <span>
+                <span class="t">Growing Together: George Baird, Senior Land Manager</span>
+                <span class="d">April 15, 2026</span>
+              </span>
+            </a>
+
+            <a class="bs-recent" href="./blog-story.html">
+              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Peoples Company Acquires Murray Wise Associates LLC" loading="lazy" decoding="async" />
+              <span>
+                <span class="t">Peoples Company Acquires Murray Wise Associates LLC</span>
+                <span class="d">April 14, 2026</span>
+              </span>
+            </a>
+
+            <a class="bs-recent" href="./blog-story.html">
+              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="From the Ground Up" loading="lazy" decoding="async" />
+              <span>
+                <span class="t">From the Ground Up: How Strategic Land Management Unlocks Long-Term Appreciation</span>
+                <span class="d">April 13, 2026</span>
+              </span>
+            </a>
+
+            <a class="bs-recent" href="./blog-story.html">
+              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Argentina Agriculture" loading="lazy" decoding="async" />
+              <span>
+                <span class="t">Argentina: U.S. Partnership Opportunities in Agriculture, Energy &amp; Fertilizer</span>
+                <span class="d">April 13, 2026</span>
+              </span>
+            </a>
+          </section>
+
+          <!-- These two travel with the reader: position: sticky pins the group under
+               the header once Other Blogs reaches the top, so it stays on screen for the
+               rest of the article while Recent Posts scrolls away above it. The pin is
+               released below 1024, where the rail sits under the story. -->
+          <div class="bs-sticky">
+            <!-- Other posts by this article's author. Same .bs-recent row as Recent Posts
+                 above — one component, two feeds. The heading takes the author's FIRST name,
+                 which the CMS has to hold as its own field: "Bohnenkamp" cannot be split off
+                 a single full-name string reliably. -->
+            <section class="bs-box">
+              <h2>Other Blogs by Eric</h2>
+
+              <a class="bs-recent" href="./blog-story.html">
+                <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Understanding CSR2 Ratings" loading="lazy" decoding="async" />
+                <span>
+                  <span class="t">Understanding CSR2 Ratings and What They Mean for Your Land Value</span>
+                  <span class="d">February 18, 2026</span>
+                </span>
+              </a>
+
+              <a class="bs-recent" href="./blog-story.html">
+                <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Cash Rent Trends" loading="lazy" decoding="async" />
+                <span>
+                  <span class="t">Cash Rent Trends: What Landowners Should Expect Heading Into 2026</span>
+                  <span class="d">February 10, 2026</span>
+                </span>
+              </a>
+
+              <a class="bs-recent" href="./blog-story.html">
+                <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Q4 Farmland Auction Results" loading="lazy" decoding="async" />
+                <span>
+                  <span class="t">Q4 Farmland Auction Results: Strong Demand Carries Into the New Year</span>
+                  <span class="d">January 29, 2026</span>
+                </span>
+              </a>
+
+              <a class="bs-recent" href="./blog-story.html">
+                <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Crop Insurance Deadlines" loading="lazy" decoding="async" />
+                <span>
+                  <span class="t">Crop Insurance Deadlines Are Coming: Are You Prepared for 2026?</span>
+                  <span class="d">January 21, 2026</span>
+                </span>
+              </a>
+            </section>
+
+            <section class="bs-box">
+              <h2>Blog Categories</h2>
+              <div class="bs-catgrid">
+                <a class="bs-catlink" href="./internal.html">Agriculture</a>
+                <a class="bs-catlink" href="./internal.html">Crop Insurance</a>
+                <a class="bs-catlink" href="./internal.html">Energy Management</a>
+                <a class="bs-catlink" href="./internal.html">Industry Insights</a>
+                <a class="bs-catlink" href="./internal.html">Land Auctions</a>
+                <a class="bs-catlink" href="./internal.html">Land Investment Expo</a>
+                <a class="bs-catlink" href="./internal.html">Land Management</a>
+                <a class="bs-catlink" href="./internal.html">Land Values</a>
+                <a class="bs-catlink" href="./internal.html">News &amp; Events</a>
+                <a class="bs-catlink" href="./internal.html">Real Estate</a>
+              </div>
+            </section>
+          </div>
+
+        </aside>
 
       </div>
     </div>
