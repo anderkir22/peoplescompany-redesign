@@ -572,10 +572,28 @@
       .tmd-awards-wide .tmd-awyrs{ margin-top: 2px; }
     }
     @media (max-width: 519px){
-      /* Portrait goes over the copy - at this width a 120px column leaves the name no room. */
-      .tmd-id{ grid-template-columns: minmax(0,1fr); }
-      .tmd-idside{ grid-column: 1; }
+      /* THE BAND BECOMES A TRUE STACK: picture, then name and contact, then the icons, all
+         on one left edge. The single column was already declared here, but the rules above
+         were still placing items explicitly - the copy pinned to `grid-row: 1 / span 2`
+         and the icons to row 2 - so the copy could not fit beside the picture and the
+         browser INVENTED a second column for it. The band computed as 84.86px + 283.14px,
+         the 120px picture overflowed its 84.86px track, and the name, role and phone list
+         printed over the photograph. Both placements are handed back to auto here, which
+         is what lets source order do the stacking. */
+      .tmd-id{ grid-template-columns: minmax(0,1fr); row-gap: var(--space-4); }
+      .tmd-idmain{ grid-row: auto; }
+      .tmd-idside{ grid-column: 1; grid-row: auto; align-items: flex-start; }
+      /* .tmd-contact bottom-aligns to the picture with margin-top: auto, which needs FREE
+         SPACE in the column to do anything. In a stack the column is exactly as tall as
+         its content, so auto resolves to 0 and the phone list would sit hard against the
+         role above it. There is nothing left to bottom-align to, so it goes back to being
+         a plain gap. */
+      .tmd-contact{ margin-top: var(--space-4); }
       .tmd-tabs{ gap: var(--space-5); }
+      /* TWO IMAGES ACROSS. Three columns in a 440px panel is a 130px image - 87px tall at
+         3:2, a thumbnail rather than a photograph. Two gives 208 x 139. Six images, so it
+         reads as three rows of two. */
+      .tmd-gal{ grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
   </style>
 </head>
