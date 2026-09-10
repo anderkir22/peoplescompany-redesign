@@ -563,7 +563,10 @@
       .tmd-desig{ font-size: 15px; }
       .tmd-meta{ gap: 6px; }
       .tmd-tcar{ grid-auto-columns: minmax(0, 88%); }
-      .tmd-gal{ grid-auto-columns: minmax(0, 72%); }
+      /* TWO IMAGES ACROSS, 640-767. This line used to read `grid-auto-columns:
+         minmax(0, 72%)`, which sized IMPLICIT columns for a horizontal carousel this
+         gallery no longer is - the grid has explicit columns, so it matched nothing. */
+      .tmd-gal{ grid-template-columns: repeat(2, minmax(0,1fr)); }
       .tmd-main .lc-grid{ grid-template-columns: minmax(0,1fr); }
       .tmd-h2{ font-size: 23px; }
       /* The longest award name runs 71 characters; beside a years column it wraps to four
@@ -571,6 +574,14 @@
       .tmd-awards-wide li{ display: block; }
       .tmd-awards-wide .tmd-awyrs{ margin-top: 2px; }
     }
+    /* 639 AND DOWN: one image across. The rung sits on the site's own sm boundary - 640
+       is where --site stops stepping and goes fluid at a 20px rail - so the gallery
+       changes where the page's whole measure changes. Kiron's ladder for it: one column
+       to 639, two from 640 to 767, three at 768 and up. */
+    @media (max-width: 639px){
+      .tmd-gal{ grid-template-columns: minmax(0,1fr); }
+    }
+
     @media (max-width: 519px){
       /* THE BAND BECOMES A TRUE STACK: picture, then name and contact, then the icons, all
          on one left edge. The single column was already declared here, but the rules above
@@ -617,10 +628,6 @@
          end of the strip at 320. Kiron, 2026-09-10: every range with more than one row
          gets the same row gap. So there is now exactly ONE gap declaration for the strip,
          in the 767 rung - 4px rows, 16px columns - and every width below it inherits. */
-      /* TWO IMAGES ACROSS. Three columns in a 440px panel is a 130px image - 87px tall at
-         3:2, a thumbnail rather than a photograph. Two gives 208 x 139. Six images, so it
-         reads as three rows of two. */
-      .tmd-gal{ grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
 
     /* ======================================================================
@@ -673,10 +680,6 @@
          55.1px. The line still matches the reference word, which is the point of it. */
       .tmd-tabs{ --tmd-tab-line: 55.1px; }
       .tmd-tab{ font-size: 12px; }
-      /* ONE IMAGE ACROSS. Two columns in a 280px panel is a 128px image, 85px tall at
-         3:2 - smaller than the icons in the band above it. One gives 280 x 187, which is
-         a photograph. Six images, so six rows. */
-      .tmd-gal{ grid-template-columns: minmax(0,1fr); }
     }
   </style>
 </head>
