@@ -14,22 +14,13 @@
   <!-- Single source of truth for the final PC direction -->
   <link href="pc.css?v=20260827a" rel="stylesheet" />
 
-  <!-- Page-local: BLOG STORY (single post). Layout only — colour, type, buttons and the
-       card shell come from pc.css tokens, so a design-system change reaches this page.
+  <!-- Page-local: BLOG STORY (single post). Layout only - every colour, type scale and
+       button comes from pc.css tokens.
 
-       Structure: breadcrumb → title block (date · author · share, full content width) →
-       article + sidebar (recent posts, other blogs by the author, categories) → tags. The
-       lead photo sits at the top of the ARTICLE column, so it is 922px wide at the top rung
-       (1376 content box - 390 rail - 64 gutter), not the full content box.
-
-       PROSE MEASURE: there is deliberately NO ch cap on .bs-body. The article runs its
-       column at every scroll position - 922px at the top rung, about 138 characters at
-       16px Inter, past the 45-75 band that governs the rest of the site. If readability
-       wins, the fix is a max-width in ch on .bs-body p, not a narrower column: the column
-       also carries the lead photo.
-
-       Responsive: the article/sidebar split collapses on the shared --site ladder (1023),
-       so the breakpoints line up with the header and footer. -->
+       Developer notes, including every measurement and constraint behind the rules in
+       this file, are in developer-blog-story.md. Read §6 before capping the article's
+       measure, §3.2 and §4 before touching the rail or the sticky group, and §7 before
+       changing the category grid. -->
   <style>
     .bs-body-page{ background: var(--pc-white); }
     .bs-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
@@ -43,18 +34,12 @@
       text-underline-offset: 3px; }
     .bs-crumb a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .bs-crumb .sep{ color: var(--pc-medium-blue); }
-    /* The current page is plain text, not a link — it is where you already are. */
     .bs-crumb .here{ color: var(--pc-black); }
 
-    /* ---- title block ---- */
-    /* 8 here + 16 on .bs-layout = 24px between the date/author row and the top of the
-       photo and sidebar. Halved twice from the 96px it started at (32 + 64, then
-       16 + 32): the share pills already give the row visual weight, so the gap under it
-       only has to separate, not announce. */
+    /* ---- title block. The 8px here plus 16 on .bs-layout is the whole gap under the
+       meta row - see developer-blog-story.md §9. ---- */
     .bs-head{ padding: var(--space-5) 0 var(--space-2); }
-    /* No measure cap on the headline: it runs the full content width (1376px at the top
-       rung). A headline is not reading copy — there is no return sweep to lose — so the
-       45-75ch band that governs .bs-body does not apply here. */
+    /* No measure cap: a headline runs the full content width. See §8. */
     .bs-head h1{ font-size: 52px; line-height: 1.08; margin: 0; }
     .bs-meta{ display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
       gap: var(--space-4); margin-top: var(--space-5);
@@ -62,17 +47,14 @@
     .bs-meta-left{ display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: 0;
       font-family: var(--font-sans); font-size: 13.5px; color: var(--pc-black); }
     .bs-meta-left .sep{ color: var(--pc-medium-blue); }
-    /* The byline is a link to the author's bio page. It keeps the byline's own weight and
-       colour rather than the body link treatment: inside a meta row of date and read time,
-       a fully styled link would read as the loudest thing on the line. The underline arrives
-       on hover and focus, which is what tells a reader it is clickable once they go looking. */
+    /* The byline is a link to the author's bio page. The hover/focus underline is its
+       non-colour affordance and is required - see developer-blog-story.md §13. */
     .bs-author{ font-weight: 600; color: var(--pc-navy); text-decoration: none; }
     .bs-author:hover{ color: var(--pc-medium-blue); text-decoration: underline;
       text-underline-offset: 2px; }
     .bs-author:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
-    /* Share row. Same PC Light Blue pill treatment as the map close button — fill and
-       border are the same colour, so hover swaps fill without the box reflowing. */
+    /* ---- share row: the map close button's pill treatment ---- */
     .bs-share{ display: flex; align-items: center; gap: 8px; }
     .bs-share .lbl{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
       letter-spacing: .1em; text-transform: uppercase; color: var(--pc-navy); margin-right: 2px; }
@@ -85,31 +67,20 @@
     .bs-share a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .bs-share svg{ width: 17px; height: 17px; fill: currentColor; display: block; }
 
-    /* ---- lead photo: sits INSIDE the article column, beside the rail, so it is 922px
-       wide at the top rung rather than the full 1376px content box. overflow: hidden is
-       what clips the image to the rounded corners. ---- */
+    /* ---- lead photo: inside the article column, so it takes that column's width ---- */
     .bs-lead{ border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 16 / 9;
       margin: 0 0 var(--space-6);
       background: linear-gradient(135deg, var(--pc-black), var(--pc-navy)); }
     .bs-lead img{ display: block; width: 100%; height: 100%; object-fit: cover; }
 
-    /* ---- article + sidebar ----
-       A two-column GRID: the article keeps one width for its whole length and never wraps
-       underneath the rail. --bs-side-w lives here, on the layout, because the grid track
-       and the <=1023 reset both read it - change the rail's width in one place.
-       minmax(0, 1fr) on the article track, not 1fr: a bare 1fr floors at the content's
-       min-content width, and a long unbroken URL in the copy would push the track wider
-       and shove the rail off the grid. */
+    /* ---- article + sidebar. minmax(0,1fr) and the placement of --bs-side-w are both
+       load-bearing - see developer-blog-story.md §3.1. ---- */
     .bs-layout{ --bs-side-w: 390px;
       display: grid; grid-template-columns: minmax(0, 1fr) var(--bs-side-w);
       gap: 0 var(--space-8); padding: var(--space-4) 0 var(--space-9); }
 
-    /* Prose is NOT measure-capped here — see the PROSE MEASURE note at the top of this
-       block. The article column's width sets the line length. */
-    /* One prose size for the whole article, the opening paragraph included — it is not
-       stepped up as a standfirst. --body is 16px, the site's base size, so the story
-       reads at the same size as the rest of the build. Nothing else in this file sizes
-       .bs-body p, at any width, so this is the only place to change it. */
+    /* Prose is deliberately NOT measure-capped: the column sets the line length (§6).
+       One size for the whole article, and nothing else in this file sizes .bs-body p. */
     .bs-body p{ font-size: var(--body); line-height: 1.8; color: var(--color-text-muted);
       margin: 0 0 var(--space-5); }
     .bs-body h2{ font-family: var(--font-serif); font-weight: 500; font-size: 30px;
@@ -119,8 +90,7 @@
     .bs-body a{ color: var(--pc-navy); text-decoration: underline; text-underline-offset: 3px; }
     .bs-body a:hover{ color: var(--pc-medium-blue); }
 
-    /* Numbered considerations. The counter is drawn in the serif so the numerals read as
-       display type rather than as a browser list marker. */
+    /* ---- numbered considerations: a serif counter, not a list marker ---- */
     .bs-body ol{ list-style: none; counter-reset: bs-num; padding: 0;
       margin: 0 0 var(--space-6); }
     .bs-body ol > li{ counter-increment: bs-num; position: relative;
@@ -130,9 +100,8 @@
       color: var(--pc-medium-blue); }
     .bs-body ol > li p{ margin: 0; }
 
-    /* ---- category tags ----
-       Scoped under .bs-body so it outranks the .bs-body p prose rule (2 classes beats
-       1 class + 1 type) — the tag row is a <p>, but it is not reading copy. */
+    /* ---- category tags. The .bs-body prefix wins a specificity fight and is not
+       decoration - see developer-blog-story.md §10. ---- */
     .bs-body .bs-tags{ display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
       max-width: none; margin: 0;
       padding-top: var(--space-6); border-top: 1px solid var(--color-border);
@@ -145,19 +114,12 @@
     .bs-tags a:hover{ background: var(--pc-medium-blue); color: var(--pc-white); }
     .bs-tags a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
-    /* ---- sidebar ----
-       The aside is a grid item and is deliberately left to STRETCH to the row's full
-       height (the article's height). That tall box is what the sticky group below travels
-       inside - give the aside `align-self: start` and it collapses to its own content, and
-       the group stops moving the moment the last box scrolls past. */
+    /* ---- sidebar. It must be left to stretch: that height is what the sticky group
+       travels inside. An align-self here silently kills the pin - §3.2. ---- */
     .bs-side{ display: flex; flex-direction: column; gap: var(--space-5); }
 
-    /* Blog Categories + Other Blogs travel with the reader; Recent Posts scrolls away
-       above them. --navH is the real header height, JS-synced on resize, so the group pins
-       just under the header rather than behind it.
-       max-height + overflow keep it usable on a short window: if the two boxes are taller
-       than the space under the header, the group scrolls inside itself instead of having
-       its bottom cut off where nothing can reach it. */
+    /* The travelling group. max-height and overflow-y are a pair and are what keep it
+       usable on a short window; no ancestor may take an overflow - §4. */
     .bs-sticky{ position: sticky; top: calc(var(--navH) + var(--space-5));
       display: flex; flex-direction: column; gap: var(--space-5);
       max-height: calc(100vh - var(--navH) - var(--space-6)); overflow-y: auto; }
@@ -167,14 +129,9 @@
     .bs-box h2{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
       color: var(--pc-black); margin: 0 0 var(--space-3);
       padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
-    /* Categories run two-up: eleven links as one column was the tallest thing in the
-       sidebar. column-gap only — the hairline under each link is the row rhythm.
-
-       Column-major, not row-major: `grid-auto-flow: column` over six fixed rows fills the
-       first column top to bottom before starting the second, so the list reads alphabetically
-       DOWN each column. With eleven links that is 6 + 5. The row count is the ceiling of
-       half the list, so a twelfth category fills the last cell and a thirteenth needs this
-       number raised to 7. */
+    /* Categories run two-up, column-major, so the list reads alphabetically DOWN each
+       column. The row count is hardcoded to half of eleven links and does not adapt: a
+       thirteenth category needs the 6 raised to 7. See developer-blog-story.md §7. */
     .bs-catgrid{ display: grid; grid-template-rows: repeat(6, auto);
       grid-auto-flow: column; grid-auto-columns: 1fr; column-gap: var(--space-5); }
     .bs-catlink{ display: block; font-family: var(--font-sans); font-size: 14px;
@@ -183,7 +140,7 @@
     .bs-catlink:hover{ color: var(--pc-medium-blue); }
     .bs-catlink:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
-    /* Recent posts: 84px thumbnail + headline + date. */
+    /* ---- recent posts: 84px thumbnail + headline + date. Two feeds, one row. ---- */
     .bs-recent{ display: flex; gap: var(--space-3); padding: var(--space-4) 0;
       border-bottom: 1px solid var(--color-border); text-decoration: none; color: inherit; }
     .bs-recent:last-of-type{ border-bottom: 0; padding-bottom: 0; }
@@ -199,22 +156,17 @@
     /* ---- responsive: steps sit on the shared --site ladder ---- */
     @media (max-width: 1279px){
       .bs-head h1{ font-size: 44px; }
-      /* 960px content box at the 1024 rung: 390 would leave the article at 522. */
       .bs-layout{ --bs-side-w: 340px; column-gap: var(--space-7); }
     }
     @media (max-width: 1023px){
-      /* One column: the rail drops below the article, which is already its DOM order,
-         so nothing needs re-ordering. */
       .bs-layout{ display: flex; flex-direction: column; gap: var(--space-7); }
       .bs-side{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);
         align-items: start; }
-      /* Pin released. display: contents dissolves the wrapper so its two boxes become
-         grid items of .bs-side alongside Recent Posts - three boxes running two-up, the
-         same as before the group existed. */
+      /* Pin released: the wrapper dissolves and its boxes join .bs-side's grid. */
       .bs-sticky{ display: contents; }
     }
     @media (max-width: 899px){
-      .bs-head h1{ font-size: 38px; max-width: none; }
+      .bs-head h1{ font-size: 38px; }
       .bs-meta{ flex-direction: column; align-items: flex-start; }
     }
     @media (max-width: 767px){
@@ -305,8 +257,6 @@
         <span class="here" aria-current="page">Transitional Farmland</span>
       </nav>
 
-      <!-- Title block. The article headline is the page h1; the section headings inside
-           the body are h2, so the post reads as one clean outline to a screen reader. -->
       <header class="bs-head reveal">
         <h1>Transitional Farmland: Investing in Land in the Path of Growth</h1>
 
@@ -319,7 +269,7 @@
             <span>6 Min Read</span>
           </p>
 
-          <div class="bs-share">
+          <div class="bs-share" role="group" aria-labelledby="share-lbl">
             <span class="lbl" id="share-lbl">Share</span>
             <a href="https://www.facebook.com/sharer/sharer.php?u=https://peoplescompany.com/blog/transitional-farmland-investing-in-land-in-the-path-of-growth&amp;t=Transitional+Farmland%3A+Investing+in+Land+in+the+Path+of+Growth" target="_blank" rel="noopener" aria-label="Share on Facebook">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.988H7.898V12h2.54V9.797c0-2.506 1.493-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
@@ -342,9 +292,6 @@
         <!-- ===== ARTICLE ===== -->
         <article class="bs-body reveal">
 
-          <!-- Lead photo opens the article column (922px at the top rung), not the full
-               content box. It is the article's own image, so it carries real alt text
-               (unlike the decorative homepage hero). -->
           <div class="bs-lead">
             <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp"
                  alt="Aerial view of transitional farmland bordering new residential development" />
@@ -455,10 +402,7 @@
             </a>
           </section>
 
-          <!-- These two travel with the reader: position: sticky pins the group under
-               the header once Blog Categories reaches the top, so it stays on screen for
-               the rest of the article while Recent Posts scrolls away above it. The pin is
-               released below 1024, where the rail sits under the story. -->
+          <!-- ===== THE TRAVELLING GROUP — pinned above 1023 ===== -->
           <div class="bs-sticky">
             <section class="bs-box">
               <h2>Blog Categories</h2>
@@ -477,10 +421,8 @@
               </div>
             </section>
 
-            <!-- Other posts by this article's author. Same .bs-recent row as Recent Posts
-                 above — one component, two feeds. The heading takes the author's FIRST name,
-                 which the CMS has to hold as its own field: "Bohnenkamp" cannot be split off
-                 a single full-name string reliably. -->
+            <!-- Conditional: rendered only when the author has three or more posts.
+                 The heading takes the author's FIRST name, its own CMS field. -->
             <section class="bs-box">
               <h2>Other Blogs by Eric</h2>
 
