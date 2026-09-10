@@ -53,18 +53,58 @@
        the only place bright PC Blue is legal, since PC Blue fails contrast on white. Every
        child below reads through the ON-DARK scheme - white copy, Light Blue secondary,
        PC Blue accent - which is why the overrides are grouped here rather than scattered. */
-    .tmd-id{ display: grid; grid-template-columns: 193px minmax(0,1fr) auto;
+    .tmd-id{ display: grid; grid-template-columns: 241px minmax(0,1fr) auto;
       gap: var(--space-6); align-items: start; margin: var(--space-4) 0 0;
-      padding: var(--space-7) var(--space-6); border: 0;
+      /* An EVEN inset on all four sides. 40px is deliberately OFF the shared spacing scale,
+         which jumps 32 -> 48 with nothing between: the band was 48 top/bottom and 32 left/
+         right, and this splits that difference so the portrait is inset the same amount in
+         every direction. It is named rather than inlined so it reads as a decision.
+         This is also the band's height control - the portrait is the tallest child, so the
+         band is 241 + 2 x this. */
+      --tmd-band-pad: 40px;
+      padding: var(--tmd-band-pad); border: 0;
       border-radius: var(--radius-md);
       background: linear-gradient(118deg, var(--pc-black) 0%, #0E2A4A 46%, var(--pc-navy) 100%); }
-    /* 168 -> 193px, the 15% Kiron asked for. The band's height still comes from the copy. */
-    .tmd-portrait{ width: 193px; aspect-ratio: 4 / 5; border-radius: var(--radius-md);
-      overflow: hidden; background: rgba(255,255,255,.08);
-      box-shadow: 0 0 0 1px rgba(215,239,251,.45); }
-    .tmd-portrait img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* SQUARE, the same 1:1 as the finder cards in team.html - one headshot ratio across the
+       site, so the CMS crops each person once.
 
-    .tmd-idmain{ min-width: 0; padding-top: 2px; }
+       WHY 241 AND NOT 193: the portrait is the tallest thing in the band, so it - not the
+       copy - sets the band's height. The old box was 193 x 241 (4:5), so going square at 193
+       would have shortened the band. 241 square holds the height the 4:5 box gave and takes
+       its extra 48px of width out of the copy column beside it. Change this number and the
+       band's height changes with it, since the band is this + 2 x --tmd-band-pad. */
+    .tmd-portrait{ width: 241px; aspect-ratio: 1 / 1; border-radius: var(--radius-md);
+      overflow: hidden; box-shadow: 0 0 0 1px rgba(215,239,251,.45);
+      /* NO-HEADSHOT FALLBACK. PC's own contact placeholder - the diamond on light grey - sits
+         BEHIND the <img> as this box's background, so it needs no JS and no conditional
+         markup: if the record has no photo, or the CDN 404s, or the file is still uploading,
+         the placeholder is already there. When a real headshot loads it covers this
+         completely, since the img is 100% x 100% with object-fit: cover.
+         The asset is 506 x 478 - a hair wider than square - so a 1:1 cover crop trims ~7px
+         off each side and nothing off the top or bottom. The diamond is centred and clears
+         that easily, which is why the portrait crop below can stay top-anchored for real
+         portraits without cutting the logo.
+         The CMS should ALSO emit this URL as the img src when the photo field is empty, so
+         the alt text and the accessibility tree stay correct rather than describing a person
+         whose picture is not there. This background is the second line of defence. */
+      --tmd-portrait-fallback:
+        url("https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/0bEVuGyMjZEE3mMGupnfGoU9OGiNvyobum2f3nAc.jpg");
+      background: #CBCFD3 var(--tmd-portrait-fallback) center / cover no-repeat; }
+    /* object-position: center top matches .tm-ph on team.html - a square crop of a tall
+       photograph has to be anchored to the top or it takes the chin and loses the head. */
+    .tmd-portrait img{ width: 100%; height: 100%; object-fit: cover; display: block;
+      object-position: center top; }
+
+    /* BOTTOM-ALIGNED CONTACT BLOCK. The copy column is stretched to the portrait's full
+       height and made a flex column so the contact block can be pushed to the bottom with
+       margin-top:auto - the two columns then share one bottom edge instead of the picture
+       running 55px deeper than the text beside it. align-self is on THIS element rather than
+       align-items:stretch on .tmd-id on purpose: stretching the whole row would also stretch
+       .tmd-portrait, and a stretched height fights its aspect-ratio: 1/1 and breaks the
+       square the moment the copy is taller than the picture. Name and role stay at the top;
+       the slack collects between the role and the contact block. */
+    .tmd-idmain{ min-width: 0; padding-top: 2px; align-self: stretch;
+      display: flex; flex-direction: column; }
     /* The site H1, not a page-local size: --h1-size / 1.1 / -0.01em, same as every other
        page's headline. Only the colour is stated, and it matches the global h1 anyway. */
     .tmd-name{ font-family: var(--font-serif); font-weight: 500; font-size: var(--h1-size);
@@ -78,8 +118,18 @@
        address is a separate column rather than a fourth row because it is three lines and
        would otherwise dwarf the numbers above it. flex-wrap, not a media query: when the
        band narrows the address simply drops under the list. */
-    .tmd-contact{ display: flex; flex-wrap: wrap; align-items: flex-start;
-      gap: var(--space-5) var(--space-8); margin: var(--space-4) 0 0; }
+    /* align-items: FLEX-END, so the two columns share a bottom row. The phone/email list is
+       shorter than the three-line address whenever a person has fewer data points than the
+       address has lines, and bottom-aligning drops the list by whole 30.2px pitches - so its
+       last row lands on the address's last line instead of its first. The two columns stay on
+       one rhythm either way; this decides which END of that rhythm they agree on. Where the
+       two columns are the same height it changes nothing. */
+    .tmd-contact{ display: flex; flex-wrap: wrap; align-items: flex-end;
+      gap: var(--space-5) var(--space-8);
+      /* auto, not a fixed top margin: this is what bottom-aligns the block to the portrait.
+         --space-4 is kept as the MINIMUM so the block never collides with the role above it
+         if the copy ever grows tall enough to use up the slack. */
+      margin: var(--space-4) 0 0; margin-top: auto; }
     .tmd-meta{ list-style: none; margin: 0; padding: 0;
       display: flex; flex-direction: column; gap: 7px; }
     .tmd-meta li{ display: flex; align-items: center; gap: 8px;
@@ -121,9 +171,24 @@
     /* align-items is STRETCH, not start, and that is load-bearing: a sticky element can only
        travel inside its own containing block, so .tmd-main has to run the full height of the
        row or the sub-nav unsticks the moment the bio panel ends. */
-    .tmd-cols{ display: grid; grid-template-columns: minmax(0,1fr) 320px;
+    .tmd-cols{ display: grid; --tmd-rail-w: 320px;
+      grid-template-columns: minmax(0,1fr) var(--tmd-rail-w);
       gap: var(--space-8); align-items: stretch;
       padding: var(--space-6) 0 var(--space-9); }
+    /* AN EMPTY RAIL IS NO RAIL. Set by the guard in the script when the record produces no
+       rail cards: the rail track and the gap both come off, so no blank 320px column is left
+       standing beside the panels. Same rule as the single tab - a container with nothing in
+       it does not get to keep its space. */
+    .tmd-cols.is-norail{ grid-template-columns: minmax(0,1fr); gap: 0; }
+    /* BUT THE COPY DOES NOT WIDEN. The column keeps the exact measure it would have had with
+       the rail beside it, so hiding the rail LOOKS like hiding the rail: every line of the
+       panel - heading, rule, prose, facts - stays where it sat, and the space the rail
+       occupied simply empties. The alternative, letting the panel run the full 1376px, both
+       re-flows copy that did not change and sets prose at ~130ch.
+       Stated as the arithmetic rather than as 992px, off the same two tokens the grid uses,
+       so it cannot drift from the real rail width. */
+    .tmd-cols.is-norail .tmd-main{
+      max-width: calc(100% - var(--tmd-rail-w) - var(--space-8)); }
     .tmd-main{ min-width: 0; }
 
     /* ---- sub-nav tabs ---- */
@@ -436,8 +501,8 @@
                 <span class="tmd-tag">Mobile</span> <a href="tel:5153308710">515.330.8710</a>
               </li>
               <li>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg>
-                <a href="mailto:JohnR@PeoplesCompany.com">JohnR@PeoplesCompany.com</a>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.2L4.4 7H19.6L12 12.2zM4 8.5V17h16V8.5l-8 5.5-8-5.5z"/></svg>
+                <span class="tmd-tag">Email</span> <a href="mailto:JohnR@PeoplesCompany.com">JohnR@PeoplesCompany.com</a>
               </li>
             </ul>
 
@@ -454,8 +519,14 @@
 
         <div class="tmd-idside">
           <div class="tmd-social">
+            <!-- Email leads the row: it is the one action on this band that starts a
+                 conversation. It repeats the mailto: already in the contact list on purpose -
+                 the list is the address, this is the button. -->
+            <a href="mailto:JohnR@PeoplesCompany.com" aria-label="Email John Reburn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.2L4.4 7H19.6L12 12.2zM4 8.5V17h16V8.5l-8 5.5-8-5.5z"/></svg>
+            </a>
             <a href="https://www.linkedin.com/in/john-reburn-7b5072137/" aria-label="John Reburn on LinkedIn">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.94 5.5a1.94 1.94 0 1 1-3.88 0 1.94 1.94 0 0 1 3.88 0zM3.3 8.9h3.3V21H3.3zM9.4 8.9h3.16v1.65h.05a3.47 3.47 0 0 1 3.12-1.71c3.34 0 3.96 2.2 3.96 5.05V21h-3.3v-5.4c0-1.29-.02-2.95-1.8-2.95s-2.08 1.4-2.08 2.86V21H9.4z"/></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.94 8.5a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44zM5.4 9.9h3.08V19H5.4V9.9zm5.02 0h2.95v1.24h.04c.41-.78 1.42-1.6 2.92-1.6 3.12 0 3.7 2.05 3.7 4.72V19h-3.08v-4.2c0-1-.02-2.29-1.4-2.29-1.4 0-1.62 1.09-1.62 2.22V19h-3.51V9.9z"/></svg>
             </a>
             <!-- PDF bio. Sits in the same row as the social icons, as on the reference page. -->
             <a class="tmd-pdf" href="#" aria-label="Download John Reburn's bio (PDF)">
@@ -475,10 +546,7 @@
 
           <!-- ===== 1. BIO ===== -->
           <section class="tmd-panel tmd-bio" data-label="Bio" id="tmdPanel-bio" role="tabpanel" tabindex="-1">
-            <!-- Every other panel leads with a visible h2. This one is clipped rather than
-                 deleted so the heading outline stays intact for search and for screen readers -
-                 the bio panel is not allowed to be the one section with no heading. -->
-            <h2 class="tmd-h2 sr-only">Biography</h2>
+            <h2 class="tmd-h2">Biography</h2>
             <p>John Reburn is a Land Agent with Peoples Company, assisting landowners, farmers and
               investors in successfully selling and acquiring farmland. His primary focus is land
               brokerage, using public auctions, traditional listings and private treaty sales
@@ -493,16 +561,12 @@
               Iowa and served nine years in the Iowa Army National Guard, including a deployment
               to Iraq.</p>
 
-            <!-- Education, focus and affiliations STACK inside the bio rather than sitting in
-                 a horizontal grid: one label-over-content rhythm all the way down the panel. -->
+            <!-- Education and affiliations STACK inside the bio rather than sitting in a
+                 horizontal grid: one label-over-content rhythm all the way down the panel. -->
             <div class="tmd-facts">
               <div class="tmd-fact">
                 <h3>Education</h3>
                 <p>University of Northern Iowa &mdash; B.A., Finance and Real Estate, 2017</p>
-              </div>
-              <div class="tmd-fact">
-                <h3>Areas of Focus</h3>
-                <p>Land brokerage, public auctions, 1031 exchanges, estate and trust sales</p>
               </div>
               <div class="tmd-fact">
                 <h3>Memberships &amp; Affiliations</h3>
@@ -887,7 +951,7 @@
           <!-- Five posts, title and date only. The feed is filtered by the agent's email; an
                agent who has never written drops this whole section. -->
           <section class="tmd-rcard">
-            <h2 class="tmd-rtitle">Blogs by John</h2>
+            <h2 class="tmd-rtitle">Blogs</h2>
             <ul class="tmd-posts">
               <li>
                 <a href="./blog-story.html">Farmland Value: How to Know What Your Land is Worth</a>
@@ -928,6 +992,27 @@
     var tabsBox = document.getElementById("tmdTabs");
     var panels  = [].slice.call(document.querySelectorAll(".tmd-panel[data-label]"));
     if(!tabsBox || !panels.length) return;
+
+    /* ONE PANEL MEANS NO TAB BAR. A tablist holding a single tab is 98px of sticky chrome
+       whose only offer is the panel already on screen, and it lies to a screen reader:
+       role="tablist" announces a choice that does not exist. So the bar is REMOVED from the
+       DOM, not hidden - .tmd-tabs sets display:flex, which beats the UA's [hidden] rule, so
+       hiding it by attribute would leave it on screen.
+       The lone panel then has to stop pretending to be a tab panel: role, tabindex and
+       aria-labelledby all come off, and `hidden` is cleared, so it reads as ordinary content
+       with its own h2. data-label stays - it is the CMS's field, not a tab artefact.
+       No CSS needs changing. The bar's negative top margin exists to cancel .tmd-cols'
+       padding-top; with the bar gone that padding simply applies, which is the right gap
+       between the identity band and the panel. */
+    if(panels.length < 2){
+      tabsBox.parentNode.removeChild(tabsBox);
+      var only = panels[0];
+      only.removeAttribute("role");
+      only.removeAttribute("tabindex");
+      only.removeAttribute("aria-labelledby");
+      only.hidden = false;
+      return;
+    }
 
     var tabs = panels.map(function(panel, i){
       var b = document.createElement("button");
@@ -970,6 +1055,21 @@
 
     select(0);
 
+  })();
+
+  (function(){
+    /* AN EMPTY RAIL IS NO RAIL. The minimum record has no licences, awards or posts, so the
+       rail can come out with zero cards - and a 320px column of nothing beside the panels
+       reads as a load failure rather than as a thin profile. If the rail holds no cards it is
+       removed and .tmd-cols drops to a single track.
+       Its own IIFE, not part of the tab code: the tab builder returns early on a one-panel
+       page, which is exactly the page most likely to have an empty rail. */
+    var cols = document.querySelector(".tmd-cols");
+    var rail = document.querySelector(".tmd-rail");
+    if(!cols || !rail) return;
+    if(rail.querySelector(".tmd-rcard")) return;
+    rail.parentNode.removeChild(rail);
+    cols.classList.add("is-norail");
   })();
   </script>
 
