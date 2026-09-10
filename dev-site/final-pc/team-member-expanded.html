@@ -501,7 +501,39 @@
          padding is just a gap, and at 6px the line reads as belonging to the word above
          it. margin-bottom: -1px goes for the same reason - it existed to overlap the
          border that is no longer drawn. */
-      .tmd-tab{ justify-self: center; padding-bottom: 6px; margin-bottom: 0; }
+      /* ONE LINE LENGTH FOR ALL EIGHT, AND IT IS NOT A BORDER. A border-bottom is always
+         exactly as wide as its box, which is why an active Bio was a 26.8px stub against
+         Testimonials' 117px. This paints the line as a BACKGROUND BAR instead: a 2px
+         gradient, no-repeat, centred on the bottom of the padding box, sized to a fixed
+         width - so it is free of the label's width and every tab gets the same line
+         centred under its word.
+         64.3px is not arbitrary: it is the rendered width of the word PHOTOS at this
+         strip's type - 14px/600/.07em uppercase - measured off the live page, and Kiron
+         picked it as the reference length. Stated once so the eight cannot drift apart.
+         A ::after was the obvious way to do this and it DOES NOT WORK: Chrome computes
+         the pseudo-element's style once and does not re-run it when aria-selected flips,
+         so the line stayed under Bio while the selection moved. Verified by clicking
+         through all eight. A property on the button itself invalidates properly, and
+         background-size carries the width, so the whole thing is one declaration.
+         The button's own border-bottom comes off, and padding 8 = the 6px gap the line
+         reads with plus the 2px it occupies, which keeps the box the same 25px tall. */
+      /* CLEAR THE INTERACTIVE MAP TAB. The tab is sticky at var(--navH) and hangs
+         var(--md-tab-h-peak) below it - 38px at this breakpoint - and it is CENTRED, which
+         is why this only bites when the page is narrow: at 640 it occupies x 225-415 while
+         the crumb reads "Home / Our Team / John Reburn" out to about 255, so the last
+         crumb sat behind the tab. 24px of padding was not enough to get under it.
+         Written as the same expression the sub-nav bar uses to clear the same tab, off the
+         same token, so the two cannot disagree - and if the tab's height changes at a
+         breakpoint, both follow it. */
+      .tmd-crumb{ padding-top: calc(var(--md-tab-h-peak) + 8px); }
+      .tmd-tabs{ --tmd-tab-line: 64.3px; }
+      .tmd-tab{ justify-self: center; margin-bottom: 0;
+        border-bottom: 0; padding-bottom: 8px;
+        background-image: linear-gradient(var(--pc-blue), var(--pc-blue));
+        background-repeat: no-repeat; background-position: 50% 100%;
+        background-size: 0 2px;
+        transition: color .18s ease, background-size .18s ease; }
+      .tmd-tab[aria-selected="true"]{ background-size: var(--tmd-tab-line) 2px; }
       /* NO RULE UNDER THE STRIP. The 2px light-blue border-bottom is the desktop bar's
          baseline, and once the bar bleeds to both page edges that hairline becomes a line
          drawn across the whole width of the page - it reads as a divider between two
