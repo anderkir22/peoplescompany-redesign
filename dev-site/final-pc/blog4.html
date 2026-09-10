@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Final (PC) — Blog, page 4</title>
+  <meta name="description" content="Blog index, page 4, for the final PC direction: category filters and a responsive grid of earlier articles, cards with an author byline, a teaser and a category footer, on the clean pc.css design system." />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Single source of truth for the final PC direction -->
+  <link href="pc.css?v=20260827a" rel="stylesheet" />
+
+  <!-- Page-local: BLOG INDEX. Everything here is layout for this page only — the
+       colours, type, buttons and card shell all come from pc.css tokens and the shared
+       .io-scope component block (the same card used by the homepage Insights module),
+       so a change to the design system reaches this page for free.
+
+       Structure: title → sticky search / filter bar (the team.html component) → a
+       3-up grid of every post, newest first → pager. Every card is the same size: no
+       featured post, no wide row.
+
+       This is page 4, and the third A/B variant of the card: author in the meta row,
+       the teaser kept, categories in a card footer. It is page 2's card plus the
+       teaser. blog.html is the control and stays as it is - nothing here reaches it,
+       because all of it is page-local.
+
+       Responsive: the grid steps 3 → 2 → 1 on the shared --site ladder (1279 / 767),
+       so the breakpoints line up with the header and footer rather than sitting
+       between them. -->
+  <style>
+    .blg-body{ background: var(--pc-white); --ls-pill-w: 180px;
+      /* Matched width of Search and Clear once they stop flexing - see the 640-1023
+         block. Only read in that band; above it both buttons size to their labels. */
+      --ls-act-w: 88px; }
+    .blg-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+
+    /* THE MAP LAYER MUST CLEAR THE FILTER BAR. `.ls-bar` is z-40 and sticky, so it forms a
+       stacking context that beats the shared map layer (z-31) and its backdrop (z-30) - the
+       map would open BEHIND the bar. Raised here, page-locally, because the shared values are
+       correct on every page that has no sticky bar. 44/43 sits above the bar (40) and the map
+       tab (39) and below the site header (45), which is what the layer hangs from. */
+    .md-layer{ z-index: 44; }
+    .md-backdrop{ z-index: 43; }
+
+    /* ---- intro ---- */
+    .blg-intro{ padding: var(--space-8) 0 var(--space-6); }
+
+    /* ---- search / filter bar. Same component as team.html and listings.html: identical
+       class names, identical rules, identical popover behaviour. Keep it that way - when one
+       copy changes, change all of them. ---- */
+    .ls-bar{ position: sticky; top: var(--navH); z-index: 40;
+      background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border); }
+    .ls-bar-in{ position: relative; max-width: var(--site); margin: 0 auto;
+      padding: var(--space-4) var(--rail);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-2); flex-wrap: wrap; }
+    .ls-controls{ display: flex; align-items: center; justify-content: flex-start;
+      gap: var(--space-2); flex-wrap: nowrap; flex: 1 1 0; min-width: 0; }
+    .ls-right{ display: flex; align-items: center; gap: var(--space-4); flex: none; }
+
+    /* ---- shared pill trigger ---- */
+    .ls-f{ position: relative; }
+    .ls-pill{ display: inline-flex; align-items: center; justify-content: center;
+      width: var(--ls-pill-w); gap: var(--space-2); text-align: center;
+      min-height: 44px; padding: 4px 16px; background: var(--pc-white);
+      border: 1px solid var(--pc-blue); border-radius: var(--radius-pill);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; line-height: 1.15;
+      color: var(--pc-black); cursor: pointer; }
+    .ls-pill:hover{ border-color: var(--pc-navy); }
+    .ls-pill[aria-expanded="true"]{ border-color: var(--pc-navy);
+      box-shadow: inset 0 0 0 1px var(--pc-navy); }
+    .ls-pill:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-chev{ font-size: 10px; color: var(--pc-medium-blue); }
+    .ls-pill.is-set{ background: var(--pc-navy); border-color: var(--pc-navy);
+      color: var(--pc-white); }
+    .ls-pill.is-set .ls-chev{ color: var(--pc-light-blue); }
+    .ls-pill.is-set:focus-visible{ outline-color: var(--pc-black); }
+
+    /* ---- the search field: a real text input, not a popover ---- */
+    .ls-loc{ display: flex; align-items: center; gap: var(--space-2); min-height: 44px;
+      padding: 0 16px; background: var(--pc-white); border: 1px solid var(--pc-blue);
+      border-radius: var(--radius-pill); flex: 0 1 340px; min-width: 200px; }
+    .ls-loc:focus-within{ border-color: var(--pc-navy); box-shadow: inset 0 0 0 1px var(--pc-navy); }
+    .ls-loc svg{ flex: none; color: var(--pc-medium-blue); }
+    .ls-loc input{ width: 100%; min-width: 0; padding: 12px 0; border: 0; background: none;
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .ls-loc input:focus{ outline: none; }
+
+    /* ---- the popover every pill opens ---- */
+    .ls-pop{ position: absolute; top: calc(100% + 8px); left: 0; z-index: 44;
+      min-width: 280px; max-width: calc(100vw - 40px);
+      background: var(--pc-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); box-shadow: 0 8px 28px rgba(7,22,44,.18);
+      padding: var(--space-4); }
+    .ls-pop[hidden]{ display: none; }
+    .ls-poplist{ max-height: min(46vh, calc(100vh - var(--navH, 120px) - var(--ls-bar-h, 78px) - 120px));
+      overflow-y: auto; overscroll-behavior: contain; }
+    .ls-opt{ display: flex; align-items: center; gap: 10px; padding: 9px 4px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 14px; line-height: 1.3; color: var(--pc-black); }
+    .ls-opt input{ flex: none; width: 18px; height: 18px; accent-color: var(--pc-navy); }
+    .ls-opt:hover{ color: var(--pc-navy); }
+    .ls-pop-right{ left: auto; right: 0; }
+
+    .ls-pop-wide{ min-width: 0; max-width: none;
+      width: min(900px, calc(100% - 2 * var(--rail))); left: var(--rail); right: auto; }
+    .ls-f-static{ position: static; }
+
+    .ls-checks5{ display: grid; grid-auto-flow: row; gap: 2px var(--space-4);
+      grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .ls-checks5 .ls-opt{ white-space: nowrap; }
+
+    /* ---- date range, a blog-only extension of the shared bar. team.html and
+       listings.html have no equivalent; if one is added there, move this with it. ---- */
+    .ls-daterow{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+    .ls-datefield{ display: flex; flex-direction: column; gap: 6px; }
+    .ls-datelabel{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      letter-spacing: .09em; text-transform: uppercase; color: var(--pc-navy); }
+    .ls-datefield input{ min-height: 44px; padding: 0 12px; background: var(--pc-white);
+      border: 1px solid var(--pc-blue); border-radius: var(--radius-sm);
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .ls-datefield input:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    .ls-fieldset{ border: 0; padding: 0; margin: 0; }
+    .ls-fieldset legend{ padding: 0; margin-bottom: var(--space-3);
+      font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--pc-navy); }
+
+    /* ---- popover footer, and the bar's own action ---- */
+    .ls-actions{ display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4); margin-top: var(--space-5);
+      padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+    .ls-clear{ border: 0; background: none; padding: 8px 4px; cursor: pointer;
+      font-family: var(--font-sans); font-size: 14px; color: var(--pc-navy);
+      text-decoration: underline; text-underline-offset: 3px; }
+    .ls-clear:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ls-apply{ min-height: 44px; padding: 0 22px; border: 1px solid var(--pc-navy);
+      border-radius: var(--radius-pill); background: var(--pc-navy); color: var(--pc-white);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500; cursor: pointer; }
+    .ls-apply:hover{ background: var(--pc-black); border-color: var(--pc-black); }
+    .ls-apply:focus-visible{ outline: 2px solid var(--pc-black); outline-offset: 2px; }
+    /* Secondary action next to a filled one: same box, no fill, so the two read as a
+       pair with one obvious primary. Blog-only - team.html has a single bar action. */
+    .ls-ghost{ background: none; color: var(--pc-navy); }
+    .ls-ghost:hover{ background: var(--pc-navy); color: var(--pc-white); }
+
+    /* Submitted-criteria readout. Sits under the bar, inside the content box. It is a
+       live region, so it is also what a screen-reader user hears on submit. */
+    .blg-status{ font-family: var(--font-sans); font-size: 13px; line-height: 1.5;
+      color: var(--color-text-muted); margin: var(--space-5) 0 0; }
+    .blg-status b{ color: var(--pc-black); font-weight: 600; }
+
+    /* ---- post grid ---- */
+    /* ---- card meta row: date first, author pushed to the right edge ----
+       Page-local, and the A/B difference from page 1, which puts the category chip in
+       this slot. The shared .io-scope rule lays the row out chip-then-date, left
+       aligned; this page wants the date leading and the byline trailing, so the author
+       takes the free space with margin-left. pc.css is untouched, which leaves the
+       homepage Insights module reading the way it always has.
+       The author is set as plain text, not a chip: the pill shape now means "category"
+       and nothing else, so a name in a pill would read as one. The byline reads "By
+       Name" in full, so the meta row says what the name is without relying on its
+       position to explain it. */
+    .blg-body .io-metarow{ width: 100%; }
+    .blg-body .io-metarow .blg-by{ margin-left: auto; text-align: right;
+      font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      color: var(--pc-navy); }
+
+    /* ---- card footer: the categories ----
+       Pinned to the bottom of the card body with margin-top:auto, so the footers line
+       up across a row even though the titles run to different depths. A post can carry
+       more than one category and the chips wrap onto a second line rather than
+       squeezing the row. The hairline is what makes it read as a footer. */
+    .blg-cats{ display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: auto; padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border); }
+
+    .blg-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+    .blg-grid .io-title{ font-size: 22px; }
+    .blg-grid .io-body{ padding: var(--space-4) var(--space-4) var(--space-5); }
+
+    /* ---- pager ---- */
+    .blg-pager{ display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 8px; padding: var(--space-8) 0 var(--space-9);
+      border-top: 1px solid var(--color-border); margin-top: var(--space-8); }
+    .blg-page{ display: inline-flex; align-items: center; justify-content: center;
+      min-width: 44px; height: 44px; padding: 0 14px;
+      font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      color: var(--pc-navy); background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-pill);
+      text-decoration: none; }
+    .blg-page:hover{ background: var(--pc-light-blue); border-color: var(--pc-light-blue); }
+    .blg-page:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    /* Current page: filled AND marked aria-current — never colour alone. */
+    .blg-page[aria-current="page"]{ background: var(--pc-navy); border-color: var(--pc-navy);
+      color: var(--pc-white); }
+
+    /* ---- responsive: steps sit on the shared --site ladder ---- */
+    @media (max-width: 1279px){
+      .blg-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    /* 768-1279: the pills come down to 160px, for two different reasons at the two ends
+       of the range. At 1024 the bar is still one row and the three 180px pills overrun
+       it - the controls need 764 against 716 of free space, so Search lands on top of
+       Publish Date. At 768 the bar has already broken into rows (search field, then
+       pills) and 180px pills leave only 148px beside them, so Search and Clear fall to a
+       third row. 160px fixes both: the row holds at 1024, and at 768 the pair comes back
+       up beside the pills. */
+    @media (min-width: 768px) and (max-width: 1279px){
+      .blg-body{ --ls-pill-w: 160px; }
+    }
+    /* Row 2 at 768 is packed: the pair fits, but not with a 16px gap between them. */
+    @media (min-width: 768px) and (max-width: 1023px){
+      .ls-right{ gap: var(--space-2); }
+    }
+
+    /* 640-1023, the two-row band: the five buttons on row 2 share the row rather than
+       sitting left-packed with a hole before Search. .ls-controls is `display: contents`
+       here, so the three .ls-f wrappers and .ls-right are all siblings in .ls-bar-in and
+       can be flexed directly. .ls-right has to grow as one unit and then re-divide, which
+       is why its two buttons get their own flex - and its margin-left: auto has to go, or
+       it would keep absorbing the free space before anything else can. */
+    @media (min-width: 640px) and (max-width: 1023px){
+      .ls-f{ flex: 1 1 0; min-width: 0; }
+      .ls-pill{ width: 100%; }
+      /* Search and Clear come out of the share and take a fixed matched width instead.
+         Letting them flex made them 65px at 640, and "Search" needs 47 of the 39 that
+         leaves inside the padding - the label was being squeezed. --ls-act-w is one token
+         so the two stay identical; the three pills then split whatever is left. */
+      .ls-right{ flex: 0 0 auto; margin-left: 0; }
+      .ls-right > button{ flex: 0 0 var(--ls-act-w); width: var(--ls-act-w);
+        min-width: 0; padding: 0 12px; }
+
+      /* Popovers stop hanging off a pill and span the content box instead. `position:
+         static` on .ls-f hands the containing block to .ls-bar-in, which is the element
+         that already IS the content box, so left/right: var(--rail) pins the panel to the
+         same rail as everything else and `top: 100%` drops it below the whole bar rather
+         than below one pill. Anchored to a pill, the date panel is 324px wide and runs
+         40px past the right edge - off the viewport - at 640. This is the .ls-pop-wide /
+         .ls-f-static mechanism that was already in this file, applied by breakpoint. */
+      .ls-f{ position: static; }
+      .ls-pop{ left: var(--rail); right: var(--rail);
+        min-width: 0; max-width: none; width: auto; }
+    }
+    @media (min-width: 900px) and (max-width: 1023px){
+      .ls-checks5{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    /* Below 1024 the search field takes its own full-width row and the pills sit under it.
+       `display: contents` on .ls-controls is what lets the pills and the field wrap
+       independently inside .ls-bar-in instead of moving as one block.
+
+       Pinned to 1023, NOT 899, because 1023 is where the content box changes character:
+       pc.css sets --site: 100% from 1023 down (see its 1023 footer block), so the box
+       stops being a 1024px rung and becomes viewport - 64 - 836px at 900 against the 960
+       the bar gets at 1024. One row cannot hold the controls on that budget. At 899 the
+       break came 124px too late and 900-1023 rendered Search on top of Publish Date. */
+    @media (max-width: 1023px){
+      .blg-intro{ padding-top: var(--space-7); }
+      .ls-bar-in{ justify-content: flex-start; }
+      .ls-controls{ display: contents; }
+      .ls-loc{ flex: 1 1 100%; }
+      .ls-right{ margin-left: auto; }
+    }
+    @media (min-width: 640px) and (max-width: 899px){
+      .ls-checks5{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    /* 640-767: --ls-pill-w is not set in this band and nothing needs to set it. The
+       640-1023 block above puts .ls-f on `flex: 1 1 0` with `width: 100%` pills, so the
+       three share whatever the row has left after Search and Clear take --ls-act-w. At
+       640 that is 122.7 each; the fixed rail would only get in the way. */
+    @media (min-width: 640px) and (max-width: 767px){
+      .ls-right{ gap: var(--space-2); }
+    }
+    @media (max-width: 767px){
+      .blg-grid{ grid-template-columns: 1fr; }
+      .ls-f > .ls-pill{ padding: 4px 8px; gap: 4px; }
+    }
+    @media (max-width: 639px){
+      .blg-grid .io-title{ font-size: 20px; }
+      /* The bar stops sticking here: at this height a sticky bar plus the header eats too
+         much of the viewport. */
+      .ls-bar{ position: static; }
+      .ls-f{ flex: 1 1 100%; min-width: 0; }
+      /* Full width, but still centred. The pills sit three across at every width below
+         640 - both sub-blocks below put .ls-f back to `flex: 1 1 0` - so the label-left,
+         chevron-right treatment this rule used to carry was laying out for a stacked
+         full-width pill that never actually happens, and it read as misaligned against
+         the centred Search and Clear underneath. */
+      .ls-f > .ls-pill{ width: 100%; }
+      .ls-pop{ left: 0; right: auto; min-width: 0; width: calc(100vw - 40px); }
+      .ls-actions{ flex-direction: column-reverse; align-items: stretch; }
+      .ls-apply{ width: 100%; }
+      .ls-right{ flex-wrap: wrap; gap: var(--space-3); }
+      .ls-right .ls-apply{ flex: 1 1 100%; }
+    }
+    @media (min-width: 480px) and (max-width: 639px){
+      .ls-f{ flex: 1 1 0; min-width: 0; position: static; }
+      .ls-right{ flex: 1 1 100%; justify-content: center; margin-left: 0; }
+      .ls-right .ls-apply{ flex: 1 1 100%; width: 100%; }
+      .ls-pop{ left: var(--rail); right: auto;
+        width: calc(100% - 2 * var(--rail)); min-width: 0; }
+      .ls-checks5{ grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2px var(--space-3); }
+      .ls-opt{ gap: 6px; padding: 5px 0; }
+    }
+    /* Below 480 the bar becomes five stacked rows: search field, then one row per pill,
+       then Search and Clear sharing the last row.
+
+       Three pills across does not survive this width. At 320 the content box is 280, so
+       each pill is 88 and the label has 57.6 of it after the padding and chevron -
+       "Category" needs 61.9 and wraps "Publish Date" onto a second line inside a 44px
+       button. Giving each pill the full row retires the problem rather than shaving
+       padding at it: every label sits on one line with room to spare, and the labels are
+       free to get longer later. Search and Clear stay paired because they are one
+       decision, and at 280 they still clear 136 each. */
+    @media (max-width: 479px){
+      .ls-daterow{ grid-template-columns: 1fr; gap: var(--space-3); }
+      .ls-f{ flex: 1 1 100%; min-width: 0; position: static; }
+      .ls-right{ flex: 1 1 100%; flex-wrap: nowrap; gap: var(--space-2); }
+      .ls-right .ls-apply{ flex: 1 1 0; width: auto; min-width: 0; }
+      .ls-pop{ left: var(--rail); right: auto;
+        width: calc(100% - 2 * var(--rail)); min-width: 0; }
+      .ls-opt{ gap: 6px; padding: 2px 0; }
+    }
+  </style>
+</head>
+
+
+<body>
+  <!-- ================= HEADER ================= -->
+  <header class="pcf">
+    <div class="pcf-inner">
+      <div class="pcf-brandrow">
+        <!-- Hamburger: left edge, shown only <=1023 where the inline menus don't fit.
+             Opens #navDrawer, which is built from the same NAV array as the mega panels. -->
+        <button class="pcf-burger" id="navBurger" type="button"
+                aria-label="Menu" aria-expanded="false" aria-controls="navDrawer">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="pcf-brandcell">
+          <a href="./index.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+          </a>
+        </div>
+        <div class="pcf-stack">
+          <div class="pcf-util">
+            <span class="sp"></span>
+            <a href="./internal.html">Create An Account</a>
+            <span class="sep">|</span>
+            <a href="./internal.html">Login</a>
+          </div>
+          <nav class="pcf-row" aria-label="Primary">
+            <ul class="pcf-menus" id="pcfMenus"></ul>
+            <div class="pcf-searchwrap">
+              <button class="pcf-search" id="searchToggle" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+              </button>
+              <div class="pcf-searchpanel" id="searchPanel">
+                <form class="pcf-searchform" role="search" action="#" onsubmit="return false;">
+                  <input type="search" id="searchInput" placeholder="Search Peoples Company…" aria-label="Search the site" />
+                  <button type="submit" class="pcf-searchgo" aria-label="Submit search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hamburger drawer (<=1023). Sits under the sticky header; content injected from NAV. -->
+  <div class="pcf-drawer-backdrop" hidden></div>
+  <div class="pcf-drawer" id="navDrawer" role="region" aria-label="Menu" hidden>
+    <div class="pcf-drawer-in"></div>
+  </div>
+
+  <!-- ============ INTERACTIVE MAP pull-down tab → map layer ============ -->
+  <div class="md-tabwrap">
+    <button class="md-tab" type="button" aria-expanded="false" aria-controls="md-layer">Interactive Map <span class="md-chev" aria-hidden="true">▾</span></button>
+  </div>
+  <div class="md-backdrop" hidden></div>
+  <div class="md-layer" id="md-layer" role="region" aria-label="Interactive map" aria-hidden="true" hidden>
+    <div class="md-layer-bar"><button class="md-close" type="button" aria-label="Close">✕</button></div>
+    <div class="md-layer-body">
+      <img class="md-mapimg" src="../assets/find-properties-map.png" alt="Interactive FarmWorth map (placeholder)"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<p class=\'md-placeholder\'>Interactive FarmWorth Map</p>');this.onerror=null;" />
+    </div>
+  </div>
+
+  <!-- ================= PAGE CONTENT — blog index ================= -->
+  <main class="blg-body" aria-label="Page content">
+    <div class="blg-wrap">
+      <div class="blg-intro reveal">
+        <h1>Peoples Perspective Blog</h1>
+      </div>
+    </div>
+
+    <!-- ---------- search / filter bar ----------
+         The same component as team.html: same classes, same popover script, same
+         behaviour. The bar is full-bleed and sticky, so it sits OUTSIDE .blg-wrap; the
+         content box is re-established by .ls-bar-in.
+         Only CATEGORY is defined so far. A second pill is a copy of the .ls-f block below
+         with a new id pair and a new checkbox name - nothing else has to change. -->
+    <div class="ls-bar">
+      <form class="ls-bar-in" id="blgFilters" action="#" onsubmit="return false;"
+            role="search" aria-label="Filter posts">
+        <div class="ls-controls">
+
+          <div class="ls-loc">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+            <input type="search" id="blgSearch" placeholder="Search Posts" aria-label="Search posts"
+                   autocomplete="off" spellcheck="false" />
+          </div>
+
+          <div class="ls-f">
+            <button class="ls-pill" id="blgCatBtn" type="button" data-label="Category"
+                    aria-expanded="false" aria-controls="blgCatPop">Category <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
+            <div class="ls-pop" id="blgCatPop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Category</legend>
+                <div class="ls-poplist">
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Agriculture" /> Agriculture</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Crop Insurance" /> Crop Insurance</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Energy Management" /> Energy Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Growing Together" /> Growing Together</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Industry Insights" /> Industry Insights</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Land Auctions" /> Land Auctions</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Land Investment Expo" /> Land Investment Expo</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Land Management" /> Land Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Land Values" /> Land Values</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="News &amp; Events" /> News &amp; Events</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-category" value="Real Estate" /> Real Estate</label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="category">Clear</button>
+                <button class="ls-apply" type="button" data-done="category">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="ls-f">
+            <button class="ls-pill" id="blgAuthorBtn" type="button" data-label="Author"
+                    aria-expanded="false" aria-controls="blgAuthorPop">Author <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
+            <div class="ls-pop" id="blgAuthorPop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Author</legend>
+                <div class="ls-poplist">
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Mollie Aronowitz" /> Mollie Aronowitz</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="George Baird" /> George Baird</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Eric Bohnenkamp" /> Eric Bohnenkamp</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Jared Chambers" /> Jared Chambers</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Wendy Forthun" /> Wendy Forthun</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Connie Kreikemeier" /> Connie Kreikemeier</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Jason Lestina" /> Jason Lestina</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Kim McGinnis" /> Kim McGinnis</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Emily Oberbroeckling" /> Emily Oberbroeckling</label>
+                  <label class="ls-opt"><input type="checkbox" name="blg-author" value="Kyle Walker" /> Kyle Walker</label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="author">Clear</button>
+                <button class="ls-apply" type="button" data-done="author">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Publish Date is a RANGE, not a picklist: two native date inputs, so the
+               browser supplies its own calendar and its own locale formatting.
+               The default range is the last two months: FROM is today minus two months,
+               TO is today. Both dates are hardcoded here; the CMS should compute them at
+               render so the window keeps moving.
+               That default is a UI starting point, NOT an applied filter - the pill stays
+               in its resting "Publish Date" state until someone actually changes a field,
+               and Reset puts both back to the default window. When the filtering is
+               wired, do not apply the untouched default or the index silently loses every
+               post older than two months. -->
+          <div class="ls-f">
+            <button class="ls-pill" id="blgDateBtn" type="button" data-label="Publish Date"
+                    aria-expanded="false" aria-controls="blgDatePop">Publish Date <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
+            <div class="ls-pop" id="blgDatePop" hidden>
+              <fieldset class="ls-fieldset">
+                <legend>Publish Date</legend>
+                <div class="ls-daterow">
+                  <label class="ls-datefield">
+                    <span class="ls-datelabel">From</span>
+                    <input type="date" id="blgDateStart" name="blg-date-start" value="2026-07-08" max="2026-09-08" />
+                  </label>
+                  <label class="ls-datefield">
+                    <span class="ls-datelabel">To</span>
+                    <input type="date" id="blgDateEnd" name="blg-date-end" value="2026-09-08" max="2026-09-08" />
+                  </label>
+                </div>
+              </fieldset>
+              <div class="ls-actions">
+                <button class="ls-clear" type="button" data-clear="date">Reset</button>
+                <button class="ls-apply" type="button" data-done="date">Done</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Nothing filters on change. The criteria are only committed when SEARCH is
+             pressed, which is also what Enter in the search field does. -->
+        <div class="ls-right">
+          <button class="ls-apply" id="blgSubmit" type="submit">Search</button>
+          <button class="ls-apply ls-ghost" id="blgClear" type="button" aria-label="Clear filters">Clear</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="blg-wrap io-scope">
+      <p class="blg-status" id="blgStatus" role="status" aria-live="polite">Showing all posts.</p>
+
+
+      <!-- Page 4 of the index, and the third A/B variant: page 2's card with the teaser
+           put back. So the meta row carries the AUTHOR, the categories sit in the card
+           footer and a post can carry more than one, and the teaser returns between the
+           title and the footer. Page 2 is the same card without that paragraph.
+
+           The footer is still pinned with margin-top:auto, so it stays on the bottom edge
+           whether the teaser runs two lines or three.
+
+           Posts continue where page 3 left off, so pages 1 through 4 run on one unbroken
+           date order. -->
+      <div class="blg-grid">
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Land lease signing" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">June 4, 2024</span><span class="blg-by">By Mollie Aronowitz</span></span>
+            <h2 class="io-title">Written Leases Beat Handshakes: What Belongs in the Document</h2>
+            <p class="io-teaser">A verbal lease is legal in most states and still a bad idea. The clauses that prevent the disagreements land managers see most often.</p>
+            <span class="blg-cats"><span class="io-chip">Land Management</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Farmland buyers touring" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">May 22, 2024</span><span class="blg-by">By Kyle Walker</span></span>
+            <h2 class="io-title">Showing a Farm: What Buyers Look At First</h2>
+            <p class="io-teaser">Access, drainage, and the condition of the improvements shape a first impression fast. How sellers can prepare the ground before a showing.</p>
+            <span class="blg-cats"><span class="io-chip">Real Estate</span><span class="io-chip">Land Values</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Growing Together profile" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">May 13, 2024</span><span class="blg-by">By George Baird</span></span>
+            <h2 class="io-title">Growing Together: Connie Kreikemeier, Crop Insurance Specialist</h2>
+            <p class="io-teaser">A conversation about serving farm families in Nebraska, and how crop insurance conversations have changed over three decades.</p>
+            <span class="blg-cats"><span class="io-chip">Growing Together</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Auction crowd" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">April 30, 2024</span><span class="blg-by">By Eric Bohnenkamp</span></span>
+            <h2 class="io-title">Multi-Parcel Auctions: How Bidding by the Tract Finds the Best Price</h2>
+            <p class="io-teaser">Letting buyers bid on tracts, combinations, or the whole farm often beats a single offer. A plain explanation of how the method works.</p>
+            <span class="blg-cats"><span class="io-chip">Land Auctions</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Spring planting" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">April 18, 2024</span><span class="blg-by">By Wendy Forthun</span></span>
+            <h2 class="io-title">Planting Season Communication: Staying in the Loop Without Getting in the Way</h2>
+            <p class="io-teaser">Landowners want to know how the crop is going. A short guide to the updates worth asking for and the timing that respects a busy operator.</p>
+            <span class="blg-cats"><span class="io-chip">Agriculture</span><span class="io-chip">Land Management</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Farmland valuation" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">April 5, 2024</span><span class="blg-by">By Kim McGinnis</span></span>
+            <h2 class="io-title">Three Approaches to Value, and Why Farmland Usually Uses One</h2>
+            <p class="io-teaser">Appraisers weigh sales comparison, income, and cost. Here is why comparable sales carries most of the weight on agricultural ground.</p>
+            <span class="blg-cats"><span class="io-chip">Real Estate</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Grain markets" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">March 25, 2024</span><span class="blg-by">By Jared Chambers</span></span>
+            <h2 class="io-title">Basis, Storage, and Cash Flow: The Marketing Side of a Farm Lease</h2>
+            <p class="io-teaser">How grain is marketed affects what an operator can pay in rent. A look at the economics behind the number on the lease.</p>
+            <span class="blg-cats"><span class="io-chip">Industry Insights</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Cover crop field" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">March 12, 2024</span><span class="blg-by">By Jason Lestina</span></span>
+            <h2 class="io-title">Cost-Share Programs for Conservation Practices: What Is Available</h2>
+            <p class="io-teaser">Federal and state programs can offset the cost of cover crops, waterways, and buffers. An overview of where to start and who administers what.</p>
+            <span class="blg-cats"><span class="io-chip">Agriculture</span><span class="io-chip">Land Values</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Solar site" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">February 28, 2024</span><span class="blg-by">By George Baird</span></span>
+            <h2 class="io-title">Option Payments vs Lease Payments in a Solar Agreement</h2>
+            <p class="io-teaser">The option period pays little and can run for years. Understanding what each phase of a solar agreement actually obligates a landowner to do.</p>
+            <span class="blg-cats"><span class="io-chip">Energy Management</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Crop insurance meeting" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">February 15, 2024</span><span class="blg-by">By Connie Kreikemeier</span></span>
+            <h2 class="io-title">Unit Structure: Basic, Optional, and Enterprise Explained</h2>
+            <p class="io-teaser">How acres are grouped changes both the premium and the payout. A practical comparison for operators farming across several sections.</p>
+            <span class="blg-cats"><span class="io-chip">Crop Insurance</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Expo hall" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">February 1, 2024</span><span class="blg-by">By Emily Oberbroeckling</span></span>
+            <h2 class="io-title">What to Expect at Your First Land Investment Expo</h2>
+            <p class="io-teaser">A first-timer's guide to the sessions, the exhibit hall, and the conversations that tend to happen between them.</p>
+            <span class="blg-cats"><span class="io-chip">Land Investment Expo</span><span class="io-chip">News &amp; Events</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Farmland ownership records" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">January 19, 2024</span><span class="blg-by">By Kim McGinnis</span></span>
+            <h2 class="io-title">Holding Farmland in an LLC: What Changes for the Family</h2>
+            <p class="io-teaser">Entity ownership can simplify transfers and complicate financing. The trade-offs families weigh before restructuring how the ground is held.</p>
+            <span class="blg-cats"><span class="io-chip">Real Estate</span><span class="io-chip">Agriculture</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Winter field" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">January 8, 2024</span><span class="blg-by">By Mollie Aronowitz</span></span>
+            <h2 class="io-title">Off-Season Improvements: The Work Best Done Before Spring</h2>
+            <p class="io-teaser">Fence repair, tree removal, and waterway shaping all go easier on frozen ground. Planning the winter list with your operator.</p>
+            <span class="blg-cats"><span class="io-chip">Land Management</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Land values chart" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">December 14, 2023</span><span class="blg-by">By Jared Chambers</span></span>
+            <h2 class="io-title">Reading a Land Values Survey Without Over-Reading It</h2>
+            <p class="io-teaser">Statewide averages hide enormous county-level variation. How to use survey data as context rather than as a valuation.</p>
+            <span class="blg-cats"><span class="io-chip">Land Values</span><span class="io-chip">Industry Insights</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Auction preparation" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">December 1, 2023</span><span class="blg-by">By Eric Bohnenkamp</span></span>
+            <h2 class="io-title">The Six Weeks Before an Auction: A Seller&#8217;s Timeline</h2>
+            <p class="io-teaser">Title work, mapping, marketing, and buyer inquiries all stack into a short window. What happens week by week before the gavel.</p>
+            <span class="blg-cats"><span class="io-chip">Land Auctions</span><span class="io-chip">Real Estate</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Family office meeting" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">November 16, 2023</span><span class="blg-by">By Kim McGinnis</span></span>
+            <h2 class="io-title">Why Family Offices Keep Returning to Farmland</h2>
+            <p class="io-teaser">Long horizons, tangible assets, and an income stream that is not correlated to equities. The case as allocators tend to make it.</p>
+            <span class="blg-cats"><span class="io-chip">Industry Insights</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Pasture fence" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">November 2, 2023</span><span class="blg-by">By Wendy Forthun</span></span>
+            <h2 class="io-title">Grazing Leases: Stocking Rates, Water, and Who Fixes the Fence</h2>
+            <p class="io-teaser">A grazing lease has to answer questions a row-crop lease never raises. The terms that keep both parties on the same page.</p>
+            <span class="blg-cats"><span class="io-chip">Land Management</span><span class="io-chip">Agriculture</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Timber harvest" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">October 20, 2023</span><span class="blg-by">By Jason Lestina</span></span>
+            <h2 class="io-title">Selling Timber: Getting a Cruise Before You Get an Offer</h2>
+            <p class="io-teaser">A timber cruise tells you what is standing before a buyer does. Why the sequence matters more than the price per board foot.</p>
+            <span class="blg-cats"><span class="io-chip">Land Values</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Wind lease document" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">October 5, 2023</span><span class="blg-by">By George Baird</span></span>
+            <h2 class="io-title">Easements That Outlive You: Term Length in Energy Agreements</h2>
+            <p class="io-teaser">Fifty-year agreements with renewal options bind the next generation. What to negotiate now on behalf of who inherits the ground.</p>
+            <span class="blg-cats"><span class="io-chip">Energy Management</span><span class="io-chip">Real Estate</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Crop insurance claim" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">September 21, 2023</span><span class="blg-by">By Connie Kreikemeier</span></span>
+            <h2 class="io-title">Filing a Claim After a Storm: The First 72 Hours</h2>
+            <p class="io-teaser">Documentation, notification deadlines, and what not to do to the damaged crop. A short checklist for the days right after weather hits.</p>
+            <span class="blg-cats"><span class="io-chip">Crop Insurance</span><span class="io-chip">Agriculture</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Growing Together profile" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">September 7, 2023</span><span class="blg-by">By Emily Oberbroeckling</span></span>
+            <h2 class="io-title">Growing Together: Eric Bohnenkamp, Land Agent</h2>
+            <p class="io-teaser">From a family farm in eastern Iowa to representing sellers across the state, a conversation about what the job actually involves.</p>
+            <span class="blg-cats"><span class="io-chip">Growing Together</span></span>
+          </div>
+        </a>
+
+      </div>
+
+      <nav class="blg-pager" aria-label="Blog pages">
+        <a class="blg-page" href="./blog3.html">&larr; Prev</a>
+        <a class="blg-page" href="./blog.html">1</a>
+        <a class="blg-page" href="./blog2.html">2</a>
+        <a class="blg-page" href="./blog3.html">3</a>
+        <a class="blg-page" href="./blog4.html" aria-current="page">4</a>
+      </nav>
+
+    </div>
+  </main>
+
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="pff">
+    <div class="pff-main">
+      <!-- connect band on top: logo · newsletter line · subscribe pill -->
+      <div class="pff-inner pff-connect">
+        <a class="pff-connect-logo" href="./internal.html" aria-label="Peoples Company home">
+          <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+        </a>
+        <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
+             Keeps one line where it fits (>=1536) instead of a hard <br> everywhere. -->
+        <p class="pff-connect-line">Stay Connected and Subscribe to&nbsp;Our&nbsp;Newsletter.</p>
+        <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
+          <input type="email" placeholder="Email Address" aria-label="Email address" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+
+      <div class="pff-inner pff-grid">
+        <div class="pff-brand pff-col">
+          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
+               design puts it between the rule and "Corporate Office". Exactly one footer
+               lockup is visible at any width. -->
+          <a class="pff-brand-logo" href="./internal.html" aria-label="Peoples Company home">
+            <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+          </a>
+          <h3>Corporate Office</h3>
+          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
+               row separated by "|" (CSS can't attach a separator to a bare text node). The
+               <br>s are kept for every other width, where the block still stacks. -->
+          <p class="pff-contact">
+            <span>1108 S. 44th Street, Suite 102</span><br />
+            <span>Cumming, IA 50061</span><br />
+            <span><b><a href="tel:+18558005263">855.800.LAND</a></b></span><br />
+            <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
+          </p>
+          <div class="pff-cta">
+            <a class="btn btn-subscribe" href="./internal.html">Find an Office</a>
+          </div>
+        </div>
+
+        <nav class="pff-col" aria-label="Real Estate">
+          <h3>Real Estate</h3>
+          <ul>
+            <li><a href="./internal.html">Traditional Search</a></li>
+            <li><a href="./internal.html">AI Search</a></li>
+            <li><a href="./internal.html">Interactive Map</a></li>
+            <li><a href="./internal.html">Auctions</a></li>
+            <li><a href="./internal.html">Prior Transactions</a></li>
+            <li><a href="./internal.html">Find An Agent</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="The Company">
+          <h3>The Company</h3>
+          <ul>
+            <li><a href="./internal.html">Overview</a></li>
+            <li><a href="./internal.html">Regions</a></li>
+            <li><a href="./internal.html">Industry Collaboration</a></li>
+            <li><a href="./internal.html">Our Team</a></li>
+            <li><a href="./internal.html">Offices</a></li>
+            <li><a href="./internal.html">Culture</a></li>
+            <li><a href="./internal.html">Careers</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="What We Do">
+          <h3>What We Do</h3>
+          <ul>
+            <li><a href="./internal.html">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="./internal.html">Agricultural Appraisal</a></li>
+            <li><a href="./internal.html">Land Management</a></li>
+            <li><a href="./internal.html">Energy Management</a></li>
+            <li><a href="./internal.html">Crop Insurance</a></li>
+            <li><a href="./internal.html">Capital Markets</a></li>
+            <li><a href="./internal.html">Corporate Services</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="Insights &amp; News">
+          <h3>Insights &amp; News</h3>
+          <ul>
+            <li><a href="./internal.html">Industry Research</a></li>
+            <li><a href="./internal.html">National Land Values</a></li>
+            <li><a href="./internal.html">Case Studies</a></li>
+            <li><a href="./internal.html">Newsletters</a></li>
+            <li><a href="./internal.html">Blog</a></li>
+            <li><a href="./internal.html">In the News</a></li>
+            <li><a href="./internal.html">Industry Recognition</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="pff-bottom">
+      <div class="pff-bottom-inner">
+        <span class="copy">© 2026 Peoples Company</span>
+
+        <span class="legal-links">
+          <a href="./internal.html">Privacy Notice</a>
+          <a href="./internal.html">Disclaimer</a>
+          <a href="./internal.html">Equal Opportunity</a>
+        </span>
+
+        <span class="pff-social">
+          <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </span>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
+       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
+       The open card carries the same alert icon as the handle. -->
+  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
+    <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <div class="pc-toast-body">
+      <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
+        <a href="./internal.html">136.57 Acres M/L in Wayne County IA</a><br>
+        <a href="./internal.html"><em>WATCH</em></a><br>
+        <a href="./internal.html">804 Acres M/L in Juneau County WI</a><br>
+        <a href="./internal.html"><em>WATCH</em></a>
+      </p>
+    </div>
+    <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
+  </aside>
+
+  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
+       open; at <=1279px the JS starts minimized and this handle shows instead. -->
+  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <span>Auction Alerts</span>
+  </button>
+
+  <script>
+
+    /* ---- filter bar: popover open/close, and the pill's own label state ----
+       Same script as team.html. The filtering itself is NOT wired: the bar records a
+       selection and repaints its pill, and nothing on the page is hidden. That is
+       deliberate while the filter set is still being decided. */
+    (function(){
+      var pops = [].slice.call(document.querySelectorAll(".ls-f > .ls-pop")).map(function(pop){
+        return { pop: pop, btn: document.querySelector('[aria-controls="' + pop.id + '"]') };
+      }).filter(function(p){ return p.btn; });
+      if(!pops.length) return;
+
+      function closeAll(except, returnFocus){
+        pops.forEach(function(p){
+          if(p.pop === except || p.pop.hidden) return;
+          p.pop.hidden = true;
+          p.btn.setAttribute("aria-expanded", "false");
+          if(returnFocus) p.btn.focus();
+        });
+      }
+
+      pops.forEach(function(p){
+        p.btn.addEventListener("click", function(){
+          var isOpen = p.btn.getAttribute("aria-expanded") === "true";
+          closeAll(null, false);
+          if(!isOpen){
+            p.pop.hidden = false;
+            p.btn.setAttribute("aria-expanded", "true");
+            var first = p.pop.querySelector("input:checked") || p.pop.querySelector("input, button");
+            if(first) first.focus();
+          }
+        });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key !== "Escape" && e.key !== "Esc") return;
+        var open = pops.filter(function(p){ return !p.pop.hidden; });
+        if(open.length) closeAll(null, true);
+      });
+      document.addEventListener("click", function(e){
+        if(e.target.closest && e.target.closest(".ls-f")) return;
+        closeAll(null, false);
+      });
+    })();
+
+    (function(){
+      var chev = ' <span class="ls-chev" aria-hidden="true">\u25be</span>';
+
+      function pillGroup(btnId, popId, boxName, plural){
+        var btn = document.getElementById(btnId), pop = document.getElementById(popId);
+        if(!btn || !pop) return null;
+        var boxes = [].slice.call(pop.querySelectorAll('input[name="' + boxName + '"]'));
+        var g = { btn: btn, pop: pop, boxes: boxes,
+                  resting: btn.getAttribute("data-label"), labels: [] };
+
+        function on(){ return boxes.filter(function(b){ return b.checked; }); }
+
+        g.paint = function(){
+          var sel = on();
+          g.labels = sel.map(function(b){ return b.value; });
+          var text = !sel.length ? null
+                   : (sel.length === 1 ? sel[0].value : sel.length + " " + plural);
+          btn.innerHTML = (text || g.resting) + chev;
+          btn.classList.toggle("is-set", !!text);
+        };
+        g.clear = function(){
+          boxes.forEach(function(b){ b.checked = false; });
+          g.paint();
+        };
+
+        boxes.forEach(function(b){ b.addEventListener("change", g.paint); });
+        var c = pop.querySelector("[data-clear]"), d = pop.querySelector("[data-done]");
+        if(c) c.addEventListener("click", g.clear);
+        if(d) d.addEventListener("click", function(){
+          pop.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
+        });
+        g.paint();
+        return g;
+      }
+
+      var groups = [
+        pillGroup("blgCatBtn",    "blgCatPop",    "blg-category", "categories"),
+        pillGroup("blgAuthorBtn", "blgAuthorPop", "blg-author",   "authors")
+      ].filter(Boolean);
+
+      /* ---- Publish Date: a range, not a picklist ----
+         The fields start on a two-month window (today minus two months, to today).
+         `dirty` is what keeps the pill from announcing a filter nobody asked for: until a
+         field is actually changed the pill reads "Publish Date", even though the inputs
+         hold values. Reset returns to that state. Dates are split by hand rather than passed to `new Date(str)`, which
+         reads a bare YYYY-MM-DD as UTC and can render the previous day west of GMT. */
+      var dateG = (function(){
+        var btn = document.getElementById("blgDateBtn");
+        var pop = document.getElementById("blgDatePop");
+        var a   = document.getElementById("blgDateStart");
+        var b   = document.getElementById("blgDateEnd");
+        if(!btn || !pop || !a || !b) return null;
+
+        var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        var DEF_A = a.value, DEF_B = b.value;
+        var g = { btn: btn, pop: pop, dirty: false, labels: [] };
+
+        function parts(v){
+          var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || "");
+          return m ? { y: +m[1], m: +m[2] - 1, d: +m[3] } : null;
+        }
+        /* The pill is a fixed width, so the range label is kept short: the year is
+           dropped from a same-year range and shown two-digit when the years differ. */
+        function label(){
+          var s = parts(a.value), e = parts(b.value);
+          if(!s && !e) return null;
+          if(s && e){
+            if(a.value === b.value) return MON[s.m] + " " + s.d + ", " + s.y;
+            if(s.y === e.y)         return MON[s.m] + " " + s.d + " \u2013 " + MON[e.m] + " " + e.d;
+            return MON[s.m] + " " + s.d + ", " + String(s.y).slice(2) + " \u2013 " +
+                   MON[e.m] + " " + e.d + ", " + String(e.y).slice(2);
+          }
+          var one = s || e;
+          return (s ? "From " : "To ") + MON[one.m] + " " + one.d + ", " + one.y;
+        }
+
+        g.paint = function(){
+          var text = g.dirty ? label() : null;
+          g.labels = text ? [text] : [];
+          btn.innerHTML = (text || btn.getAttribute("data-label")) + chev;
+          btn.classList.toggle("is-set", !!text);
+        };
+        g.clear = function(){
+          a.value = DEF_A; b.value = DEF_B;
+          g.dirty = false;
+          g.paint();
+        };
+
+        /* Both fields carry max="today" in the markup - there are no posts published in
+           the future. Nothing here enforces start <= end; that belongs with the real
+           filtering, and constraining the two inputs against each other while both start
+           on the same day leaves the range unable to open at all. */
+        [a, b].forEach(function(inp){
+          inp.addEventListener("change", function(){ g.dirty = true; g.paint(); });
+        });
+
+        var c = pop.querySelector("[data-clear]"), d = pop.querySelector("[data-done]");
+        if(c) c.addEventListener("click", g.clear);
+        if(d) d.addEventListener("click", function(){
+          pop.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus();
+        });
+        g.paint();
+        return g;
+      })();
+      if(dateG) groups.push(dateG);
+
+      /* ---- commit ----
+         Nothing filters as the criteria change. The pills repaint their own labels,
+         because that is the control showing its own state, but the RESULTS only move
+         when Search is pressed. That is the single entry point: when the real filtering
+         is wired, call it from commit() and nowhere else. */
+      var form   = document.getElementById("blgFilters");
+      var search = document.getElementById("blgSearch");
+      var status = document.getElementById("blgStatus");
+      var clear  = document.getElementById("blgClear");
+
+      function esc(t){
+        return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+      function criteria(){
+        var out = [];
+        var q = search ? search.value.trim() : "";
+        /* The readout is written with innerHTML, so the typed term is escaped. */
+        if(q) out.push('matching "' + esc(q) + '"');
+        groups.forEach(function(g){
+          if(!g.btn.classList.contains("is-set")) return;
+          out.push(g.btn.getAttribute("data-label").toLowerCase() + ": " +
+                   (g.labels ? g.labels.join(", ") : g.btn.textContent.trim()));
+        });
+        return out;
+      }
+
+      function commit(){
+        if(!status) return;
+        var c = criteria();
+        status.innerHTML = c.length
+          ? "Showing posts <b>" + c.join("</b>, <b>") + "</b>."
+          : "Showing all posts.";
+        /* The real filter pass goes here. */
+      }
+
+      if(form) form.addEventListener("submit", function(e){ e.preventDefault(); commit(); });
+      if(clear) clear.addEventListener("click", function(){
+        groups.forEach(function(g){ g.clear(); });
+        if(search) search.value = "";
+        commit();
+      });
+    })();
+    // Mega-menu nav built from the real IA. "The Company" panel carries three
+    // affiliation badges on the right (this tab only).
+    (function(){
+      var IAA_SVG = '<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.6"/><ellipse cx="32" cy="26" rx="6" ry="14" fill="none" stroke="currentColor" stroke-width="1.1"/><line x1="18" y1="26" x2="46" y2="26" stroke="currentColor" stroke-width="1.1"/><path d="M20 19 Q32 23 44 19" fill="none" stroke="currentColor" stroke-width="1"/><path d="M20 33 Q32 29 44 33" fill="none" stroke="currentColor" stroke-width="1"/><path d="M32 45 C24 43 18 47 15 55 C24 55 30 52 32 45Z" fill="currentColor"/><path d="M32 45 C40 43 46 47 49 55 C40 55 34 52 32 45Z" fill="currentColor"/><line x1="32" y1="43" x2="32" y2="55" stroke="currentColor" stroke-width="1.3"/></svg>';
+      var EXPO_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5"/><circle cx="12" cy="10" r="2.6"/><path d="M7.5 19c0-2.5 2-4.4 4.5-4.4s4.5 1.9 4.5 4.4"/><path d="M4.5 8l2 1M19.5 8l-2 1"/></svg>';
+
+      var NAV = [
+        { label: "Real Estate", cols: [
+          { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
+          { h: "Auctions", items: ["Upcoming Auctions","Auction Results"] },
+          { h: "Prior Transactions", items: [] }
+        ]},
+        { label: "The Company", cols: [
+          { h: "The Company", items: ["Overview","Regions"] },
+          { spacer: true, items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
+          { badges: [
+            { type: "expo", label: "Land Investment Expo" },
+            { type: "afo",  label: "American Farmland Owner" },
+            { type: "iaa",  label: "International Ag Alliance" }
+          ]}
+        ]},
+        { label: "What We Do", cols: [
+          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] } ]},
+          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] } ]},
+          { svc: [ { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
+          { svc: [ { name: "Energy Management" }, { name: "Crop Insurance" }, { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+        ]},
+        { label: "Insights & News", cols: [
+          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
+        ]}
+      ];
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+      function badgeHTML(b){
+        var emb;
+        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="./internal.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
+        if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="./internal.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
+        // american farmland owner — real horizontal logo (assets/afo.png)
+        return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
+      }
+      function colHTML(c){
+        if(c.badges){
+          return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
+        }
+        if(c.svc){
+          var blocks = c.svc.map(function(s){
+            var sub = (s.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+            return '<div class="pcf-svcblock">'+
+              '<div class="pcf-svc"><a href="./internal.html">'+esc(s.name)+'</a></div>'+
+              (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
+            '</div>';
+          }).join("");
+          return '<div class="pcf-col">'+blocks+'</div>';
+        }
+        if(c.h && (!c.items || !c.items.length) && !c.note){
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+        }
+        var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+        // spacer:true → an invisible h4 so a continuation column's first link lines up
+        // with the neighbouring column's first link (see .pcf-h4-ghost in pc.css).
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
+                       : (c.spacer ? '<h4 class="pcf-h4-ghost" aria-hidden="true">&nbsp;</h4>' : '');
+        var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
+        return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
+      }
+      // Top level is a TRIGGER, not a destination: a <button>, so clicking opens the panel
+      // instead of navigating. It must not be an <a href>, which would reload the page on
+      // click and leave the panel reachable only by hovering.
+      function itemHTML(n){
+        return '<li><button class="pcf-menu-btn" type="button" aria-haspopup="true" aria-expanded="false">'+
+            esc(n.label)+
+          '</button>'+
+          '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
+            '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
+          '</div></li>';
+      }
+      var mount = document.getElementById("pcfMenus");
+      if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+
+      // Hamburger drawer content — SAME colHTML() as the mega panels, so the two can never
+      // drift apart. Each top-level section becomes a heading with its columns beneath.
+      var drawer = document.querySelector("#navDrawer .pcf-drawer-in");
+      if(drawer){
+        // Each section carries a slug class ("sec-the-company") so per-section drawer
+        // layout can be targeted BY NAME rather than by nth-of-type — reordering NAV must
+        // not silently move a layout override onto a different section.
+        function slug(s){
+          return s.toLowerCase().replace(/&/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+        }
+        drawer.innerHTML = NAV.map(function(n){
+          return '<section class="pcf-drawer-sec sec-'+slug(n.label)+'">'+
+                   '<h3>'+esc(n.label)+'</h3>'+
+                   '<div class="pcf-drawer-cols">'+n.cols.map(colHTML).join("")+'</div>'+
+                 '</section>';
+        }).join("");
+      }
+    })();
+
+    // SHARED PAGE SCROLL LOCK for the overlays (map layer, hamburger drawer).
+    // `overscroll-behavior: contain` only stops a scroll gesture INSIDE an overlay from
+    // chaining to the page; a wheel over the backdrop still scrolled the document. This
+    // locks the document itself.
+    //
+    // Reference-counted on purpose: the map layer and the drawer can be open at the same
+    // time, and closing one must not unlock the page while the other is still open.
+    //
+    // Uses overflow:hidden on <html> (which preserves scroll position, so nothing needs
+    // restoring) and pads the right by the scrollbar's width, otherwise removing the
+    // scrollbar shifts the whole page sideways as the overlay opens.
+    var pcScrollLock = (function(){
+      var count = 0;
+      var root = document.documentElement;
+      return {
+        on: function(){
+          if(count++ > 0) return;
+          var sbw = window.innerWidth - root.clientWidth;
+          root.style.overflow = "hidden";
+          if(sbw > 0) root.style.paddingRight = sbw + "px";
+        },
+        off: function(){
+          if(count === 0 || --count > 0) return;   // never go negative
+          root.style.overflow = "";
+          root.style.paddingRight = "";
+        }
+      };
+    })();
+
+    // Hamburger open/close — same contract as the search popover and the map layer:
+    // click toggles, Esc closes and returns focus, backdrop/outside click closes.
+    (function(){
+      var btn = document.getElementById("navBurger"),
+          drawer = document.getElementById("navDrawer"),
+          backdrop = document.querySelector(".pcf-drawer-backdrop");
+      if(!btn || !drawer) return;
+
+      function open(){
+        drawer.hidden = false;
+        if(backdrop) backdrop.hidden = false;
+        pcScrollLock.on();
+        btn.setAttribute("aria-expanded", "true");
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        drawer.hidden = true;
+        if(backdrop) backdrop.hidden = true;
+        pcScrollLock.off();
+        btn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus) btn.focus();
+      }
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(true); }
+
+      btn.addEventListener("click", function(){
+        if(btn.getAttribute("aria-expanded") === "true") close(false); else open();
+      });
+      if(backdrop) backdrop.addEventListener("click", function(){ close(false); });
+      // Close on resize past the collapse point, so the drawer can't be left open and
+      // unreachable once the burger is hidden and the inline menus return.
+      // MUST MATCH the hamburger's media query in pc.css — it is 899px. This was left at
+      // 720 when the breakpoint moved and the drawer then closed itself the moment any
+      // resize event fired at 721-899, i.e. it appeared not to open at all.
+      var COLLAPSE_AT = 899;
+      window.addEventListener("resize", function(){
+        if(window.innerWidth > COLLAPSE_AT && btn.getAttribute("aria-expanded") === "true") close(false);
+      });
+    })();
+
+    // Mega-menu open/close — same interaction contract as the search popover:
+    // click toggles, Esc closes and returns focus, clicking outside closes.
+    // Hover is re-implemented here (not left to CSS) because the CSS :focus-within rule
+    // would otherwise pin the panel open after a click and defeat click-to-close.
+    (function(){
+      var ul = document.getElementById("pcfMenus");
+      if(!ul) return;
+      var items = [].slice.call(ul.children);
+      if(!items.length) return;
+      ul.classList.add("nav-js");        // hands control to JS — see .nav-js rules in pc.css
+      var locked = null;                 // opened by CLICK: stays open when the pointer leaves
+
+      function btnOf(li){ return li.querySelector(".pcf-menu-btn"); }
+      function setOpen(li){
+        items.forEach(function(x){
+          var on = (x === li);
+          x.classList.toggle("is-open", on);
+          var b = btnOf(x);
+          if(b) b.setAttribute("aria-expanded", on ? "true" : "false");
+        });
+      }
+      function closeAll(returnFocus){
+        var was = locked;
+        locked = null; setOpen(null);
+        if(returnFocus && was){ var b = btnOf(was); if(b) b.focus(); }
+      }
+
+      items.forEach(function(li){
+        var btn = btnOf(li);
+        if(!btn) return;
+        // A click LOCKS this panel open; clicking the same trigger again closes it.
+        // `locked` must only ever be set by a click — if hover also moved it, then moving
+        // the pointer from one title to another would pre-lock the second one, and the
+        // click that followed would read as a second click and close it instead of opening.
+        btn.addEventListener("click", function(){
+          if(locked === li){ locked = null; setOpen(null); }
+          else { locked = li; setOpen(li); }
+        });
+        // Hover previews any panel without taking the lock. On leave, fall back to whatever
+        // is locked (setOpen(null) closes everything when nothing is).
+        li.addEventListener("mouseenter", function(){ setOpen(li); });
+        li.addEventListener("mouseleave", function(){ setOpen(locked); });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" || e.key === "Esc"){
+          if(locked) closeAll(true); else setOpen(null);
+        }
+      });
+      document.addEventListener("click", function(e){
+        if(!ul.contains(e.target)) closeAll(false);
+      });
+    })();
+
+    // Interactive Map pull-down → slide-down map layer (map module drops in later)
+    (function(){
+      var tab = document.querySelector(".md-tab"),
+          layer = document.getElementById("md-layer"),
+          backdrop = document.querySelector(".md-backdrop"),
+          closeBtn = document.querySelector(".md-close"),
+          header = document.querySelector("header.pcf");
+      if(!tab || !layer || !backdrop) return;
+      function syncNavH(){ if(header) document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      syncNavH(); window.addEventListener("resize", syncNavH); window.addEventListener("load", syncNavH);
+      var logoImg = header && header.querySelector("img");
+      if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
+      function open(){
+        if(tab.getAttribute("aria-expanded") === "true") return;   // already open
+        pcScrollLock.on();
+        syncNavH(); backdrop.hidden = false; layer.hidden = false;
+        requestAnimationFrame(function(){ backdrop.classList.add("is-open"); layer.classList.add("is-open"); });
+        tab.setAttribute("aria-expanded", "true"); layer.setAttribute("aria-hidden", "false");
+        closeBtn.focus(); document.addEventListener("keydown", onKey);
+      }
+      function close(){
+        // Guarded so close() is idempotent: it is wired to the close button, the backdrop
+        // and Esc, and a double call would unbalance the shared scroll-lock count.
+        if(tab.getAttribute("aria-expanded") !== "true") return;
+        pcScrollLock.off();
+        backdrop.classList.remove("is-open"); layer.classList.remove("is-open");
+        tab.setAttribute("aria-expanded", "false"); layer.setAttribute("aria-hidden", "true");
+        document.removeEventListener("keydown", onKey);
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var after = function(){ backdrop.hidden = true; layer.hidden = true; };
+        if(reduce) after();
+        else layer.addEventListener("transitionend", function te(e){ if(e.propertyName === "transform"){ layer.removeEventListener("transitionend", te); after(); } });
+        tab.focus();
+      }
+      tab.addEventListener("click", function(){ if(tab.getAttribute("aria-expanded") === "true") close(); else open(); });
+      closeBtn.addEventListener("click", close); backdrop.addEventListener("click", close);
+    })();
+
+    // Search: magnifier toggles a text field + submit icon below it
+    (function(){
+      var toggle = document.getElementById("searchToggle");
+      var panel  = document.getElementById("searchPanel");
+      var input  = document.getElementById("searchInput");
+      if(!toggle || !panel) return;
+      function open(){
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        if(input){ input.focus(); }
+        document.addEventListener("mousedown", onOutside);
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutside);
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus){ toggle.focus(); }
+      }
+      function onOutside(e){
+        if(!panel.contains(e.target) && !toggle.contains(e.target)){ close(false); }
+      }
+      function onKey(e){
+        if(e.key === "Escape" || e.key === "Esc"){ close(true); }
+      }
+      toggle.addEventListener("click", function(){
+        if(panel.classList.contains("open")){ close(true); } else { open(); }
+      });
+    })();
+
+    // Scroll-reveal (must-have) — reduced-motion safe
+    (function(){
+      var els = document.querySelectorAll(".reveal");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce || !("IntersectionObserver" in window)){
+        els.forEach(function(el){ el.classList.add("in"); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+
+    // Announcement toast: bottom-right floating card that MINIMIZES to a
+    // right-edge handle (instead of vanishing) so it can be reopened.
+    (function(){
+      var t = document.getElementById("pcToast");
+      if(!t) return;
+      var reopen = document.getElementById("pcToastReopen");
+      var x = t.querySelector(".pc-toast-x");
+      // moveFocus is false for the automatic narrow-viewport minimize below — focusing
+      // the handle on page load would steal focus and jump the page to the right edge.
+      function setMinimized(min, moveFocus){
+        t.hidden = min;
+        if(reopen){ reopen.hidden = !min; }
+        if(moveFocus){
+          var target = min ? reopen : x;
+          if(target){ target.focus(); }
+        }
+      }
+      function minimize(){ setMinimized(true, true); }
+      function restore(){ userChose = true; setMinimized(false, true); }
+      if(x){ x.addEventListener("click", minimize); }
+      if(reopen){ reopen.addEventListener("click", restore); }
+
+      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
+         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
+         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
+         never auto-restores, so once the visitor opens the handle it stays open, and a
+         toast never pops itself back open mid-resize. */
+      var TOAST_NARROW = 1279, userChose = false;
+      function narrowCheck(){
+        if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
+      }
+      narrowCheck();
+      window.addEventListener("resize", narrowCheck);
+    })();
+  </script>
+</body>
+</html>
