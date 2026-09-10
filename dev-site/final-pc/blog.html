@@ -14,43 +14,26 @@
   <!-- Single source of truth for the final PC direction -->
   <link href="pc.css?v=20260827a" rel="stylesheet" />
 
-  <!-- Page-local: BLOG INDEX. Everything here is layout for this page only — the
-       colours, type, buttons and card shell all come from pc.css tokens and the shared
-       .io-scope component block (the same card used by the homepage Insights module),
-       so a change to the design system reaches this page for free.
+  <!-- Page-local: BLOG INDEX. Layout only - every colour, type scale, button and card
+       shell comes from pc.css tokens and its shared .io-scope component block.
 
-       Structure: title → sticky search / filter bar (the team.html component) → a
-       3-up grid of every post, newest first → pager. Every card is the same size: no
-       featured post, no wide row. The card carries the author in the meta row and the
-       categories in a footer, with no teaser.
-
-       The pager is markup only - the page numbers and Next are href="#" placeholders
-       waiting for the CMS to supply real page URLs.
-
-       Responsive: the grid steps 3 → 2 → 1 on the shared --site ladder (1279 / 767),
-       so the breakpoints line up with the header and footer rather than sitting
-       between them. -->
+       Developer notes, including every measurement and constraint behind the rules in
+       this file, are in developer-blog.md. Read §3a before changing the card footer and
+       §7 before changing the filter bar. -->
   <style>
-    .blg-body{ background: var(--pc-white); --ls-pill-w: 180px;
-      /* Matched width of Search and Clear once they stop flexing - see the 640-1023
-         block. Only read in that band; above it both buttons size to their labels. */
-      --ls-act-w: 88px; }
+    .blg-body{ background: var(--pc-white); --ls-pill-w: 180px; --ls-act-w: 88px; }
     .blg-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
-    /* THE MAP LAYER MUST CLEAR THE FILTER BAR. `.ls-bar` is z-40 and sticky, so it forms a
-       stacking context that beats the shared map layer (z-31) and its backdrop (z-30) - the
-       map would open BEHIND the bar. Raised here, page-locally, because the shared values are
-       correct on every page that has no sticky bar. 44/43 sits above the bar (40) and the map
-       tab (39) and below the site header (45), which is what the layer hangs from. */
+    /* Map layer and backdrop raised above the sticky bar. REQUIRED while .ls-bar is
+       sticky - see developer-blog.md §6.1. */
     .md-layer{ z-index: 44; }
     .md-backdrop{ z-index: 43; }
 
     /* ---- intro ---- */
     .blg-intro{ padding: var(--space-8) 0 var(--space-6); }
 
-    /* ---- search / filter bar. Same component as team.html and listings.html: identical
-       class names, identical rules, identical popover behaviour. Keep it that way - when one
-       copy changes, change all of them. ---- */
+    /* ---- search / filter bar. Shared with team.html and listings.html - keep the
+       three copies identical. See developer-blog.md §6. ---- */
     .ls-bar{ position: sticky; top: var(--navH); z-index: 40;
       background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border); }
@@ -113,8 +96,7 @@
       grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .ls-checks5 .ls-opt{ white-space: nowrap; }
 
-    /* ---- date range, a blog-only extension of the shared bar. team.html and
-       listings.html have no equivalent; if one is added there, move this with it. ---- */
+    /* ---- date range: blog-only extension of the shared bar ---- */
     .ls-daterow{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
     .ls-datefield{ display: flex; flex-direction: column; gap: 6px; }
     .ls-datelabel{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
@@ -142,40 +124,27 @@
       font-family: var(--font-sans); font-size: 14px; font-weight: 500; cursor: pointer; }
     .ls-apply:hover{ background: var(--pc-black); border-color: var(--pc-black); }
     .ls-apply:focus-visible{ outline: 2px solid var(--pc-black); outline-offset: 2px; }
-    /* Secondary action next to a filled one: same box, no fill, so the two read as a
-       pair with one obvious primary. Blog-only - team.html has a single bar action. */
     .ls-ghost{ background: none; color: var(--pc-navy); }
     .ls-ghost:hover{ background: var(--pc-navy); color: var(--pc-white); }
 
-    /* Submitted-criteria readout. Sits under the bar, inside the content box. It is a
-       live region, so it is also what a screen-reader user hears on submit. */
     .blg-status{ font-family: var(--font-sans); font-size: 13px; line-height: 1.5;
       color: var(--color-text-muted); margin: var(--space-5) 0 0; }
     .blg-status b{ color: var(--pc-black); font-weight: 600; }
 
     /* ---- post grid ---- */
-    /* ---- card meta row: date first, author pushed to the right edge ----
-       Page-local. The shared .io-scope rule lays the row out chip-then-date, left
-       aligned; this page wants the date leading and the byline trailing, so the author
-       takes the free space with margin-left. pc.css is untouched, which leaves the
-       homepage Insights module reading the way it always has.
-       The author is set as plain text, not a chip: the pill shape now means "category"
-       and nothing else, so a name in a pill would read as one. The byline reads "By
-       Name" in full, so the meta row says what the name is without relying on its
-       position to explain it. */
+    /* ---- card meta row: date first, author right ---- */
     .blg-body .io-metarow{ width: 100%; }
     .blg-body .io-metarow .blg-by{ margin-left: auto; text-align: right;
       font-family: var(--font-sans); font-size: 12px; font-weight: 600;
       color: var(--pc-navy); }
 
-    /* ---- card footer: the categories ----
-       Pinned to the bottom of the card body with margin-top:auto, so the footers line
-       up across a row even though the titles run to different depths. A post can carry
-       more than one category and the chips wrap onto a second line rather than
-       squeezing the row. The hairline is what makes it read as a footer. */
-    .blg-cats{ display: flex; flex-wrap: wrap; gap: 6px;
+    /* ---- card footer: the categories. ONE CHIP ROW TALL AND CLIPS - read
+       developer-blog.md §3a before changing max-height, and re-derive it if the chip's
+       font-size or padding changes. ---- */
+    .blg-cats{ display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px;
       margin-top: auto; padding-top: var(--space-4);
-      border-top: 1px solid var(--color-border); }
+      border-top: 1px solid var(--color-border);
+      max-height: 40px; overflow: hidden; }
 
     .blg-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
     .blg-grid .io-title{ font-size: 22px; }
@@ -201,13 +170,6 @@
     @media (max-width: 1279px){
       .blg-grid{ grid-template-columns: repeat(2, 1fr); }
     }
-    /* 768-1279: the pills come down to 160px, for two different reasons at the two ends
-       of the range. At 1024 the bar is still one row and the three 180px pills overrun
-       it - the controls need 764 against 716 of free space, so Search lands on top of
-       Publish Date. At 768 the bar has already broken into rows (search field, then
-       pills) and 180px pills leave only 148px beside them, so Search and Clear fall to a
-       third row. 160px fixes both: the row holds at 1024, and at 768 the pair comes back
-       up beside the pills. */
     @media (min-width: 768px) and (max-width: 1279px){
       .blg-body{ --ls-pill-w: 160px; }
     }
@@ -216,30 +178,13 @@
       .ls-right{ gap: var(--space-2); }
     }
 
-    /* 640-1023, the two-row band: the five buttons on row 2 share the row rather than
-       sitting left-packed with a hole before Search. .ls-controls is `display: contents`
-       here, so the three .ls-f wrappers and .ls-right are all siblings in .ls-bar-in and
-       can be flexed directly. .ls-right has to grow as one unit and then re-divide, which
-       is why its two buttons get their own flex - and its margin-left: auto has to go, or
-       it would keep absorbing the free space before anything else can. */
     @media (min-width: 640px) and (max-width: 1023px){
       .ls-f{ flex: 1 1 0; min-width: 0; }
       .ls-pill{ width: 100%; }
-      /* Search and Clear come out of the share and take a fixed matched width instead.
-         Letting them flex made them 65px at 640, and "Search" needs 47 of the 39 that
-         leaves inside the padding - the label was being squeezed. --ls-act-w is one token
-         so the two stay identical; the three pills then split whatever is left. */
       .ls-right{ flex: 0 0 auto; margin-left: 0; }
       .ls-right > button{ flex: 0 0 var(--ls-act-w); width: var(--ls-act-w);
         min-width: 0; padding: 0 12px; }
 
-      /* Popovers stop hanging off a pill and span the content box instead. `position:
-         static` on .ls-f hands the containing block to .ls-bar-in, which is the element
-         that already IS the content box, so left/right: var(--rail) pins the panel to the
-         same rail as everything else and `top: 100%` drops it below the whole bar rather
-         than below one pill. Anchored to a pill, the date panel is 324px wide and runs
-         40px past the right edge - off the viewport - at 640. This is the .ls-pop-wide /
-         .ls-f-static mechanism that was already in this file, applied by breakpoint. */
       .ls-f{ position: static; }
       .ls-pop{ left: var(--rail); right: var(--rail);
         min-width: 0; max-width: none; width: auto; }
@@ -247,15 +192,6 @@
     @media (min-width: 900px) and (max-width: 1023px){
       .ls-checks5{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
-    /* Below 1024 the search field takes its own full-width row and the pills sit under it.
-       `display: contents` on .ls-controls is what lets the pills and the field wrap
-       independently inside .ls-bar-in instead of moving as one block.
-
-       Pinned to 1023, NOT 899, because 1023 is where the content box changes character:
-       pc.css sets --site: 100% from 1023 down (see its 1023 footer block), so the box
-       stops being a 1024px rung and becomes viewport - 64 - 836px at 900 against the 960
-       the bar gets at 1024. One row cannot hold the controls on that budget. At 899 the
-       break came 124px too late and 900-1023 rendered Search on top of Publish Date. */
     @media (max-width: 1023px){
       .blg-intro{ padding-top: var(--space-7); }
       .ls-bar-in{ justify-content: flex-start; }
@@ -266,10 +202,6 @@
     @media (min-width: 640px) and (max-width: 899px){
       .ls-checks5{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
-    /* 640-767: --ls-pill-w is not set in this band and nothing needs to set it. The
-       640-1023 block above puts .ls-f on `flex: 1 1 0` with `width: 100%` pills, so the
-       three share whatever the row has left after Search and Clear take --ls-act-w. At
-       640 that is 122.7 each; the fixed rail would only get in the way. */
     @media (min-width: 640px) and (max-width: 767px){
       .ls-right{ gap: var(--space-2); }
     }
@@ -279,15 +211,8 @@
     }
     @media (max-width: 639px){
       .blg-grid .io-title{ font-size: 20px; }
-      /* The bar stops sticking here: at this height a sticky bar plus the header eats too
-         much of the viewport. */
       .ls-bar{ position: static; }
       .ls-f{ flex: 1 1 100%; min-width: 0; }
-      /* Full width, but still centred. The pills sit three across at every width below
-         640 - both sub-blocks below put .ls-f back to `flex: 1 1 0` - so the label-left,
-         chevron-right treatment this rule used to carry was laying out for a stacked
-         full-width pill that never actually happens, and it read as misaligned against
-         the centred Search and Clear underneath. */
       .ls-f > .ls-pill{ width: 100%; }
       .ls-pop{ left: 0; right: auto; min-width: 0; width: calc(100vw - 40px); }
       .ls-actions{ flex-direction: column-reverse; align-items: stretch; }
@@ -305,16 +230,6 @@
         gap: 2px var(--space-3); }
       .ls-opt{ gap: 6px; padding: 5px 0; }
     }
-    /* Below 480 the bar becomes five stacked rows: search field, then one row per pill,
-       then Search and Clear sharing the last row.
-
-       Three pills across does not survive this width. At 320 the content box is 280, so
-       each pill is 88 and the label has 57.6 of it after the padding and chevron -
-       "Category" needs 61.9 and wraps "Publish Date" onto a second line inside a 44px
-       button. Giving each pill the full row retires the problem rather than shaving
-       padding at it: every label sits on one line with room to spare, and the labels are
-       free to get longer later. Search and Clear stay paired because they are one
-       decision, and at 280 they still clear 136 each. */
     @media (max-width: 479px){
       .ls-daterow{ grid-template-columns: 1fr; gap: var(--space-3); }
       .ls-f{ flex: 1 1 100%; min-width: 0; position: static; }
@@ -326,7 +241,6 @@
     }
   </style>
 </head>
-
 
 <body>
   <!-- ================= HEADER ================= -->
@@ -399,12 +313,7 @@
       </div>
     </div>
 
-    <!-- ---------- search / filter bar ----------
-         The same component as team.html: same classes, same popover script, same
-         behaviour. The bar is full-bleed and sticky, so it sits OUTSIDE .blg-wrap; the
-         content box is re-established by .ls-bar-in.
-         Only CATEGORY is defined so far. A second pill is a copy of the .ls-f block below
-         with a new id pair and a new checkbox name - nothing else has to change. -->
+    <!-- ---------- search / filter bar ---------- -->
     <div class="ls-bar">
       <form class="ls-bar-in" id="blgFilters" action="#" onsubmit="return false;"
             role="search" aria-label="Filter posts">
@@ -469,16 +378,6 @@
             </div>
           </div>
 
-          <!-- Publish Date is a RANGE, not a picklist: two native date inputs, so the
-               browser supplies its own calendar and its own locale formatting.
-               The default range is the last two months: FROM is today minus two months,
-               TO is today. Both dates are hardcoded here; the CMS should compute them at
-               render so the window keeps moving.
-               That default is a UI starting point, NOT an applied filter - the pill stays
-               in its resting "Publish Date" state until someone actually changes a field,
-               and Reset puts both back to the default window. When the filtering is
-               wired, do not apply the untouched default or the index silently loses every
-               post older than two months. -->
           <div class="ls-f">
             <button class="ls-pill" id="blgDateBtn" type="button" data-label="Publish Date"
                     aria-expanded="false" aria-controls="blgDatePop">Publish Date <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
@@ -505,8 +404,6 @@
 
         </div>
 
-        <!-- Nothing filters on change. The criteria are only committed when SEARCH is
-             pressed, which is also what Enter in the search field does. -->
         <div class="ls-right">
           <button class="ls-apply" id="blgSubmit" type="submit">Search</button>
           <button class="ls-apply ls-ghost" id="blgClear" type="button" aria-label="Clear filters">Clear</button>
@@ -517,14 +414,6 @@
     <div class="blg-wrap io-scope">
       <p class="blg-status" id="blgStatus" role="status" aria-live="polite">Showing all posts.</p>
 
-
-      <!-- The card: image, then a meta row of DATE + AUTHOR, the title, and a footer
-           of category chips - a post can carry more than one. No teaser. The card
-           shell, image ratio and grid all come from the shared .io-scope block in
-           pc.css; the author line and the chip footer are the only page-local pieces,
-           styled in this page's <style>.
-
-           Cards are in date order, newest first. -->
       <div class="blg-grid">
 
         <a class="io-card" href="./blog-story.html">
@@ -716,6 +605,33 @@
           </div>
         </a>
 
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Cash rent negotiation at the kitchen table" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">February 4, 2025</span><span class="blg-by">By Mollie Aronowitz</span></span>
+            <h2 class="io-title">Setting Cash Rent for 2026: Where to Start the Conversation</h2>
+            <span class="blg-cats"><span class="io-chip">Agriculture</span><span class="io-chip">Land Management</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Drainage tile being laid in a field" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">January 23, 2025</span><span class="blg-by">By Jason Lestina</span></span>
+            <h2 class="io-title">Tile Investment: Reading the Payback Before You Dig</h2>
+            <span class="blg-cats"><span class="io-chip">Land Management</span></span>
+          </div>
+        </a>
+
+        <a class="io-card" href="./blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Closing documents for a farmland exchange" loading="lazy" decoding="async" /></div>
+          <div class="io-body">
+            <span class="io-metarow"><span class="io-date">January 9, 2025</span><span class="blg-by">By Kim McGinnis</span></span>
+            <h2 class="io-title">1031 Exchanges on Farmland: The Timeline That Governs Everything</h2>
+            <span class="blg-cats"><span class="io-chip">Real Estate</span><span class="io-chip">Land Values</span></span>
+          </div>
+        </a>
+
       </div>
 
       <nav class="blg-pager" aria-label="Blog pages">
@@ -727,7 +643,6 @@
 
     </div>
   </main>
-
 
   <!-- ================= FOOTER ================= -->
   <footer class="pff">
@@ -869,10 +784,7 @@
 
   <script>
 
-    /* ---- filter bar: popover open/close, and the pill's own label state ----
-       Same script as team.html. The filtering itself is NOT wired: the bar records a
-       selection and repaints its pill, and nothing on the page is hidden. That is
-       deliberate while the filter set is still being decided. */
+    /* ---- filter bar: popover open/close, and the pill's own label state ---- */
     (function(){
       var pops = [].slice.call(document.querySelectorAll(".ls-f > .ls-pop")).map(function(pop){
         return { pop: pop, btn: document.querySelector('[aria-controls="' + pop.id + '"]') };
@@ -952,12 +864,7 @@
         pillGroup("blgAuthorBtn", "blgAuthorPop", "blg-author",   "authors")
       ].filter(Boolean);
 
-      /* ---- Publish Date: a range, not a picklist ----
-         The fields start on a two-month window (today minus two months, to today).
-         `dirty` is what keeps the pill from announcing a filter nobody asked for: until a
-         field is actually changed the pill reads "Publish Date", even though the inputs
-         hold values. Reset returns to that state. Dates are split by hand rather than passed to `new Date(str)`, which
-         reads a bare YYYY-MM-DD as UTC and can render the previous day west of GMT. */
+      /* ---- Publish Date: a range, not a picklist ---- */
       var dateG = (function(){
         var btn = document.getElementById("blgDateBtn");
         var pop = document.getElementById("blgDatePop");
@@ -973,8 +880,6 @@
           var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || "");
           return m ? { y: +m[1], m: +m[2] - 1, d: +m[3] } : null;
         }
-        /* The pill is a fixed width, so the range label is kept short: the year is
-           dropped from a same-year range and shown two-digit when the years differ. */
         function label(){
           var s = parts(a.value), e = parts(b.value);
           if(!s && !e) return null;
@@ -1000,10 +905,6 @@
           g.paint();
         };
 
-        /* Both fields carry max="today" in the markup - there are no posts published in
-           the future. Nothing here enforces start <= end; that belongs with the real
-           filtering, and constraining the two inputs against each other while both start
-           on the same day leaves the range unable to open at all. */
         [a, b].forEach(function(inp){
           inp.addEventListener("change", function(){ g.dirty = true; g.paint(); });
         });
@@ -1018,11 +919,7 @@
       })();
       if(dateG) groups.push(dateG);
 
-      /* ---- commit ----
-         Nothing filters as the criteria change. The pills repaint their own labels,
-         because that is the control showing its own state, but the RESULTS only move
-         when Search is pressed. That is the single entry point: when the real filtering
-         is wired, call it from commit() and nowhere else. */
+      /* ---- commit ---- */
       var form   = document.getElementById("blgFilters");
       var search = document.getElementById("blgSearch");
       var status = document.getElementById("blgStatus");
@@ -1219,9 +1116,9 @@
       if(backdrop) backdrop.addEventListener("click", function(){ close(false); });
       // Close on resize past the collapse point, so the drawer can't be left open and
       // unreachable once the burger is hidden and the inline menus return.
-      // MUST MATCH the hamburger's media query in pc.css — it is 899px. This was left at
-      // 720 when the breakpoint moved and the drawer then closed itself the moment any
-      // resize event fired at 721-899, i.e. it appeared not to open at all.
+      // MUST MATCH the hamburger's media query in pc.css — it is 899px. A lower value
+      // makes the drawer close itself on any resize event between that value and 899,
+      // which reads as the drawer never opening at all.
       var COLLAPSE_AT = 899;
       window.addEventListener("resize", function(){
         if(window.innerWidth > COLLAPSE_AT && btn.getAttribute("aria-expanded") === "true") close(false);
