@@ -1146,6 +1146,40 @@
       s._railNext = s.nextElementSibling;
     });
 
+    /* ---- THE STRIP READS IN A DIFFERENT ORDER BELOW 1024 ---------------------
+       Kiron, 2026-09-10, for 1023 and down. At 1024 and up the six panels keep the
+       markup order he approved, so the wide order is CAPTURED HERE - at load, before
+       anything moves - rather than written out a second time where it could drift from
+       the markup.
+
+       Why the DOM is re-ordered and not just the tablist: the tab sequence should be the
+       panel sequence. Keeping them in step means a screen reader walking the document
+       and a reader walking the strip meet the sections in the same order, and it keeps
+       buildTabs() honest - it reads the DOM and nothing else.
+
+       A label not named below keeps its place at the end, so a CMS section nobody
+       thought about here still gets a tab. */
+    var homeOrder = [].slice.call(main.querySelectorAll(".tmd-panel"));
+    var narrowOrder = ["Bio", "Licenses", "Contact", "Testimonials",
+                       "Available", "Sold", "Photos", "Blogs"];
+
+    function orderPanels(narrowNow){
+      var here = [].slice.call(main.querySelectorAll(".tmd-panel[data-label]"));
+      var list;
+      if(narrowNow){
+        var byLabel = {};
+        here.forEach(function(pn){ byLabel[pn.getAttribute("data-label")] = pn; });
+        list = narrowOrder.map(function(l){ return byLabel[l]; }).filter(Boolean);
+        here.forEach(function(pn){ if(list.indexOf(pn) < 0) list.push(pn); });
+      } else {
+        list = homeOrder.filter(function(pn){ return pn.parentNode === main; });
+      }
+      /* appendChild MOVES a node that is already in the document, so walking the list in
+         order lands them in that order. The tablist is not in the list, so it stays put
+         at the top of the column. */
+      list.forEach(function(pn){ main.appendChild(pn); });
+    }
+
     function asPanel(s){
       s.classList.remove("tmd-rcard");
       s.classList.add("tmd-panel");
@@ -1205,6 +1239,7 @@
         return t.getAttribute("aria-selected") === "true";
       })[0] : null;
       movers.forEach(now ? asPanel : asRailCard);
+      orderPanels(now);
       syncRail();
       buildTabs(open ? open.textContent : null);
     }
