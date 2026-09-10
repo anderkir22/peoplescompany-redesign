@@ -145,7 +145,7 @@
        the group stops moving the moment the last box scrolls past. */
     .bs-side{ display: flex; flex-direction: column; gap: var(--space-5); }
 
-    /* Other Blogs + Blog Categories travel with the reader; Recent Posts scrolls away
+    /* Blog Categories + Other Blogs travel with the reader; Recent Posts scrolls away
        above them. --navH is the real header height, JS-synced on resize, so the group pins
        just under the header rather than behind it.
        max-height + overflow keep it usable on a short window: if the two boxes are taller
@@ -160,9 +160,16 @@
     .bs-box h2{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
       color: var(--pc-black); margin: 0 0 var(--space-3);
       padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
-    /* Categories run two-up: ten links as one column was the tallest thing in the
-       sidebar. column-gap only — the hairline under each link is the row rhythm. */
-    .bs-catgrid{ display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--space-5); }
+    /* Categories run two-up: eleven links as one column was the tallest thing in the
+       sidebar. column-gap only — the hairline under each link is the row rhythm.
+
+       Column-major, not row-major: `grid-auto-flow: column` over six fixed rows fills the
+       first column top to bottom before starting the second, so the list reads alphabetically
+       DOWN each column. With eleven links that is 6 + 5. The row count is the ceiling of
+       half the list, so a twelfth category fills the last cell and a thirteenth needs this
+       number raised to 7. */
+    .bs-catgrid{ display: grid; grid-template-rows: repeat(6, auto);
+      grid-auto-flow: column; grid-auto-columns: 1fr; column-gap: var(--space-5); }
     .bs-catlink{ display: block; font-family: var(--font-sans); font-size: 14px;
       color: var(--pc-black); text-decoration: none; padding: 10px 0;
       border-bottom: 1px solid var(--color-border); }
@@ -205,7 +212,6 @@
     }
     @media (max-width: 767px){
       .bs-side{ grid-template-columns: 1fr; }
-      .bs-catgrid{ grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 639px){
       .bs-head h1{ font-size: 32px; }
@@ -287,7 +293,7 @@
       <nav class="bs-crumb" aria-label="Breadcrumb">
         <a href="./index.html">Home</a>
         <span class="sep" aria-hidden="true">/</span>
-        <a href="./blog1.html">Blog</a>
+        <a href="./blog.html">Blog</a>
         <span class="sep" aria-hidden="true">/</span>
         <span class="here" aria-current="page">Transitional Farmland</span>
       </nav>
@@ -398,8 +404,8 @@
 
           <p class="bs-tags">
             <span class="lbl">Published in</span>
-            <a href="./blog1.html">Agriculture</a>
-            <a href="./blog1.html">Land Values</a>
+            <a href="./blog.html">Agriculture</a>
+            <a href="./blog.html">Land Values</a>
           </p>
         </article>
 
@@ -443,10 +449,27 @@
           </section>
 
           <!-- These two travel with the reader: position: sticky pins the group under
-               the header once Other Blogs reaches the top, so it stays on screen for the
-               rest of the article while Recent Posts scrolls away above it. The pin is
+               the header once Blog Categories reaches the top, so it stays on screen for
+               the rest of the article while Recent Posts scrolls away above it. The pin is
                released below 1024, where the rail sits under the story. -->
           <div class="bs-sticky">
+            <section class="bs-box">
+              <h2>Blog Categories</h2>
+              <div class="bs-catgrid">
+                <a class="bs-catlink" href="./internal.html">Agriculture</a>
+                <a class="bs-catlink" href="./internal.html">Crop Insurance</a>
+                <a class="bs-catlink" href="./internal.html">Energy Management</a>
+                <a class="bs-catlink" href="./internal.html">Growing Together</a>
+                <a class="bs-catlink" href="./internal.html">Industry Insights</a>
+                <a class="bs-catlink" href="./internal.html">Land Auctions</a>
+                <a class="bs-catlink" href="./internal.html">Land Investment Expo</a>
+                <a class="bs-catlink" href="./internal.html">Land Management</a>
+                <a class="bs-catlink" href="./internal.html">Land Values</a>
+                <a class="bs-catlink" href="./internal.html">News &amp; Events</a>
+                <a class="bs-catlink" href="./internal.html">Real Estate</a>
+              </div>
+            </section>
+
             <!-- Other posts by this article's author. Same .bs-recent row as Recent Posts
                  above — one component, two feeds. The heading takes the author's FIRST name,
                  which the CMS has to hold as its own field: "Bohnenkamp" cannot be split off
@@ -485,22 +508,6 @@
                   <span class="d">January 21, 2026</span>
                 </span>
               </a>
-            </section>
-
-            <section class="bs-box">
-              <h2>Blog Categories</h2>
-              <div class="bs-catgrid">
-                <a class="bs-catlink" href="./internal.html">Agriculture</a>
-                <a class="bs-catlink" href="./internal.html">Crop Insurance</a>
-                <a class="bs-catlink" href="./internal.html">Energy Management</a>
-                <a class="bs-catlink" href="./internal.html">Industry Insights</a>
-                <a class="bs-catlink" href="./internal.html">Land Auctions</a>
-                <a class="bs-catlink" href="./internal.html">Land Investment Expo</a>
-                <a class="bs-catlink" href="./internal.html">Land Management</a>
-                <a class="bs-catlink" href="./internal.html">Land Values</a>
-                <a class="bs-catlink" href="./internal.html">News &amp; Events</a>
-                <a class="bs-catlink" href="./internal.html">Real Estate</a>
-              </div>
             </section>
           </div>
 
