@@ -372,21 +372,25 @@
     .tmd-railmore:hover{ text-decoration: underline; }
 
     /* ---- responsive ---- */
-    /* THE COPY FLOWS THE FULL WIDTH BELOW 1536 (Kiron: "the text should just flow full
-       when at 1280 and lower"). The rule this cancels holds the panel column at the measure
-       it would have had WITH the rail beside it, so that hiding the rail looks like hiding
-       the rail. That reads correctly at 1536, where 992px of copy sits in 1376px of page.
-       It does not survive the way down: the 384px it subtracts is FIXED, so it eats a
-       larger and larger share as the page narrows - 60% of the column left at 1024, 45% at
-       768, 12.7% at 480, and at 320 the panel column measured ZERO and the page overflowed
-       6px. Below 1536 there is no rail to pretend about, so the copy takes the width.
-       Written as 1535 rather than 1280 on purpose: --site holds 1280 from 1280 to 1535, so
-       a literal max-width: 1280px would leave 1281-1535 squeezed while 1280 flowed. */
-    @media (max-width: 1535px){
-      .tmd-cols.is-norail .tmd-main{ max-width: none; }
+    /* THE PANEL COLUMN'S MEASURE, IN THREE STEPS (Kiron, 2026-09-10):
+       1440 and above keeps what it had, 1280-1439 goes to 80%, 1279 and down goes full.
+
+       What 1440-and-above keeps is the base rule further up: the column is held at the
+       measure it would have had WITH the rail beside it, so hiding the rail looks like
+       hiding the rail rather than re-flowing the page. That reads correctly on a wide
+       screen - 992px of copy in 1376px of page at 1536.
+       It does not survive the way down, because the 384px it subtracts is FIXED: it left
+       60% of the column at 1024, 45% at 768, 12.7% at 480, and at 320 the panel column
+       measured ZERO with the page overflowing 6px. Hence the two steps below it. */
+    @media (min-width: 1280px) and (max-width: 1439px){
+      .tmd-cols.is-norail .tmd-main{ max-width: 80%; }
     }
+
     @media (max-width: 1279px){
       .tmd-cols{ grid-template-columns: minmax(0,1fr) 296px; gap: var(--space-6); }
+      /* Full width from here down - there is no rail to leave room for, and every
+         proportional measure is a smaller and smaller column as the page narrows. */
+      .tmd-cols.is-norail .tmd-main{ max-width: none; }
       /* KEEP THE ADDRESS BESIDE THE PHONE LIST. Below 1280 the --site step drops to 1024
          and the copy column narrows past what the two contact columns need, so the address
          wrapped under the list and the text column ran deeper than the portrait. nowrap
