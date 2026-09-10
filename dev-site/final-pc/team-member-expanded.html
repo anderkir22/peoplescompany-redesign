@@ -459,9 +459,35 @@
         border: 0; }
     }
     @media (max-width: 767px){
-      .tmd-id{ grid-template-columns: 120px minmax(0,1fr); gap: var(--space-4);
-        padding: var(--space-5) 0; }
+      /* THE BAND GETS ITS HORIZONTAL INSET BACK. It was 24px 0 here, so the portrait sat
+         hard against the page's content rail and the band read as edge-to-edge colour with
+         the picture jammed into the corner. 24px all four sides now - the same even inset
+         --tmd-band-pad gives it at 768 and up, at this width's spacing step - which moves
+         the picture and the icons under it 24px right. The column gap goes 16 -> 24 on top
+         of that, so the copy column moves 32px right in total: it needs to clear the
+         picture by more than the picture is inset, or the two read as one block. */
+      .tmd-id{ grid-template-columns: 120px minmax(0,1fr); gap: var(--space-5);
+        padding: var(--space-5); }
       .tmd-portrait{ width: 120px; }
+      /* THE ICON ROW GOES FLUSH LEFT, NOT CENTRED. Centred is right at 768, where the
+         column is 170px and the row of three 38px icons is 130px wide - it has room. Here
+         the column is 120px, NARROWER than the row, so centring hung the icons 5px past
+         the picture on BOTH sides and put their left edge outside the page's rail. Flush
+         left lands them on the picture's own left edge and lets the 10px overhang fall
+         into the gap on the right, where there is space for it. */
+      .tmd-idside{ align-items: flex-start; }
+      /* THE STRIP BECOMES A 2 x 4 MATRIX (Kiron, for 640). Eight tabs need 682.4px and
+         there are 576px here, so one row cannot hold them - and flex-wrap would not give
+         four and four: greedily filled, the first row takes SEVEN (570.1px of the 576)
+         and drops Photos on its own. A four-column grid is what makes the break
+         deliberate, and it also lines the two rows up with each other.
+         1fr columns rather than max-content, so the four span the full width of the bar
+         the way the bar spans the page. justify-self: start keeps each BUTTON shrunk to
+         its label inside its cell, so the selected underline still hugs the word instead
+         of running the width of the column. */
+      .tmd-tabs{ display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-3) var(--space-4); }
+      .tmd-tab{ justify-self: start; }
       .tmd-name{ font-size: 27px; }
       .tmd-desig{ font-size: 15px; }
       .tmd-meta{ gap: 6px; }
@@ -1160,16 +1186,27 @@
        A label not named below keeps its place at the end, so a CMS section nobody
        thought about here still gets a tab. */
     var homeOrder = [].slice.call(main.querySelectorAll(".tmd-panel"));
-    var narrowOrder = ["Bio", "Licenses", "Contact", "Testimonials",
-                       "Available", "Sold", "Photos", "Blogs"];
 
-    function orderPanels(narrowNow){
+    /* THREE ORDERS, ONE PER STATE. "wide" is the markup order, captured above.
+       "mid" is 768-1023, a single row of eight.
+       "small" is 767 and down, where the strip is a 2 x 4 grid - so this list is read as
+       the matrix Kiron drew, four across then four across:
+           Bio        Licenses  Contact       Blogs
+           Available  Sold      Testimonials  Photos
+       Which means the order here is the READING order of that matrix, not a ranking. */
+    var midOrder   = ["Bio", "Licenses", "Contact", "Testimonials",
+                      "Available", "Sold", "Photos", "Blogs"];
+    var smallOrder = ["Bio", "Licenses", "Contact", "Blogs",
+                      "Available", "Sold", "Testimonials", "Photos"];
+
+    function orderPanels(stateNow){
       var here = [].slice.call(main.querySelectorAll(".tmd-panel[data-label]"));
       var list;
-      if(narrowNow){
+      if(stateNow !== "wide"){
+        var want = stateNow === "small" ? smallOrder : midOrder;
         var byLabel = {};
         here.forEach(function(pn){ byLabel[pn.getAttribute("data-label")] = pn; });
-        list = narrowOrder.map(function(l){ return byLabel[l]; }).filter(Boolean);
+        list = want.map(function(l){ return byLabel[l]; }).filter(Boolean);
         here.forEach(function(pn){ if(list.indexOf(pn) < 0) list.push(pn); });
       } else {
         list = homeOrder.filter(function(pn){ return pn.parentNode === main; });
@@ -1224,21 +1261,31 @@
       else      cols.classList.remove("is-norail");
     }
 
-    var mq = window.matchMedia("(max-width: 1023px)");
-    var narrow = null;
+    /* THREE STATES, AND THE TWO BREAKPOINTS THAT SEPARATE THEM. Both queries sit on the
+       ladder in pc.css - 1024 is where the rail exists, 768 is where the strip stops
+       being one row - so this reads the same two numbers the stylesheet does. */
+    var mqNarrow = window.matchMedia("(max-width: 1023px)");
+    var mqSmall  = window.matchMedia("(max-width: 767px)");
+    var state = null;
+
+    function stateNow(){
+      return mqSmall.matches  ? "small"
+           : mqNarrow.matches ? "mid"
+           :                    "wide";
+    }
 
     /* GUARDED, so this is safe to call as often as anything wants to. It returns
-       immediately unless the answer to "are we below 1024" has actually changed, which
-       is what makes the resize listener below cheap and stops a drag across the middle
-       of the range from rebuilding the strip on every frame - or resetting the open tab. */
+       immediately unless the STATE has actually changed, which is what makes the resize
+       listener below cheap and stops a drag across the middle of a range from rebuilding
+       the strip on every frame - or resetting the open tab. */
     function apply(){
-      var now = mq.matches;
-      if(now === narrow) return;
-      narrow = now;
+      var now = stateNow();
+      if(now === state) return;
+      state = now;
       var open = tabs.length ? tabs.filter(function(t){
         return t.getAttribute("aria-selected") === "true";
       })[0] : null;
-      movers.forEach(now ? asPanel : asRailCard);
+      movers.forEach(now === "wide" ? asRailCard : asPanel);
       orderPanels(now);
       syncRail();
       buildTabs(open ? open.textContent : null);
@@ -1246,12 +1293,14 @@
 
     apply();
 
-    /* BOTH LISTENERS ON PURPOSE. The MediaQueryList change event is the right signal and
-       the one that fires in a browser; resize is the belt-and-braces path for anything
-       that moves the viewport without dispatching it. The guard above makes the overlap
-       free - whichever arrives first does the work and the other returns at once. */
-    if(mq.addEventListener)  mq.addEventListener("change", apply);
-    else if(mq.addListener)  mq.addListener(apply);
+    /* BOTH KINDS OF LISTENER ON PURPOSE. The MediaQueryList change event is the right
+       signal and the one that fires in a browser; resize is the belt-and-braces path for
+       anything that moves the viewport without dispatching it. The guard above makes the
+       overlap free - whichever arrives first does the work, the others return at once. */
+    [mqNarrow, mqSmall].forEach(function(q){
+      if(q.addEventListener)  q.addEventListener("change", apply);
+      else if(q.addListener)  q.addListener(apply);
+    });
     window.addEventListener("resize", apply);
   })();
   </script>
