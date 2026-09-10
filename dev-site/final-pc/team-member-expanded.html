@@ -286,6 +286,10 @@
 
     /* ---- right rail ---- */
     .tmd-rail{ display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+    /* The rail is HIDDEN rather than removed now that its cards migrate at 1023 and come
+       back above it - a detached rail has nowhere to put them back. display:flex above beats
+       the UA's [hidden] rule, so the attribute needs this to bite. */
+    .tmd-rail[hidden]{ display: none; }
     /* The rail is a colour column, not three white boxes: a tinted ground, a Light Blue
        hairline, and a PC Blue cap rule that repeats the tab underline. The cap is drawn as
        a border-top so it sits inside the card's own radius. */
@@ -422,6 +426,19 @@
          the copy. The band's 40px bottom inset is unchanged - it was always symmetric
          with the top; it just had 110px of ragged content above it. */
       .tmd-idmain{ grid-row: 1 / span 2; }
+      /* THE SUB-NAV BAR RUNS THE FULL WIDTH OF THE PAGE. It bleeds a --rail either side
+         to the viewport edges, and takes the same --rail back as padding so the TABS stay
+         on the content's vertical line - the ground goes edge to edge, the type does not
+         move off the rail every other element on the page aligns to. Eight tabs need
+         650.4px at a 16px gap against the 704px inside that padding, so the gap steps
+         32 -> 16 here: at 24 the eight come to 706.4 and Blogs would fall off the end. */
+      .tmd-tabs{ margin-inline: calc(-1 * var(--rail)); padding-inline: var(--rail);
+        gap: var(--space-4); }
+      /* Licences and Blogs are panels at this width, so the rail empties and the script's
+         is-norail fires. Its desktop rule holds the panel column at the measure it had
+         WITH the rail beside it, which here would squeeze it to ~320px - the rail is not
+         beside anything at this width, it is gone, so the column takes the full width. */
+      .tmd-cols.is-norail .tmd-main{ max-width: none; }
       /* THE ICONS MOVE UNDER THE HEADSHOT. Row 2 of the FIRST column, so they sit
          beneath the picture and share its left edge instead of hanging off the end of
          the copy in column 2. Placed explicitly rather than left to auto-placement:
@@ -934,7 +951,7 @@
 
           <!-- LICENCES: one row per licence. Type, state and number are three CMS fields; an
                agent licensed in ten states outputs ten rows and nothing here changes. -->
-          <section class="tmd-rcard">
+          <section class="tmd-rcard" id="tmdPanel-licenses" data-tab-label="Licenses">
             <h2 class="tmd-rtitle">Licenses</h2>
             <ul class="tmd-lic">
               <li>
@@ -970,7 +987,7 @@
 
           <!-- Five posts, title and date only. The feed is filtered by the agent's email; an
                agent who has never written drops this whole section. -->
-          <section class="tmd-rcard">
+          <section class="tmd-rcard" id="tmdPanel-blogs" data-tab-label="Blogs">
             <h2 class="tmd-rtitle">Blogs</h2>
             <ul class="tmd-posts">
               <li>
@@ -1008,53 +1025,19 @@
        The tablist ships empty and is written from the DOM. A CMS that outputs no
        .tmd-panel for a section produces no tab for it, and the first panel that
        survives is the one that opens. Nothing else needs to know which sections
-       an agent happens to have. */
+       an agent happens to have.
+
+       buildTabs() IS RE-CALLABLE, because the set of panels is no longer fixed for the
+       life of the page: at 1023 and down Licences and Blogs migrate out of the rail and
+       become panels (see the migration block below), so the strip has to be written
+       again from whatever is in .tmd-main at the time. */
     var tabsBox = document.getElementById("tmdTabs");
-    var panels  = [].slice.call(document.querySelectorAll(".tmd-panel[data-label]"));
-    if(!tabsBox || !panels.length) return;
+    var main    = document.querySelector(".tmd-main");
+    var cols    = document.querySelector(".tmd-cols");
+    var rail    = document.querySelector(".tmd-rail");
+    if(!tabsBox || !main) return;
 
-    /* ONE PANEL MEANS NO TAB BAR. A tablist holding a single tab is 98px of sticky chrome
-       whose only offer is the panel already on screen, and it lies to a screen reader:
-       role="tablist" announces a choice that does not exist. So the bar is REMOVED from the
-       DOM, not hidden - .tmd-tabs sets display:flex, which beats the UA's [hidden] rule, so
-       hiding it by attribute would leave it on screen.
-       The lone panel then has to stop pretending to be a tab panel: role, tabindex and
-       aria-labelledby all come off, and `hidden` is cleared, so it reads as ordinary content
-       with its own h2. data-label stays - it is the CMS's field, not a tab artefact.
-       THE TAB LABEL AND THE HEADING ARE TWO DIFFERENT FIELDS. data-label is "Available"
-       and "Sold" while the panels' own h2 reads "Available Listings" and "Sold Listings":
-       the tab is a place in a strip that has to hold six of them on one row, the heading
-       is the title of the section once you are in it. At the full wording the six tabs
-       need 723.6px against the 632px the strip has below 1280, which pushed Photos off
-       the right edge - and .tmd-tabs is overflow-x: auto with the scrollbar hidden, so it
-       was reachable only by dragging the strip sideways. Short labels total 570.6px, so
-       the strip clears at every width with no per-breakpoint type or gap override.
-       No CSS needs changing. The bar's negative top margin exists to cancel .tmd-cols'
-       padding-top; with the bar gone that padding simply applies, which is the right gap
-       between the identity band and the panel. */
-    if(panels.length < 2){
-      tabsBox.parentNode.removeChild(tabsBox);
-      var only = panels[0];
-      only.removeAttribute("role");
-      only.removeAttribute("tabindex");
-      only.removeAttribute("aria-labelledby");
-      only.hidden = false;
-      return;
-    }
-
-    var tabs = panels.map(function(panel, i){
-      var b = document.createElement("button");
-      b.className = "tmd-tab";
-      b.type = "button";
-      b.id = panel.id.replace("tmdPanel-", "tmdTab-");
-      b.setAttribute("role", "tab");
-      b.setAttribute("aria-controls", panel.id);
-      b.textContent = panel.getAttribute("data-label");
-      panel.setAttribute("aria-labelledby", b.id);
-      tabsBox.appendChild(b);
-      b.addEventListener("click", function(){ select(i); });
-      return b;
-    });
+    var panels = [], tabs = [], keyBound = false;
 
     function select(i, focusPanel){
       tabs.forEach(function(t, n){
@@ -1066,8 +1049,10 @@
       if(focusPanel) panels[i].focus();
     }
 
-    /* Left/right arrow keys walk the tablist, which is what the tab pattern expects. */
-    tabsBox.addEventListener("keydown", function(e){
+    /* Left/right arrow keys walk the tablist, which is what the tab pattern expects.
+       Bound ONCE - the listener reads the current tabs/panels through the closure, so a
+       rebuild needs no new listener and cannot stack duplicates. */
+    function onKey(e){
       var i = tabs.indexOf(document.activeElement);
       if(i < 0) return;
       var next = e.key === "ArrowRight" ? i + 1
@@ -1079,25 +1064,160 @@
       next = (next + tabs.length) % tabs.length;
       tabs[next].focus();
       select(next);
+    }
+
+    /* ONE PANEL MEANS NO TAB BAR. A tablist holding a single tab is 98px of sticky chrome
+       whose only offer is the panel already on screen, and it lies to a screen reader:
+       role="tablist" announces a choice that does not exist. So the bar is REMOVED from the
+       DOM, not hidden - .tmd-tabs sets display:flex, which beats the UA's [hidden] rule, so
+       hiding it by attribute would leave it on screen.
+       The lone panel then has to stop pretending to be a tab panel: role, tabindex and
+       aria-labelledby all come off, and `hidden` is cleared, so it reads as ordinary content
+       with its own h2. data-label stays - it is the CMS's field, not a tab artefact.
+       THE TAB LABEL AND THE HEADING ARE TWO DIFFERENT FIELDS. data-label is "Available" and
+       "Sold" while the panels' own h2 reads "Available Listings" and "Sold Listings": the tab
+       is a place in a strip that has to hold every section on one row, the heading is the
+       title of the section once you are in it.
+       No CSS needs changing. The bar's negative top margin exists to cancel .tmd-cols'
+       padding-top; with the bar gone that padding simply applies, which is the right gap
+       between the identity band and the panel. */
+    function buildTabs(keepLabel){
+      if(!tabsBox.parentNode) return;
+      panels = [].slice.call(main.querySelectorAll(".tmd-panel[data-label]"));
+      while(tabsBox.firstChild) tabsBox.removeChild(tabsBox.firstChild);
+      tabs = [];
+      if(!panels.length) return;
+
+      if(panels.length < 2){
+        tabsBox.parentNode.removeChild(tabsBox);
+        var only = panels[0];
+        only.removeAttribute("role");
+        only.removeAttribute("tabindex");
+        only.removeAttribute("aria-labelledby");
+        only.hidden = false;
+        return;
+      }
+
+      tabs = panels.map(function(panel, i){
+        var b = document.createElement("button");
+        b.className = "tmd-tab";
+        b.type = "button";
+        b.id = panel.id.replace("tmdPanel-", "tmdTab-");
+        b.setAttribute("role", "tab");
+        b.setAttribute("aria-controls", panel.id);
+        b.textContent = panel.getAttribute("data-label");
+        panel.setAttribute("aria-labelledby", b.id);
+        tabsBox.appendChild(b);
+        b.addEventListener("click", function(){ select(i); });
+        return b;
+      });
+
+      if(!keyBound){ tabsBox.addEventListener("keydown", onKey); keyBound = true; }
+
+      /* KEEP THE SECTION THE READER WAS ON. A rebuild happens when the viewport crosses
+         1024 and the panel set changes, and dropping them back on Bio because the window
+         was dragged is a bug, not a reset. Matched by LABEL, not index: the set it is
+         being restored into is a different length. A label that no longer exists - only
+         Licences and Blogs can vanish, by going back into the rail - falls back to the
+         first panel. */
+      var want = keepLabel ? panels.map(function(pn){
+        return pn.getAttribute("data-label");
+      }).indexOf(keepLabel) : -1;
+      select(want < 0 ? 0 : want);
+    }
+
+    /* ---- 1023 AND DOWN: LICENCES AND BLOGS ARE TABS, NOT RAIL CARDS ----------
+       At 1024 and up they are cards in the rail beside the panels. Below it the rail stacks
+       UNDER the panels, where two more cards read as a second page of content after the tabs
+       have already offered six - so they become the seventh and eighth panels instead, and
+       the rail, now empty, takes itself out.
+
+       THIS IS A DOM MOVE, NOT A COPY. CSS cannot re-parent an element, and the same content
+       must never exist twice on a page, so the sections are relocated and their heading swaps
+       class: .tmd-rtitle is a card's 12px eyebrow, .tmd-h2 is a panel's 27px heading. Nothing
+       else about them changes.
+
+       data-tab-label, not data-label: buildTabs() collects .tmd-panel[data-label], so the
+       label has to sit in an attribute the builder ignores until the section really is a
+       panel. It is the same CMS field either way. */
+    var movers = [].slice.call(document.querySelectorAll("[data-tab-label]"));
+    movers.forEach(function(s){
+      s._railHome = s.parentNode;
+      s._railNext = s.nextElementSibling;
     });
 
-    select(0);
+    function asPanel(s){
+      s.classList.remove("tmd-rcard");
+      s.classList.add("tmd-panel");
+      s.setAttribute("data-label", s.getAttribute("data-tab-label"));
+      s.setAttribute("role", "tabpanel");
+      s.setAttribute("tabindex", "-1");
+      s.hidden = true;
+      var t = s.querySelector(".tmd-rtitle");
+      if(t) t.className = "tmd-h2";
+      main.appendChild(s);
+    }
 
-  })();
+    function asRailCard(s){
+      s.classList.remove("tmd-panel");
+      s.classList.add("tmd-rcard");
+      s.removeAttribute("data-label");
+      s.removeAttribute("role");
+      s.removeAttribute("tabindex");
+      s.removeAttribute("aria-labelledby");
+      s.hidden = false;
+      var t = s.querySelector(".tmd-h2");
+      if(t) t.className = "tmd-rtitle";
+      if(!s._railHome) return;
+      /* The remembered sibling may itself still be out in .tmd-main, in which case it is not
+         a child of the rail and cannot be an insertion reference - appending is then correct,
+         since the movers are restored in document order. */
+      var ref = (s._railNext && s._railNext.parentNode === s._railHome) ? s._railNext : null;
+      s._railHome.insertBefore(s, ref);
+    }
 
-  (function(){
-    /* AN EMPTY RAIL IS NO RAIL. The minimum record has no licences, awards or posts, so the
-       rail can come out with zero cards - and a 320px column of nothing beside the panels
-       reads as a load failure rather than as a thin profile. If the rail holds no cards it is
-       removed and .tmd-cols drops to a single track.
-       Its own IIFE, not part of the tab code: the tab builder returns early on a one-panel
-       page, which is exactly the page most likely to have an empty rail. */
-    var cols = document.querySelector(".tmd-cols");
-    var rail = document.querySelector(".tmd-rail");
-    if(!cols || !rail) return;
-    if(rail.querySelector(".tmd-rcard")) return;
-    rail.parentNode.removeChild(rail);
-    cols.classList.add("is-norail");
+    /* AN EMPTY RAIL IS NO RAIL. The minimum record has no licences and no posts, so the rail
+       can come out with zero cards - and a 320px column of nothing beside the panels reads as
+       a load failure rather than as a thin profile. Below 1024 it is empty for the other
+       reason: both its cards are tabs. Either way the track and the gap come off.
+       It is HIDDEN rather than detached, because the cards have to have somewhere to go back
+       to when the viewport crosses 1024 again. */
+    function syncRail(){
+      if(!cols || !rail) return;
+      var empty = !rail.querySelector(".tmd-rcard");
+      rail.hidden = empty;
+      if(empty) cols.classList.add("is-norail");
+      else      cols.classList.remove("is-norail");
+    }
+
+    var mq = window.matchMedia("(max-width: 1023px)");
+    var narrow = null;
+
+    /* GUARDED, so this is safe to call as often as anything wants to. It returns
+       immediately unless the answer to "are we below 1024" has actually changed, which
+       is what makes the resize listener below cheap and stops a drag across the middle
+       of the range from rebuilding the strip on every frame - or resetting the open tab. */
+    function apply(){
+      var now = mq.matches;
+      if(now === narrow) return;
+      narrow = now;
+      var open = tabs.length ? tabs.filter(function(t){
+        return t.getAttribute("aria-selected") === "true";
+      })[0] : null;
+      movers.forEach(now ? asPanel : asRailCard);
+      syncRail();
+      buildTabs(open ? open.textContent : null);
+    }
+
+    apply();
+
+    /* BOTH LISTENERS ON PURPOSE. The MediaQueryList change event is the right signal and
+       the one that fires in a browser; resize is the belt-and-braces path for anything
+       that moves the viewport without dispatching it. The guard above makes the overlap
+       free - whichever arrives first does the work and the other returns at once. */
+    if(mq.addEventListener)  mq.addEventListener("change", apply);
+    else if(mq.addListener)  mq.addListener(apply);
+    window.addEventListener("resize", apply);
   })();
   </script>
 
