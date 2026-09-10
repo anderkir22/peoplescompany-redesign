@@ -580,9 +580,24 @@
          the 120px picture overflowed its 84.86px track, and the name, role and phone list
          printed over the photograph. Both placements are handed back to auto here, which
          is what lets source order do the stacking. */
-      .tmd-id{ grid-template-columns: minmax(0,1fr); row-gap: var(--space-4); }
-      .tmd-idmain{ grid-row: auto; }
-      .tmd-idside{ grid-column: 1; grid-row: auto; align-items: flex-start; }
+      /* Two tracks, but NOT two columns of content: the second one exists only to hold
+         the icon rail in the top right corner, and it is `auto`, so it is exactly as wide
+         as the icons are. The picture takes column 1 of row 1 by auto-placement. */
+      .tmd-id{ grid-template-columns: minmax(0,1fr) auto; row-gap: var(--space-4); }
+      /* The copy spans BOTH tracks on row 2, so it keeps the band's full width - the icon
+         rail is above it, not beside it, and cannot narrow it. This is also what makes the
+         corner placement collision-proof without any absolute positioning: the two live in
+         different rows, so no amount of name or a long email address can reach the icons. */
+      .tmd-idmain{ grid-row: 2; grid-column: 1 / -1; }
+      /* THE ICONS STACK VERTICALLY IN THE TOP RIGHT CORNER. align-items: flex-end puts the
+         rail on the band's right inset - the wider breakpoints set flex-start for the row
+         under the picture, so it is restated here. align-self: start keeps the rail at the
+         TOP of row 1 rather than stretching down it. */
+      .tmd-idside{ grid-column: 2; grid-row: 1; align-items: flex-end;
+        align-self: start; padding-top: 0; }
+      /* .tmd-social is a flex ROW everywhere else - three 38px buttons side by side. One
+         declaration turns it into the column. */
+      .tmd-social{ flex-direction: column; }
       /* .tmd-contact bottom-aligns to the picture with margin-top: auto, which needs FREE
          SPACE in the column to do anything. In a stack the column is exactly as tall as
          its content, so auto resolves to 0 and the phone list would sit hard against the
