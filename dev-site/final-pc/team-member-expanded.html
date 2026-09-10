@@ -611,11 +611,71 @@
          role above it. There is nothing left to bottom-align to, so it goes back to being
          a plain gap. */
       .tmd-contact{ margin-top: var(--space-4); }
+      /* 24px, and it STAYS 24 for 480-519. It dates from when the strip was a flex row at
+         this width, and a grid does not need it - but 480 is approved with it, and the
+         correction belongs to the rung below (see 479). */
       .tmd-tabs{ gap: var(--space-5); }
       /* TWO IMAGES ACROSS. Three columns in a 440px panel is a 130px image - 87px tall at
          3:2, a thumbnail rather than a photograph. Two gives 208 x 139. Six images, so it
          reads as three rows of two. */
       .tmd-gal{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    /* ======================================================================
+       TWO NEW RUNGS AT THE BOTTOM. The ladder had nothing between 519 and zero, and
+       two different things give way below it, at two different widths - so rather
+       than one compromise applied to both, there are two queries.
+       479 AND DOWN: the contact labels go (Kiron: "drop the office/mobile/email
+       labels at 479 and lower"), which deliberately leaves 480 - already approved
+       with the words showing - untouched.
+       ====================================================================== */
+    @media (max-width: 479px){
+      /* THE OFFICE / MOBILE / EMAIL WORDS COME OFF - the icon is the label now.
+         VISUALLY only: the SVGs beside them are aria-hidden, so deleting the words
+         would leave a screen reader three bare links with no idea which number is
+         which. This is pc.css's .sr-only treatment inlined, so the words stay in the
+         accessibility tree and in the markup for the CMS.
+         It also fixes a real overflow: the row read EMAIL JohnR@PeoplesCompany.com at
+         283.1px in a 232px column, and an email address is one unbreakable token, so
+         the whole PAGE scrolled 7px sideways. Dropping the word takes the row inside
+         its column. Only .tmd-meta's tags - the address block's "Cumming Office" tag
+         is already hidden at 1023 and down. */
+      .tmd-meta .tmd-tag{ position: absolute; width: 1px; height: 1px; margin: -1px;
+        padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+        white-space: nowrap; border: 0; }
+      /* THREE ROWS OF TABS: 3 - 3 - 2, in the order already set for this end of the
+         ladder, so nothing is resequenced - Bio Licenses Contact / Blogs Available Sold /
+         Testimonials Photos.
+         IT STARTS HERE RATHER THAN AT 320 BECAUSE FOUR COLUMNS ALREADY FAIL HERE. The
+         2 x 4 grid is sized by its tallest demand per column - 84.9 + 75.8 + 117 + 64.3 =
+         342px of label plus 48px of gap - so it needs 390px and only fits from about 430
+         up. At 400 it has 360 and drops Blogs and Photos off the right edge. Three columns
+         need 277.7 + 32 = 309.7, which clears every width from 350 up. */
+      /* THE GAP GOES BACK TO WHAT THE GRID IS BUILT ON, 4px / 16px. The 519 rung still
+         carries a 24px gap from its flex-row days, and 24px of COLUMN gap is what pushed
+         the three columns past the end of the strip: 238px of label plus 48px of gap in a
+         280px bar at 320, a 6px overflow. At 16 it comes to 270. The 4px row gap also
+         lines these rows up as tightly as they are at 640. */
+      .tmd-tabs{ grid-template-columns: repeat(3, 1fr); gap: var(--space-1) var(--space-4); }
+    }
+
+    /* 399 AND DOWN: the third row is already in place above; this rung is only the TYPE.
+       Three columns at 14px need 309.7px and run out of room at about 350, so below that
+       the labels have to step down. */
+    @media (max-width: 399px){
+      /* THREE ROWS OF TABS: 3 - 3 - 2, in the order already set for this end of the
+         ladder, so nothing is resequenced - Bio Licenses Contact / Blogs Available
+         Sold / Testimonials Photos.
+         THE TYPE HAS TO STEP WITH IT. The three columns are sized by their tallest
+         demand - col 1 by Testimonials, col 2 by Available, col 3 by Contact - which
+         at 14px is 257.8px of label plus 32px of gap against the 280px this width
+         has. It does not fit at 14, and it does not fit at 13 either (289.8). At 12px
+         the three columns come to 238.1 and the strip has room to spare.
+         The underline scales with the type for the same reason it was 64.3px in the
+         first place: that number is the width of the word PHOTOS, so at 12px it is
+         55.1px. The line still matches the reference word, which is the point of it. */
+      .tmd-tabs{ --tmd-tab-line: 55.1px; }
+      .tmd-tab{ font-size: 12px; }
     }
   </style>
 </head>
