@@ -372,20 +372,25 @@
     .tmd-railmore:hover{ text-decoration: underline; }
 
     /* ---- responsive ---- */
-    /* THE PANEL COLUMN'S MEASURE, IN THREE STEPS (Kiron, 2026-09-10):
-       1440 and above keeps what it had, 1280-1439 goes to 80%, 1279 and down goes full.
+    /* THE PANEL COLUMN'S MEASURE, IN TWO STEPS: 1280 and above keeps what the base rule
+       gives it, 1279 and down goes full width.
 
-       What 1440-and-above keeps is the base rule further up: the column is held at the
-       measure it would have had WITH the rail beside it, so hiding the rail looks like
-       hiding the rail rather than re-flowing the page. That reads correctly on a wide
-       screen - 992px of copy in 1376px of page at 1536.
-       It does not survive the way down, because the 384px it subtracts is FIXED: it left
-       60% of the column at 1024, 45% at 768, 12.7% at 480, and at 320 the panel column
-       measured ZERO with the page overflowing 6px. Hence the two steps below it. */
-    @media (min-width: 1280px) and (max-width: 1439px){
-      .tmd-cols.is-norail .tmd-main{ max-width: 80%; }
-    }
+       WHY 1280-AND-ABOVE IS LEFT ALONE. The base rule holds this column at the measure it
+       would have had WITH the rail beside it, and that is not decoration - it is the
+       column team-member-expanded.html's panel occupies at the same width. Measured on
+       both pages: 832px at 1280 and at 1440, 992px at 1536. So the empty space to the
+       right of this copy falls exactly where the rail falls on the sibling page, the two
+       records line up line for line, and one template renders both.
+       An 80% band from 1280-1439 was tried and taken back out. It broke that agreement -
+       972.8px against the sibling's 832 - and it made the measure move BACKWARDS across
+       1439/1440: one pixel wider took the copy from 972.8 to 832. Nothing is gained by a
+       second number when the first one already means something.
 
+       WHY 1279-AND-DOWN DOES NOT FOLLOW IT. The 384px the base rule subtracts is FIXED, so
+       it eats a growing share as the page narrows: 60% of the column left at 1024, 45% at
+       768, 12.7% at 480, and at 320 the panel column measured ZERO with the page
+       overflowing 6px. Below 1280 the sibling's rail has stacked under its panels anyway,
+       so there is no column left to agree with. */
     @media (max-width: 1279px){
       .tmd-cols{ grid-template-columns: minmax(0,1fr) 296px; gap: var(--space-6); }
       /* Full width from here down - there is no rail to leave room for, and every
