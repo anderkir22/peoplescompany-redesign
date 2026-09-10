@@ -372,22 +372,72 @@
     .tmd-railmore:hover{ text-decoration: underline; }
 
     /* ---- responsive ---- */
+    /* THE COPY FLOWS THE FULL WIDTH BELOW 1536 (Kiron: "the text should just flow full
+       when at 1280 and lower"). The rule this cancels holds the panel column at the measure
+       it would have had WITH the rail beside it, so that hiding the rail looks like hiding
+       the rail. That reads correctly at 1536, where 992px of copy sits in 1376px of page.
+       It does not survive the way down: the 384px it subtracts is FIXED, so it eats a
+       larger and larger share as the page narrows - 60% of the column left at 1024, 45% at
+       768, 12.7% at 480, and at 320 the panel column measured ZERO and the page overflowed
+       6px. Below 1536 there is no rail to pretend about, so the copy takes the width.
+       Written as 1535 rather than 1280 on purpose: --site holds 1280 from 1280 to 1535, so
+       a literal max-width: 1280px would leave 1281-1535 squeezed while 1280 flowed. */
+    @media (max-width: 1535px){
+      .tmd-cols.is-norail .tmd-main{ max-width: none; }
+    }
     @media (max-width: 1279px){
       .tmd-cols{ grid-template-columns: minmax(0,1fr) 296px; gap: var(--space-6); }
+      /* KEEP THE ADDRESS BESIDE THE PHONE LIST. Below 1280 the --site step drops to 1024
+         and the copy column narrows past what the two contact columns need, so the address
+         wrapped under the list and the text column ran deeper than the portrait. nowrap
+         holds them on one row and the block bottom-aligns to the picture again; the two
+         gaps come in to buy the room. Ported from team-member-expanded.html. */
+      .tmd-contact{ flex-wrap: nowrap; gap: var(--space-5) var(--space-6); }
+      .tmd-addr{ flex: none; margin-left: var(--space-5); }
     }
     @media (max-width: 1023px){
-      /* Rail drops under the panels. The tabs still swap one panel at a time; only the
-         columns collapse, so the contact form lands directly after the active panel. */
+      /* Rail drops under the panels - on this record it is empty and already gone, but the
+         rule stays: the same template renders a person who has cards. */
       .tmd-cols{ grid-template-columns: minmax(0,1fr); gap: var(--space-7); }
       .tmd-rail{ max-width: 560px; }
-      .tmd-id{ grid-template-columns: 170px minmax(0,1fr); }
+      /* ROW GAP ONLY, not the column gap: 12px pulls the icon row up under the picture
+         while the 32px between the picture and the copy is left alone. */
+      .tmd-id{ grid-template-columns: 170px minmax(0,1fr); row-gap: var(--space-3); }
       .tmd-portrait{ width: 170px; }
-      .tmd-idside{ grid-column: 2; align-items: flex-start; padding-top: 0; }
+      /* THE COPY COLUMN SPANS BOTH ROWS so .tmd-contact's margin-top: auto has the full
+         height to push against, and the phone list bottom-aligns to the ICON ROW rather
+         than to the picture - which is what closes the empty blue under the copy. */
+      .tmd-idmain{ grid-row: 1 / span 2; }
+      /* THE ICONS MOVE UNDER THE PICTURE, centred on its column: row 2 of the FIRST column
+         rather than hanging off the end of the copy in column 2. */
+      .tmd-idside{ grid-column: 1; grid-row: 2; align-items: center; padding-top: 0; }
+      /* THE OFFICE ADDRESS COMES OUT OF THE BAND. Visually only - pc.css's .sr-only
+         treatment inlined - so the street address stays in the accessibility tree and in
+         the markup for the CMS. Three lines earn their place next to a 241px portrait and
+         not next to a 170px one. */
+      .tmd-addr{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+        overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+        white-space: nowrap; border: 0; }
     }
     @media (max-width: 767px){
-      .tmd-id{ grid-template-columns: 120px minmax(0,1fr); gap: var(--space-4);
-        padding: var(--space-5) 0; }
+      /* CLEAR THE INTERACTIVE MAP TAB. It is sticky at var(--navH), hangs
+         var(--md-tab-h-peak) below it and is CENTRED, so it only reaches the crumb when the
+         page is narrow. Same expression the sub-nav uses on the expanded page to clear the
+         same tab, off the same token, so the two cannot disagree. */
+      .tmd-crumb{ padding-top: calc(var(--md-tab-h-peak) + 8px); }
+      /* THE BAND GETS ITS HORIZONTAL INSET BACK. It was 24px 0 here, so the portrait sat
+         hard against the page's content rail and the band read as edge-to-edge colour with
+         the picture jammed in the corner. 24px on all four sides, and the column gap goes
+         16 -> 24 on top of it so the copy clears the picture by more than the picture is
+         inset from the band. */
+      .tmd-id{ grid-template-columns: 120px minmax(0,1fr); gap: var(--space-5);
+        padding: var(--space-5); }
       .tmd-portrait{ width: 120px; }
+      /* THE ICON ROW GOES FLUSH LEFT, NOT CENTRED. Centred is right at 768, where the
+         column is 170px and the icon row is narrower than it. Here the column is 120px and
+         the row can be wider, so centring would hang the icons past the picture on both
+         sides and put their left edge outside the page's rail. */
+      .tmd-idside{ align-items: flex-start; }
       .tmd-name{ font-size: 27px; }
       .tmd-desig{ font-size: 15px; }
       .tmd-meta{ gap: 6px; }
@@ -397,10 +447,39 @@
       .tmd-h2{ font-size: 23px; }
     }
     @media (max-width: 519px){
-      /* Portrait goes over the copy - at this width a 120px column leaves the name no room. */
-      .tmd-id{ grid-template-columns: minmax(0,1fr); }
-      .tmd-idside{ grid-column: 1; }
-      .tmd-tabs{ gap: var(--space-5); }
+      /* THE BAND BECOMES A STACK: picture, then name and contact, with the icons in the top
+         right corner. The single column was declared here before, but the rules above were
+         still placing items explicitly - the copy pinned across two rows, the icons to row
+         2 - so the copy could not fit beside the picture and the browser INVENTED a second
+         column for it. Measured on this page at 480: the picture ran 20-140 and the copy
+         20-460, printed straight over it.
+         Two tracks now, but not two columns of content: the second is `auto`, exactly as
+         wide as the icon rail, and the copy spans BOTH on row 2 - so it keeps the band's
+         full width and the rail is above it, not beside it. Different rows is also what
+         makes the corner collision-proof without absolute positioning. */
+      .tmd-id{ grid-template-columns: minmax(0,1fr) auto; row-gap: var(--space-4); }
+      .tmd-idmain{ grid-row: 2; grid-column: 1 / -1; }
+      .tmd-idside{ grid-column: 2; grid-row: 1; align-items: flex-end;
+        align-self: start; padding-top: 0; }
+      /* .tmd-social is a flex ROW everywhere else; this is the whole of the vertical stack. */
+      .tmd-social{ flex-direction: column; }
+      /* .tmd-contact bottom-aligns to the picture with margin-top: auto, which needs FREE
+         SPACE in the column. In a stack there is none, so auto resolves to 0 and the phone
+         list would sit hard against the role. Back to a plain gap. */
+      .tmd-contact{ margin-top: var(--space-4); }
+    }
+
+    /* 479 AND DOWN: the contact labels go (Kiron: "drop the office/mobile/email labels at
+       479 and lower"), which leaves 480 - approved with the words showing - untouched. */
+    @media (max-width: 479px){
+      /* VISUALLY only: the SVGs beside them are aria-hidden, so deleting the words would
+         leave a screen reader bare links with no idea which number is which. pc.css's
+         .sr-only treatment inlined, so the words stay in the accessibility tree and in the
+         markup for the CMS. Only .tmd-meta's tags - the address block's "Cumming Office"
+         tag is already hidden at 1023 and down. */
+      .tmd-meta .tmd-tag{ position: absolute; width: 1px; height: 1px; margin: -1px;
+        padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+        white-space: nowrap; border: 0; }
     }
     .tmd-licno a{ color: inherit; }
   </style>
