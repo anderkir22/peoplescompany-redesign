@@ -40,7 +40,6 @@
     .ct-wrap{ max-width: var(--site); margin: 0 auto;
       padding: calc(var(--md-tab-h-peak) + var(--space-5)) var(--rail) var(--space-9); }
 
-    /* ---- page head ---- */
     /* ---- page head ----
        The <h1> is VISUALLY HIDDEN, not deleted, exactly as on legal.html: the word
        "Contact" above a page that says so in its heading, its form and its office cards
@@ -52,12 +51,16 @@
        .sr-only takes it out of the flow. */
     .ct-head h1{ margin: 0 0 var(--space-7); }
 
-    /* ---- the two columns ----
-       Left is the corporate office card. Right is the contact rail: the form.
-       Below 1280 everything is one column in source order. */
+    /* ---- the two columns: FLIPPED, this is variant B ----
+       Left is the contact rail - the form, then Follow Us. Right is the content column:
+       the corporate office card, then the offices.
+       The 380px track comes FIRST and the markup is in the same order, so the visual
+       order and the DOM order agree: no `order`, no grid-column override, and the tab
+       sequence follows the page. Below 1280 everything is one column in that same
+       source order - form, Follow Us, corporate office, offices. */
     .ct-top{ display: grid; gap: var(--space-7); }
     @media (min-width: 1280px){
-      .ct-top{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8);
+      .ct-top{ grid-template-columns: 380px minmax(0, 1fr); gap: var(--space-8);
         align-items: start; }
     }
     .ct-main{ min-width: 0; }
@@ -89,12 +92,13 @@
       outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
     .ct-form .btn{ justify-self: start; }
 
-    /* ---- right rail ----
-       Below 1280 the rail stops being a rail and stacks under the office card, so it
-       gets a top rule there to separate the two. */
+    /* ---- LEFT rail ----
+       The rail is the left column here and comes first in the markup, so below 1280 it
+       stacks ABOVE the content instead of under it. The separating rule therefore hangs
+       off .ct-main, not off the rail: the rule belongs to whichever block is second. */
     .ct-rail{ display: grid; gap: var(--space-6); align-content: start; }
     @media (max-width: 1279px){
-      .ct-rail{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
+      .ct-main{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
     }
     .ct-card{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-lg); padding: var(--space-6); }
@@ -352,8 +356,9 @@
 
 
   <!-- ================= PAGE CONTENT =================
-       Contact. Two columns. Left: the corporate office, then all 25 offices as cards
-       three across. Right: the form, with Follow Us under it. -->
+       Contact, VARIANT B - the columns are flipped against contact.html. Left: the
+       380px rail holding the form with Follow Us under it. Right: the corporate office,
+       then all 25 offices as cards three across. -->
   <main class="ct-body" id="top" aria-label="Contact">
     <div class="ct-wrap">
 
@@ -363,7 +368,72 @@
 
       <div class="ct-top reveal">
 
-        <!-- ---------- left: the corporate office ---------- -->
+        <!-- ---------- left: the form, then Follow Us ---------- -->
+        <aside class="ct-rail" aria-label="Contact us">
+
+          <div class="ct-card">
+            <h2 id="help-h">How Can We Help You?</h2>
+            <p class="ct-lede">Complete the form below and we will get back to you as soon as
+              possible.</p>
+            <form class="ct-form" action="#" onsubmit="return false;">
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ct-first">First Name</label>
+                  <input type="text" id="ct-first" name="first" autocomplete="given-name" required />
+                </div>
+                <div class="ct-field">
+                  <label for="ct-last">Last Name</label>
+                  <input type="text" id="ct-last" name="last" autocomplete="family-name" required />
+                </div>
+              </div>
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ct-email">Email</label>
+                  <input type="email" id="ct-email" name="email" autocomplete="email" required />
+                </div>
+                <div class="ct-field">
+                  <label for="ct-phone">Phone <span class="ct-opt">(optional)</span></label>
+                  <input type="tel" id="ct-phone" name="phone" autocomplete="tel" />
+                </div>
+              </div>
+              <div class="ct-field">
+                <label for="ct-interest">How can we help?</label>
+                <select id="ct-interest" name="interest">
+                  <option value="">Select a service&hellip;</option>
+                  <option>Land Brokerage &amp; Auctions</option>
+                  <option>Land Management</option>
+                  <option>Agricultural Appraisal</option>
+                  <option>Capital Markets</option>
+                  <option>Energy Management</option>
+                  <option>Crop Insurance</option>
+                  <option>Corporate Services</option>
+                  <option>Careers</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+              <div class="ct-field">
+                <label for="ct-message">Message</label>
+                <textarea id="ct-message" name="message" required></textarea>
+              </div>
+              <button class="btn btn-subscribe" type="submit">Send Message</button>
+            </form>
+
+          </div>
+
+          <div class="ct-card">
+            <h2>Follow Us</h2>
+            <div class="ct-social">
+              <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+              <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+              <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+              <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+              <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- ---------- right: the corporate office, then the offices ---------- -->
         <div class="ct-main">
 
           <div class="ct-card ct-card--navy">
@@ -680,70 +750,6 @@
 
         </div>
 
-        <!-- ---------- right: the form ---------- -->
-        <aside class="ct-rail" aria-label="Contact us">
-
-          <div class="ct-card">
-            <h2 id="help-h">How Can We Help You?</h2>
-            <p class="ct-lede">Complete the form below and we will get back to you as soon as
-              possible.</p>
-            <form class="ct-form" action="#" onsubmit="return false;">
-              <div class="ct-row">
-                <div class="ct-field">
-                  <label for="ct-first">First Name</label>
-                  <input type="text" id="ct-first" name="first" autocomplete="given-name" required />
-                </div>
-                <div class="ct-field">
-                  <label for="ct-last">Last Name</label>
-                  <input type="text" id="ct-last" name="last" autocomplete="family-name" required />
-                </div>
-              </div>
-              <div class="ct-row">
-                <div class="ct-field">
-                  <label for="ct-email">Email</label>
-                  <input type="email" id="ct-email" name="email" autocomplete="email" required />
-                </div>
-                <div class="ct-field">
-                  <label for="ct-phone">Phone <span class="ct-opt">(optional)</span></label>
-                  <input type="tel" id="ct-phone" name="phone" autocomplete="tel" />
-                </div>
-              </div>
-              <div class="ct-field">
-                <label for="ct-interest">How can we help?</label>
-                <select id="ct-interest" name="interest">
-                  <option value="">Select a service&hellip;</option>
-                  <option>Land Brokerage &amp; Auctions</option>
-                  <option>Land Management</option>
-                  <option>Agricultural Appraisal</option>
-                  <option>Capital Markets</option>
-                  <option>Energy Management</option>
-                  <option>Crop Insurance</option>
-                  <option>Corporate Services</option>
-                  <option>Careers</option>
-                  <option>Something else</option>
-                </select>
-              </div>
-              <div class="ct-field">
-                <label for="ct-message">Message</label>
-                <textarea id="ct-message" name="message" required></textarea>
-              </div>
-              <button class="btn btn-subscribe" type="submit">Send Message</button>
-            </form>
-
-          </div>
-
-          <div class="ct-card">
-            <h2>Follow Us</h2>
-            <div class="ct-social">
-              <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
-              <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
-              <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-              <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
-              <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
-            </div>
-          </div>
-
-        </aside>
       </div>
 
 
