@@ -83,6 +83,23 @@
       padding: var(--space-7); }
     .ct-card--navy h2{ color: var(--text-on-dark); }
 
+    /* ---- the card's two halves ----
+       Address left, office photograph right. flex-wrap, NOT a media query: the card's
+       width does not track the viewport (it is 864px at 1024 and 676px at 1280, because
+       that is where the 380px rail appears), so a width query would hide the photo at the
+       width that has the most room for it. Basis values let the row break on its own
+       whenever the card is too narrow to hold both, at any viewport. */
+    .ct-corp{ display: flex; flex-wrap: wrap; gap: var(--space-7); align-items: center; }
+    .ct-corp-text{ flex: 1 1 300px; min-width: 0; }
+    /* The photograph takes its share of any spare width but stops at 380px, so the
+       square cannot grow large enough to out-shout the address beside it. */
+    .ct-corp-photo{ flex: 1 1 300px; max-width: 380px; margin: 0; }
+    /* SQUARE. The source is 4781x2798 landscape, so object-fit crops it to the middle of
+       the frame - see the note in the markup. No border: a hairline on the navy reads as
+       a seam, and the radius matches every other card on the page. */
+    .ct-corp-photo img{ display: block; width: 100%; aspect-ratio: 1 / 1;
+      object-fit: cover; object-position: center; border-radius: var(--radius-lg); }
+
     .ct-office-line{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.8;
       color: var(--color-text-muted); margin: 0; max-width: 34ch; }
     .ct-card--navy .ct-office-line{ color: var(--text-on-dark); }
@@ -265,13 +282,32 @@
         <div class="ct-main">
 
           <div class="ct-card ct-card--navy">
-            <h2>Corporate Office</h2>
-            <p class="ct-office-line">
-              1108 S. 44th Street, Suite 102<br />
-              Cumming, IA 50061<br />
-              <b><a href="tel:+18558005263">855.800.5263</a></b><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </p>
+            <div class="ct-corp">
+
+              <div class="ct-corp-text">
+                <h2>Corporate Office</h2>
+                <p class="ct-office-line">
+                  1108 S. 44th Street, Suite 102<br />
+                  Cumming, IA 50061<br />
+                  <b><a href="tel:+18558005263">855.800.5263</a></b><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </p>
+              </div>
+
+              <!-- SQUARE CROP OF A LANDSCAPE SOURCE. office1.JPG is 4781x2798, so a
+                   square frame can show 2798px of its width - the middle 58%. The painted
+                   sign on the building is about 3413px wide, wider than that, so its ends
+                   fall outside the crop whatever the object-position. Either accept the
+                   sign as a partial, or supply a square export framed the way it should
+                   read. The filename's extension is UPPERCASE and the host is
+                   case-sensitive: office1.JPG, not office1.jpg. -->
+              <figure class="ct-corp-photo">
+                <img src="../assets/office1.JPG"
+                     alt="The Peoples Company corporate office: a pale brick building with
+                          the company name painted across its upper wall" />
+              </figure>
+
+            </div>
           </div>
 
           <!-- Each card links to its region page: /delta /midwest /lake-states
