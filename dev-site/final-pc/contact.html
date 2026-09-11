@@ -41,13 +41,28 @@
     .ct-photo{ margin: 0 0 var(--space-7); }
     .ct-photo img{ display: block; width: 100%; height: auto; border-radius: var(--radius-lg); }
 
-    /* ---- the regional footprint map ----
-       2550x1688, local in ../assets. Sits under the photograph and, like it, is never
-       cropped - the states and the office pins have to stay whole. */
+    /* ---- the FarmWorth map ----
+       A real map owns its own viewport rather than sizing to an image, so the wrapper
+       fixes the shape (4:3) and the map fills it. The placeholder screenshot is fitted
+       with `contain`, NOT `cover`, so no office pin can be cropped out of frame while it
+       is standing in. When the live module lands it replaces the wrapper's contents and
+       should be width/height 100%. */
     .ct-map{ margin: 0; }
-    .ct-map img{ display: block; width: 100%; height: auto; border-radius: var(--radius-lg); }
+    .ct-mapwrap{ position: relative; aspect-ratio: 4 / 3; width: 100%;
+      border-radius: var(--radius-lg); overflow: hidden;
+      background: var(--pc-light-blue); }
+    .ct-mapwrap img{ display: block; width: 100%; height: 100%;
+      object-fit: contain; object-position: center; }
     .ct-map figcaption{ font-family: var(--font-sans); font-size: var(--body-sm);
       color: var(--pc-navy); margin-top: var(--space-3); }
+
+    /* Shown only when the screenshot is missing - same treatment as the placeholder in
+       the Interactive Map layer, so an empty map reads the same wherever it appears. */
+    .ct-mapghost{ display: none; position: absolute; inset: 0; margin: 0;
+      align-items: center; justify-content: center; text-align: center;
+      font-family: var(--font-serif); font-size: var(--h3-size); font-weight: 500;
+      color: var(--pc-navy); padding: var(--space-6); }
+    .ct-mapwrap.is-empty .ct-mapghost{ display: flex; }
 
     .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
@@ -224,9 +239,10 @@
 
 
   <!-- ================= PAGE CONTENT =================
-       Contact. Top block is two columns - the team photograph over the regional map on
-       the left, the corporate office, the form and the social marks in the rail on the
-       right. Below it, full width, all 25 offices as cards four across. -->
+       Contact. Top block is two columns - the team photograph over the FarmWorth map on
+       the left, the corporate office and the form in the rail on the right. Below it,
+       full width, all 25 offices as cards four across with the social marks beside the
+       heading. -->
   <main class="ct-body" id="top" aria-label="Contact">
     <div class="ct-wrap">
 
@@ -236,7 +252,7 @@
 
       <div class="ct-top reveal">
 
-        <!-- ---------- left: the team, then the footprint ---------- -->
+        <!-- ---------- left: the team, then the map ---------- -->
         <div class="ct-main">
 
           <figure class="ct-photo">
@@ -244,11 +260,24 @@
                  alt="The Peoples Company team, gathered for a group photograph" />
           </figure>
 
+          <!-- THE FARMWORTH MAP GOES HERE.
+               This is the live FarmWorth interactive map with every office pinned - the
+               same module that sits behind the Interactive Map tab in the chrome, loaded
+               inline and filtered to offices rather than listings. See developer-map.md.
+
+               What is here now is a flat SCREENSHOT standing in for it. Replace the whole
+               .ct-mapwrap contents with the map's mount point; keep the wrapper, which
+               owns the frame and the aspect ratio. If the screenshot is missing, the
+               onerror below swaps in a labelled panel so the space still reads. -->
           <figure class="ct-map">
-            <img src="../assets/pc-regional-map.webp"
-                 alt="Map of the United States showing the Peoples Company regions and office locations"
-                 loading="lazy" />
-            <figcaption>Peoples Company regions and office locations.</figcaption>
+            <div class="ct-mapwrap">
+              <img src="../assets/farmworth-offices-map.png"
+                   alt="FarmWorth interactive map of the United States with a pin on each Peoples Company office"
+                   loading="lazy"
+                   onerror="this.style.display='none';this.parentNode.classList.add('is-empty');this.onerror=null;" />
+              <p class="ct-mapghost" aria-hidden="true">Interactive FarmWorth Map</p>
+            </div>
+            <figcaption>Every Peoples Company office, pinned on the FarmWorth map.</figcaption>
           </figure>
 
         </div>
