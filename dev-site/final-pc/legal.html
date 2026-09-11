@@ -19,10 +19,70 @@
       overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
       border: 0; }
 
-    /* The page is a shell: header and footer only, no content yet. The min-height keeps
-       the footer off the header until the real sections land, and comes out the moment
-       anything is added to <main>. */
-    .lg-body{ background: var(--pc-white); min-height: 60vh; }
+    .lg-body{ background: var(--pc-white); }
+    .lg-wrap{ max-width: var(--site); margin: 0 auto; padding: var(--space-8) var(--rail) var(--space-9); }
+
+    /* ---- page head ---- */
+    .lg-eyebrow{ font-family: var(--font-sans); font-size: var(--label); font-weight: 400;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-subtle);
+      margin: 0 0 var(--space-3); }
+    .lg-head h1{ margin: 0 0 var(--space-4); }
+    .lg-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
+      color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-7); }
+
+    /* ---- jump nav ----
+       Three pills, one per section. Deliberately NOT sticky: the Interactive Map tab
+       already occupies the sticky band at --navH, and a second sticky strip under it
+       would stack two floating bars over the copy. */
+    .lg-jump{ display: flex; flex-wrap: wrap; gap: var(--space-3);
+      padding: 0 0 var(--space-7); margin: 0 0 var(--space-7);
+      border-bottom: 1px solid var(--color-border); }
+    .lg-jump a{ display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; text-decoration: none;
+      color: var(--pc-navy); background: var(--pc-soft-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-pill);
+      padding: 10px 20px; transition: background .15s ease, border-color .15s ease; }
+    .lg-jump a:hover, .lg-jump a:focus-visible{ background: var(--pc-light-blue);
+      border-color: var(--pc-medium-blue); color: var(--pc-navy); }
+    .lg-jump svg{ width: 14px; height: 14px; flex: none; }
+
+    /* ---- sections ----
+       scroll-margin clears the sticky header (--navH) plus the map tab that hangs below
+       it, so an anchor landing never parks a heading underneath the chrome. */
+    .lg-sec{ scroll-margin-top: calc(var(--navH) + var(--space-6)); }
+    .lg-sec + .lg-sec{ margin-top: var(--space-8); padding-top: var(--space-8);
+      border-top: 1px solid var(--color-border); }
+    .lg-sec h2{ margin: 0 0 var(--space-5); }
+    .lg-sec h3{ margin: var(--space-6) 0 var(--space-3); font-size: var(--h4-size); }
+
+    /* Real body copy, so it carries a measure. */
+    .lg-prose{ max-width: 68ch; }
+    .lg-prose p{ font-family: var(--font-sans); font-size: var(--body);
+      line-height: 1.75; color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+    .lg-prose p:last-child{ margin-bottom: 0; }
+    .lg-prose ul{ margin: 0 0 var(--space-4); padding-left: var(--space-5);
+      display: grid; gap: var(--space-2); }
+    .lg-prose li{ font-family: var(--font-sans); font-size: var(--body);
+      line-height: 1.75; color: var(--color-text-muted); }
+    .lg-prose li::marker{ color: var(--pc-medium-blue); }
+    .lg-prose a{ color: var(--pc-navy); text-decoration: underline;
+      text-underline-offset: 3px; text-decoration-thickness: 1px; }
+    .lg-prose a:hover{ color: var(--color-accent); }
+
+    /* ---- back to top ---- */
+    .lg-top{ margin-top: var(--space-5); }
+    .lg-top a{ font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .lg-top a:hover{ color: var(--color-accent); text-decoration: underline;
+      text-underline-offset: 3px; }
+    .lg-top svg{ width: 14px; height: 14px; }
+
+    @media (max-width: 639px){
+      .lg-jump{ gap: var(--space-2); }
+      .lg-jump a{ padding: 9px 16px; }
+    }
   </style>
 </head>
 
@@ -92,9 +152,124 @@
   </div>
 
 
-  <!-- ================= PAGE CONTENT ================= -->
-  <main class="lg-body" aria-label="Legal">
+  <!-- ================= PAGE CONTENT =================
+       Three former standalone pages - Privacy Notice, Disclaimer, Equal Opportunity -
+       combined onto one page. The legal links in the footer point at the anchors below
+       (#privacy-notice, #disclaimer, #equal-opportunity) rather than at three URLs. -->
+  <main class="lg-body" id="top" aria-label="Legal">
+    <div class="lg-wrap">
+
+      <div class="lg-head reveal">
+        <p class="lg-eyebrow">Peoples Company</p>
+        <h1>Legal</h1>
+        <p class="lg-lede">Our privacy notice, disclaimer and equal opportunity statement, together
+          on one page.</p>
+      </div>
+
+      <nav class="lg-jump reveal" aria-label="On this page">
+        <a href="#privacy-notice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.2 8.3 8 9 4.8-.7 8-4.5 8-9V6l-8-3Z"/></svg>
+          Privacy Notice
+        </a>
+        <a href="#disclaimer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.5"/></svg>
+          Disclaimer
+        </a>
+        <a href="#equal-opportunity">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          Equal Opportunity
+        </a>
+      </nav>
+
+      <!-- ---------- 1 / Privacy Notice ---------- -->
+      <section class="lg-sec reveal" id="privacy-notice" aria-labelledby="privacy-notice-h">
+        <h2 id="privacy-notice-h">Privacy Notice</h2>
+        <div class="lg-prose">
+          <p>This privacy notice discloses the privacy practices for PeoplesCompany.com and our
+            mobile app. This privacy notice applies solely to information collected by this website
+            and our mobile app. It will notify you of the following:</p>
+          <ul>
+            <li>What personally identifiable information is collected from you through the website
+              and app, how it is used and with whom it may be shared.</li>
+            <li>What choices are available to you regarding the use of your data.</li>
+            <li>The security procedures in place to protect the misuse of your information.</li>
+            <li>How you can correct any inaccuracies in the information.</li>
+          </ul>
+
+          <h3>Information Collection, Use, and Sharing</h3>
+          <p>We are the sole owners of the information collected on this site. We only have access
+            to/collect information that you voluntarily give us via email or other direct contact
+            from you. We will not sell or rent this information to anyone.</p>
+          <p>We will use your information to respond to you, regarding the reason you contacted us.
+            We will not share your information with any third party outside of our organization,
+            other than as necessary to fulfill your request, e.g. to ship an order.</p>
+          <p>Unless you ask us not to, we may contact you via email in the future to tell you about
+            specials, new products or services, or changes to this privacy policy.</p>
+
+          <h3>Your Access to and Control Over Information</h3>
+          <p>You may opt out of any future contacts from us at any time. You can do the following at
+            any time by contacting us via the email address or phone number given on our website:</p>
+          <ul>
+            <li>See what data we have about you, if any.</li>
+            <li>Change/correct any data we have about you.</li>
+            <li>Have us delete any data we have about you.</li>
+            <li>Express any concern you have about our use of your data.</li>
+          </ul>
+
+          <h3>Security</h3>
+          <p>We take precautions to protect your information. When you submit sensitive information
+            via the website and mobile app, your information is protected both online and offline.</p>
+          <p>Wherever we collect sensitive information (such as credit card data), that information
+            is encrypted and transmitted to us in a secure way. You can verify this by looking for a
+            lock icon in the address bar and looking for &ldquo;https&rdquo; at the beginning of the
+            address of the Web page.</p>
+          <p>While we use encryption to protect sensitive information transmitted online, we also
+            protect your information offline. Only employees who need the information to perform a
+            specific job (for example, billing or customer service) are granted access to personally
+            identifiable information. The computers/servers in which we store personally identifiable
+            information are kept in a secure environment.</p>
+          <p>If you feel that we are not abiding by this privacy policy, you should contact us
+            immediately via telephone at <a href="tel:+18558005263">855.800.5263</a> or via
+            <a href="mailto:Info@PeoplesCompany.com">email</a>.</p>
+        </div>
+        <p class="lg-top"><a href="#top">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="6"/><polyline points="6 12 12 6 18 12"/></svg>
+          Back to top</a></p>
+      </section>
+
+      <!-- ---------- 2 / Disclaimer ---------- -->
+      <section class="lg-sec reveal" id="disclaimer" aria-labelledby="disclaimer-h">
+        <h2 id="disclaimer-h">Disclaimer</h2>
+        <div class="lg-prose">
+          <p>All information, regardless of source, is deemed reliable but not guaranteed and should
+            be independently verified. The information may not be used for any purpose other than to
+            identify and analyze properties and services.</p>
+          <p>The data contained herein is copyrighted by Peoples Company and is protected by all
+            applicable copyright laws. Any dissemination of this information is in violation of
+            copyright laws and is strictly prohibited.</p>
+        </div>
+        <p class="lg-top"><a href="#top">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="6"/><polyline points="6 12 12 6 18 12"/></svg>
+          Back to top</a></p>
+      </section>
+
+      <!-- ---------- 3 / Equal Opportunity ---------- -->
+      <section class="lg-sec reveal" id="equal-opportunity" aria-labelledby="equal-opportunity-h">
+        <h2 id="equal-opportunity-h">Equal Opportunity</h2>
+        <div class="lg-prose">
+          <p>Peoples Company is an equal-opportunity employer. We prohibit discrimination of any kind
+            based on race, color, sex, religion, sexual orientation, national origin, age, disability,
+            pregnancy, creed, marital status, gender identity, or any other characteristic protected
+            by applicable federal, state, or local laws.</p>
+        </div>
+        <p class="lg-top"><a href="#top">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="6"/><polyline points="6 12 12 6 18 12"/></svg>
+          Back to top</a></p>
+      </section>
+
+    </div>
   </main>
+
 
   <!-- ================= FOOTER ================= -->
   <footer class="pff">
@@ -194,9 +369,9 @@
         <span class="copy">© 2026 Peoples Company</span>
 
         <span class="legal-links">
-          <a href="./internal.html">Privacy Notice</a>
-          <a href="./internal.html">Disclaimer</a>
-          <a href="./internal.html">Equal Opportunity</a>
+          <a href="./legal.html#privacy-notice">Privacy Notice</a>
+          <a href="./legal.html#disclaimer">Disclaimer</a>
+          <a href="./legal.html#equal-opportunity">Equal Opportunity</a>
         </span>
 
         <span class="pff-social">
