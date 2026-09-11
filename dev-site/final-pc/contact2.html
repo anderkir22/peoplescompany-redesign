@@ -30,6 +30,10 @@
       overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
       border: 0; }
 
+    /* Page-local values. The two photo numbers are here rather than buried in the
+       carousel rules because they are the ones still being settled. */
+    .ct-scope, .ct-body{ --ct-photo-w: 707px; --ct-photo-ar: 7 / 4; }
+
     .ct-body{ background: var(--pc-white); }
     /* The TOP padding clears the Interactive Map tab, which nothing else reserves room
        for: .md-tabwrap is height:0, so the tab hangs OVER the content and the page has to
@@ -134,8 +138,14 @@
        whenever the card is too narrow to hold both, at any viewport. */
     .ct-corp{ display: flex; flex-wrap: wrap; gap: var(--space-7); align-items: center; }
     .ct-corp-text{ flex: 1 1 300px; min-width: 0; }
-    /* The photograph takes its share of any spare width but stops at 404px, so the
-       square cannot grow large enough to out-shout the address beside it.
+    /* THE FRAME IS TWO NUMBERS, ON PURPOSE. --ct-photo-w is the width it reaches when
+       there is room; --ct-photo-ar is its shape. The width is the old 404px square plus
+       75% (404 x 1.75 = 707), and the ratio is 7 / 4 = 1.75, which is what keeps the
+       HEIGHT at 404 and therefore the card height where it was. Settling on a final size
+       is an edit to these two values and nothing else.
+
+       The photograph takes its share of any spare width but stops at --ct-photo-w, so it
+       cannot grow large enough to out-shout the address beside it.
 
        THE 12px NEGATIVE MARGIN IS THE POINT. The card pads at --space-7 (48px); the
        square bleeds 12px into that on every side, which leaves 36px of ground around it
@@ -144,13 +154,19 @@
        square adds: 404 - 24 = the 380 the layout saw before. The left bleed closes the
        gap to the address to 36px too, so the ground reads even all the way round whether
        the two sit side by side or stacked. */
-    .ct-corp-photo{ flex: 1 1 300px; max-width: 404px; margin: -12px; }
+    .ct-corp-photo{ flex: 0 1 var(--ct-photo-w); max-width: var(--ct-photo-w);
+      margin: -12px; }
     /* ---- the office carousel ----
-       THREE PHOTOGRAPHS, CROSSFADED. The frame owns the square; the slides are stacked
+       THREE PHOTOGRAPHS, CROSSFADED. The frame owns the shape; the slides are stacked
        absolutely inside it, so the card height never changes as they cycle.
-       All three sources are already square (500x500), so object-fit crops nothing today -
-       it is the guard that keeps an off-ratio replacement from stretching. */
-    .ct-shots{ position: relative; aspect-ratio: 1 / 1; width: 100%;
+
+       THE FRAME IS LANDSCAPE AND THE SOURCES ARE SQUARE, so object-fit: cover is doing
+       real work now: each 500x500 photograph is scaled until it covers a 7:4 box and the
+       top and bottom are cropped away - about 43% of the image height is outside the
+       frame. That is the zoom-to-fill this variant asked for, and it is a stop-gap: the
+       photographs want re-cropping to the final ratio once it is settled. See the note in
+       the markup for the sharpness cost. */
+    .ct-shots{ position: relative; aspect-ratio: var(--ct-photo-ar); width: 100%;
       border-radius: var(--radius-lg); overflow: hidden; background: var(--pc-navy); }
     .ct-shot{ position: absolute; inset: 0; width: 100%; height: 100%;
       object-fit: cover; object-position: center;
@@ -433,9 +449,16 @@
                    case-only difference in a src serves fine from Windows and 404s on the
                    case-sensitive host. Keep any replacement lowercase.
 
-                   All three are 500x500, about 70KB each. The frame renders at 380px, so
-                   they are sharp on a standard display and slightly soft on a 2x screen,
-                   which wants roughly 760px. Not worth a re-export unless it shows.
+                   All three are 500x500, about 70KB each - SQUARE SOURCES IN A LANDSCAPE
+                   FRAME. object-fit: cover scales each one to cover a 707 x 404 box and
+                   crops the top and bottom, which is the zoom-to-fill asked for while the
+                   size is being settled.
+
+                   ⚠ THEY ARE NOW BEING UPSCALED. Covering a 707px-wide frame from a 500px
+                   source means about 1.41x on a standard display and 2.8x on a 2x screen,
+                   so expect visible softness - worst on office3, the smallest file. The
+                   fix is the re-crop that is already planned: export at the final ratio,
+                   at least 707px wide for 1x and ideally 1414px for 2x.
 
                    No loading="lazy" on the second and third: a slide that has not
                    arrived by the time its crossfade starts shows navy, and at this file
