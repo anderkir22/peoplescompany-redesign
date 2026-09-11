@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<!-- =====================================================================
+     CONTACT, VARIANT B. An A/B pair with contact.html: same content, and
+     as of this copy the same layout, so any difference from here on is the
+     thing being tested. contact.html is A and stays the reference.
+
+     The two are SEPARATE FILES ON PURPOSE - no shared page-local CSS and
+     no shared script. Each carries its own ct- block and its own carousel
+     code, so a change to one cannot leak into the other mid-test. That
+     also means a fix belonging in BOTH has to be made twice; when the test
+     is settled, the losing file goes and the winner keeps the name.
+     ===================================================================== -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Final (PC) — Contact B</title>
+  <meta name="description" content="Contact page for the final PC direction, variant B: enquiry form, the corporate office and every Peoples Company office by region." />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Single source of truth for the final PC direction -->
+  <link href="pc.css?v=20260827a" rel="stylesheet" />
+
+  <style>
+    .sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+      border: 0; }
+
+    .ct-body{ background: var(--pc-white); }
+    /* The TOP padding clears the Interactive Map tab, which nothing else reserves room
+       for: .md-tabwrap is height:0, so the tab hangs OVER the content and the page has to
+       hold it off itself. It is measured off the tab's own peak height - the idle
+       animation breathes it from --md-tab-h to --md-tab-h-peak - so the clearance holds
+       when the tab steps down at the narrow breakpoints instead of being a number that
+       drifts. --space-5 of real space below the tab at full stretch. */
+    .ct-wrap{ max-width: var(--site); margin: 0 auto;
+      padding: calc(var(--md-tab-h-peak) + var(--space-5)) var(--rail) var(--space-9); }
+
+    /* ---- page head ---- */
+    /* ---- page head ----
+       The <h1> is VISUALLY HIDDEN, not deleted, exactly as on legal.html: the word
+       "Contact" above a page that says so in its heading, its form and its office cards
+       earns nothing on screen, but the page still needs one h1 for the document outline,
+       for search and for anyone navigating by heading. Hence .sr-only rather than
+       display:none, which would take it out of the accessibility tree too.
+       The .ct-head wrapper collapses to zero height and stays as the hook for a visible
+       eyebrow or intro later - the h1's own margin no longer occupies space, since
+       .sr-only takes it out of the flow. */
+    .ct-head h1{ margin: 0 0 var(--space-7); }
+
+    /* ---- the two columns ----
+       Left is the corporate office card. Right is the contact rail: the form.
+       Below 1280 everything is one column in source order. */
+    .ct-top{ display: grid; gap: var(--space-7); }
+    @media (min-width: 1280px){
+      .ct-top{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8);
+        align-items: start; }
+    }
+    .ct-main{ min-width: 0; }
+
+    .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
+      color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
+
+    /* ---- the form ----
+       Mock-up scaffolding. Nothing is wired: the submit handler returns false. The real
+       page runs an embedded third-party form, so treat this as the field list and the
+       visual treatment, not as markup to ship. */
+    .ct-form{ display: grid; gap: var(--space-5); }
+    /* One field per row at every width - that is what the 380px rail can hold, and below
+       1280 the form runs full width under the map, where a two-up name row would be the
+       only wide thing on the page. */
+    .ct-row{ display: grid; gap: var(--space-5); }
+    .ct-field{ display: grid; gap: var(--space-2); }
+    .ct-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
+    .ct-field .ct-opt{ font-weight: 400; letter-spacing: 0; text-transform: none;
+      color: var(--color-text-muted); opacity: .7; }
+    .ct-field input, .ct-field select, .ct-field textarea{
+      font-family: var(--font-sans); font-size: var(--body); line-height: 1.5;
+      color: var(--color-text); background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+      padding: 12px 14px; width: 100%; }
+    .ct-field textarea{ min-height: 160px; resize: vertical; }
+    .ct-field input:focus, .ct-field select:focus, .ct-field textarea:focus{
+      outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
+    .ct-form .btn{ justify-self: start; }
+
+    /* ---- right rail ----
+       Below 1280 the rail stops being a rail and stacks under the office card, so it
+       gets a top rule there to separate the two. */
+    .ct-rail{ display: grid; gap: var(--space-6); align-content: start; }
+    @media (max-width: 1279px){
+      .ct-rail{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
+    }
+    .ct-card{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg); padding: var(--space-6); }
+    .ct-card h2{ margin: 0 0 var(--space-4); font-size: var(--h3-size); }
+    .ct-card .ct-lede{ font-size: var(--body); max-width: none; margin-bottom: var(--space-5); }
+
+    /* ---- corporate office, left column ----
+       PC Navy ground with white type - the build's on-dark set, so this card reads the
+       same way as every other dark panel on the site. The card sits at the top of its
+       column - it does not stretch to the form's height - and the address is capped in
+       ch so the line does not run the full column. */
+    .ct-card--navy{ background: var(--pc-navy); border-color: var(--pc-navy);
+      padding: var(--space-7); }
+    .ct-card--navy h2{ color: var(--text-on-dark); }
+
+    /* ---- the card's two halves ----
+       Address left, office photograph right. flex-wrap, NOT a media query: the card's
+       width does not track the viewport (it is 864px at 1024 and 676px at 1280, because
+       that is where the 380px rail appears), so a width query would hide the photo at the
+       width that has the most room for it. Basis values let the row break on its own
+       whenever the card is too narrow to hold both, at any viewport. */
+    .ct-corp{ display: flex; flex-wrap: wrap; gap: var(--space-7); align-items: center; }
+    .ct-corp-text{ flex: 1 1 300px; min-width: 0; }
+    /* The photograph takes its share of any spare width but stops at 404px, so the
+       square cannot grow large enough to out-shout the address beside it.
+
+       THE 12px NEGATIVE MARGIN IS THE POINT. The card pads at --space-7 (48px); the
+       square bleeds 12px into that on every side, which leaves 36px of ground around it
+       - a quarter less - and hands those 24px to the photograph instead. The card height
+       does not move, because the negative margins take back exactly what the larger
+       square adds: 404 - 24 = the 380 the layout saw before. The left bleed closes the
+       gap to the address to 36px too, so the ground reads even all the way round whether
+       the two sit side by side or stacked. */
+    .ct-corp-photo{ flex: 1 1 300px; max-width: 404px; margin: -12px; }
+    /* ---- the office carousel ----
+       THREE PHOTOGRAPHS, CROSSFADED. The frame owns the square; the slides are stacked
+       absolutely inside it, so the card height never changes as they cycle.
+       All three sources are already square (500x500), so object-fit crops nothing today -
+       it is the guard that keeps an off-ratio replacement from stretching. */
+    .ct-shots{ position: relative; aspect-ratio: 1 / 1; width: 100%;
+      border-radius: var(--radius-lg); overflow: hidden; background: var(--pc-navy); }
+    .ct-shot{ position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      opacity: 0; transition: opacity .6s ease; }
+    .ct-shot.is-on{ opacity: 1; }
+    /* With reduced motion the slide swaps instantly. It still swaps: the dots have to do
+       something when they are pressed. */
+    @media (prefers-reduced-motion: reduce){
+      .ct-shot{ transition: none; }
+    }
+
+    /* ---- carousel controls ----
+       On the photograph, in a bar along the bottom, over a soft scrim so they hold up
+       against a bright sky or a pale brick wall. */
+    .ct-shotbar{ position: absolute; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-3); padding: 10px 12px;
+      background: linear-gradient(to top, rgba(7,22,44,.66), rgba(7,22,44,0)); }
+    .ct-dots{ display: flex; gap: 8px; }
+    /* Real buttons, not decorative spans: each jumps to its own photograph. The 28px box
+       keeps the target at the WCAG 2.5.8 floor while the visible dot stays 10px. */
+    .ct-dot{ width: 28px; height: 28px; padding: 0; border: 0; background: none;
+      cursor: pointer; display: grid; place-items: center; }
+    .ct-dot::before{ content: ""; width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,.45); box-shadow: 0 0 0 1px rgba(7,22,44,.35);
+      transition: background .15s ease, transform .15s ease; }
+    .ct-dot:hover::before{ background: rgba(255,255,255,.8); }
+    /* The current dot fills solid AND grows - two signals, never colour alone. */
+    .ct-dot[aria-current="true"]::before{ background: var(--pc-white);
+      transform: scale(1.3); }
+    .ct-dot:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 0;
+      border-radius: 50%; }
+    @media (prefers-reduced-motion: reduce){
+      .ct-dot::before{ transition: none; }
+    }
+
+    /* Pause and play. WCAG 2.2.2: the cycle starts on its own and runs longer than five
+       seconds, so a control that stops it is required, not a nicety. */
+    .ct-shotplay{ display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; padding: 0; cursor: pointer;
+      color: var(--pc-white); background: rgba(7,22,44,.45);
+      border: 1px solid rgba(255,255,255,.5); border-radius: 50%; }
+    .ct-shotplay:hover{ background: rgba(7,22,44,.75); }
+    .ct-shotplay:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px; }
+    .ct-shotplay svg{ width: 12px; height: 12px; display: block; }
+    /* One button, two glyphs: whichever state it is in, the other one is hidden. */
+    .ct-shotplay .ct-ico-play{ display: none; }
+    .ct-shotplay[data-playing="false"] .ct-ico-play{ display: block; }
+    .ct-shotplay[data-playing="false"] .ct-ico-pause{ display: none; }
+
+    .ct-office-line{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.8;
+      color: var(--color-text-muted); margin: 0; max-width: 34ch; }
+    .ct-card--navy .ct-office-line{ color: var(--text-on-dark); }
+    .ct-office-line a{ color: var(--color-text); text-decoration: none; }
+    .ct-card--navy .ct-office-line a{ color: var(--text-on-dark); }
+    .ct-office-line a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
+      text-underline-offset: 3px; }
+    /* Hover on the dark ground takes the bright accent, not the mid blue, which would
+       sink into the navy. */
+    .ct-card--navy .ct-office-line a:hover{ color: var(--accent-on-dark); }
+    .ct-office-line a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ct-card--navy .ct-office-line a:focus-visible{ outline-color: var(--pc-blue); }
+    .ct-office-line b{ font-weight: 600; }
+
+    /* ---- follow us ---- */
+    .ct-social{ display: flex; flex-wrap: wrap; gap: var(--space-3); }
+    .ct-social a{ display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%; color: var(--pc-navy);
+      background: var(--pc-white); border: 1px solid var(--color-border);
+      transition: background .15s ease, border-color .15s ease; }
+    .ct-social a:hover{ background: var(--pc-light-blue); border-color: var(--pc-medium-blue); }
+    .ct-social svg{ width: 18px; height: 18px; }
+
+    /* ---- offices ----
+       The offices sit inside the left column, under the corporate office card, so they
+       take space above them rather than a rule - a hairline directly under a solid navy
+       panel only reads as a seam.
+       scroll-margin clears the sticky header plus the map tab below it, so a link to
+       #offices does not park the first row of cards under the chrome. */
+    .ct-offices{ margin-top: var(--space-7); min-width: 0;
+      scroll-margin-top: calc(var(--navH) + var(--space-6)); }
+
+    /* THREE ACROSS in the left column, stepping down on --site steps rather than by
+       card width - so the column count changes where the rest of the site changes.
+       1024+: 3 up (roughly 310px cards at 1536) | 640: 2 | below: 1. */
+    .ct-officegrid{ display: grid; gap: var(--space-5); grid-template-columns: 1fr;
+      list-style: none; margin: 0; padding: 0; }
+    @media (min-width: 640px){  .ct-officegrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 1024px){ .ct-officegrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    /* Hover is the build's shared card behaviour - lift three pixels and take a soft
+       shadow - the same as .tm-card on team.html and .io-card in pc.css, which the blog
+       and the insights grids use. Do not give this page its own. */
+    .ct-officecard{ position: relative; border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5); background: var(--pc-white);
+      display: grid; align-content: start; gap: var(--space-2);
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .ct-officecard:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10);
+      transform: translateY(-3px); }
+    /* display:grid above would beat the browser's own [hidden] rule, so hidden cards
+       need saying explicitly. */
+    .ct-officecard[hidden]{ display: none; }
+    @media (prefers-reduced-motion: reduce){
+      .ct-officecard:hover{ transform: none; }
+    }
+
+    /* WHOLE-CARD LINK. The <a> is on the heading only - one link per card, so the
+       office name is what a screen reader announces - and its ::after is stretched over
+       the card to make the whole box clickable. It must NOT be an <a> wrapped round the
+       card: the phone and email inside are links too, and links cannot nest. Those two
+       are lifted above the stretched layer by .ct-addr a { position: relative }. */
+    .ct-cardlink{ color: var(--color-text); text-decoration: none; }
+    .ct-cardlink::after{ content: ""; position: absolute; inset: 0;
+      border-radius: var(--radius-lg); }
+    .ct-officecard:hover .ct-cardlink{ color: var(--pc-medium-blue); }
+    .ct-cardlink:focus-visible{ outline: none; }
+    .ct-cardlink:focus-visible::after{ outline: 2px solid var(--pc-medium-blue);
+      outline-offset: 2px; }
+    .ct-officecard h3{ margin: 0; font-size: var(--h4-size); }
+    /* Region chip: a label, not a control - nothing happens when it is clicked. */
+    .ct-region{ justify-self: start; font-family: var(--font-sans); font-size: 10px;
+      font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--pc-navy); background: var(--pc-light-blue);
+      border-radius: var(--radius-pill); padding: 4px 12px; }
+    /* The street is ONE line: a suite or a box number is joined to it with a comma
+       rather than taking a row of its own, so every card runs street / city / phone and
+       the cards in a row keep the same height. Where the joined line is too long for the
+       card it wraps, which is a soft second line, not a hard one. */
+    .ct-addr{ font-family: var(--font-sans); font-size: var(--body-sm); line-height: 1.6;
+      color: var(--color-text-muted); font-style: normal; margin: var(--space-2) 0 0; }
+    /* position + z-index keep these above the stretched card link, so a click on the
+       phone number dials instead of opening the region page.
+       No underline at rest, underline on hover - the same contract as .tm-contact a on
+       team.html. The email line is gone from these cards: the phone number is the one
+       thing a branch office is contacted on, and Info@ was repeating on 19 of the 25. */
+    .ct-addr a{ position: relative; z-index: 1;
+      color: var(--color-text); text-decoration: none; word-break: break-word; }
+    .ct-addr a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
+      text-underline-offset: 3px; }
+    .ct-addr a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ct-addr .ct-tel{ font-weight: 600; }
+
+
+    @media (max-width: 639px){
+      .ct-card{ padding: var(--space-5); }
+      .ct-card--navy{ padding: var(--space-6); }
+    }
+  </style>
+</head>
+
+
+
+<body>
+  <!-- ================= HEADER ================= -->
+  <header class="pcf">
+    <div class="pcf-inner">
+      <div class="pcf-brandrow">
+        <!-- Hamburger: left edge, shown only <=1023 where the inline menus don't fit.
+             Opens #navDrawer, which is built from the same NAV array as the mega panels. -->
+        <button class="pcf-burger" id="navBurger" type="button"
+                aria-label="Menu" aria-expanded="false" aria-controls="navDrawer">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="pcf-brandcell">
+          <a href="./index.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+          </a>
+        </div>
+        <div class="pcf-stack">
+          <div class="pcf-util">
+            <span class="sp"></span>
+            <a href="./internal.html">Create An Account</a>
+            <span class="sep">|</span>
+            <a href="./internal.html">Login</a>
+          </div>
+          <nav class="pcf-row" aria-label="Primary">
+            <ul class="pcf-menus" id="pcfMenus"></ul>
+            <div class="pcf-searchwrap">
+              <button class="pcf-search" id="searchToggle" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+              </button>
+              <div class="pcf-searchpanel" id="searchPanel">
+                <form class="pcf-searchform" role="search" action="#" onsubmit="return false;">
+                  <input type="search" id="searchInput" placeholder="Search Peoples Company…" aria-label="Search the site" />
+                  <button type="submit" class="pcf-searchgo" aria-label="Submit search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hamburger drawer (<=1023). Sits under the sticky header; content injected from NAV. -->
+  <div class="pcf-drawer-backdrop" hidden></div>
+  <div class="pcf-drawer" id="navDrawer" role="region" aria-label="Menu" hidden>
+    <div class="pcf-drawer-in"></div>
+  </div>
+
+  <!-- ============ INTERACTIVE MAP pull-down tab → map layer ============ -->
+  <div class="md-tabwrap">
+    <button class="md-tab" type="button" aria-expanded="false" aria-controls="md-layer">Interactive Map <span class="md-chev" aria-hidden="true">▾</span></button>
+  </div>
+  <div class="md-backdrop" hidden></div>
+  <div class="md-layer" id="md-layer" role="region" aria-label="Interactive map" aria-hidden="true" hidden>
+    <div class="md-layer-bar"><button class="md-close" type="button" aria-label="Close">✕</button></div>
+    <div class="md-layer-body">
+      <img class="md-mapimg" src="../assets/find-properties-map.png" alt="Interactive FarmWorth map (placeholder)"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<p class=\'md-placeholder\'>Interactive FarmWorth Map</p>');this.onerror=null;" />
+    </div>
+  </div>
+
+
+  <!-- ================= PAGE CONTENT =================
+       Contact. Two columns. Left: the corporate office, then all 25 offices as cards
+       three across. Right: the form, with Follow Us under it. -->
+  <main class="ct-body" id="top" aria-label="Contact">
+    <div class="ct-wrap">
+
+      <div class="ct-head reveal">
+        <h1 class="sr-only">Contact</h1>
+      </div>
+
+      <div class="ct-top reveal">
+
+        <!-- ---------- left: the corporate office ---------- -->
+        <div class="ct-main">
+
+          <div class="ct-card ct-card--navy">
+            <div class="ct-corp">
+
+              <div class="ct-corp-text">
+                <h2>Corporate Office</h2>
+                <p class="ct-office-line">
+                  1108 S. 44th Street, Suite 102<br />
+                  Cumming, IA 50061<br />
+                  <b><a href="tel:+18558005263">855.800.5263</a></b><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </p>
+              </div>
+
+              <!-- OFFICE CAROUSEL. Three photographs of the corporate office in a
+                   square frame, crossfading every five seconds, starting on office1.
+
+                   SLIDE ORDER IS SOURCE ORDER - office1, office2, office3 - and the dots
+                   are generated from the slides, so adding or removing a photograph here
+                   is the whole edit. Nothing else counts them.
+
+                   ALL THREE FILES ARE LOWERCASE .jpg ON PURPOSE. The exports arrived as
+                   a mix of .jpg and .JPG and were renamed to one convention, because a
+                   case-only difference in a src serves fine from Windows and 404s on the
+                   case-sensitive host. Keep any replacement lowercase.
+
+                   All three are 500x500, about 70KB each. The frame renders at 380px, so
+                   they are sharp on a standard display and slightly soft on a 2x screen,
+                   which wants roughly 760px. Not worth a re-export unless it shows.
+
+                   No loading="lazy" on the second and third: a slide that has not
+                   arrived by the time its crossfade starts shows navy, and at this file
+                   size there is nothing to defer.
+
+                   Each alt text describes ITS OWN photograph. Slides two and three are
+                   placeholders pending a description of what they actually show. -->
+              <figure class="ct-corp-photo">
+                <div class="ct-shots" id="ctShots">
+                  <img class="ct-shot is-on" src="../assets/office1.jpg"
+                       alt="The Peoples Company corporate office: a pale brick building with
+                            the company name painted across its upper wall" />
+                  <img class="ct-shot" src="../assets/office2.jpg"
+                       alt="The Peoples Company corporate office, second view" />
+                  <img class="ct-shot" src="../assets/office3.jpg"
+                       alt="The Peoples Company corporate office, third view" />
+
+                  <div class="ct-shotbar">
+                    <div class="ct-dots" id="ctDots" role="group" aria-label="Choose a photograph"></div>
+                    <button class="ct-shotplay" id="ctShotPlay" type="button"
+                            data-playing="true" aria-label="Pause the photographs">
+                      <svg class="ct-ico-pause" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="3" height="10" rx="1"/><rect x="7" y="1" width="3" height="10" rx="1"/></svg>
+                      <svg class="ct-ico-play" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.5 10.5 6 3 10.5V1.5Z"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </figure>
+
+            </div>
+          </div>
+
+          <!-- Each card links to its region page: /delta /midwest /lake-states
+               /pacific-west /pacific-northwest. Two more region pages exist - /southeast
+               and /southern-plains - with no office on this list.
+
+               LEXINGTON KY IS THE EXCEPTION and is deliberately left unlinked: the live
+               site tags it APPALACHIAN, and there is no Appalachian region page. Either
+               it gets one or the office gets re-tagged to a region that has one. -->
+          <section class="ct-offices" id="offices" aria-labelledby="offices-h">
+
+            <!-- The visible heading and its teaser are gone: the cards under the
+                 corporate office read as the rest of the same column. The h2 stays for
+                 screen readers and for the #offices anchor, so the section still
+                 announces itself. -->
+            <h2 id="offices-h" class="sr-only">Peoples Company Offices</h2>
+
+            <ul class="ct-officegrid">
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/delta">Arlington, TN<span class="sr-only"> — Delta region</span></a></h3>
+                <span class="ct-region">Delta</span>
+                <address class="ct-addr">
+                  11990 Mott Street<br />
+                  Arlington, TN 38002<br />
+                  <a class="ct-tel" href="tel:+19014830373">901.483.0373</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Bloomington, IL<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  1907 Jumer Drive, Suite D<br />
+                  Bloomington, IL 61704<br />
+                  <a class="ct-tel" href="tel:+18006076888">800.607.6888</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Cascade, IA<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  300 1st Avenue W<br />
+                  Cascade, IA 52033<br />
+                  <a class="ct-tel" href="tel:+15635438338">563.543.8338</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Champaign, IL<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  1605 South State Street, Suite 110<br />
+                  Champaign, IL 61820<br />
+                  <a class="ct-tel" href="tel:+18006076888">800.607.6888</a>
+                </address>
+              </li>
+              <!-- CUMMING IS HIDDEN, NOT DELETED. It is the corporate office - the same
+                   address as the navy card at the top of this column - so showing it here
+                   lists the head office twice. It is hidden from everyone including screen
+                   readers rather than sr-only: a duplicate announced twice is noise, not
+                   help. The markup stays so the data is in front of whoever wires the CMS,
+                   and the one thing that differs is kept: the local 515 number, against the
+                   855 on the card above.
+                   In the CMS this is one office record with a flag, not a deletion. -->
+              <li class="ct-officecard" hidden>
+                <h3><a class="ct-cardlink" href="/midwest">Cumming, IA<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  1108 S. 44th Street, Suite 102<br />
+                  Cumming, IA 50061<br />
+                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">DeWitt, IA<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  700 6th Avenue<br />
+                  DeWitt, IA 52742<br />
+                  <a class="ct-tel" href="tel:+15636598185">563.659.8185</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Fremont, NE<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  1735 E. Military Avenue, P.O. Box 672<br />
+                  Fremont, NE 68026<br />
+                  <a class="ct-tel" href="tel:+14027215995">402.721.5995</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/pacific-west">Fresno, CA<span class="sr-only"> — Pacific West region</span></a></h3>
+                <span class="ct-region">Pacific West</span>
+                <address class="ct-addr">
+                  7675 N. Ingram Avenue, Suite 101<br />
+                  Fresno, CA 93711<br />
+                  <a class="ct-tel" href="tel:+15599449524">559.944.9524</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Independence, IA<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  2300 Swan Lake Boulevard, Suite 300<br />
+                  Independence, IA 50644<br />
+                  <a class="ct-tel" href="tel:+13193618089">319.361.8089</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Indianola, IA<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  113 W. Salem Avenue<br />
+                  Indianola, IA 50125<br />
+                  <a class="ct-tel" href="tel:+15159610247">515.961.0247</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Kasson, MN<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  20 4th Street SE<br />
+                  Kasson, MN 55944<br />
+                  <a class="ct-tel" href="tel:+15076347033">507.634.7033</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Kearney, NE<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  4111 4th Avenue, Suite 22<br />
+                  Kearney, NE 68845<br />
+                  <a class="ct-tel" href="tel:+13082377662">308.237.7662</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Lexington, KY</h3>
+                <span class="ct-region">Appalachian</span>
+                <address class="ct-addr">
+                  348 E. Main Street, Office #24<br />
+                  Lexington, KY 40507<br />
+                  <a class="ct-tel" href="tel:+18558005263">855.800.LAND</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Lincoln, NE<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  3501 Plantation Drive, Suite 100<br />
+                  Lincoln, NE 68516<br />
+                  <a class="ct-tel" href="tel:+14024344498">402.434.4498</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/lake-states">Marlette, MI<span class="sr-only"> — Lake States region</span></a></h3>
+                <span class="ct-region">Lake States</span>
+                <address class="ct-addr">
+                  3509 S. Van Dyke Road<br />
+                  Marlette, MI 48453<br />
+                  <a class="ct-tel" href="tel:+19896350086">989.635.0086</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/lake-states">Mineral Point, WI<span class="sr-only"> — Lake States region</span></a></h3>
+                <span class="ct-region">Lake States</span>
+                <address class="ct-addr">
+                  207 High Street<br />
+                  Mineral Point, WI 53565<br />
+                  <a class="ct-tel" href="tel:+16084821229">608.482.1229</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/delta">Monroe, LA<span class="sr-only"> — Delta region</span></a></h3>
+                <span class="ct-region">Delta</span>
+                <address class="ct-addr">
+                  1500 N. 19th Street<br />
+                  Monroe, LA 71201<br />
+                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Norfolk, NE<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  800 W. Benjamin Avenue, Suite B<br />
+                  Norfolk, NE 68701<br />
+                  <a class="ct-tel" href="tel:+14023710065">402.371.0065</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Omaha, NE<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  4601 Catalyst Court, Suite 1070<br />
+                  Omaha, NE 68106<br />
+                  <a class="ct-tel" href="tel:+14023340256">402.334.0256</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Oswego, IL<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  2681 U.S. Highway 34<br />
+                  Oswego, IL 60543<br />
+                  <a class="ct-tel" href="tel:+13319993490">331.999.3490</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Plainfield, IA<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  714 Main Street<br />
+                  Plainfield, IA 50666<br />
+                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/pacific-west">San Diego, CA<span class="sr-only"> — Pacific West region</span></a></h3>
+                <span class="ct-region">Pacific West</span>
+                <address class="ct-addr">
+                  2150 W. Washington Street, Suite 501<br />
+                  San Diego, CA 92110<br />
+                  <a class="ct-tel" href="tel:+16197573435">619.757.3435</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/pacific-northwest">Walla Walla, WA<span class="sr-only"> — Pacific Northwest region</span></a></h3>
+                <span class="ct-region">Pacific Northwest</span>
+                <address class="ct-addr">
+                  109 W. Poplar Street<br />
+                  Walla Walla, WA 99362<br />
+                  <a class="ct-tel" href="tel:+15095400228">509.540.0228</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Wapakoneta, OH<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  22253 Blank Pike<br />
+                  Wapakoneta, OH 43895<br />
+                  <a class="ct-tel" href="tel:+14023340256">402.334.0256</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3><a class="ct-cardlink" href="/midwest">Wayne, NE<span class="sr-only"> — Midwest region</span></a></h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  206 Main Street, P.O. Box 16<br />
+                  Wayne, NE 68787<br />
+                  <a class="ct-tel" href="tel:+14028333132">402.833.3132</a>
+                </address>
+              </li>
+            </ul>
+
+          </section>
+
+        </div>
+
+        <!-- ---------- right: the form ---------- -->
+        <aside class="ct-rail" aria-label="Contact us">
+
+          <div class="ct-card">
+            <h2 id="help-h">How Can We Help You?</h2>
+            <p class="ct-lede">Complete the form below and we will get back to you as soon as
+              possible.</p>
+            <form class="ct-form" action="#" onsubmit="return false;">
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ct-first">First Name</label>
+                  <input type="text" id="ct-first" name="first" autocomplete="given-name" required />
+                </div>
+                <div class="ct-field">
+                  <label for="ct-last">Last Name</label>
+                  <input type="text" id="ct-last" name="last" autocomplete="family-name" required />
+                </div>
+              </div>
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ct-email">Email</label>
+                  <input type="email" id="ct-email" name="email" autocomplete="email" required />
+                </div>
+                <div class="ct-field">
+                  <label for="ct-phone">Phone <span class="ct-opt">(optional)</span></label>
+                  <input type="tel" id="ct-phone" name="phone" autocomplete="tel" />
+                </div>
+              </div>
+              <div class="ct-field">
+                <label for="ct-interest">How can we help?</label>
+                <select id="ct-interest" name="interest">
+                  <option value="">Select a service&hellip;</option>
+                  <option>Land Brokerage &amp; Auctions</option>
+                  <option>Land Management</option>
+                  <option>Agricultural Appraisal</option>
+                  <option>Capital Markets</option>
+                  <option>Energy Management</option>
+                  <option>Crop Insurance</option>
+                  <option>Corporate Services</option>
+                  <option>Careers</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+              <div class="ct-field">
+                <label for="ct-message">Message</label>
+                <textarea id="ct-message" name="message" required></textarea>
+              </div>
+              <button class="btn btn-subscribe" type="submit">Send Message</button>
+            </form>
+
+          </div>
+
+          <div class="ct-card">
+            <h2>Follow Us</h2>
+            <div class="ct-social">
+              <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+              <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+              <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+              <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+              <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+            </div>
+          </div>
+
+        </aside>
+      </div>
+
+
+    </div>
+  </main>
+
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="pff">
+    <div class="pff-main">
+      <!-- connect band on top: logo · newsletter line · subscribe pill -->
+      <div class="pff-inner pff-connect">
+        <a class="pff-connect-logo" href="./internal.html" aria-label="Peoples Company home">
+          <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+        </a>
+        <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
+             Keeps one line where it fits (>=1536) instead of a hard <br> everywhere. -->
+        <p class="pff-connect-line">Stay Connected and Subscribe to&nbsp;Our&nbsp;Newsletter.</p>
+        <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
+          <input type="email" placeholder="Email Address" aria-label="Email address" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+
+      <div class="pff-inner pff-grid">
+        <div class="pff-brand pff-col">
+          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
+               design puts it between the rule and "Corporate Office". Exactly one footer
+               lockup is visible at any width. -->
+          <a class="pff-brand-logo" href="./internal.html" aria-label="Peoples Company home">
+            <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+          </a>
+          <h3>Corporate Office</h3>
+          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
+               row separated by "|" (CSS can't attach a separator to a bare text node). The
+               <br>s are kept for every other width, where the block still stacks. -->
+          <p class="pff-contact">
+            <span>1108 S. 44th Street, Suite 102</span><br />
+            <span>Cumming, IA 50061</span><br />
+            <span><b><a href="tel:+18558005263">855.800.LAND</a></b></span><br />
+            <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
+          </p>
+          <div class="pff-cta">
+            <a class="btn btn-subscribe" href="./internal.html">Find an Office</a>
+          </div>
+        </div>
+
+        <nav class="pff-col" aria-label="Real Estate">
+          <h3>Real Estate</h3>
+          <ul>
+            <li><a href="./internal.html">Traditional Search</a></li>
+            <li><a href="./internal.html">AI Search</a></li>
+            <li><a href="./internal.html">Interactive Map</a></li>
+            <li><a href="./internal.html">Auctions</a></li>
+            <li><a href="./internal.html">Prior Transactions</a></li>
+            <li><a href="./internal.html">Find An Agent</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="The Company">
+          <h3>The Company</h3>
+          <ul>
+            <li><a href="./internal.html">Overview</a></li>
+            <li><a href="./internal.html">Regions</a></li>
+            <li><a href="./internal.html">Industry Collaboration</a></li>
+            <li><a href="./internal.html">Our Team</a></li>
+            <li><a href="./internal.html">Offices</a></li>
+            <li><a href="./internal.html">Culture</a></li>
+            <li><a href="./internal.html">Careers</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="What We Do">
+          <h3>What We Do</h3>
+          <ul>
+            <li><a href="./internal.html">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="./internal.html">Agricultural Appraisal</a></li>
+            <li><a href="./internal.html">Land Management</a></li>
+            <li><a href="./internal.html">Energy Management</a></li>
+            <li><a href="./internal.html">Crop Insurance</a></li>
+            <li><a href="./internal.html">Capital Markets</a></li>
+            <li><a href="./internal.html">Corporate Services</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="Insights &amp; News">
+          <h3>Insights &amp; News</h3>
+          <ul>
+            <li><a href="./internal.html">Industry Research</a></li>
+            <li><a href="./internal.html">National Land Values</a></li>
+            <li><a href="./internal.html">Case Studies</a></li>
+            <li><a href="./internal.html">Newsletters</a></li>
+            <li><a href="./internal.html">Blog</a></li>
+            <li><a href="./internal.html">In the News</a></li>
+            <li><a href="./internal.html">Industry Recognition</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="pff-bottom">
+      <div class="pff-bottom-inner">
+        <span class="copy">© 2026 Peoples Company</span>
+
+        <span class="legal-links">
+          <a href="./legal.html#privacy-notice">Privacy Notice</a>
+          <a href="./legal.html#disclaimer">Disclaimer</a>
+          <a href="./legal.html#equal-opportunity">Equal Opportunity</a>
+        </span>
+
+        <span class="pff-social">
+          <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </span>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
+       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
+       The open card carries the same alert icon as the handle. -->
+  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
+    <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <div class="pc-toast-body">
+      <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
+        <a href="./internal.html">136.57 Acres M/L in Wayne County IA</a><br>
+        <a href="./internal.html"><em>WATCH</em></a><br>
+        <a href="./internal.html">804 Acres M/L in Juneau County WI</a><br>
+        <a href="./internal.html"><em>WATCH</em></a>
+      </p>
+    </div>
+    <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
+  </aside>
+
+  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
+       open; at <=1279px the JS starts minimized and this handle shows instead. -->
+  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <span>Auction Alerts</span>
+  </button>
+
+  <script>
+    // Mega-menu nav built from the real IA. "The Company" panel carries three
+    // affiliation badges on the right (this tab only).
+    (function(){
+      var IAA_SVG = '<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.6"/><ellipse cx="32" cy="26" rx="6" ry="14" fill="none" stroke="currentColor" stroke-width="1.1"/><line x1="18" y1="26" x2="46" y2="26" stroke="currentColor" stroke-width="1.1"/><path d="M20 19 Q32 23 44 19" fill="none" stroke="currentColor" stroke-width="1"/><path d="M20 33 Q32 29 44 33" fill="none" stroke="currentColor" stroke-width="1"/><path d="M32 45 C24 43 18 47 15 55 C24 55 30 52 32 45Z" fill="currentColor"/><path d="M32 45 C40 43 46 47 49 55 C40 55 34 52 32 45Z" fill="currentColor"/><line x1="32" y1="43" x2="32" y2="55" stroke="currentColor" stroke-width="1.3"/></svg>';
+      var EXPO_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5"/><circle cx="12" cy="10" r="2.6"/><path d="M7.5 19c0-2.5 2-4.4 4.5-4.4s4.5 1.9 4.5 4.4"/><path d="M4.5 8l2 1M19.5 8l-2 1"/></svg>';
+
+      var NAV = [
+        { label: "Real Estate", cols: [
+          { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
+          { h: "Auctions", items: ["Upcoming Auctions","Auction Results"] },
+          { h: "Prior Transactions", items: [] }
+        ]},
+        { label: "The Company", cols: [
+          { h: "The Company", items: ["Overview","Regions"] },
+          { spacer: true, items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
+          { badges: [
+            { type: "expo", label: "Land Investment Expo" },
+            { type: "afo",  label: "American Farmland Owner" },
+            { type: "iaa",  label: "International Ag Alliance" }
+          ]}
+        ]},
+        { label: "What We Do", cols: [
+          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] } ]},
+          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] } ]},
+          { svc: [ { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
+          { svc: [ { name: "Energy Management" }, { name: "Crop Insurance" }, { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+        ]},
+        { label: "Insights & News", cols: [
+          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
+        ]}
+      ];
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+      function badgeHTML(b){
+        var emb;
+        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="./internal.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
+        if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="./internal.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
+        // american farmland owner — real horizontal logo (assets/afo.png)
+        return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
+      }
+      function colHTML(c){
+        if(c.badges){
+          return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
+        }
+        if(c.svc){
+          var blocks = c.svc.map(function(s){
+            var sub = (s.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+            return '<div class="pcf-svcblock">'+
+              '<div class="pcf-svc"><a href="./internal.html">'+esc(s.name)+'</a></div>'+
+              (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
+            '</div>';
+          }).join("");
+          return '<div class="pcf-col">'+blocks+'</div>';
+        }
+        if(c.h && (!c.items || !c.items.length) && !c.note){
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+        }
+        var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+        // spacer:true → an invisible h4 so a continuation column's first link lines up
+        // with the neighbouring column's first link (see .pcf-h4-ghost in pc.css).
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
+                       : (c.spacer ? '<h4 class="pcf-h4-ghost" aria-hidden="true">&nbsp;</h4>' : '');
+        var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
+        return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
+      }
+      // Top level is a TRIGGER, not a destination: a <button>, so clicking opens the panel
+      // instead of navigating. It must not be an <a href>, which would reload the page on
+      // click and leave the panel reachable only by hovering.
+      function itemHTML(n){
+        return '<li><button class="pcf-menu-btn" type="button" aria-haspopup="true" aria-expanded="false">'+
+            esc(n.label)+
+          '</button>'+
+          '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
+            '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
+          '</div></li>';
+      }
+      var mount = document.getElementById("pcfMenus");
+      if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+
+      // Hamburger drawer content — SAME colHTML() as the mega panels, so the two can never
+      // drift apart. Each top-level section becomes a heading with its columns beneath.
+      var drawer = document.querySelector("#navDrawer .pcf-drawer-in");
+      if(drawer){
+        // Each section carries a slug class ("sec-the-company") so per-section drawer
+        // layout can be targeted BY NAME rather than by nth-of-type — reordering NAV must
+        // not silently move a layout override onto a different section.
+        function slug(s){
+          return s.toLowerCase().replace(/&/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+        }
+        drawer.innerHTML = NAV.map(function(n){
+          return '<section class="pcf-drawer-sec sec-'+slug(n.label)+'">'+
+                   '<h3>'+esc(n.label)+'</h3>'+
+                   '<div class="pcf-drawer-cols">'+n.cols.map(colHTML).join("")+'</div>'+
+                 '</section>';
+        }).join("");
+      }
+    })();
+
+    // SHARED PAGE SCROLL LOCK for the overlays (map layer, hamburger drawer).
+    // `overscroll-behavior: contain` only stops a scroll gesture INSIDE an overlay from
+    // chaining to the page; a wheel over the backdrop still scrolled the document. This
+    // locks the document itself.
+    //
+    // Reference-counted on purpose: the map layer and the drawer can be open at the same
+    // time, and closing one must not unlock the page while the other is still open.
+    //
+    // Uses overflow:hidden on <html> (which preserves scroll position, so nothing needs
+    // restoring) and pads the right by the scrollbar's width, otherwise removing the
+    // scrollbar shifts the whole page sideways as the overlay opens.
+    var pcScrollLock = (function(){
+      var count = 0;
+      var root = document.documentElement;
+      return {
+        on: function(){
+          if(count++ > 0) return;
+          var sbw = window.innerWidth - root.clientWidth;
+          root.style.overflow = "hidden";
+          if(sbw > 0) root.style.paddingRight = sbw + "px";
+        },
+        off: function(){
+          if(count === 0 || --count > 0) return;   // never go negative
+          root.style.overflow = "";
+          root.style.paddingRight = "";
+        }
+      };
+    })();
+
+    // Hamburger open/close — same contract as the search popover and the map layer:
+    // click toggles, Esc closes and returns focus, backdrop/outside click closes.
+    (function(){
+      var btn = document.getElementById("navBurger"),
+          drawer = document.getElementById("navDrawer"),
+          backdrop = document.querySelector(".pcf-drawer-backdrop");
+      if(!btn || !drawer) return;
+
+      function open(){
+        drawer.hidden = false;
+        if(backdrop) backdrop.hidden = false;
+        pcScrollLock.on();
+        btn.setAttribute("aria-expanded", "true");
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        drawer.hidden = true;
+        if(backdrop) backdrop.hidden = true;
+        pcScrollLock.off();
+        btn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus) btn.focus();
+      }
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(true); }
+
+      btn.addEventListener("click", function(){
+        if(btn.getAttribute("aria-expanded") === "true") close(false); else open();
+      });
+      if(backdrop) backdrop.addEventListener("click", function(){ close(false); });
+      // Close on resize past the collapse point, so the drawer can't be left open and
+      // unreachable once the burger is hidden and the inline menus return.
+      // MUST MATCH the hamburger's media query in pc.css — it is 899px. A lower value
+      // makes the drawer close itself on any resize event between that value and 899,
+      // which reads as the drawer never opening at all.
+      var COLLAPSE_AT = 899;
+      window.addEventListener("resize", function(){
+        if(window.innerWidth > COLLAPSE_AT && btn.getAttribute("aria-expanded") === "true") close(false);
+      });
+    })();
+
+    // Mega-menu open/close — same interaction contract as the search popover:
+    // click toggles, Esc closes and returns focus, clicking outside closes.
+    // Hover is re-implemented here (not left to CSS) because the CSS :focus-within rule
+    // would otherwise pin the panel open after a click and defeat click-to-close.
+    (function(){
+      var ul = document.getElementById("pcfMenus");
+      if(!ul) return;
+      var items = [].slice.call(ul.children);
+      if(!items.length) return;
+      ul.classList.add("nav-js");        // hands control to JS — see .nav-js rules in pc.css
+      var locked = null;                 // opened by CLICK: stays open when the pointer leaves
+
+      function btnOf(li){ return li.querySelector(".pcf-menu-btn"); }
+      function setOpen(li){
+        items.forEach(function(x){
+          var on = (x === li);
+          x.classList.toggle("is-open", on);
+          var b = btnOf(x);
+          if(b) b.setAttribute("aria-expanded", on ? "true" : "false");
+        });
+      }
+      function closeAll(returnFocus){
+        var was = locked;
+        locked = null; setOpen(null);
+        if(returnFocus && was){ var b = btnOf(was); if(b) b.focus(); }
+      }
+
+      items.forEach(function(li){
+        var btn = btnOf(li);
+        if(!btn) return;
+        // A click LOCKS this panel open; clicking the same trigger again closes it.
+        // `locked` must only ever be set by a click — if hover also moved it, then moving
+        // the pointer from one title to another would pre-lock the second one, and the
+        // click that followed would read as a second click and close it instead of opening.
+        btn.addEventListener("click", function(){
+          if(locked === li){ locked = null; setOpen(null); }
+          else { locked = li; setOpen(li); }
+        });
+        // Hover previews any panel without taking the lock. On leave, fall back to whatever
+        // is locked (setOpen(null) closes everything when nothing is).
+        li.addEventListener("mouseenter", function(){ setOpen(li); });
+        li.addEventListener("mouseleave", function(){ setOpen(locked); });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" || e.key === "Esc"){
+          if(locked) closeAll(true); else setOpen(null);
+        }
+      });
+      document.addEventListener("click", function(e){
+        if(!ul.contains(e.target)) closeAll(false);
+      });
+    })();
+
+    // Interactive Map pull-down → slide-down map layer (map module drops in later)
+    (function(){
+      var tab = document.querySelector(".md-tab"),
+          layer = document.getElementById("md-layer"),
+          backdrop = document.querySelector(".md-backdrop"),
+          closeBtn = document.querySelector(".md-close"),
+          header = document.querySelector("header.pcf");
+      if(!tab || !layer || !backdrop) return;
+      function syncNavH(){ if(header) document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      syncNavH(); window.addEventListener("resize", syncNavH); window.addEventListener("load", syncNavH);
+      var logoImg = header && header.querySelector("img");
+      if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
+      function open(){
+        if(tab.getAttribute("aria-expanded") === "true") return;   // already open
+        pcScrollLock.on();
+        syncNavH(); backdrop.hidden = false; layer.hidden = false;
+        requestAnimationFrame(function(){ backdrop.classList.add("is-open"); layer.classList.add("is-open"); });
+        tab.setAttribute("aria-expanded", "true"); layer.setAttribute("aria-hidden", "false");
+        closeBtn.focus(); document.addEventListener("keydown", onKey);
+      }
+      function close(){
+        // Guarded so close() is idempotent: it is wired to the close button, the backdrop
+        // and Esc, and a double call would unbalance the shared scroll-lock count.
+        if(tab.getAttribute("aria-expanded") !== "true") return;
+        pcScrollLock.off();
+        backdrop.classList.remove("is-open"); layer.classList.remove("is-open");
+        tab.setAttribute("aria-expanded", "false"); layer.setAttribute("aria-hidden", "true");
+        document.removeEventListener("keydown", onKey);
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var after = function(){ backdrop.hidden = true; layer.hidden = true; };
+        if(reduce) after();
+        else layer.addEventListener("transitionend", function te(e){ if(e.propertyName === "transform"){ layer.removeEventListener("transitionend", te); after(); } });
+        tab.focus();
+      }
+      tab.addEventListener("click", function(){ if(tab.getAttribute("aria-expanded") === "true") close(); else open(); });
+      closeBtn.addEventListener("click", close); backdrop.addEventListener("click", close);
+    })();
+
+    // Search: magnifier toggles a text field + submit icon below it
+    (function(){
+      var toggle = document.getElementById("searchToggle");
+      var panel  = document.getElementById("searchPanel");
+      var input  = document.getElementById("searchInput");
+      if(!toggle || !panel) return;
+      function open(){
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        if(input){ input.focus(); }
+        document.addEventListener("mousedown", onOutside);
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutside);
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus){ toggle.focus(); }
+      }
+      function onOutside(e){
+        if(!panel.contains(e.target) && !toggle.contains(e.target)){ close(false); }
+      }
+      function onKey(e){
+        if(e.key === "Escape" || e.key === "Esc"){ close(true); }
+      }
+      toggle.addEventListener("click", function(){
+        if(panel.classList.contains("open")){ close(true); } else { open(); }
+      });
+    })();
+
+    // Office carousel: three crossfading photographs in the Corporate Office card.
+    // The dots are built from the slides, so the markup is the only place the count lives.
+    (function(){
+      var frame = document.getElementById("ctShots");
+      if(!frame) return;
+      var slides = frame.querySelectorAll(".ct-shot");
+      var dotwrap = document.getElementById("ctDots");
+      var playBtn = document.getElementById("ctShotPlay");
+
+      // One photograph is not a carousel - drop the controls rather than show dead ones.
+      if(slides.length < 2){
+        var bar = frame.querySelector(".ct-shotbar");
+        if(bar){ bar.parentNode.removeChild(bar); }
+        return;
+      }
+
+      var DWELL = 5000, at = 0, timer = null, held = false, dots = [];
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      Array.prototype.forEach.call(slides, function(_, i){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "ct-dot";
+        b.setAttribute("aria-label", "Show photograph " + (i + 1) + " of " + slides.length);
+        b.setAttribute("aria-current", i === 0 ? "true" : "false");
+        // A dot is a deliberate choice, so it stops the cycle rather than fight it.
+        b.addEventListener("click", function(){ stop(); show(i); });
+        dotwrap.appendChild(b);
+        dots.push(b);
+      });
+
+      function show(i){
+        at = (i + slides.length) % slides.length;
+        Array.prototype.forEach.call(slides, function(sl, n){
+          if(n === at){ sl.classList.add("is-on"); } else { sl.classList.remove("is-on"); }
+        });
+        dots.forEach(function(d, n){ d.setAttribute("aria-current", n === at ? "true" : "false"); });
+      }
+      function next(){ show(at + 1); }
+
+      function start(){
+        if(timer) return;
+        timer = setInterval(next, DWELL);
+        playBtn.setAttribute("data-playing", "true");
+        playBtn.setAttribute("aria-label", "Pause the photographs");
+      }
+      function stop(){
+        if(timer){ clearInterval(timer); timer = null; }
+        held = false;
+        playBtn.setAttribute("data-playing", "false");
+        playBtn.setAttribute("aria-label", "Play the photographs");
+      }
+
+      playBtn.addEventListener("click", function(){
+        if(timer || held){ stop(); } else { start(); }
+      });
+
+      // Hovering or tabbing into the frame holds the current photograph, so nothing moves
+      // out from under a pointer or a reader. It resumes on the way out - unless the
+      // visitor pressed pause, which stays pressed.
+      function hold(){
+        if(timer){ held = true; clearInterval(timer); timer = null; }
+      }
+      function release(){
+        if(held){ held = false; timer = setInterval(next, DWELL); }
+      }
+      frame.addEventListener("mouseenter", hold);
+      frame.addEventListener("mouseleave", release);
+      frame.addEventListener("focusin", hold);
+      frame.addEventListener("focusout", release);
+
+      // Reduced motion: the cycle does not start itself. The dots and the play button
+      // still work, so every photograph stays reachable on purpose.
+      if(reduce){ stop(); } else { start(); }
+    })();
+
+    // Scroll-reveal (must-have) — reduced-motion safe
+    (function(){
+      var els = document.querySelectorAll(".reveal");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce || !("IntersectionObserver" in window)){
+        els.forEach(function(el){ el.classList.add("in"); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+
+    // Announcement toast: bottom-right floating card that MINIMIZES to a
+    // right-edge handle (instead of vanishing) so it can be reopened.
+    (function(){
+      var t = document.getElementById("pcToast");
+      if(!t) return;
+      var reopen = document.getElementById("pcToastReopen");
+      var x = t.querySelector(".pc-toast-x");
+      // moveFocus is false for the automatic narrow-viewport minimize below — focusing
+      // the handle on page load would steal focus and jump the page to the right edge.
+      function setMinimized(min, moveFocus){
+        t.hidden = min;
+        if(reopen){ reopen.hidden = !min; }
+        if(moveFocus){
+          var target = min ? reopen : x;
+          if(target){ target.focus(); }
+        }
+      }
+      function minimize(){ setMinimized(true, true); }
+      function restore(){ userChose = true; setMinimized(false, true); }
+      if(x){ x.addEventListener("click", minimize); }
+      if(reopen){ reopen.addEventListener("click", restore); }
+
+      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
+         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
+         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
+         never auto-restores, so once the visitor opens the handle it stays open, and a
+         toast never pops itself back open mid-resize. */
+      var TOAST_NARROW = 1279, userChose = false;
+      function narrowCheck(){
+        if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
+      }
+      narrowCheck();
+      window.addEventListener("resize", narrowCheck);
+    })();
+  </script>
+</body>
+</html>
