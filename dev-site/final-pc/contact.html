@@ -26,51 +26,14 @@
     .ct-head h1{ margin: 0 0 var(--space-7); }
 
     /* ---- the two columns ----
-       Left is the content column: the team photograph, then the regional footprint map.
-       Right is the contact rail: corporate office, the form, social.
+       Left is the corporate office card. Right is the contact rail: the form.
        Below 1280 everything is one column in source order. */
     .ct-top{ display: grid; gap: var(--space-7); }
     @media (min-width: 1280px){
-      /* No align-items here on purpose: both columns stretch to the taller of the two,
-         which is what lets the map grow to finish level with the form. */
-      .ct-top{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8); }
+      .ct-top{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8);
+        align-items: start; }
     }
     .ct-main{ min-width: 0; }
-    @media (min-width: 1280px){
-      .ct-main{ display: flex; flex-direction: column; }
-    }
-
-    /* ---- the team photograph ----
-       1200x490 (2.45:1), local in ../assets. No crop: the frame follows the image, because
-       a group photograph cannot lose its edges without losing people. */
-    .ct-photo{ margin: 0 0 var(--space-7); }
-    .ct-photo img{ display: block; width: 100%; height: auto; border-radius: var(--radius-lg); }
-
-    /* ---- the FarmWorth map ----
-       A real map owns its own viewport rather than sizing to an image, so the wrapper
-       fixes the shape (4:3) and the map fills it. There is deliberately no placeholder
-       image: the box carries the brief in words instead. When the live module lands it
-       replaces the wrapper's contents and should be width/height 100%. */
-    .ct-map{ margin: 0; }
-    .ct-mapwrap{ position: relative; aspect-ratio: 4 / 3; width: 100%;
-      border-radius: var(--radius-lg); overflow: hidden;
-      background: var(--pc-light-blue); }
-
-    /* At two columns the map stops being a fixed shape and takes whatever height the
-       photograph above it leaves, so the column ends level with the rail beside it.
-       The 4:3 above is the one-column fallback and the floor if the rail is ever short. */
-    @media (min-width: 1280px){
-      .ct-map{ flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
-      .ct-mapwrap{ aspect-ratio: auto; flex: 1 1 auto; min-height: 420px; }
-    }
-    /* The brief sits IN the middle of the box, not under it - there is no caption. */
-    .ct-mapghost{ display: flex; position: absolute; inset: 0;
-      flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; gap: var(--space-3); padding: var(--space-6); }
-    .ct-mapghost-t{ margin: 0; font-family: var(--font-serif); font-size: var(--h3-size);
-      font-weight: 500; color: var(--pc-navy); }
-    .ct-mapghost-s{ margin: 0; max-width: 46ch; font-family: var(--font-sans);
-      font-size: var(--body-sm); line-height: 1.6; color: var(--pc-navy); }
 
     .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
@@ -100,11 +63,8 @@
     .ct-form .btn{ justify-self: start; }
 
     /* ---- right rail ----
-       Below 1280 the rail stops being a rail and stacks under the left column, so it
-       gets a top rule there to separate it from the map above. */
-    /* align-content: start matters - the rail box is stretched by the grid above, and
-       without this its cards would stretch with it and the form would grow a hollow
-       bottom. The BOX stretches; the cards do not. */
+       Below 1280 the rail stops being a rail and stacks under the office card, so it
+       gets a top rule there to separate the two. */
     .ct-rail{ display: grid; gap: var(--space-6); align-content: start; }
     @media (max-width: 1279px){
       .ct-rail{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
@@ -114,13 +74,27 @@
     .ct-card h2{ margin: 0 0 var(--space-4); font-size: var(--h3-size); }
     .ct-card .ct-lede{ font-size: var(--body); max-width: none; margin-bottom: var(--space-5); }
 
+    /* ---- corporate office, left column ----
+       PC Blue ground. Type on it is PC Black rather than white: white on #00AEEF is
+       about 2.2:1 and fails, PC Black is about 9:1 and holds at every size. The card
+       sits at the top of its column - it does not stretch to the form's height - and
+       the address is capped in ch so the line does not run the full column. */
+    .ct-card--blue{ background: var(--pc-blue); border-color: var(--pc-blue);
+      padding: var(--space-7); }
+    .ct-card--blue h2{ color: var(--pc-black); }
 
-    .ct-office-line{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.7;
-      color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+    .ct-office-line{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.8;
+      color: var(--color-text-muted); margin: 0; max-width: 34ch; }
+    .ct-card--blue .ct-office-line{ color: var(--pc-black); }
     .ct-office-line a{ color: var(--color-text); text-decoration: none; }
+    .ct-card--blue .ct-office-line a{ color: var(--pc-black); }
     .ct-office-line a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
       text-underline-offset: 3px; }
+    /* On the blue ground a colour change would only lose contrast, so hover is the
+       underline alone. */
+    .ct-card--blue .ct-office-line a:hover{ color: var(--pc-black); }
     .ct-office-line a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .ct-card--blue .ct-office-line a:focus-visible{ outline-color: var(--pc-black); }
     .ct-office-line b{ font-weight: 600; }
 
     /* ---- follow us ---- */
@@ -141,15 +115,10 @@
       border-top: 1px solid var(--color-border);
       scroll-margin-top: calc(var(--navH) + var(--space-6)); }
 
-    /* The heading block and the Follow Us card share a row above the grid. Same
-       columns as .ct-top, so the card's right edge sits on the rail's right edge. */
-    .ct-officeshead{ display: grid; gap: var(--space-6); margin: 0 0 var(--space-7); }
+    /* Heading block only - Follow Us lives in the rail under the form now. */
+    .ct-officeshead{ margin: 0 0 var(--space-7); }
     .ct-officeshead > div:first-child{ min-width: 0; }
     .ct-officeshead .ct-lede{ margin-bottom: 0; }
-    @media (min-width: 1280px){
-      .ct-officeshead{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8);
-        align-items: start; }
-    }
 
     /* FOUR ACROSS at full width, stepping down on --site steps rather than by card
        width - so the column count changes at the same places the rest of the site does.
@@ -207,6 +176,7 @@
 
     @media (max-width: 639px){
       .ct-card{ padding: var(--space-5); }
+      .ct-card--blue{ padding: var(--space-6); }
     }
   </style>
 </head>
@@ -278,10 +248,9 @@
 
 
   <!-- ================= PAGE CONTENT =================
-       Contact. Top block is two columns - the team photograph over the FarmWorth map on
-       the left, the corporate office and the form in the rail on the right. Below it,
-       full width, all 25 offices as cards four across with the social marks beside the
-       heading. -->
+       Contact. Top block is two columns - the corporate office on the left, the form in
+       the rail on the right, with Follow Us under it. Below, full width, all 25 offices
+       as cards four across. -->
   <main class="ct-body" id="top" aria-label="Contact">
     <div class="ct-wrap">
 
@@ -291,40 +260,10 @@
 
       <div class="ct-top reveal">
 
-        <!-- ---------- left: the team, then the map ---------- -->
+        <!-- ---------- left: the corporate office ---------- -->
         <div class="ct-main">
 
-          <figure class="ct-photo">
-            <img src="../assets/pc-team-2025.webp"
-                 alt="The Peoples Company team, gathered for a group photograph" />
-          </figure>
-
-          <!-- THE FARMWORTH MAP GOES HERE.
-               This is the live FarmWorth interactive map with every office pinned - the
-               same module that sits behind the Interactive Map tab in the chrome, loaded
-               inline. THE ONLY PINS ARE PC OFFICE LOCATIONS - no listings and no auctions
-               are plotted on this instance. See developer-map.md.
-
-               What is here now is a SPEC PANEL, not an image and not a broken one: the
-               box holds the brief for what belongs in it. Replace the whole .ct-mapwrap
-               contents with the map's mount point; keep the wrapper, which owns the
-               frame and the height. -->
-          <figure class="ct-map">
-            <div class="ct-mapwrap">
-              <div class="ct-mapghost">
-                <p class="ct-mapghost-t">Interactive FarmWorth Map</p>
-                <p class="ct-mapghost-s">The only pins shown here are Peoples Company office
-                  locations &mdash; no listings, no auctions.</p>
-              </div>
-            </div>
-          </figure>
-
-        </div>
-
-        <!-- ---------- right: where to reach us, then the form ---------- -->
-        <aside class="ct-rail" aria-label="Contact us">
-
-          <div class="ct-card">
+          <div class="ct-card ct-card--blue">
             <h2>Corporate Office</h2>
             <p class="ct-office-line">
               1108 S. 44th Street, Suite 102<br />
@@ -333,6 +272,11 @@
               <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
             </p>
           </div>
+
+        </div>
+
+        <!-- ---------- right: the form ---------- -->
+        <aside class="ct-rail" aria-label="Contact us">
 
           <div class="ct-card">
             <h2 id="help-h">How Can We Help You?</h2>
@@ -383,6 +327,16 @@
 
           </div>
 
+          <div class="ct-card">
+            <h2>Follow Us</h2>
+            <div class="ct-social">
+              <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+              <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+              <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+              <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+              <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+            </div>
+          </div>
 
         </aside>
       </div>
@@ -396,23 +350,11 @@
              it gets one or the office gets re-tagged to a region that has one. -->
         <section class="ct-offices" id="offices" aria-labelledby="offices-h">
 
-          <!-- Heading left, Follow Us right - the right column is the same 380px as the
-               rail above, so the two right edges line up down the page. -->
           <div class="ct-officeshead">
             <div>
               <h2 id="offices-h">Peoples Company Offices</h2>
               <p class="ct-lede">We have offices strategically positioned in all major agricultural
                 regions throughout the country.</p>
-            </div>
-            <div class="ct-card">
-              <h2>Follow Us</h2>
-              <div class="ct-social">
-                <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
-                <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
-                <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-                <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
-                <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
-              </div>
             </div>
           </div>
 
