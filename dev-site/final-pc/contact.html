@@ -94,11 +94,60 @@
     /* The photograph takes its share of any spare width but stops at 380px, so the
        square cannot grow large enough to out-shout the address beside it. */
     .ct-corp-photo{ flex: 1 1 300px; max-width: 380px; margin: 0; }
-    /* SQUARE. The source is 4781x2798 landscape, so object-fit crops it to the middle of
-       the frame - see the note in the markup. No border: a hairline on the navy reads as
-       a seam, and the radius matches every other card on the page. */
-    .ct-corp-photo img{ display: block; width: 100%; aspect-ratio: 1 / 1;
-      object-fit: cover; object-position: center; border-radius: var(--radius-lg); }
+    /* ---- the office carousel ----
+       THREE PHOTOGRAPHS, CROSSFADED. The frame owns the square; the slides are stacked
+       absolutely inside it, so the card height never changes as they cycle. object-fit
+       still crops any slide that is not square, which is the safety net, not the plan. */
+    .ct-shots{ position: relative; aspect-ratio: 1 / 1; width: 100%;
+      border-radius: var(--radius-lg); overflow: hidden; background: var(--pc-navy); }
+    .ct-shot{ position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      opacity: 0; transition: opacity .6s ease; }
+    .ct-shot.is-on{ opacity: 1; }
+    /* With reduced motion the slide swaps instantly. It still swaps: the dots have to do
+       something when they are pressed. */
+    @media (prefers-reduced-motion: reduce){
+      .ct-shot{ transition: none; }
+    }
+
+    /* ---- carousel controls ----
+       On the photograph, in a bar along the bottom, over a soft scrim so they hold up
+       against a bright sky or a pale brick wall. */
+    .ct-shotbar{ position: absolute; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-3); padding: 10px 12px;
+      background: linear-gradient(to top, rgba(7,22,44,.66), rgba(7,22,44,0)); }
+    .ct-dots{ display: flex; gap: 8px; }
+    /* Real buttons, not decorative spans: each jumps to its own photograph. The 28px box
+       keeps the target at the WCAG 2.5.8 floor while the visible dot stays 10px. */
+    .ct-dot{ width: 28px; height: 28px; padding: 0; border: 0; background: none;
+      cursor: pointer; display: grid; place-items: center; }
+    .ct-dot::before{ content: ""; width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,.45); box-shadow: 0 0 0 1px rgba(7,22,44,.35);
+      transition: background .15s ease, transform .15s ease; }
+    .ct-dot:hover::before{ background: rgba(255,255,255,.8); }
+    /* The current dot fills solid AND grows - two signals, never colour alone. */
+    .ct-dot[aria-current="true"]::before{ background: var(--pc-white);
+      transform: scale(1.3); }
+    .ct-dot:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 0;
+      border-radius: 50%; }
+    @media (prefers-reduced-motion: reduce){
+      .ct-dot::before{ transition: none; }
+    }
+
+    /* Pause and play. WCAG 2.2.2: the cycle starts on its own and runs longer than five
+       seconds, so a control that stops it is required, not a nicety. */
+    .ct-shotplay{ display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; padding: 0; cursor: pointer;
+      color: var(--pc-white); background: rgba(7,22,44,.45);
+      border: 1px solid rgba(255,255,255,.5); border-radius: 50%; }
+    .ct-shotplay:hover{ background: rgba(7,22,44,.75); }
+    .ct-shotplay:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px; }
+    .ct-shotplay svg{ width: 12px; height: 12px; display: block; }
+    /* One button, two glyphs: whichever state it is in, the other one is hidden. */
+    .ct-shotplay .ct-ico-play{ display: none; }
+    .ct-shotplay[data-playing="false"] .ct-ico-play{ display: block; }
+    .ct-shotplay[data-playing="false"] .ct-ico-pause{ display: none; }
 
     .ct-office-line{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.8;
       color: var(--color-text-muted); margin: 0; max-width: 34ch; }
@@ -294,17 +343,38 @@
                 </p>
               </div>
 
-              <!-- SQUARE CROP OF A LANDSCAPE SOURCE. office1.JPG is 4781x2798, so a
-                   square frame can show 2798px of its width - the middle 58%. The painted
-                   sign on the building is about 3413px wide, wider than that, so its ends
-                   fall outside the crop whatever the object-position. Either accept the
-                   sign as a partial, or supply a square export framed the way it should
-                   read. The filename's extension is UPPERCASE and the host is
-                   case-sensitive: office1.JPG, not office1.jpg. -->
+              <!-- OFFICE CAROUSEL. Three photographs of the corporate office in a
+                   square frame, crossfading every five seconds, starting on office1.
+
+                   SLIDE ORDER IS SOURCE ORDER - office1, office2, office3 - and the dots
+                   are generated from the slides, so adding or removing a photograph here
+                   is the whole edit. Nothing else counts them.
+
+                   EXTENSIONS DIFFER AND THE HOST IS CASE-SENSITIVE: office1.JPG is
+                   uppercase, office2 and office3 are .jpeg. Keep each src exactly as the
+                   file is named on disk or it 404s on GitHub Pages.
+
+                   Each alt text describes ITS OWN photograph. Slides two and three are
+                   placeholders pending a description of what they actually show. -->
               <figure class="ct-corp-photo">
-                <img src="../assets/office1.JPG"
-                     alt="The Peoples Company corporate office: a pale brick building with
-                          the company name painted across its upper wall" />
+                <div class="ct-shots" id="ctShots">
+                  <img class="ct-shot is-on" src="../assets/office1.JPG"
+                       alt="The Peoples Company corporate office: a pale brick building with
+                            the company name painted across its upper wall" />
+                  <img class="ct-shot" src="../assets/office2.jpeg" loading="lazy"
+                       alt="The Peoples Company corporate office, second view" />
+                  <img class="ct-shot" src="../assets/office3.jpeg" loading="lazy"
+                       alt="The Peoples Company corporate office, third view" />
+
+                  <div class="ct-shotbar">
+                    <div class="ct-dots" id="ctDots" role="group" aria-label="Choose a photograph"></div>
+                    <button class="ct-shotplay" id="ctShotPlay" type="button"
+                            data-playing="true" aria-label="Pause the photographs">
+                      <svg class="ct-ico-pause" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="3" height="10" rx="1"/><rect x="7" y="1" width="3" height="10" rx="1"/></svg>
+                      <svg class="ct-ico-play" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.5 10.5 6 3 10.5V1.5Z"/></svg>
+                    </button>
+                  </div>
+                </div>
               </figure>
 
             </div>
@@ -1065,6 +1135,82 @@
       toggle.addEventListener("click", function(){
         if(panel.classList.contains("open")){ close(true); } else { open(); }
       });
+    })();
+
+    // Office carousel: three crossfading photographs in the Corporate Office card.
+    // The dots are built from the slides, so the markup is the only place the count lives.
+    (function(){
+      var frame = document.getElementById("ctShots");
+      if(!frame) return;
+      var slides = frame.querySelectorAll(".ct-shot");
+      var dotwrap = document.getElementById("ctDots");
+      var playBtn = document.getElementById("ctShotPlay");
+
+      // One photograph is not a carousel - drop the controls rather than show dead ones.
+      if(slides.length < 2){
+        var bar = frame.querySelector(".ct-shotbar");
+        if(bar){ bar.parentNode.removeChild(bar); }
+        return;
+      }
+
+      var DWELL = 5000, at = 0, timer = null, held = false, dots = [];
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      Array.prototype.forEach.call(slides, function(_, i){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "ct-dot";
+        b.setAttribute("aria-label", "Show photograph " + (i + 1) + " of " + slides.length);
+        b.setAttribute("aria-current", i === 0 ? "true" : "false");
+        // A dot is a deliberate choice, so it stops the cycle rather than fight it.
+        b.addEventListener("click", function(){ stop(); show(i); });
+        dotwrap.appendChild(b);
+        dots.push(b);
+      });
+
+      function show(i){
+        at = (i + slides.length) % slides.length;
+        Array.prototype.forEach.call(slides, function(sl, n){
+          if(n === at){ sl.classList.add("is-on"); } else { sl.classList.remove("is-on"); }
+        });
+        dots.forEach(function(d, n){ d.setAttribute("aria-current", n === at ? "true" : "false"); });
+      }
+      function next(){ show(at + 1); }
+
+      function start(){
+        if(timer) return;
+        timer = setInterval(next, DWELL);
+        playBtn.setAttribute("data-playing", "true");
+        playBtn.setAttribute("aria-label", "Pause the photographs");
+      }
+      function stop(){
+        if(timer){ clearInterval(timer); timer = null; }
+        held = false;
+        playBtn.setAttribute("data-playing", "false");
+        playBtn.setAttribute("aria-label", "Play the photographs");
+      }
+
+      playBtn.addEventListener("click", function(){
+        if(timer || held){ stop(); } else { start(); }
+      });
+
+      // Hovering or tabbing into the frame holds the current photograph, so nothing moves
+      // out from under a pointer or a reader. It resumes on the way out - unless the
+      // visitor pressed pause, which stays pressed.
+      function hold(){
+        if(timer){ held = true; clearInterval(timer); timer = null; }
+      }
+      function release(){
+        if(held){ held = false; timer = setInterval(next, DWELL); }
+      }
+      frame.addEventListener("mouseenter", hold);
+      frame.addEventListener("mouseleave", release);
+      frame.addEventListener("focusin", hold);
+      frame.addEventListener("focusout", release);
+
+      // Reduced motion: the cycle does not start itself. The dots and the play button
+      // still work, so every photograph stays reachable on purpose.
+      if(reduce){ stop(); } else { start(); }
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe
