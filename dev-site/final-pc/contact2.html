@@ -51,19 +51,31 @@
        .sr-only takes it out of the flow. */
     .ct-head h1{ margin: 0 0 var(--space-7); }
 
-    /* ---- the two columns: FLIPPED, this is variant B ----
-       Left is the contact rail - the form, then Follow Us. Right is the content column:
-       the corporate office card, then the offices.
-       The 380px track comes FIRST and the markup is in the same order, so the visual
-       order and the DOM order agree: no `order`, no grid-column override, and the tab
-       sequence follows the page. Below 1280 everything is one column in that same
-       source order - form, Follow Us, corporate office, offices. */
+    /* ---- the layout: FLIPPED AND STAGGERED, this is variant B ----
+       THREE blocks, not two columns of two. From 1280 the grid is two columns and two
+       rows, and the corporate office card spans the top:
+
+           corporate office . . . . . . . full width
+           form (380px)     offices (rest)
+
+       So THE FORM STARTS LEVEL WITH THE FIRST ROW OF OFFICE CARDS, and it does it by
+       placement rather than by a top offset - nothing has to know how tall the navy card
+       is, which is just as well: that changes with the width and with the photograph.
+
+       The markup is in reading order - corporate office, form, offices - so the DOM
+       order matches the way the eye crosses the grid and the tab sequence follows it.
+
+       Below 1280 it collapses to one column in that same order and the placements go
+       with it. */
     .ct-top{ display: grid; gap: var(--space-7); }
     @media (min-width: 1280px){
-      .ct-top{ grid-template-columns: 380px minmax(0, 1fr); gap: var(--space-8);
-        align-items: start; }
+      .ct-top{ grid-template-columns: 380px minmax(0, 1fr);
+        gap: var(--space-7) var(--space-8); align-items: start; }
+      /* The navy card spans BOTH columns - it is the page's banner, not a column. */
+      .ct-top > .ct-card--navy{ grid-column: 1 / -1; grid-row: 1; }
+      .ct-top > .ct-rail{      grid-column: 1; grid-row: 2; }
+      .ct-top > .ct-offices{   grid-column: 2; grid-row: 2; }
     }
-    .ct-main{ min-width: 0; }
 
     .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
@@ -93,12 +105,12 @@
     .ct-form .btn{ justify-self: start; }
 
     /* ---- LEFT rail ----
-       The rail is the left column here and comes first in the markup, so below 1280 it
-       stacks ABOVE the content instead of under it. The separating rule therefore hangs
-       off .ct-main, not off the rail: the rule belongs to whichever block is second. */
-    .ct-rail{ display: grid; gap: var(--space-6); align-content: start; }
+       It holds the form alone now: Follow Us moved into the corporate office card.
+       Below 1280 the rail stops being a rail and stacks between the card and the
+       offices, so it takes a rule above it to separate it from the card. */
+    .ct-rail{ display: grid; gap: var(--space-6); align-content: start; min-width: 0; }
     @media (max-width: 1279px){
-      .ct-main{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
+      .ct-rail{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
     }
     .ct-card{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-lg); padding: var(--space-6); }
@@ -203,7 +215,14 @@
     .ct-card--navy .ct-office-line a:focus-visible{ outline-color: var(--pc-blue); }
     .ct-office-line b{ font-weight: 600; }
 
-    /* ---- follow us ---- */
+    /* ---- follow us ----
+       In this variant the marks sit inside the corporate office card, so the heading is
+       a quiet label on the navy rather than a card heading: uppercase --label in the
+       on-dark muted tone, with the address above it separated by real space. */
+    .ct-follow-h{ margin: var(--space-6) 0 var(--space-3);
+      font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--text-on-dark-muted); }
     .ct-social{ display: flex; flex-wrap: wrap; gap: var(--space-3); }
     .ct-social a{ display: inline-flex; align-items: center; justify-content: center;
       width: 40px; height: 40px; border-radius: 50%; color: var(--pc-navy);
@@ -220,6 +239,11 @@
        #offices does not park the first row of cards under the chrome. */
     .ct-offices{ margin-top: var(--space-7); min-width: 0;
       scroll-margin-top: calc(var(--navH) + var(--space-6)); }
+    /* At two columns the grid's row gap owns that space - the margin would push the
+       offices below the form and break the alignment this variant exists for. */
+    @media (min-width: 1280px){
+      .ct-offices{ margin-top: 0; }
+    }
 
     /* THREE ACROSS in the left column, stepping down on --site steps rather than by
        card width - so the column count changes where the rest of the site changes.
@@ -356,9 +380,10 @@
 
 
   <!-- ================= PAGE CONTENT =================
-       Contact, VARIANT B - the columns are flipped against contact.html. Left: the
-       380px rail holding the form with Follow Us under it. Right: the corporate office,
-       then all 25 offices as cards three across. -->
+       Contact, VARIANT B - flipped and staggered against contact.html. The corporate
+       office card runs FULL WIDTH across the top and carries the Follow Us marks under
+       its address; below it the 380px rail holds the form on the LEFT, level with the
+       first row of the 25 office cards on the right. -->
   <main class="ct-body" id="top" aria-label="Contact">
     <div class="ct-wrap">
 
@@ -368,7 +393,81 @@
 
       <div class="ct-top reveal">
 
-        <!-- ---------- left: the form, then Follow Us ---------- -->
+        <!-- ---------- row 1: the corporate office, full width ---------- -->
+          <div class="ct-card ct-card--navy">
+            <div class="ct-corp">
+
+              <div class="ct-corp-text">
+                <h2>Corporate Office</h2>
+                <p class="ct-office-line">
+                  1108 S. 44th Street, Suite 102<br />
+                  Cumming, IA 50061<br />
+                  <b><a href="tel:+18558005263">855.800.5263</a></b><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </p>
+
+                <!-- FOLLOW US lives in this card, under the address, not in the rail.
+                     It is an h3 because it is a part of the Corporate Office card, not a
+                     section of its own - the card's own h2 is the heading above it. The
+                     marks keep their white ground, which is what lets them sit on navy
+                     without a second treatment. -->
+                <h3 class="ct-follow-h">Follow Us</h3>
+                <div class="ct-social">
+                  <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+                  <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+                  <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+                  <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+                  <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+                </div>
+              </div>
+
+              <!-- OFFICE CAROUSEL. Three photographs of the corporate office in a
+                   square frame, crossfading every five seconds, starting on office1.
+
+                   SLIDE ORDER IS SOURCE ORDER - office1, office2, office3 - and the dots
+                   are generated from the slides, so adding or removing a photograph here
+                   is the whole edit. Nothing else counts them.
+
+                   ALL THREE FILES ARE LOWERCASE .jpg ON PURPOSE. The exports arrived as
+                   a mix of .jpg and .JPG and were renamed to one convention, because a
+                   case-only difference in a src serves fine from Windows and 404s on the
+                   case-sensitive host. Keep any replacement lowercase.
+
+                   All three are 500x500, about 70KB each. The frame renders at 380px, so
+                   they are sharp on a standard display and slightly soft on a 2x screen,
+                   which wants roughly 760px. Not worth a re-export unless it shows.
+
+                   No loading="lazy" on the second and third: a slide that has not
+                   arrived by the time its crossfade starts shows navy, and at this file
+                   size there is nothing to defer.
+
+                   Each alt text describes ITS OWN photograph. Slides two and three are
+                   placeholders pending a description of what they actually show. -->
+              <figure class="ct-corp-photo">
+                <div class="ct-shots" id="ctShots">
+                  <img class="ct-shot is-on" src="../assets/office1.jpg"
+                       alt="The Peoples Company corporate office: a pale brick building with
+                            the company name painted across its upper wall" />
+                  <img class="ct-shot" src="../assets/office2.jpg"
+                       alt="The Peoples Company corporate office, second view" />
+                  <img class="ct-shot" src="../assets/office3.jpg"
+                       alt="The Peoples Company corporate office, third view" />
+
+                  <div class="ct-shotbar">
+                    <div class="ct-dots" id="ctDots" role="group" aria-label="Choose a photograph"></div>
+                    <button class="ct-shotplay" id="ctShotPlay" type="button"
+                            data-playing="true" aria-label="Pause the photographs">
+                      <svg class="ct-ico-pause" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="3" height="10" rx="1"/><rect x="7" y="1" width="3" height="10" rx="1"/></svg>
+                      <svg class="ct-ico-play" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.5 10.5 6 3 10.5V1.5Z"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </figure>
+
+            </div>
+          </div>
+
+        <!-- ---------- row 2, left: the form ---------- -->
         <aside class="ct-rail" aria-label="Contact us">
 
           <div class="ct-card">
@@ -420,335 +519,261 @@
 
           </div>
 
-          <div class="ct-card">
-            <h2>Follow Us</h2>
-            <div class="ct-social">
-              <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
-              <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
-              <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-              <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
-              <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
-            </div>
-          </div>
-
         </aside>
 
-        <!-- ---------- right: the corporate office, then the offices ---------- -->
-        <div class="ct-main">
+        <!-- ---------- row 2, right: the offices ---------- -->
+        <!-- Each card links to its region page: /delta /midwest /lake-states
+             /pacific-west /pacific-northwest. Two more region pages exist - /southeast
+             and /southern-plains - with no office on this list.
 
-          <div class="ct-card ct-card--navy">
-            <div class="ct-corp">
+             LEXINGTON KY IS THE EXCEPTION and is deliberately left unlinked: the live
+             site tags it APPALACHIAN, and there is no Appalachian region page. Either
+             it gets one or the office gets re-tagged to a region that has one. -->
+        <section class="ct-offices" id="offices" aria-labelledby="offices-h">
 
-              <div class="ct-corp-text">
-                <h2>Corporate Office</h2>
-                <p class="ct-office-line">
-                  1108 S. 44th Street, Suite 102<br />
-                  Cumming, IA 50061<br />
-                  <b><a href="tel:+18558005263">855.800.5263</a></b><br />
-                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-                </p>
-              </div>
+          <!-- The visible heading and its teaser are gone: the cards under the
+               corporate office read as the rest of the same column. The h2 stays for
+               screen readers and for the #offices anchor, so the section still
+               announces itself. -->
+          <h2 id="offices-h" class="sr-only">Peoples Company Offices</h2>
 
-              <!-- OFFICE CAROUSEL. Three photographs of the corporate office in a
-                   square frame, crossfading every five seconds, starting on office1.
+          <ul class="ct-officegrid">
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/delta">Arlington, TN<span class="sr-only"> — Delta region</span></a></h3>
+              <span class="ct-region">Delta</span>
+              <address class="ct-addr">
+                11990 Mott Street<br />
+                Arlington, TN 38002<br />
+                <a class="ct-tel" href="tel:+19014830373">901.483.0373</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Bloomington, IL<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                1907 Jumer Drive, Suite D<br />
+                Bloomington, IL 61704<br />
+                <a class="ct-tel" href="tel:+18006076888">800.607.6888</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Cascade, IA<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                300 1st Avenue W<br />
+                Cascade, IA 52033<br />
+                <a class="ct-tel" href="tel:+15635438338">563.543.8338</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Champaign, IL<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                1605 South State Street, Suite 110<br />
+                Champaign, IL 61820<br />
+                <a class="ct-tel" href="tel:+18006076888">800.607.6888</a>
+              </address>
+            </li>
+            <!-- CUMMING IS HIDDEN, NOT DELETED. It is the corporate office - the same
+                 address as the navy card at the top of this column - so showing it here
+                 lists the head office twice. It is hidden from everyone including screen
+                 readers rather than sr-only: a duplicate announced twice is noise, not
+                 help. The markup stays so the data is in front of whoever wires the CMS,
+                 and the one thing that differs is kept: the local 515 number, against the
+                 855 on the card above.
+                 In the CMS this is one office record with a flag, not a deletion. -->
+            <li class="ct-officecard" hidden>
+              <h3><a class="ct-cardlink" href="/midwest">Cumming, IA<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                1108 S. 44th Street, Suite 102<br />
+                Cumming, IA 50061<br />
+                <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">DeWitt, IA<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                700 6th Avenue<br />
+                DeWitt, IA 52742<br />
+                <a class="ct-tel" href="tel:+15636598185">563.659.8185</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Fremont, NE<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                1735 E. Military Avenue, P.O. Box 672<br />
+                Fremont, NE 68026<br />
+                <a class="ct-tel" href="tel:+14027215995">402.721.5995</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/pacific-west">Fresno, CA<span class="sr-only"> — Pacific West region</span></a></h3>
+              <span class="ct-region">Pacific West</span>
+              <address class="ct-addr">
+                7675 N. Ingram Avenue, Suite 101<br />
+                Fresno, CA 93711<br />
+                <a class="ct-tel" href="tel:+15599449524">559.944.9524</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Independence, IA<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                2300 Swan Lake Boulevard, Suite 300<br />
+                Independence, IA 50644<br />
+                <a class="ct-tel" href="tel:+13193618089">319.361.8089</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Indianola, IA<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                113 W. Salem Avenue<br />
+                Indianola, IA 50125<br />
+                <a class="ct-tel" href="tel:+15159610247">515.961.0247</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Kasson, MN<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                20 4th Street SE<br />
+                Kasson, MN 55944<br />
+                <a class="ct-tel" href="tel:+15076347033">507.634.7033</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Kearney, NE<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                4111 4th Avenue, Suite 22<br />
+                Kearney, NE 68845<br />
+                <a class="ct-tel" href="tel:+13082377662">308.237.7662</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3>Lexington, KY</h3>
+              <span class="ct-region">Appalachian</span>
+              <address class="ct-addr">
+                348 E. Main Street, Office #24<br />
+                Lexington, KY 40507<br />
+                <a class="ct-tel" href="tel:+18558005263">855.800.LAND</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Lincoln, NE<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                3501 Plantation Drive, Suite 100<br />
+                Lincoln, NE 68516<br />
+                <a class="ct-tel" href="tel:+14024344498">402.434.4498</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/lake-states">Marlette, MI<span class="sr-only"> — Lake States region</span></a></h3>
+              <span class="ct-region">Lake States</span>
+              <address class="ct-addr">
+                3509 S. Van Dyke Road<br />
+                Marlette, MI 48453<br />
+                <a class="ct-tel" href="tel:+19896350086">989.635.0086</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/lake-states">Mineral Point, WI<span class="sr-only"> — Lake States region</span></a></h3>
+              <span class="ct-region">Lake States</span>
+              <address class="ct-addr">
+                207 High Street<br />
+                Mineral Point, WI 53565<br />
+                <a class="ct-tel" href="tel:+16084821229">608.482.1229</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/delta">Monroe, LA<span class="sr-only"> — Delta region</span></a></h3>
+              <span class="ct-region">Delta</span>
+              <address class="ct-addr">
+                1500 N. 19th Street<br />
+                Monroe, LA 71201<br />
+                <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Norfolk, NE<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                800 W. Benjamin Avenue, Suite B<br />
+                Norfolk, NE 68701<br />
+                <a class="ct-tel" href="tel:+14023710065">402.371.0065</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Omaha, NE<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                4601 Catalyst Court, Suite 1070<br />
+                Omaha, NE 68106<br />
+                <a class="ct-tel" href="tel:+14023340256">402.334.0256</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Oswego, IL<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                2681 U.S. Highway 34<br />
+                Oswego, IL 60543<br />
+                <a class="ct-tel" href="tel:+13319993490">331.999.3490</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Plainfield, IA<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                714 Main Street<br />
+                Plainfield, IA 50666<br />
+                <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/pacific-west">San Diego, CA<span class="sr-only"> — Pacific West region</span></a></h3>
+              <span class="ct-region">Pacific West</span>
+              <address class="ct-addr">
+                2150 W. Washington Street, Suite 501<br />
+                San Diego, CA 92110<br />
+                <a class="ct-tel" href="tel:+16197573435">619.757.3435</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/pacific-northwest">Walla Walla, WA<span class="sr-only"> — Pacific Northwest region</span></a></h3>
+              <span class="ct-region">Pacific Northwest</span>
+              <address class="ct-addr">
+                109 W. Poplar Street<br />
+                Walla Walla, WA 99362<br />
+                <a class="ct-tel" href="tel:+15095400228">509.540.0228</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Wapakoneta, OH<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                22253 Blank Pike<br />
+                Wapakoneta, OH 43895<br />
+                <a class="ct-tel" href="tel:+14023340256">402.334.0256</a>
+              </address>
+            </li>
+            <li class="ct-officecard">
+              <h3><a class="ct-cardlink" href="/midwest">Wayne, NE<span class="sr-only"> — Midwest region</span></a></h3>
+              <span class="ct-region">Midwest</span>
+              <address class="ct-addr">
+                206 Main Street, P.O. Box 16<br />
+                Wayne, NE 68787<br />
+                <a class="ct-tel" href="tel:+14028333132">402.833.3132</a>
+              </address>
+            </li>
+          </ul>
 
-                   SLIDE ORDER IS SOURCE ORDER - office1, office2, office3 - and the dots
-                   are generated from the slides, so adding or removing a photograph here
-                   is the whole edit. Nothing else counts them.
-
-                   ALL THREE FILES ARE LOWERCASE .jpg ON PURPOSE. The exports arrived as
-                   a mix of .jpg and .JPG and were renamed to one convention, because a
-                   case-only difference in a src serves fine from Windows and 404s on the
-                   case-sensitive host. Keep any replacement lowercase.
-
-                   All three are 500x500, about 70KB each. The frame renders at 380px, so
-                   they are sharp on a standard display and slightly soft on a 2x screen,
-                   which wants roughly 760px. Not worth a re-export unless it shows.
-
-                   No loading="lazy" on the second and third: a slide that has not
-                   arrived by the time its crossfade starts shows navy, and at this file
-                   size there is nothing to defer.
-
-                   Each alt text describes ITS OWN photograph. Slides two and three are
-                   placeholders pending a description of what they actually show. -->
-              <figure class="ct-corp-photo">
-                <div class="ct-shots" id="ctShots">
-                  <img class="ct-shot is-on" src="../assets/office1.jpg"
-                       alt="The Peoples Company corporate office: a pale brick building with
-                            the company name painted across its upper wall" />
-                  <img class="ct-shot" src="../assets/office2.jpg"
-                       alt="The Peoples Company corporate office, second view" />
-                  <img class="ct-shot" src="../assets/office3.jpg"
-                       alt="The Peoples Company corporate office, third view" />
-
-                  <div class="ct-shotbar">
-                    <div class="ct-dots" id="ctDots" role="group" aria-label="Choose a photograph"></div>
-                    <button class="ct-shotplay" id="ctShotPlay" type="button"
-                            data-playing="true" aria-label="Pause the photographs">
-                      <svg class="ct-ico-pause" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="3" height="10" rx="1"/><rect x="7" y="1" width="3" height="10" rx="1"/></svg>
-                      <svg class="ct-ico-play" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.5 10.5 6 3 10.5V1.5Z"/></svg>
-                    </button>
-                  </div>
-                </div>
-              </figure>
-
-            </div>
-          </div>
-
-          <!-- Each card links to its region page: /delta /midwest /lake-states
-               /pacific-west /pacific-northwest. Two more region pages exist - /southeast
-               and /southern-plains - with no office on this list.
-
-               LEXINGTON KY IS THE EXCEPTION and is deliberately left unlinked: the live
-               site tags it APPALACHIAN, and there is no Appalachian region page. Either
-               it gets one or the office gets re-tagged to a region that has one. -->
-          <section class="ct-offices" id="offices" aria-labelledby="offices-h">
-
-            <!-- The visible heading and its teaser are gone: the cards under the
-                 corporate office read as the rest of the same column. The h2 stays for
-                 screen readers and for the #offices anchor, so the section still
-                 announces itself. -->
-            <h2 id="offices-h" class="sr-only">Peoples Company Offices</h2>
-
-            <ul class="ct-officegrid">
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/delta">Arlington, TN<span class="sr-only"> — Delta region</span></a></h3>
-                <span class="ct-region">Delta</span>
-                <address class="ct-addr">
-                  11990 Mott Street<br />
-                  Arlington, TN 38002<br />
-                  <a class="ct-tel" href="tel:+19014830373">901.483.0373</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Bloomington, IL<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  1907 Jumer Drive, Suite D<br />
-                  Bloomington, IL 61704<br />
-                  <a class="ct-tel" href="tel:+18006076888">800.607.6888</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Cascade, IA<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  300 1st Avenue W<br />
-                  Cascade, IA 52033<br />
-                  <a class="ct-tel" href="tel:+15635438338">563.543.8338</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Champaign, IL<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  1605 South State Street, Suite 110<br />
-                  Champaign, IL 61820<br />
-                  <a class="ct-tel" href="tel:+18006076888">800.607.6888</a>
-                </address>
-              </li>
-              <!-- CUMMING IS HIDDEN, NOT DELETED. It is the corporate office - the same
-                   address as the navy card at the top of this column - so showing it here
-                   lists the head office twice. It is hidden from everyone including screen
-                   readers rather than sr-only: a duplicate announced twice is noise, not
-                   help. The markup stays so the data is in front of whoever wires the CMS,
-                   and the one thing that differs is kept: the local 515 number, against the
-                   855 on the card above.
-                   In the CMS this is one office record with a flag, not a deletion. -->
-              <li class="ct-officecard" hidden>
-                <h3><a class="ct-cardlink" href="/midwest">Cumming, IA<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  1108 S. 44th Street, Suite 102<br />
-                  Cumming, IA 50061<br />
-                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">DeWitt, IA<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  700 6th Avenue<br />
-                  DeWitt, IA 52742<br />
-                  <a class="ct-tel" href="tel:+15636598185">563.659.8185</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Fremont, NE<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  1735 E. Military Avenue, P.O. Box 672<br />
-                  Fremont, NE 68026<br />
-                  <a class="ct-tel" href="tel:+14027215995">402.721.5995</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/pacific-west">Fresno, CA<span class="sr-only"> — Pacific West region</span></a></h3>
-                <span class="ct-region">Pacific West</span>
-                <address class="ct-addr">
-                  7675 N. Ingram Avenue, Suite 101<br />
-                  Fresno, CA 93711<br />
-                  <a class="ct-tel" href="tel:+15599449524">559.944.9524</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Independence, IA<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  2300 Swan Lake Boulevard, Suite 300<br />
-                  Independence, IA 50644<br />
-                  <a class="ct-tel" href="tel:+13193618089">319.361.8089</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Indianola, IA<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  113 W. Salem Avenue<br />
-                  Indianola, IA 50125<br />
-                  <a class="ct-tel" href="tel:+15159610247">515.961.0247</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Kasson, MN<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  20 4th Street SE<br />
-                  Kasson, MN 55944<br />
-                  <a class="ct-tel" href="tel:+15076347033">507.634.7033</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Kearney, NE<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  4111 4th Avenue, Suite 22<br />
-                  Kearney, NE 68845<br />
-                  <a class="ct-tel" href="tel:+13082377662">308.237.7662</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3>Lexington, KY</h3>
-                <span class="ct-region">Appalachian</span>
-                <address class="ct-addr">
-                  348 E. Main Street, Office #24<br />
-                  Lexington, KY 40507<br />
-                  <a class="ct-tel" href="tel:+18558005263">855.800.LAND</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Lincoln, NE<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  3501 Plantation Drive, Suite 100<br />
-                  Lincoln, NE 68516<br />
-                  <a class="ct-tel" href="tel:+14024344498">402.434.4498</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/lake-states">Marlette, MI<span class="sr-only"> — Lake States region</span></a></h3>
-                <span class="ct-region">Lake States</span>
-                <address class="ct-addr">
-                  3509 S. Van Dyke Road<br />
-                  Marlette, MI 48453<br />
-                  <a class="ct-tel" href="tel:+19896350086">989.635.0086</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/lake-states">Mineral Point, WI<span class="sr-only"> — Lake States region</span></a></h3>
-                <span class="ct-region">Lake States</span>
-                <address class="ct-addr">
-                  207 High Street<br />
-                  Mineral Point, WI 53565<br />
-                  <a class="ct-tel" href="tel:+16084821229">608.482.1229</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/delta">Monroe, LA<span class="sr-only"> — Delta region</span></a></h3>
-                <span class="ct-region">Delta</span>
-                <address class="ct-addr">
-                  1500 N. 19th Street<br />
-                  Monroe, LA 71201<br />
-                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Norfolk, NE<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  800 W. Benjamin Avenue, Suite B<br />
-                  Norfolk, NE 68701<br />
-                  <a class="ct-tel" href="tel:+14023710065">402.371.0065</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Omaha, NE<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  4601 Catalyst Court, Suite 1070<br />
-                  Omaha, NE 68106<br />
-                  <a class="ct-tel" href="tel:+14023340256">402.334.0256</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Oswego, IL<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  2681 U.S. Highway 34<br />
-                  Oswego, IL 60543<br />
-                  <a class="ct-tel" href="tel:+13319993490">331.999.3490</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Plainfield, IA<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  714 Main Street<br />
-                  Plainfield, IA 50666<br />
-                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/pacific-west">San Diego, CA<span class="sr-only"> — Pacific West region</span></a></h3>
-                <span class="ct-region">Pacific West</span>
-                <address class="ct-addr">
-                  2150 W. Washington Street, Suite 501<br />
-                  San Diego, CA 92110<br />
-                  <a class="ct-tel" href="tel:+16197573435">619.757.3435</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/pacific-northwest">Walla Walla, WA<span class="sr-only"> — Pacific Northwest region</span></a></h3>
-                <span class="ct-region">Pacific Northwest</span>
-                <address class="ct-addr">
-                  109 W. Poplar Street<br />
-                  Walla Walla, WA 99362<br />
-                  <a class="ct-tel" href="tel:+15095400228">509.540.0228</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Wapakoneta, OH<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  22253 Blank Pike<br />
-                  Wapakoneta, OH 43895<br />
-                  <a class="ct-tel" href="tel:+14023340256">402.334.0256</a>
-                </address>
-              </li>
-              <li class="ct-officecard">
-                <h3><a class="ct-cardlink" href="/midwest">Wayne, NE<span class="sr-only"> — Midwest region</span></a></h3>
-                <span class="ct-region">Midwest</span>
-                <address class="ct-addr">
-                  206 Main Street, P.O. Box 16<br />
-                  Wayne, NE 68787<br />
-                  <a class="ct-tel" href="tel:+14028333132">402.833.3132</a>
-                </address>
-              </li>
-            </ul>
-
-          </section>
-
-        </div>
+        </section>
 
       </div>
 
