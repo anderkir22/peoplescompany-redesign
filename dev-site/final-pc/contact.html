@@ -26,8 +26,8 @@
     .ct-head h1{ margin: 0 0 var(--space-7); }
 
     /* ---- the two columns ----
-       Left is the content column: the team photograph, then the page's main form. Right
-       is the contact rail: corporate office, the rail copy of the form, social.
+       Left is the content column: the team photograph, then the regional footprint map.
+       Right is the contact rail: corporate office, the form, social.
        Below 1280 everything is one column in source order. */
     .ct-top{ display: grid; gap: var(--space-7); }
     @media (min-width: 1280px){
@@ -38,8 +38,16 @@
     /* ---- the team photograph ----
        1200x490 (2.45:1), local in ../assets. No crop: the frame follows the image, because
        a group photograph cannot lose its edges without losing people. */
-    .ct-photo{ margin: 0 0 var(--space-8); }
+    .ct-photo{ margin: 0 0 var(--space-7); }
     .ct-photo img{ display: block; width: 100%; height: auto; border-radius: var(--radius-lg); }
+
+    /* ---- the regional footprint map ----
+       2550x1688, local in ../assets. Sits under the photograph and, like it, is never
+       cropped - the states and the office pins have to stay whole. */
+    .ct-map{ margin: 0; }
+    .ct-map img{ display: block; width: 100%; height: auto; border-radius: var(--radius-lg); }
+    .ct-map figcaption{ font-family: var(--font-sans); font-size: var(--body-sm);
+      color: var(--pc-navy); margin-top: var(--space-3); }
 
     .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
@@ -49,12 +57,10 @@
        page runs an embedded third-party form, so treat this as the field list and the
        visual treatment, not as markup to ship. */
     .ct-form{ display: grid; gap: var(--space-5); }
-    /* One field per row by default - that is what the 380px rail can hold.
-       .ct-form--wide is the left-column copy, which has the width to pair fields up. */
+    /* One field per row at every width - that is what the 380px rail can hold, and below
+       1280 the form runs full width under the map, where a two-up name row would be the
+       only wide thing on the page. */
     .ct-row{ display: grid; gap: var(--space-5); }
-    @media (min-width: 640px){
-      .ct-form--wide .ct-row{ grid-template-columns: 1fr 1fr; }
-    }
     .ct-field{ display: grid; gap: var(--space-2); }
     .ct-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
       letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
@@ -134,13 +140,6 @@
     .ct-addr a:hover{ color: var(--color-accent); }
     .ct-addr .ct-tel{ font-weight: 600; }
 
-    /* REVIEW SCAFFOLDING - the two form copies are labelled so they can be told apart
-       while the placement is being decided. Same amber as the mock-up notes elsewhere in
-       the build. BOTH the tags and one of the two forms come out before handoff. */
-    .ct-mocknote{ display: inline-block; margin: 0 0 var(--space-3);
-      background: #FFFAEF; border: 1px dashed #C2870B; border-radius: var(--radius-sm);
-      padding: 6px 12px; font-family: var(--font-sans); font-size: 10px; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; }
 
     @media (max-width: 639px){
       .ct-card{ padding: var(--space-5); }
@@ -215,12 +214,9 @@
 
 
   <!-- ================= PAGE CONTENT =================
-       Contact. Top block is two columns - the team photograph and the form on the left,
-       the corporate office and a second copy of the form in the rail on the right. Below
-       it, full width, all 25 offices as cards four across.
-
-       THE FORM APPEARS TWICE ON PURPOSE: the two placements are being compared and one
-       will be removed. Field ids are prefixed a- and b- so the two cannot collide. -->
+       Contact. Top block is two columns - the team photograph over the regional map on
+       the left, the corporate office, the form and the social marks in the rail on the
+       right. Below it, full width, all 25 offices as cards four across. -->
   <main class="ct-body" id="top" aria-label="Contact">
     <div class="ct-wrap">
 
@@ -230,7 +226,7 @@
 
       <div class="ct-top reveal">
 
-        <!-- ---------- left: the team, then the form ---------- -->
+        <!-- ---------- left: the team, then the footprint ---------- -->
         <div class="ct-main">
 
           <figure class="ct-photo">
@@ -238,58 +234,16 @@
                  alt="The Peoples Company team, gathered for a group photograph" />
           </figure>
 
-          <section aria-labelledby="help-a-h">
-            <p class="ct-mocknote">Form placement A &mdash; left column</p>
-            <h2 id="help-a-h">How Can We Help You?</h2>
-            <p class="ct-lede">Complete the form below and we will get back to you as soon as
-              possible.</p>
-          <form class="ct-form ct-form--wide" action="#" onsubmit="return false;">
-            <div class="ct-row">
-              <div class="ct-field">
-                <label for="a-ct-first">First Name</label>
-                <input type="text" id="a-ct-first" name="first" autocomplete="given-name" required />
-              </div>
-              <div class="ct-field">
-                <label for="a-ct-last">Last Name</label>
-                <input type="text" id="a-ct-last" name="last" autocomplete="family-name" required />
-              </div>
-            </div>
-            <div class="ct-row">
-              <div class="ct-field">
-                <label for="a-ct-email">Email</label>
-                <input type="email" id="a-ct-email" name="email" autocomplete="email" required />
-              </div>
-              <div class="ct-field">
-                <label for="a-ct-phone">Phone <span class="ct-opt">(optional)</span></label>
-                <input type="tel" id="a-ct-phone" name="phone" autocomplete="tel" />
-              </div>
-            </div>
-            <div class="ct-field">
-              <label for="a-ct-interest">How can we help?</label>
-              <select id="a-ct-interest" name="interest">
-                <option value="">Select a service&hellip;</option>
-                <option>Land Brokerage &amp; Auctions</option>
-                <option>Land Management</option>
-                <option>Agricultural Appraisal</option>
-                <option>Capital Markets</option>
-                <option>Energy Management</option>
-                <option>Crop Insurance</option>
-                <option>Corporate Services</option>
-                <option>Careers</option>
-                <option>Something else</option>
-              </select>
-            </div>
-            <div class="ct-field">
-              <label for="a-ct-message">Message</label>
-              <textarea id="a-ct-message" name="message" required></textarea>
-            </div>
-            <button class="btn btn-subscribe" type="submit">Send Message</button>
-          </form>
+          <figure class="ct-map">
+            <img src="../assets/pc-regional-map.webp"
+                 alt="Map of the United States showing the Peoples Company regions and office locations"
+                 loading="lazy" />
+            <figcaption>Peoples Company regions and office locations.</figcaption>
+          </figure>
 
-          </section>
         </div>
 
-        <!-- ---------- right: where to reach us, then the form again ---------- -->
+        <!-- ---------- right: where to reach us, then the form ---------- -->
         <aside class="ct-rail" aria-label="Contact us">
 
           <div class="ct-card">
@@ -303,34 +257,33 @@
           </div>
 
           <div class="ct-card">
-            <p class="ct-mocknote">Placement B &mdash; rail</p>
-            <h2 id="help-b-h">How Can We Help You?</h2>
+            <h2 id="help-h">How Can We Help You?</h2>
             <p class="ct-lede">Complete the form below and we will get back to you as soon as
               possible.</p>
             <form class="ct-form" action="#" onsubmit="return false;">
               <div class="ct-row">
                 <div class="ct-field">
-                  <label for="b-ct-first">First Name</label>
-                  <input type="text" id="b-ct-first" name="first" autocomplete="given-name" required />
+                  <label for="ct-first">First Name</label>
+                  <input type="text" id="ct-first" name="first" autocomplete="given-name" required />
                 </div>
                 <div class="ct-field">
-                  <label for="b-ct-last">Last Name</label>
-                  <input type="text" id="b-ct-last" name="last" autocomplete="family-name" required />
+                  <label for="ct-last">Last Name</label>
+                  <input type="text" id="ct-last" name="last" autocomplete="family-name" required />
                 </div>
               </div>
               <div class="ct-row">
                 <div class="ct-field">
-                  <label for="b-ct-email">Email</label>
-                  <input type="email" id="b-ct-email" name="email" autocomplete="email" required />
+                  <label for="ct-email">Email</label>
+                  <input type="email" id="ct-email" name="email" autocomplete="email" required />
                 </div>
                 <div class="ct-field">
-                  <label for="b-ct-phone">Phone <span class="ct-opt">(optional)</span></label>
-                  <input type="tel" id="b-ct-phone" name="phone" autocomplete="tel" />
+                  <label for="ct-phone">Phone <span class="ct-opt">(optional)</span></label>
+                  <input type="tel" id="ct-phone" name="phone" autocomplete="tel" />
                 </div>
               </div>
               <div class="ct-field">
-                <label for="b-ct-interest">How can we help?</label>
-                <select id="b-ct-interest" name="interest">
+                <label for="ct-interest">How can we help?</label>
+                <select id="ct-interest" name="interest">
                   <option value="">Select a service&hellip;</option>
                   <option>Land Brokerage &amp; Auctions</option>
                   <option>Land Management</option>
@@ -344,8 +297,8 @@
                 </select>
               </div>
               <div class="ct-field">
-                <label for="b-ct-message">Message</label>
-                <textarea id="b-ct-message" name="message" required></textarea>
+                <label for="ct-message">Message</label>
+                <textarea id="ct-message" name="message" required></textarea>
               </div>
               <button class="btn btn-subscribe" type="submit">Send Message</button>
             </form>
