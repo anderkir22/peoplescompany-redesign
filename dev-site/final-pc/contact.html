@@ -25,15 +25,20 @@
     /* ---- page head ---- */
     .ct-head h1{ margin: 0 0 var(--space-7); }
 
-    /* ---- top block: form on the left, the direct routes on the right ----
-       One column until 1024, where the rail has room to sit beside the form without
-       squeezing either. The rail is a fixed 360px so the form takes the slack. */
+    /* ---- the two columns ----
+       Left is the content column: the footprint map, then every office. Right is the
+       contact rail: corporate office, then the form.
+
+       The split waits until 1280, not 1024. At 1024 the left column would be about 500px
+       once the rail and the gutter are taken out - too narrow for two office cards, so
+       the grid would collapse to a single column of cards beside a tall rail. Below 1280
+       everything is one column in source order: map, offices, corporate office, form. */
     .ct-top{ display: grid; gap: var(--space-7); }
-    @media (min-width: 1024px){
-      .ct-top{ grid-template-columns: minmax(0, 1fr) 360px; gap: var(--space-8); align-items: start; }
+    .ct-main{ min-width: 0; }
+    @media (min-width: 1280px){
+      .ct-top{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8); align-items: start; }
     }
 
-    .ct-sec h2{ margin: 0 0 var(--space-4); }
     .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
 
@@ -42,8 +47,10 @@
        page runs an embedded third-party form, so treat this as the field list and the
        visual treatment, not as markup to ship. */
     .ct-form{ display: grid; gap: var(--space-5); }
+    /* One field per row at every width. The form lives in a 380px rail, which has no
+       room for a two-up name row - and below 1280 it sits under the offices at full
+       width, where two-up name fields would be the only wide thing on the page. */
     .ct-row{ display: grid; gap: var(--space-5); }
-    @media (min-width: 640px){ .ct-row{ grid-template-columns: 1fr 1fr; } }
     .ct-field{ display: grid; gap: var(--space-2); }
     .ct-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
       letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
@@ -59,22 +66,18 @@
       outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
     .ct-form .btn{ justify-self: start; }
 
-    /* ---- right rail ---- */
+    /* ---- right rail ----
+       Below 1280 the rail stops being a rail and becomes the bottom of the page, so it
+       gets a top rule there to separate it from the office cards above. */
     .ct-rail{ display: grid; gap: var(--space-6); }
+    @media (max-width: 1279px){
+      .ct-rail{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
+    }
     .ct-card{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-lg); padding: var(--space-6); }
-    .ct-card h3{ margin: 0 0 var(--space-4); font-size: var(--h4-size); }
+    .ct-card h2{ margin: 0 0 var(--space-4); font-size: var(--h3-size); }
+    .ct-card .ct-lede{ font-size: var(--body); max-width: none; margin-bottom: var(--space-5); }
 
-    /* Division emails: the label is what a visitor scans, the address is the link. */
-    .ct-divs{ display: grid; gap: var(--space-4); margin: 0; }
-    .ct-divs div{ display: grid; gap: 2px; }
-    .ct-divs dt{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
-      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
-    .ct-divs dd{ margin: 0; font-family: var(--font-sans); font-size: var(--body-sm);
-      line-height: 1.5; }
-    .ct-divs a{ color: var(--color-text); text-decoration: underline;
-      text-underline-offset: 3px; text-decoration-thickness: 1px; word-break: break-word; }
-    .ct-divs a:hover{ color: var(--color-accent); }
 
     .ct-office-line{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.7;
       color: var(--color-text-muted); margin: 0 0 var(--space-4); }
@@ -93,11 +96,11 @@
     .ct-social svg{ width: 18px; height: 18px; }
 
     /* ---- offices ---- */
-    /* scroll-margin clears the sticky header plus the map tab below it, so a link to
+    /* The offices now sit directly under the map inside the left column, so the section
+       carries no rule or top padding of its own - the map is the separator.
+       scroll-margin clears the sticky header plus the map tab below it, so a link to
        #offices does not park the heading under the chrome. */
-    .ct-offices{ margin-top: var(--space-9); padding-top: var(--space-8);
-      border-top: 1px solid var(--color-border);
-      scroll-margin-top: calc(var(--navH) + var(--space-6)); }
+    .ct-offices{ scroll-margin-top: calc(var(--navH) + var(--space-6)); }
     .ct-map{ margin: 0 0 var(--space-7); }
     .ct-map img{ display: block; width: 100%; height: auto; border-radius: var(--radius-lg);
       border: 1px solid var(--color-border); }
@@ -210,99 +213,295 @@
 
       <div class="ct-top reveal">
 
-        <!-- ---------- the form ---------- -->
-        <section class="ct-sec" aria-labelledby="help-h">
-          <h2 id="help-h">How Can We Help You?</h2>
-          <p class="ct-lede">Complete the form below and we will get back to you as soon as
-            possible.</p>
+        <!-- ---------- left: the footprint, then every office ---------- -->
+        <div class="ct-main">
 
-          <form class="ct-form" action="#" onsubmit="return false;">
-            <div class="ct-row">
-              <div class="ct-field">
-                <label for="ct-first">First Name</label>
-                <input type="text" id="ct-first" name="first" autocomplete="given-name" required />
-              </div>
-              <div class="ct-field">
-                <label for="ct-last">Last Name</label>
-                <input type="text" id="ct-last" name="last" autocomplete="family-name" required />
-              </div>
-            </div>
-            <div class="ct-row">
-              <div class="ct-field">
-                <label for="ct-email">Email</label>
-                <input type="email" id="ct-email" name="email" autocomplete="email" required />
-              </div>
-              <div class="ct-field">
-                <label for="ct-phone">Phone <span class="ct-opt">(optional)</span></label>
-                <input type="tel" id="ct-phone" name="phone" autocomplete="tel" />
-              </div>
-            </div>
-            <div class="ct-field">
-              <label for="ct-interest">How can we help?</label>
-              <select id="ct-interest" name="interest">
-                <option value="">Select a service&hellip;</option>
-                <option>Land Brokerage &amp; Auctions</option>
-                <option>Land Management</option>
-                <option>Agricultural Appraisal</option>
-                <option>Capital Markets</option>
-                <option>Energy Management</option>
-                <option>Crop Insurance</option>
-                <option>Corporate Services</option>
-                <option>Careers</option>
-                <option>Something else</option>
-              </select>
-            </div>
-            <div class="ct-field">
-              <label for="ct-message">Message</label>
-              <textarea id="ct-message" name="message" required></textarea>
-            </div>
-            <button class="btn btn-subscribe" type="submit">Send Message</button>
-          </form>
-        </section>
+          <figure class="ct-map">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/maps/peoples-company-regional-map-6-30-26.jpg/9761b73340f147c2df67f872b8c1a626.webp"
+                 alt="Map of the United States showing the Peoples Company regions and office locations"
+                 loading="lazy" />
+            <figcaption>Peoples Company regions and office locations.</figcaption>
+          </figure>
 
-        <!-- ---------- the direct routes ---------- -->
-        <aside class="ct-rail" aria-label="Direct contacts">
+          <section class="ct-offices" id="offices" aria-labelledby="offices-h">
+            <h2 id="offices-h">Peoples Company Offices</h2>
+            <p class="ct-lede">We have offices strategically positioned in all major agricultural
+              regions throughout the country.</p>
+
+            <ul class="ct-officegrid">
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Arlington</h3>
+                <span class="ct-region">Delta</span>
+                <address class="ct-addr">
+                  11990 Mott Street<br />
+                  Arlington, TN 38002<br />
+                  <a class="ct-tel" href="tel:+19014830373">901.483.0373</a><br />
+                  <a href="mailto:LandmarkAg@PeoplesCompany.com">LandmarkAg@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Bloomington</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  1907 Jumer Drive<br />
+                  Suite D<br />
+                  Bloomington, IL 61704<br />
+                  <a class="ct-tel" href="tel:+18006076888">800.607.6888</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Cascade</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  300 1st Avenue W<br />
+                  Cascade, IA 52033<br />
+                  <a class="ct-tel" href="tel:+15635438338">563.543.8338</a><br />
+                  <a href="mailto:Jesse@PeoplesCompany.com">Jesse@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Champaign</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  1605 South State Street<br />
+                  Suite 110<br />
+                  Champaign, IL 61820<br />
+                  <a class="ct-tel" href="tel:+18006076888">800.607.6888</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Cumming</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  1108 S. 44th Street<br />
+                  Suite 102<br />
+                  Cumming, IA 50061<br />
+                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; DeWitt</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  700 6th Avenue<br />
+                  DeWitt, IA 52742<br />
+                  <a class="ct-tel" href="tel:+15636598185">563.659.8185</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Fremont</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  1735 E. Military Avenue<br />
+                  P.O. Box 672<br />
+                  Fremont, NE 68026<br />
+                  <a class="ct-tel" href="tel:+14027215995">402.721.5995</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Fresno</h3>
+                <span class="ct-region">Pacific West</span>
+                <address class="ct-addr">
+                  7675 N. Ingram Avenue<br />
+                  Suite 101<br />
+                  Fresno, CA 93711<br />
+                  <a class="ct-tel" href="tel:+15599449524">559.944.9524</a><br />
+                  <a href="mailto:PacificWest@PeoplesCompany.com">PacificWest@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Independence</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  2300 Swan Lake Boulevard<br />
+                  Suite 300<br />
+                  Independence, IA 50644<br />
+                  <a class="ct-tel" href="tel:+13193618089">319.361.8089</a><br />
+                  <a href="mailto:Travis@PeoplesCompany.com">Travis@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Indianola</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  113 W. Salem Avenue<br />
+                  Indianola, IA 50125<br />
+                  <a class="ct-tel" href="tel:+15159610247">515.961.0247</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Kasson</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  20 4th Street SE<br />
+                  Kasson, MN 55944<br />
+                  <a class="ct-tel" href="tel:+15076347033">507.634.7033</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Kearney</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  4111 4th Avenue<br />
+                  Suite 22<br />
+                  Kearney, NE 68845<br />
+                  <a class="ct-tel" href="tel:+13082377662">308.237.7662</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Lexington</h3>
+                <span class="ct-region">Appalachian</span>
+                <address class="ct-addr">
+                  348 E. Main Street<br />
+                  Office #24<br />
+                  Lexington, KY 40507<br />
+                  <a class="ct-tel" href="tel:+18558005263">855.800.LAND</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Lincoln</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  3501 Plantation Drive<br />
+                  Suite 100<br />
+                  Lincoln, NE 68516<br />
+                  <a class="ct-tel" href="tel:+14024344498">402.434.4498</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Marlette</h3>
+                <span class="ct-region">Lake States</span>
+                <address class="ct-addr">
+                  3509 S. Van Dyke Road<br />
+                  Marlette, MI 48453<br />
+                  <a class="ct-tel" href="tel:+19896350086">989.635.0086</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Mineral Point</h3>
+                <span class="ct-region">Lake States</span>
+                <address class="ct-addr">
+                  207 High Street<br />
+                  Mineral Point, WI 53565<br />
+                  <a class="ct-tel" href="tel:+16084821229">608.482.1229</a><br />
+                  <a href="mailto:Adam.Crist@PeoplesCompany.com">Adam.Crist@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Monroe</h3>
+                <span class="ct-region">Delta</span>
+                <address class="ct-addr">
+                  1500 N. 19th Street<br />
+                  Monroe, LA 71201<br />
+                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Norfolk</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  800 W. Benjamin Avenue<br />
+                  Suite B<br />
+                  Norfolk, NE 68701<br />
+                  <a class="ct-tel" href="tel:+14023710065">402.371.0065</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Omaha</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  4601 Catalyst Court<br />
+                  Suite 1070<br />
+                  Omaha, NE 68106<br />
+                  <a class="ct-tel" href="tel:+14023340256">402.334.0256</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Oswego</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  2681 U.S. Highway 34<br />
+                  Oswego, IL 60543<br />
+                  <a class="ct-tel" href="tel:+13319993490">331.999.3490</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Plainfield</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  714 Main Street<br />
+                  Plainfield, IA 50666<br />
+                  <a class="ct-tel" href="tel:+15152221347">515.222.1347</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; San Diego</h3>
+                <span class="ct-region">Pacific West</span>
+                <address class="ct-addr">
+                  2150 W. Washington Street<br />
+                  Suite 501<br />
+                  San Diego, CA 92110<br />
+                  <a class="ct-tel" href="tel:+16197573435">619.757.3435</a><br />
+                  <a href="mailto:PacificWest@PeoplesCompany.com">PacificWest@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Walla Walla</h3>
+                <span class="ct-region">Pacific Northwest</span>
+                <address class="ct-addr">
+                  109 W. Poplar Street<br />
+                  Walla Walla, WA 99362<br />
+                  <a class="ct-tel" href="tel:+15095400228">509.540.0228</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Wapakoneta</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  22253 Blank Pike<br />
+                  Wapakoneta, OH 43895<br />
+                  <a class="ct-tel" href="tel:+14023340256">402.334.0256</a><br />
+                  <a href="mailto:Jeff.Post@PeoplesCompany.com">Jeff.Post@PeoplesCompany.com</a>
+                </address>
+              </li>
+              <li class="ct-officecard">
+                <h3>Peoples Company &mdash; Wayne</h3>
+                <span class="ct-region">Midwest</span>
+                <address class="ct-addr">
+                  206 Main Street<br />
+                  P.O. Box 16<br />
+                  Wayne, NE 68787<br />
+                  <a class="ct-tel" href="tel:+14028333132">402.833.3132</a><br />
+                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+                </address>
+              </li>
+            </ul>
+
+          </section>
+        </div>
+
+        <!-- ---------- right: where to reach us, then the form ---------- -->
+        <aside class="ct-rail" aria-label="Contact us">
 
           <div class="ct-card">
-            <h3>Division Emails</h3>
-        <dl class="ct-divs">
-          <div>
-            <dt>Land Brokerage &amp; Auctions</dt>
-            <dd><a href="mailto:LandBrokerage@PeoplesCompany.com">LandBrokerage@PeoplesCompany.com</a></dd>
-          </div>
-          <div>
-            <dt>Land Management</dt>
-            <dd><a href="mailto:LandManagement@PeoplesCompany.com">LandManagement@PeoplesCompany.com</a></dd>
-          </div>
-          <div>
-            <dt>Agricultural Appraisal</dt>
-            <dd><a href="mailto:Appraisal@PeoplesCompany.com">Appraisal@PeoplesCompany.com</a></dd>
-          </div>
-          <div>
-            <dt>Capital Markets</dt>
-            <dd><a href="mailto:CapitalMarkets@PeoplesCompany.com">CapitalMarkets@PeoplesCompany.com</a></dd>
-          </div>
-          <div>
-            <dt>Energy Management</dt>
-            <dd><a href="mailto:EnergyManagement@PeoplesCompany.com">EnergyManagement@PeoplesCompany.com</a></dd>
-          </div>
-          <div>
-            <dt>Crop Insurance</dt>
-            <dd><a href="mailto:CropInsurance@PeoplesCompany.com">CropInsurance@PeoplesCompany.com</a></dd>
-          </div>
-          <div>
-            <dt>Corporate Services</dt>
-            <dd><a href="mailto:CorporateServices@PeoplesCompany.com">CorporateServices@PeoplesCompany.com</a></dd>
-          </div>
-          <div>
-            <dt>Careers</dt>
-            <dd><a href="mailto:Careers@PeoplesCompany.com">Careers@PeoplesCompany.com</a></dd>
-          </div>
-        </dl>
-          </div>
-
-          <div class="ct-card">
-            <h3>Corporate Office</h3>
+            <h2>Corporate Office</h2>
             <p class="ct-office-line">
               1108 S. 44th Street, Suite 102<br />
               Cumming, IA 50061<br />
@@ -312,7 +511,55 @@
           </div>
 
           <div class="ct-card">
-            <h3>Follow Us</h3>
+            <h2 id="help-h">How Can We Help You?</h2>
+            <p class="ct-lede">Complete the form below and we will get back to you as soon as
+              possible.</p>
+            <form class="ct-form" action="#" onsubmit="return false;">
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ct-first">First Name</label>
+                  <input type="text" id="ct-first" name="first" autocomplete="given-name" required />
+                </div>
+                <div class="ct-field">
+                  <label for="ct-last">Last Name</label>
+                  <input type="text" id="ct-last" name="last" autocomplete="family-name" required />
+                </div>
+              </div>
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ct-email">Email</label>
+                  <input type="email" id="ct-email" name="email" autocomplete="email" required />
+                </div>
+                <div class="ct-field">
+                  <label for="ct-phone">Phone <span class="ct-opt">(optional)</span></label>
+                  <input type="tel" id="ct-phone" name="phone" autocomplete="tel" />
+                </div>
+              </div>
+              <div class="ct-field">
+                <label for="ct-interest">How can we help?</label>
+                <select id="ct-interest" name="interest">
+                  <option value="">Select a service&hellip;</option>
+                  <option>Land Brokerage &amp; Auctions</option>
+                  <option>Land Management</option>
+                  <option>Agricultural Appraisal</option>
+                  <option>Capital Markets</option>
+                  <option>Energy Management</option>
+                  <option>Crop Insurance</option>
+                  <option>Corporate Services</option>
+                  <option>Careers</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+              <div class="ct-field">
+                <label for="ct-message">Message</label>
+                <textarea id="ct-message" name="message" required></textarea>
+              </div>
+              <button class="btn btn-subscribe" type="submit">Send Message</button>
+            </form>
+          </div>
+
+          <div class="ct-card">
+            <h2>Follow Us</h2>
         <div class="ct-social">
           <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
           <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
@@ -324,286 +571,6 @@
 
         </aside>
       </div>
-
-      <!-- ---------- every office ---------- -->
-      <section class="ct-offices reveal" id="offices" aria-labelledby="offices-h">
-        <h2 id="offices-h">Peoples Company Offices</h2>
-        <p class="ct-lede">We have offices strategically positioned in all major agricultural
-          regions throughout the country.</p>
-
-        <figure class="ct-map">
-          <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/maps/peoples-company-regional-map-6-30-26.jpg/9761b73340f147c2df67f872b8c1a626.webp"
-               alt="Map of the United States showing the Peoples Company regions and office locations"
-               loading="lazy" />
-          <figcaption>Peoples Company regions and office locations.</figcaption>
-        </figure>
-
-        <ul class="ct-officegrid">
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Arlington</h3>
-            <span class="ct-region">Delta</span>
-            <address class="ct-addr">
-              11990 Mott Street<br />
-              Arlington, TN 38002<br />
-              <a class="ct-tel" href="tel:+19014830373">901.483.0373</a><br />
-              <a href="mailto:LandmarkAg@PeoplesCompany.com">LandmarkAg@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Bloomington</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              1907 Jumer Drive<br />
-              Suite D<br />
-              Bloomington, IL 61704<br />
-              <a class="ct-tel" href="tel:+18006076888">800.607.6888</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Cascade</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              300 1st Avenue W<br />
-              Cascade, IA 52033<br />
-              <a class="ct-tel" href="tel:+15635438338">563.543.8338</a><br />
-              <a href="mailto:Jesse@PeoplesCompany.com">Jesse@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Champaign</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              1605 South State Street<br />
-              Suite 110<br />
-              Champaign, IL 61820<br />
-              <a class="ct-tel" href="tel:+18006076888">800.607.6888</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Cumming</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              1108 S. 44th Street<br />
-              Suite 102<br />
-              Cumming, IA 50061<br />
-              <a class="ct-tel" href="tel:+15152221347">515.222.1347</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; DeWitt</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              700 6th Avenue<br />
-              DeWitt, IA 52742<br />
-              <a class="ct-tel" href="tel:+15636598185">563.659.8185</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Fremont</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              1735 E. Military Avenue<br />
-              P.O. Box 672<br />
-              Fremont, NE 68026<br />
-              <a class="ct-tel" href="tel:+14027215995">402.721.5995</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Fresno</h3>
-            <span class="ct-region">Pacific West</span>
-            <address class="ct-addr">
-              7675 N. Ingram Avenue<br />
-              Suite 101<br />
-              Fresno, CA 93711<br />
-              <a class="ct-tel" href="tel:+15599449524">559.944.9524</a><br />
-              <a href="mailto:PacificWest@PeoplesCompany.com">PacificWest@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Independence</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              2300 Swan Lake Boulevard<br />
-              Suite 300<br />
-              Independence, IA 50644<br />
-              <a class="ct-tel" href="tel:+13193618089">319.361.8089</a><br />
-              <a href="mailto:Travis@PeoplesCompany.com">Travis@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Indianola</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              113 W. Salem Avenue<br />
-              Indianola, IA 50125<br />
-              <a class="ct-tel" href="tel:+15159610247">515.961.0247</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Kasson</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              20 4th Street SE<br />
-              Kasson, MN 55944<br />
-              <a class="ct-tel" href="tel:+15076347033">507.634.7033</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Kearney</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              4111 4th Avenue<br />
-              Suite 22<br />
-              Kearney, NE 68845<br />
-              <a class="ct-tel" href="tel:+13082377662">308.237.7662</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Lexington</h3>
-            <span class="ct-region">Appalachian</span>
-            <address class="ct-addr">
-              348 E. Main Street<br />
-              Office #24<br />
-              Lexington, KY 40507<br />
-              <a class="ct-tel" href="tel:+18558005263">855.800.LAND</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Lincoln</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              3501 Plantation Drive<br />
-              Suite 100<br />
-              Lincoln, NE 68516<br />
-              <a class="ct-tel" href="tel:+14024344498">402.434.4498</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Marlette</h3>
-            <span class="ct-region">Lake States</span>
-            <address class="ct-addr">
-              3509 S. Van Dyke Road<br />
-              Marlette, MI 48453<br />
-              <a class="ct-tel" href="tel:+19896350086">989.635.0086</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Mineral Point</h3>
-            <span class="ct-region">Lake States</span>
-            <address class="ct-addr">
-              207 High Street<br />
-              Mineral Point, WI 53565<br />
-              <a class="ct-tel" href="tel:+16084821229">608.482.1229</a><br />
-              <a href="mailto:Adam.Crist@PeoplesCompany.com">Adam.Crist@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Monroe</h3>
-            <span class="ct-region">Delta</span>
-            <address class="ct-addr">
-              1500 N. 19th Street<br />
-              Monroe, LA 71201<br />
-              <a class="ct-tel" href="tel:+15152221347">515.222.1347</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Norfolk</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              800 W. Benjamin Avenue<br />
-              Suite B<br />
-              Norfolk, NE 68701<br />
-              <a class="ct-tel" href="tel:+14023710065">402.371.0065</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Omaha</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              4601 Catalyst Court<br />
-              Suite 1070<br />
-              Omaha, NE 68106<br />
-              <a class="ct-tel" href="tel:+14023340256">402.334.0256</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Oswego</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              2681 U.S. Highway 34<br />
-              Oswego, IL 60543<br />
-              <a class="ct-tel" href="tel:+13319993490">331.999.3490</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Plainfield</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              714 Main Street<br />
-              Plainfield, IA 50666<br />
-              <a class="ct-tel" href="tel:+15152221347">515.222.1347</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; San Diego</h3>
-            <span class="ct-region">Pacific West</span>
-            <address class="ct-addr">
-              2150 W. Washington Street<br />
-              Suite 501<br />
-              San Diego, CA 92110<br />
-              <a class="ct-tel" href="tel:+16197573435">619.757.3435</a><br />
-              <a href="mailto:PacificWest@PeoplesCompany.com">PacificWest@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Walla Walla</h3>
-            <span class="ct-region">Pacific Northwest</span>
-            <address class="ct-addr">
-              109 W. Poplar Street<br />
-              Walla Walla, WA 99362<br />
-              <a class="ct-tel" href="tel:+15095400228">509.540.0228</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Wapakoneta</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              22253 Blank Pike<br />
-              Wapakoneta, OH 43895<br />
-              <a class="ct-tel" href="tel:+14023340256">402.334.0256</a><br />
-              <a href="mailto:Jeff.Post@PeoplesCompany.com">Jeff.Post@PeoplesCompany.com</a>
-            </address>
-          </li>
-          <li class="ct-officecard">
-            <h3>Peoples Company &mdash; Wayne</h3>
-            <span class="ct-region">Midwest</span>
-            <address class="ct-addr">
-              206 Main Street<br />
-              P.O. Box 16<br />
-              Wayne, NE 68787<br />
-              <a class="ct-tel" href="tel:+14028333132">402.833.3132</a><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </address>
-          </li>
-        </ul>
-      </section>
 
     </div>
   </main>
