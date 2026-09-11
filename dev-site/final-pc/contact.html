@@ -31,9 +31,14 @@
        Below 1280 everything is one column in source order. */
     .ct-top{ display: grid; gap: var(--space-7); }
     @media (min-width: 1280px){
-      .ct-top{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8); align-items: start; }
+      /* No align-items here on purpose: both columns stretch to the taller of the two,
+         which is what lets the map grow to finish level with the form. */
+      .ct-top{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8); }
     }
     .ct-main{ min-width: 0; }
+    @media (min-width: 1280px){
+      .ct-main{ display: flex; flex-direction: column; }
+    }
 
     /* ---- the team photograph ----
        1200x490 (2.45:1), local in ../assets. No crop: the frame follows the image, because
@@ -51,18 +56,27 @@
     .ct-mapwrap{ position: relative; aspect-ratio: 4 / 3; width: 100%;
       border-radius: var(--radius-lg); overflow: hidden;
       background: var(--pc-light-blue); }
+
+    /* At two columns the map stops being a fixed shape and takes whatever height the
+       photograph above it leaves, so the column ends level with the rail beside it.
+       The 4:3 above is the one-column fallback and the floor if the rail is ever short. */
+    @media (min-width: 1280px){
+      .ct-map{ flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+      .ct-mapwrap{ aspect-ratio: auto; flex: 1 1 auto; min-height: 420px; }
+    }
     .ct-mapwrap img{ display: block; width: 100%; height: 100%;
       object-fit: contain; object-position: center; }
-    .ct-map figcaption{ font-family: var(--font-sans); font-size: var(--body-sm);
-      color: var(--pc-navy); margin-top: var(--space-3); }
-
-    /* Shown only when the screenshot is missing - same treatment as the placeholder in
-       the Interactive Map layer, so an empty map reads the same wherever it appears. */
-    .ct-mapghost{ display: none; position: absolute; inset: 0; margin: 0;
-      align-items: center; justify-content: center; text-align: center;
-      font-family: var(--font-serif); font-size: var(--h3-size); font-weight: 500;
-      color: var(--pc-navy); padding: var(--space-6); }
+    /* The label sits IN the middle of the box, not under it - there is no caption.
+       Shown only while the screenshot is missing, the same treatment as the placeholder
+       in the Interactive Map layer, so an empty map reads the same wherever it appears. */
+    .ct-mapghost{ display: none; position: absolute; inset: 0;
+      flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; gap: var(--space-3); padding: var(--space-6); }
     .ct-mapwrap.is-empty .ct-mapghost{ display: flex; }
+    .ct-mapghost-t{ margin: 0; font-family: var(--font-serif); font-size: var(--h3-size);
+      font-weight: 500; color: var(--pc-navy); }
+    .ct-mapghost-s{ margin: 0; max-width: 46ch; font-family: var(--font-sans);
+      font-size: var(--body-sm); line-height: 1.6; color: var(--pc-navy); }
 
     .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
@@ -94,7 +108,10 @@
     /* ---- right rail ----
        Below 1280 the rail stops being a rail and stacks under the left column, so it
        gets a top rule there to separate it from the map above. */
-    .ct-rail{ display: grid; gap: var(--space-6); }
+    /* align-content: start matters - the rail box is stretched by the grid above, and
+       without this its cards would stretch with it and the form would grow a hollow
+       bottom. The BOX stretches; the cards do not. */
+    .ct-rail{ display: grid; gap: var(--space-6); align-content: start; }
     @media (max-width: 1279px){
       .ct-rail{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
     }
@@ -263,7 +280,8 @@
           <!-- THE FARMWORTH MAP GOES HERE.
                This is the live FarmWorth interactive map with every office pinned - the
                same module that sits behind the Interactive Map tab in the chrome, loaded
-               inline and filtered to offices rather than listings. See developer-map.md.
+               inline. THE ONLY PINS ARE PC OFFICE LOCATIONS - no listings and no auctions
+               are plotted on this instance. See developer-map.md.
 
                What is here now is a flat SCREENSHOT standing in for it. Replace the whole
                .ct-mapwrap contents with the map's mount point; keep the wrapper, which
@@ -275,9 +293,12 @@
                    alt="FarmWorth interactive map of the United States with a pin on each Peoples Company office"
                    loading="lazy"
                    onerror="this.style.display='none';this.parentNode.classList.add('is-empty');this.onerror=null;" />
-              <p class="ct-mapghost" aria-hidden="true">Interactive FarmWorth Map</p>
+              <div class="ct-mapghost">
+                <p class="ct-mapghost-t">Interactive FarmWorth Map</p>
+                <p class="ct-mapghost-s">The only pins shown here are Peoples Company office
+                  locations &mdash; no listings, no auctions.</p>
+              </div>
             </div>
-            <figcaption>Every Peoples Company office, pinned on the FarmWorth map.</figcaption>
           </figure>
 
         </div>
