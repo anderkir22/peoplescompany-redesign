@@ -26,17 +26,20 @@
     .ct-head h1{ margin: 0 0 var(--space-7); }
 
     /* ---- the two columns ----
-       Left is the content column: the footprint map, then every office. Right is the
-       contact rail: corporate office, then the form.
-
-       The split waits until 1280, not 1024. At 1024 the left column would be about 500px
-       once the rail and the gutter are taken out - too narrow for two office cards, so
-       the grid would collapse to a single column of cards beside a tall rail. Below 1280
-       everything is one column in source order: map, offices, corporate office, form. */
+       Left is the content column: the team photograph, then the page's main form. Right
+       is the contact rail: corporate office, the rail copy of the form, social.
+       Below 1280 everything is one column in source order. */
     .ct-top{ display: grid; gap: var(--space-7); }
     @media (min-width: 1280px){
       .ct-top{ grid-template-columns: minmax(0, 1fr) 380px; gap: var(--space-8); align-items: start; }
     }
+    .ct-main{ min-width: 0; }
+
+    /* ---- the team photograph ----
+       1200x490 (2.45:1), local in ../assets. No crop: the frame follows the image, because
+       a group photograph cannot lose its edges without losing people. */
+    .ct-photo{ margin: 0 0 var(--space-8); }
+    .ct-photo img{ display: block; width: 100%; height: auto; border-radius: var(--radius-lg); }
 
     .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
@@ -46,10 +49,12 @@
        page runs an embedded third-party form, so treat this as the field list and the
        visual treatment, not as markup to ship. */
     .ct-form{ display: grid; gap: var(--space-5); }
-    /* One field per row at every width. The form lives in a 380px rail, which has no
-       room for a two-up name row - and below 1280 it sits under the offices at full
-       width, where two-up name fields would be the only wide thing on the page. */
+    /* One field per row by default - that is what the 380px rail can hold.
+       .ct-form--wide is the left-column copy, which has the width to pair fields up. */
     .ct-row{ display: grid; gap: var(--space-5); }
+    @media (min-width: 640px){
+      .ct-form--wide .ct-row{ grid-template-columns: 1fr 1fr; }
+    }
     .ct-field{ display: grid; gap: var(--space-2); }
     .ct-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
       letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
@@ -95,15 +100,22 @@
     .ct-social svg{ width: 18px; height: 18px; }
 
     /* ---- offices ---- */
-    /* The offices are the whole left column, so the section carries no rule or top padding
-       of its own - its h2 sets the top line, level with the rail's first card.
+    /* The offices are their own full-width band below the two columns, so they take a
+       rule and real space above them.
        scroll-margin clears the sticky header plus the map tab below it, so a link to
        #offices does not park the heading under the chrome. */
-    .ct-offices{ min-width: 0; scroll-margin-top: calc(var(--navH) + var(--space-6)); }
+    .ct-offices{ margin-top: var(--space-9); padding-top: var(--space-8);
+      border-top: 1px solid var(--color-border);
+      scroll-margin-top: calc(var(--navH) + var(--space-6)); }
 
-    .ct-officegrid{ display: grid; gap: var(--space-5);
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); list-style: none;
-      margin: 0; padding: 0; }
+    /* FOUR ACROSS at full width, stepping down on --site steps rather than by card
+       width - so the column count changes at the same places the rest of the site does.
+       1280+: 4 up (286px cards at 1280, 326px at 1536) | 1024: 3 | 640: 2 | below: 1. */
+    .ct-officegrid{ display: grid; gap: var(--space-5); grid-template-columns: 1fr;
+      list-style: none; margin: 0; padding: 0; }
+    @media (min-width: 640px){  .ct-officegrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 1024px){ .ct-officegrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (min-width: 1280px){ .ct-officegrid{ grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     .ct-officecard{ border: 1px solid var(--color-border); border-radius: var(--radius-lg);
       padding: var(--space-5); background: var(--pc-white);
       display: grid; align-content: start; gap: var(--space-2);
@@ -121,6 +133,14 @@
       text-underline-offset: 3px; text-decoration-thickness: 1px; word-break: break-word; }
     .ct-addr a:hover{ color: var(--color-accent); }
     .ct-addr .ct-tel{ font-weight: 600; }
+
+    /* REVIEW SCAFFOLDING - the two form copies are labelled so they can be told apart
+       while the placement is being decided. Same amber as the mock-up notes elsewhere in
+       the build. BOTH the tags and one of the two forms come out before handoff. */
+    .ct-mocknote{ display: inline-block; margin: 0 0 var(--space-3);
+      background: #FFFAEF; border: 1px dashed #C2870B; border-radius: var(--radius-sm);
+      padding: 6px 12px; font-family: var(--font-sans); font-size: 10px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; }
 
     @media (max-width: 639px){
       .ct-card{ padding: var(--space-5); }
@@ -195,9 +215,12 @@
 
 
   <!-- ================= PAGE CONTENT =================
-       Contact. Two columns: every Peoples Company office as a card on the left,
-       alphabetical by city and tagged with its region; the corporate office and the
-       enquiry form in a rail on the right. -->
+       Contact. Top block is two columns - the team photograph and the form on the left,
+       the corporate office and a second copy of the form in the rail on the right. Below
+       it, full width, all 25 offices as cards four across.
+
+       THE FORM APPEARS TWICE ON PURPOSE: the two placements are being compared and one
+       will be removed. Field ids are prefixed a- and b- so the two cannot collide. -->
   <main class="ct-body" id="top" aria-label="Contact">
     <div class="ct-wrap">
 
@@ -207,7 +230,142 @@
 
       <div class="ct-top reveal">
 
-        <!-- ---------- left: every office ---------- -->
+        <!-- ---------- left: the team, then the form ---------- -->
+        <div class="ct-main">
+
+          <figure class="ct-photo">
+            <img src="../assets/pc-team-2025.webp"
+                 alt="The Peoples Company team, gathered for a group photograph" />
+          </figure>
+
+          <section aria-labelledby="help-a-h">
+            <p class="ct-mocknote">Form placement A &mdash; left column</p>
+            <h2 id="help-a-h">How Can We Help You?</h2>
+            <p class="ct-lede">Complete the form below and we will get back to you as soon as
+              possible.</p>
+          <form class="ct-form ct-form--wide" action="#" onsubmit="return false;">
+            <div class="ct-row">
+              <div class="ct-field">
+                <label for="a-ct-first">First Name</label>
+                <input type="text" id="a-ct-first" name="first" autocomplete="given-name" required />
+              </div>
+              <div class="ct-field">
+                <label for="a-ct-last">Last Name</label>
+                <input type="text" id="a-ct-last" name="last" autocomplete="family-name" required />
+              </div>
+            </div>
+            <div class="ct-row">
+              <div class="ct-field">
+                <label for="a-ct-email">Email</label>
+                <input type="email" id="a-ct-email" name="email" autocomplete="email" required />
+              </div>
+              <div class="ct-field">
+                <label for="a-ct-phone">Phone <span class="ct-opt">(optional)</span></label>
+                <input type="tel" id="a-ct-phone" name="phone" autocomplete="tel" />
+              </div>
+            </div>
+            <div class="ct-field">
+              <label for="a-ct-interest">How can we help?</label>
+              <select id="a-ct-interest" name="interest">
+                <option value="">Select a service&hellip;</option>
+                <option>Land Brokerage &amp; Auctions</option>
+                <option>Land Management</option>
+                <option>Agricultural Appraisal</option>
+                <option>Capital Markets</option>
+                <option>Energy Management</option>
+                <option>Crop Insurance</option>
+                <option>Corporate Services</option>
+                <option>Careers</option>
+                <option>Something else</option>
+              </select>
+            </div>
+            <div class="ct-field">
+              <label for="a-ct-message">Message</label>
+              <textarea id="a-ct-message" name="message" required></textarea>
+            </div>
+            <button class="btn btn-subscribe" type="submit">Send Message</button>
+          </form>
+
+          </section>
+        </div>
+
+        <!-- ---------- right: where to reach us, then the form again ---------- -->
+        <aside class="ct-rail" aria-label="Contact us">
+
+          <div class="ct-card">
+            <h2>Corporate Office</h2>
+            <p class="ct-office-line">
+              1108 S. 44th Street, Suite 102<br />
+              Cumming, IA 50061<br />
+              <b><a href="tel:+18558005263">855.800.5263</a></b><br />
+              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+            </p>
+          </div>
+
+          <div class="ct-card">
+            <p class="ct-mocknote">Placement B &mdash; rail</p>
+            <h2 id="help-b-h">How Can We Help You?</h2>
+            <p class="ct-lede">Complete the form below and we will get back to you as soon as
+              possible.</p>
+            <form class="ct-form" action="#" onsubmit="return false;">
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="b-ct-first">First Name</label>
+                  <input type="text" id="b-ct-first" name="first" autocomplete="given-name" required />
+                </div>
+                <div class="ct-field">
+                  <label for="b-ct-last">Last Name</label>
+                  <input type="text" id="b-ct-last" name="last" autocomplete="family-name" required />
+                </div>
+              </div>
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="b-ct-email">Email</label>
+                  <input type="email" id="b-ct-email" name="email" autocomplete="email" required />
+                </div>
+                <div class="ct-field">
+                  <label for="b-ct-phone">Phone <span class="ct-opt">(optional)</span></label>
+                  <input type="tel" id="b-ct-phone" name="phone" autocomplete="tel" />
+                </div>
+              </div>
+              <div class="ct-field">
+                <label for="b-ct-interest">How can we help?</label>
+                <select id="b-ct-interest" name="interest">
+                  <option value="">Select a service&hellip;</option>
+                  <option>Land Brokerage &amp; Auctions</option>
+                  <option>Land Management</option>
+                  <option>Agricultural Appraisal</option>
+                  <option>Capital Markets</option>
+                  <option>Energy Management</option>
+                  <option>Crop Insurance</option>
+                  <option>Corporate Services</option>
+                  <option>Careers</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+              <div class="ct-field">
+                <label for="b-ct-message">Message</label>
+                <textarea id="b-ct-message" name="message" required></textarea>
+              </div>
+              <button class="btn btn-subscribe" type="submit">Send Message</button>
+            </form>
+
+          </div>
+
+          <div class="ct-card">
+            <h2>Follow Us</h2>
+        <div class="ct-social">
+          <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </div>
+          </div>
+
+        </aside>
+      </div>
+
         <section class="ct-offices" id="offices" aria-labelledby="offices-h">
           <h2 id="offices-h">Peoples Company Offices</h2>
           <p class="ct-lede">We have offices strategically positioned in all major agricultural
@@ -480,81 +638,6 @@
           </ul>
 
         </section>
-
-        <!-- ---------- right: where to reach us, then the form ---------- -->
-        <aside class="ct-rail" aria-label="Contact us">
-
-          <div class="ct-card">
-            <h2>Corporate Office</h2>
-            <p class="ct-office-line">
-              1108 S. 44th Street, Suite 102<br />
-              Cumming, IA 50061<br />
-              <b><a href="tel:+18558005263">855.800.5263</a></b><br />
-              <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-            </p>
-          </div>
-
-          <div class="ct-card">
-            <h2 id="help-h">How Can We Help You?</h2>
-            <p class="ct-lede">Complete the form below and we will get back to you as soon as
-              possible.</p>
-            <form class="ct-form" action="#" onsubmit="return false;">
-              <div class="ct-row">
-                <div class="ct-field">
-                  <label for="ct-first">First Name</label>
-                  <input type="text" id="ct-first" name="first" autocomplete="given-name" required />
-                </div>
-                <div class="ct-field">
-                  <label for="ct-last">Last Name</label>
-                  <input type="text" id="ct-last" name="last" autocomplete="family-name" required />
-                </div>
-              </div>
-              <div class="ct-row">
-                <div class="ct-field">
-                  <label for="ct-email">Email</label>
-                  <input type="email" id="ct-email" name="email" autocomplete="email" required />
-                </div>
-                <div class="ct-field">
-                  <label for="ct-phone">Phone <span class="ct-opt">(optional)</span></label>
-                  <input type="tel" id="ct-phone" name="phone" autocomplete="tel" />
-                </div>
-              </div>
-              <div class="ct-field">
-                <label for="ct-interest">How can we help?</label>
-                <select id="ct-interest" name="interest">
-                  <option value="">Select a service&hellip;</option>
-                  <option>Land Brokerage &amp; Auctions</option>
-                  <option>Land Management</option>
-                  <option>Agricultural Appraisal</option>
-                  <option>Capital Markets</option>
-                  <option>Energy Management</option>
-                  <option>Crop Insurance</option>
-                  <option>Corporate Services</option>
-                  <option>Careers</option>
-                  <option>Something else</option>
-                </select>
-              </div>
-              <div class="ct-field">
-                <label for="ct-message">Message</label>
-                <textarea id="ct-message" name="message" required></textarea>
-              </div>
-              <button class="btn btn-subscribe" type="submit">Send Message</button>
-            </form>
-          </div>
-
-          <div class="ct-card">
-            <h2>Follow Us</h2>
-        <div class="ct-social">
-          <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
-          <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
-          <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-          <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
-          <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
-        </div>
-          </div>
-
-        </aside>
-      </div>
 
     </div>
   </main>
