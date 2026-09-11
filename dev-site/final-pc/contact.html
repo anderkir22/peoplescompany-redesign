@@ -48,10 +48,9 @@
 
     /* ---- the FarmWorth map ----
        A real map owns its own viewport rather than sizing to an image, so the wrapper
-       fixes the shape (4:3) and the map fills it. The placeholder screenshot is fitted
-       with `contain`, NOT `cover`, so no office pin can be cropped out of frame while it
-       is standing in. When the live module lands it replaces the wrapper's contents and
-       should be width/height 100%. */
+       fixes the shape (4:3) and the map fills it. There is deliberately no placeholder
+       image: the box carries the brief in words instead. When the live module lands it
+       replaces the wrapper's contents and should be width/height 100%. */
     .ct-map{ margin: 0; }
     .ct-mapwrap{ position: relative; aspect-ratio: 4 / 3; width: 100%;
       border-radius: var(--radius-lg); overflow: hidden;
@@ -64,15 +63,10 @@
       .ct-map{ flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
       .ct-mapwrap{ aspect-ratio: auto; flex: 1 1 auto; min-height: 420px; }
     }
-    .ct-mapwrap img{ display: block; width: 100%; height: 100%;
-      object-fit: contain; object-position: center; }
-    /* The label sits IN the middle of the box, not under it - there is no caption.
-       Shown only while the screenshot is missing, the same treatment as the placeholder
-       in the Interactive Map layer, so an empty map reads the same wherever it appears. */
-    .ct-mapghost{ display: none; position: absolute; inset: 0;
+    /* The brief sits IN the middle of the box, not under it - there is no caption. */
+    .ct-mapghost{ display: flex; position: absolute; inset: 0;
       flex-direction: column; align-items: center; justify-content: center;
       text-align: center; gap: var(--space-3); padding: var(--space-6); }
-    .ct-mapwrap.is-empty .ct-mapghost{ display: flex; }
     .ct-mapghost-t{ margin: 0; font-family: var(--font-serif); font-size: var(--h3-size);
       font-weight: 500; color: var(--pc-navy); }
     .ct-mapghost-s{ margin: 0; max-width: 46ch; font-family: var(--font-sans);
@@ -123,9 +117,10 @@
 
     .ct-office-line{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.7;
       color: var(--color-text-muted); margin: 0 0 var(--space-4); }
-    .ct-office-line a{ color: var(--color-text); text-decoration: underline;
-      text-underline-offset: 3px; text-decoration-thickness: 1px; }
-    .ct-office-line a:hover{ color: var(--color-accent); }
+    .ct-office-line a{ color: var(--color-text); text-decoration: none; }
+    .ct-office-line a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
+      text-underline-offset: 3px; }
+    .ct-office-line a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .ct-office-line b{ font-weight: 600; }
 
     /* ---- follow us ---- */
@@ -164,11 +159,32 @@
     @media (min-width: 640px){  .ct-officegrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (min-width: 1024px){ .ct-officegrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     @media (min-width: 1280px){ .ct-officegrid{ grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    .ct-officecard{ border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    /* Hover is the build's shared card behaviour - lift three pixels and take a soft
+       shadow - the same as .tm-card on team.html and .io-card in pc.css, which the blog
+       and the insights grids use. Do not give this page its own. */
+    .ct-officecard{ position: relative; border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
       padding: var(--space-5); background: var(--pc-white);
       display: grid; align-content: start; gap: var(--space-2);
-      transition: border-color .15s ease, background .15s ease; }
-    .ct-officecard:hover{ border-color: var(--pc-medium-blue); background: var(--pc-soft-white); }
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .ct-officecard:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10);
+      transform: translateY(-3px); }
+    @media (prefers-reduced-motion: reduce){
+      .ct-officecard:hover{ transform: none; }
+    }
+
+    /* WHOLE-CARD LINK. The <a> is on the heading only - one link per card, so the
+       office name is what a screen reader announces - and its ::after is stretched over
+       the card to make the whole box clickable. It must NOT be an <a> wrapped round the
+       card: the phone and email inside are links too, and links cannot nest. Those two
+       are lifted above the stretched layer by .ct-addr a { position: relative }. */
+    .ct-cardlink{ color: var(--color-text); text-decoration: none; }
+    .ct-cardlink::after{ content: ""; position: absolute; inset: 0;
+      border-radius: var(--radius-lg); }
+    .ct-officecard:hover .ct-cardlink{ color: var(--pc-medium-blue); }
+    .ct-cardlink:focus-visible{ outline: none; }
+    .ct-cardlink:focus-visible::after{ outline: 2px solid var(--pc-medium-blue);
+      outline-offset: 2px; }
     .ct-officecard h3{ margin: 0; font-size: var(--h4-size); }
     /* Region chip: a label, not a control - nothing happens when it is clicked. */
     .ct-region{ justify-self: start; font-family: var(--font-sans); font-size: 10px;
@@ -177,9 +193,15 @@
       border-radius: var(--radius-pill); padding: 4px 12px; }
     .ct-addr{ font-family: var(--font-sans); font-size: var(--body-sm); line-height: 1.6;
       color: var(--color-text-muted); font-style: normal; margin: var(--space-2) 0 0; }
-    .ct-addr a{ color: var(--color-text); text-decoration: underline;
-      text-underline-offset: 3px; text-decoration-thickness: 1px; word-break: break-word; }
-    .ct-addr a:hover{ color: var(--color-accent); }
+    /* position + z-index keep these above the stretched card link, so a click on the
+       phone number dials instead of opening the region page.
+       No underline at rest, underline on hover - the same contract as .tm-contact a on
+       team.html. A card carrying two underlined lines reads as a link thicket. */
+    .ct-addr a{ position: relative; z-index: 1;
+      color: var(--color-text); text-decoration: none; word-break: break-word; }
+    .ct-addr a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
+      text-underline-offset: 3px; }
+    .ct-addr a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .ct-addr .ct-tel{ font-weight: 600; }
 
 
@@ -283,16 +305,12 @@
                inline. THE ONLY PINS ARE PC OFFICE LOCATIONS - no listings and no auctions
                are plotted on this instance. See developer-map.md.
 
-               What is here now is a flat SCREENSHOT standing in for it. Replace the whole
-               .ct-mapwrap contents with the map's mount point; keep the wrapper, which
-               owns the frame and the aspect ratio. If the screenshot is missing, the
-               onerror below swaps in a labelled panel so the space still reads. -->
+               What is here now is a SPEC PANEL, not an image and not a broken one: the
+               box holds the brief for what belongs in it. Replace the whole .ct-mapwrap
+               contents with the map's mount point; keep the wrapper, which owns the
+               frame and the height. -->
           <figure class="ct-map">
             <div class="ct-mapwrap">
-              <img src="../assets/farmworth-offices-map.png"
-                   alt="FarmWorth interactive map of the United States with a pin on each Peoples Company office"
-                   loading="lazy"
-                   onerror="this.style.display='none';this.parentNode.classList.add('is-empty');this.onerror=null;" />
               <div class="ct-mapghost">
                 <p class="ct-mapghost-t">Interactive FarmWorth Map</p>
                 <p class="ct-mapghost-s">The only pins shown here are Peoples Company office
@@ -369,6 +387,13 @@
         </aside>
       </div>
 
+        <!-- Each card links to its region page: /delta /midwest /lake-states
+             /pacific-west /pacific-northwest. Two more region pages exist - /southeast
+             and /southern-plains - with no office on this list.
+
+             LEXINGTON KY IS THE EXCEPTION and is deliberately left unlinked: the live
+             site tags it APPALACHIAN, and there is no Appalachian region page. Either
+             it gets one or the office gets re-tagged to a region that has one. -->
         <section class="ct-offices" id="offices" aria-labelledby="offices-h">
 
           <!-- Heading left, Follow Us right - the right column is the same 380px as the
@@ -393,7 +418,7 @@
 
           <ul class="ct-officegrid">
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Arlington</h3>
+              <h3><a class="ct-cardlink" href="/delta">Peoples Company &mdash; Arlington<span class="sr-only"> — Delta region</span></a></h3>
               <span class="ct-region">Delta</span>
               <address class="ct-addr">
                 11990 Mott Street<br />
@@ -403,7 +428,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Bloomington</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Bloomington<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 1907 Jumer Drive<br />
@@ -414,7 +439,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Cascade</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Cascade<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 300 1st Avenue W<br />
@@ -424,7 +449,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Champaign</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Champaign<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 1605 South State Street<br />
@@ -435,7 +460,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Cumming</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Cumming<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 1108 S. 44th Street<br />
@@ -446,7 +471,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; DeWitt</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; DeWitt<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 700 6th Avenue<br />
@@ -456,7 +481,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Fremont</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Fremont<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 1735 E. Military Avenue<br />
@@ -467,7 +492,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Fresno</h3>
+              <h3><a class="ct-cardlink" href="/pacific-west">Peoples Company &mdash; Fresno<span class="sr-only"> — Pacific West region</span></a></h3>
               <span class="ct-region">Pacific West</span>
               <address class="ct-addr">
                 7675 N. Ingram Avenue<br />
@@ -478,7 +503,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Independence</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Independence<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 2300 Swan Lake Boulevard<br />
@@ -489,7 +514,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Indianola</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Indianola<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 113 W. Salem Avenue<br />
@@ -499,7 +524,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Kasson</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Kasson<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 20 4th Street SE<br />
@@ -509,7 +534,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Kearney</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Kearney<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 4111 4th Avenue<br />
@@ -531,7 +556,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Lincoln</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Lincoln<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 3501 Plantation Drive<br />
@@ -542,7 +567,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Marlette</h3>
+              <h3><a class="ct-cardlink" href="/lake-states">Peoples Company &mdash; Marlette<span class="sr-only"> — Lake States region</span></a></h3>
               <span class="ct-region">Lake States</span>
               <address class="ct-addr">
                 3509 S. Van Dyke Road<br />
@@ -552,7 +577,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Mineral Point</h3>
+              <h3><a class="ct-cardlink" href="/lake-states">Peoples Company &mdash; Mineral Point<span class="sr-only"> — Lake States region</span></a></h3>
               <span class="ct-region">Lake States</span>
               <address class="ct-addr">
                 207 High Street<br />
@@ -562,7 +587,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Monroe</h3>
+              <h3><a class="ct-cardlink" href="/delta">Peoples Company &mdash; Monroe<span class="sr-only"> — Delta region</span></a></h3>
               <span class="ct-region">Delta</span>
               <address class="ct-addr">
                 1500 N. 19th Street<br />
@@ -572,7 +597,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Norfolk</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Norfolk<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 800 W. Benjamin Avenue<br />
@@ -583,7 +608,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Omaha</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Omaha<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 4601 Catalyst Court<br />
@@ -594,7 +619,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Oswego</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Oswego<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 2681 U.S. Highway 34<br />
@@ -604,7 +629,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Plainfield</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Plainfield<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 714 Main Street<br />
@@ -614,7 +639,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; San Diego</h3>
+              <h3><a class="ct-cardlink" href="/pacific-west">Peoples Company &mdash; San Diego<span class="sr-only"> — Pacific West region</span></a></h3>
               <span class="ct-region">Pacific West</span>
               <address class="ct-addr">
                 2150 W. Washington Street<br />
@@ -625,7 +650,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Walla Walla</h3>
+              <h3><a class="ct-cardlink" href="/pacific-northwest">Peoples Company &mdash; Walla Walla<span class="sr-only"> — Pacific Northwest region</span></a></h3>
               <span class="ct-region">Pacific Northwest</span>
               <address class="ct-addr">
                 109 W. Poplar Street<br />
@@ -635,7 +660,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Wapakoneta</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Wapakoneta<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 22253 Blank Pike<br />
@@ -645,7 +670,7 @@
               </address>
             </li>
             <li class="ct-officecard">
-              <h3>Peoples Company &mdash; Wayne</h3>
+              <h3><a class="ct-cardlink" href="/midwest">Peoples Company &mdash; Wayne<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
               <address class="ct-addr">
                 206 Main Street<br />
