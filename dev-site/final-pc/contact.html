@@ -96,8 +96,9 @@
     .ct-corp-photo{ flex: 1 1 300px; max-width: 380px; margin: 0; }
     /* ---- the office carousel ----
        THREE PHOTOGRAPHS, CROSSFADED. The frame owns the square; the slides are stacked
-       absolutely inside it, so the card height never changes as they cycle. object-fit
-       still crops any slide that is not square, which is the safety net, not the plan. */
+       absolutely inside it, so the card height never changes as they cycle.
+       All three sources are already square (500x500), so object-fit crops nothing today -
+       it is the guard that keeps an off-ratio replacement from stretching. */
     .ct-shots{ position: relative; aspect-ratio: 1 / 1; width: 100%;
       border-radius: var(--radius-lg); overflow: hidden; background: var(--pc-navy); }
     .ct-shot{ position: absolute; inset: 0; width: 100%; height: 100%;
@@ -350,20 +351,29 @@
                    are generated from the slides, so adding or removing a photograph here
                    is the whole edit. Nothing else counts them.
 
-                   EXTENSIONS DIFFER AND THE HOST IS CASE-SENSITIVE: office1.JPG is
-                   uppercase, office2 and office3 are .jpeg. Keep each src exactly as the
-                   file is named on disk or it 404s on GitHub Pages.
+                   ALL THREE FILES ARE LOWERCASE .jpg ON PURPOSE. The exports arrived as
+                   a mix of .jpg and .JPG and were renamed to one convention, because a
+                   case-only difference in a src serves fine from Windows and 404s on the
+                   case-sensitive host. Keep any replacement lowercase.
+
+                   All three are 500x500, about 70KB each. The frame renders at 380px, so
+                   they are sharp on a standard display and slightly soft on a 2x screen,
+                   which wants roughly 760px. Not worth a re-export unless it shows.
+
+                   No loading="lazy" on the second and third: a slide that has not
+                   arrived by the time its crossfade starts shows navy, and at this file
+                   size there is nothing to defer.
 
                    Each alt text describes ITS OWN photograph. Slides two and three are
                    placeholders pending a description of what they actually show. -->
               <figure class="ct-corp-photo">
                 <div class="ct-shots" id="ctShots">
-                  <img class="ct-shot is-on" src="../assets/office1.JPG"
+                  <img class="ct-shot is-on" src="../assets/office1.jpg"
                        alt="The Peoples Company corporate office: a pale brick building with
                             the company name painted across its upper wall" />
-                  <img class="ct-shot" src="../assets/office2.jpeg" loading="lazy"
+                  <img class="ct-shot" src="../assets/office2.jpg"
                        alt="The Peoples Company corporate office, second view" />
-                  <img class="ct-shot" src="../assets/office3.jpeg" loading="lazy"
+                  <img class="ct-shot" src="../assets/office3.jpg"
                        alt="The Peoples Company corporate office, third view" />
 
                   <div class="ct-shotbar">
