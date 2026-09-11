@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Peoples Company · Final (PC) — Blog</title>
-  <meta name="description" content="Blog index for the final PC direction: featured post, category filters, and a responsive grid of articles on the clean pc.css design system." />
+  <title>Peoples Company · Final (PC) — Blog, page 2</title>
+  <meta name="description" content="Blog index, page 2, for the final PC direction: category filters and a responsive grid of earlier articles on the clean pc.css design system." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Single source of truth for the final PC direction -->
-  <link href="pc.css?v=20260827a" rel="stylesheet" />
+  <link href="../final-pc/pc.css?v=20260827a" rel="stylesheet" />
 
   <!-- Page-local: BLOG INDEX. Everything here is layout for this page only — the
        colours, type, buttons and card shell all come from pc.css tokens and the shared
@@ -22,6 +22,10 @@
        Structure: title → sticky search / filter bar (the team.html component) → a
        3-up grid of every post, newest first → pager. Every card is the same size: no
        featured post, no wide row.
+
+       This is page 2, and it is also the A/B variant of the card: author in the meta
+       row, no teaser, categories in a card footer. blog1.html is the control and stays
+       as it is - nothing here reaches it, because all of it is page-local.
 
        Responsive: the grid steps 3 → 2 → 1 on the shared --site ladder (1279 / 767),
        so the breakpoints line up with the header and footer rather than sitting
@@ -150,13 +154,50 @@
     .blg-status b{ color: var(--pc-black); font-weight: 600; }
 
     /* ---- post grid ---- */
-    /* ---- card meta row: date first, category pushed to the right edge ----
-       Page-local. The shared .io-scope rule lays the row out chip-then-date, left
-       aligned; the blog index wants the date leading and the category trailing, so
-       the chip takes the free space with margin-left. pc.css is untouched, which
-       leaves the homepage Insights module reading the way it always has. */
+    /* ---- card meta row: date first, author pushed to the right edge ----
+       Page-local, and the A/B difference from page 1, which puts the category chip in
+       this slot. The shared .io-scope rule lays the row out chip-then-date, left
+       aligned; this page wants the date leading and the byline trailing, so the author
+       takes the free space with margin-left. pc.css is untouched, which leaves the
+       homepage Insights module reading the way it always has.
+       The author is set as plain text, not a chip: the pill shape now means "category"
+       and nothing else, so a name in a pill would read as one. The byline reads "By
+       Name" in full, so the meta row says what the name is without relying on its
+       position to explain it. */
     .blg-body .io-metarow{ width: 100%; }
-    .blg-body .io-metarow .io-chip{ margin-left: auto; }
+    .blg-body .io-metarow .blg-by{ margin-left: auto; text-align: right;
+      font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      color: var(--pc-navy); }
+
+    /* ---- card footer: the categories ----
+       Pinned to the bottom of the card body with margin-top:auto, so the footers line
+       up across a row even though the titles run to different depths. The hairline is
+       what makes it read as a footer.
+
+       THE FOOTER IS ONE CHIP ROW TALL AND CLIPS. A post can carry more than one
+       category, and as long as they fit side by side every one of them shows. When the
+       card gets too narrow for the set, the chips that no longer fit wrap onto a second
+       line - and that line falls entirely outside the 40px box, so the extra chips stop
+       showing rather than making the footer twice as tall.
+
+       Why it has to work this way: `margin-top: auto` pins the footer's BOTTOM, so a
+       wrapped chip row pushes the hairline UP. In a multi-column band that puts the rule
+       at a different height on one card than on its neighbour - 29px apart on the 768
+       row that pairs "Land Investment Expo" with "Industry Insights", which needs 309.9px
+       in a 306px box. Clipping keeps every footer exactly one row tall, so the hairlines
+       stay level at every width no matter what categories a post carries.
+
+       40px = padding-top (16) + border (1) + one 22.8px chip, rounded up. The row-gap is
+       6px, so a second line starts 6px below the clip and is never part-cut - a chip is
+       either fully shown or fully gone. If the chip's font-size, padding or the footer's
+       padding-top change, this number has to change with them.
+
+       The clipped chips stay in the DOM and in the accessibility tree, so a screen reader
+       still gets every category the post carries. Only the visual row is capped. */
+    .blg-cats{ display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px;
+      margin-top: auto; padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      max-height: 40px; overflow: hidden; }
 
     .blg-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
     .blg-grid .io-title{ font-size: 22px; }
@@ -322,16 +363,16 @@
           <span></span><span></span><span></span>
         </button>
         <div class="pcf-brandcell">
-          <a href="./index.html" aria-label="Peoples Company home">
+          <a href="../final-pc/index.html" aria-label="Peoples Company home">
             <img class="pcf-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
           </a>
         </div>
         <div class="pcf-stack">
           <div class="pcf-util">
             <span class="sp"></span>
-            <a href="./internal.html">Create An Account</a>
+            <a href="../final-pc/internal.html">Create An Account</a>
             <span class="sep">|</span>
-            <a href="./internal.html">Login</a>
+            <a href="../final-pc/internal.html">Login</a>
           </div>
           <nav class="pcf-row" aria-label="Primary">
             <ul class="pcf-menus" id="pcfMenus"></ul>
@@ -500,205 +541,218 @@
       <p class="blg-status" id="blgStatus" role="status" aria-live="polite">Showing all posts.</p>
 
 
-      <!-- Every post, 3-up. Newest first. -->
+      <!-- Page 2 of the index, and the A/B variant of the card. Page 1 is the control
+           and must not pick up any of this: every rule below it depends on lives in
+           this page's <style>, and the markup differences are here in the cards.
+
+           Three differences from page 1:
+             1. the meta row carries the AUTHOR where page 1 carries the category,
+             2. there is no teaser,
+             3. the categories sit in a footer at the bottom of the card, and a post
+                can carry more than one.
+           Everything else - image, date, title, card shell, grid - is page 1's.
+
+           Posts continue where page 1 left off, so page 1 ends and page 2 begins on
+           one unbroken date order. -->
       <div class="blg-grid">
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Growing Together: George Baird" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Harvest season safety" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">April 15, 2026</span><span class="io-chip">Land Management</span></span>
-            <h2 class="io-title">Growing Together: George Baird, Senior Land Manager</h2>
-            <p class="io-teaser">A look at George Baird&#8217;s career path and how he&#8217;s helping landowners navigate farm management decisions across the Midwest.</p>
+            <span class="io-metarow"><span class="io-date">September 18, 2025</span><span class="blg-by">By Mollie Aronowitz</span></span>
+            <h2 class="io-title">Harvest Season on Leased Ground: A Checklist for Landowners</h2>
+            <span class="blg-cats"><span class="io-chip">Agriculture</span><span class="io-chip">Land Management</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Peoples Company Acquires Murray Wise Associates LLC" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Land auction bidding" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">April 14, 2026</span><span class="io-chip">News &amp; Events</span></span>
-            <h2 class="io-title">Peoples Company Acquires Murray Wise Associates LLC</h2>
-            <p class="io-teaser">Peoples Company expands its national reach with the acquisition of Murray Wise Associates, a leading farmland brokerage and auction firm.</p>
+            <span class="io-metarow"><span class="io-date">September 9, 2025</span><span class="blg-by">By Kyle Walker</span></span>
+            <h2 class="io-title">Online, Live, or Hybrid: Choosing the Right Auction Format for Your Farm</h2>
+            <span class="blg-cats"><span class="io-chip">Land Auctions</span><span class="io-chip">Real Estate</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Argentina Agriculture" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Pasture and grazing land" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">April 13, 2026</span><span class="io-chip">Industry Insights</span></span>
-            <h2 class="io-title">Argentina: U.S. Partnership Opportunities in Agriculture, Energy &amp; Fertilizer</h2>
-            <p class="io-teaser">An overview of emerging cross-border opportunities between the U.S. and Argentina across agriculture, energy production, and fertilizer supply chains.</p>
+            <span class="io-metarow"><span class="io-date">August 27, 2025</span><span class="blg-by">By Jared Chambers</span></span>
+            <h2 class="io-title">Pasture and Grazing Land: What Drives Value Outside the Row-Crop Belt</h2>
+            <span class="blg-cats"><span class="io-chip">Land Values</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="From the Ground Up" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Recreational land" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">April 13, 2026</span><span class="io-chip">Land Management</span></span>
-            <h2 class="io-title">From the Ground Up: How Strategic Land Management Unlocks Long-Term Appreciation</h2>
-            <p class="io-teaser">Discover how proactive land management decisions, from soil health to tenant relationships, can drive meaningful appreciation over time.</p>
+            <span class="io-metarow"><span class="io-date">August 19, 2025</span><span class="blg-by">By Eric Bohnenkamp</span></span>
+            <h2 class="io-title">Recreational Land Buyers Are Back: What They Want and What They Pay</h2>
+            <span class="blg-cats"><span class="io-chip">Real Estate</span><span class="io-chip">Land Values</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Transitional Farmland" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Farm records and files" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">February 26, 2026</span><span class="io-chip">Land Values</span></span>
-            <h2 class="io-title">Transitional Farmland: Investing in Land in the Path of Growth</h2>
-            <p class="io-teaser">Learn why farmland near expanding cities can command premium value, and what factors beyond soil quality drive pricing in transitional markets.</p>
+            <span class="io-metarow"><span class="io-date">August 8, 2025</span><span class="blg-by">By Wendy Forthun</span></span>
+            <h2 class="io-title">Better Records, Better Decisions: Getting Your Farm Files in Order</h2>
+            <span class="blg-cats"><span class="io-chip">Land Management</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Understanding CSR2 Ratings" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Expo speaker stage" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">February 18, 2026</span><span class="io-chip">Land Values</span></span>
-            <h2 class="io-title">Understanding CSR2 Ratings and What They Mean for Your Land Value</h2>
-            <p class="io-teaser">CSR2 scores are one of the most widely used benchmarks in Iowa farmland. Here is how they are calculated and why they matter to buyers and sellers.</p>
+            <span class="io-metarow"><span class="io-date">July 30, 2025</span><span class="blg-by">By Emily Oberbroeckling</span></span>
+            <h2 class="io-title">Land Investment Expo Speakers Announced for the Coming Year</h2>
+            <span class="blg-cats"><span class="io-chip">Land Investment Expo</span><span class="io-chip">News &amp; Events</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Cash Rent Trends" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Irrigation pivot" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">February 10, 2026</span><span class="io-chip">Land Management</span></span>
-            <h2 class="io-title">Cash Rent Trends: What Landowners Should Expect Heading Into 2026</h2>
-            <p class="io-teaser">Commodity prices, input costs, and land demand are all shifting. We break down what cash rent negotiations may look like for the upcoming crop year.</p>
+            <span class="io-metarow"><span class="io-date">July 22, 2025</span><span class="blg-by">By Jason Lestina</span></span>
+            <h2 class="io-title">Irrigated Acres: Weighing the Cost of a Pivot Against the Yield Bump</h2>
+            <span class="blg-cats"><span class="io-chip">Agriculture</span><span class="io-chip">Land Management</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Farmland Auction Results" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Prevented planting" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">January 29, 2026</span><span class="io-chip">Land Auctions</span></span>
-            <h2 class="io-title">Q4 Farmland Auction Results: Strong Demand Carries Into the New Year</h2>
-            <p class="io-teaser">Peoples Company&#8217;s Q4 auction results reflect continued investor confidence in Midwest farmland, with several tracts selling above pre-auction estimates.</p>
+            <span class="io-metarow"><span class="io-date">July 10, 2025</span><span class="blg-by">By Connie Kreikemeier</span></span>
+            <h2 class="io-title">Prevented Planting Claims: How the Decision Actually Gets Made</h2>
+            <span class="blg-cats"><span class="io-chip">Crop Insurance</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Crop Insurance" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Battery storage on farmland" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">January 21, 2026</span><span class="io-chip">Crop Insurance</span></span>
-            <h2 class="io-title">Crop Insurance Deadlines Are Coming: Are You Prepared for 2026?</h2>
-            <p class="io-teaser">With sign-up season approaching, our crop insurance specialists outline the key decisions farmers need to make before the March deadline.</p>
+            <span class="io-metarow"><span class="io-date">June 26, 2025</span><span class="blg-by">By George Baird</span></span>
+            <h2 class="io-title">Battery Storage Comes to Farmland: A New Kind of Lease Offer</h2>
+            <span class="blg-cats"><span class="io-chip">Energy Management</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Energy Management" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Farmland investors" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">January 14, 2026</span><span class="io-chip">Energy Management</span></span>
-            <h2 class="io-title">Solar and Wind Leases: What Landowners Need to Know Before Signing</h2>
-            <p class="io-teaser">Energy lease opportunities are becoming more common on agricultural land. Here are the key terms and considerations every landowner should review carefully.</p>
+            <span class="io-metarow"><span class="io-date">June 17, 2025</span><span class="blg-by">By Kim McGinnis</span></span>
+            <h2 class="io-title">Who Is Buying Farmland in 2025? A Look at the Buyer Mix</h2>
+            <span class="blg-cats"><span class="io-chip">Industry Insights</span><span class="io-chip">Land Values</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Succession Planning" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Boundary survey" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">January 7, 2026</span><span class="io-chip">Agriculture</span></span>
-            <h2 class="io-title">Farm Succession Planning: Starting the Conversation Before It&#8217;s Urgent</h2>
-            <p class="io-teaser">Passing farmland to the next generation involves more than a will. Our team explains why early planning leads to better outcomes for families and operations alike.</p>
+            <span class="io-metarow"><span class="io-date">June 5, 2025</span><span class="blg-by">By Kyle Walker</span></span>
+            <h2 class="io-title">Boundary Lines, Surveys, and the Questions to Ask Before Closing</h2>
+            <span class="blg-cats"><span class="io-chip">Real Estate</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Land Investment Expo" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Estate settlement" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">December 19, 2025</span><span class="io-chip">Land Investment Expo</span></span>
-            <h2 class="io-title">Recap: Peoples Company Land Investment Expo 2025</h2>
-            <p class="io-teaser">Hundreds of investors gathered in Des Moines for our annual Land Investment Expo. Here are the top themes and takeaways from this year&#8217;s event.</p>
+            <span class="io-metarow"><span class="io-date">May 28, 2025</span><span class="blg-by">By Kim McGinnis</span></span>
+            <h2 class="io-title">Settling an Estate That Includes Farmland: A Practical Sequence</h2>
+            <span class="blg-cats"><span class="io-chip">Agriculture</span><span class="io-chip">Real Estate</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Tile Drainage" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Spring auction results" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">December 10, 2025</span><span class="io-chip">Land Management</span></span>
-            <h2 class="io-title">The ROI of Tile Drainage: A Land Manager&#8217;s Perspective</h2>
-            <p class="io-teaser">Improved drainage is one of the highest-returning capital improvements a landowner can make. We look at the numbers and the long-term impact on land value.</p>
+            <span class="io-metarow"><span class="io-date">May 15, 2025</span><span class="blg-by">By Eric Bohnenkamp</span></span>
+            <h2 class="io-title">Spring Auction Season in Review: Where the Bidding Landed</h2>
+            <span class="blg-cats"><span class="io-chip">Land Auctions</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Farmland as an Asset Class" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Drainage district map" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">December 2, 2025</span><span class="io-chip">Industry Insights</span></span>
-            <h2 class="io-title">Farmland as an Asset Class: How It Stacks Up Against Stocks and Bonds</h2>
-            <p class="io-teaser">Institutional investors have taken notice. We compare farmland&#8217;s historical returns, volatility, and income characteristics against traditional investment alternatives.</p>
+            <span class="io-metarow"><span class="io-date">May 6, 2025</span><span class="blg-by">By Mollie Aronowitz</span></span>
+            <h2 class="io-title">Drainage Districts: What Your Assessment Pays For and Why It Changes</h2>
+            <span class="blg-cats"><span class="io-chip">Land Management</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Appraisal" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Corn and soybean markets" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">November 20, 2025</span><span class="io-chip">Real Estate</span></span>
-            <h2 class="io-title">When and Why You Need a Farmland Appraisal</h2>
-            <p class="io-teaser">Estate settlements, financing, and partnership buyouts all require accurate land valuations. Our appraisal team explains the process and what to expect.</p>
+            <span class="io-metarow"><span class="io-date">April 24, 2025</span><span class="blg-by">By Jared Chambers</span></span>
+            <h2 class="io-title">Commodity Prices and Land Values: How Tight Is the Link?</h2>
+            <span class="blg-cats"><span class="io-chip">Industry Insights</span><span class="io-chip">Land Values</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Cover Crops" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Beginning farmer" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">November 11, 2025</span><span class="io-chip">Agriculture</span></span>
-            <h2 class="io-title">Cover Crops and Soil Health: What the Data Says About Long-Term Land Value</h2>
-            <p class="io-teaser">Sustainable practices are not just good for the environment. They are increasingly influencing buyer demand and per-acre pricing in competitive markets.</p>
+            <span class="io-metarow"><span class="io-date">April 15, 2025</span><span class="blg-by">By Wendy Forthun</span></span>
+            <h2 class="io-title">Bringing a Beginning Farmer Onto the Operation</h2>
+            <span class="blg-cats"><span class="io-chip">Agriculture</span><span class="io-chip">Land Management</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="1031 Exchange" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Conservation easement" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">November 3, 2025</span><span class="io-chip">Real Estate</span></span>
-            <h2 class="io-title">Using a 1031 Exchange to Reinvest Farmland Proceeds Tax-Deferred</h2>
-            <p class="io-teaser">A 1031 exchange can be a powerful tool when selling appreciated farmland. Here is how the process works and what timelines and rules apply.</p>
+            <span class="io-metarow"><span class="io-date">April 2, 2025</span><span class="blg-by">By Jared Chambers</span></span>
+            <h2 class="io-title">Conservation Easements and Farmland Value: The Trade-Offs</h2>
+            <span class="blg-cats"><span class="io-chip">Land Values</span><span class="io-chip">Real Estate</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Tenant Relationships" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Grain bins at sunset" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">October 22, 2025</span><span class="io-chip">Land Management</span></span>
-            <h2 class="io-title">Building Strong Landowner-Tenant Relationships That Last Decades</h2>
-            <p class="io-teaser">The best farm leases are built on trust, communication, and shared goals. Our land managers share what makes a landowner-tenant relationship truly work.</p>
+            <span class="io-metarow"><span class="io-date">March 20, 2025</span><span class="blg-by">By Jason Lestina</span></span>
+            <h2 class="io-title">On-Farm Storage: Does Adding Bins Still Pencil Out?</h2>
+            <span class="blg-cats"><span class="io-chip">Land Management</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Farmland Market Outlook" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Crop insurance paperwork" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">October 14, 2025</span><span class="io-chip">Land Values</span></span>
-            <h2 class="io-title">Midwest Farmland Market Outlook: Fall 2025</h2>
-            <p class="io-teaser">Our market analysts weigh in on land values, buyer demand, and the factors most likely to shape farmland pricing heading into year-end and beyond.</p>
+            <span class="io-metarow"><span class="io-date">March 11, 2025</span><span class="blg-by">By Connie Kreikemeier</span></span>
+            <h2 class="io-title">After the Sales Closing Date: What You Can and Cannot Still Change</h2>
+            <span class="blg-cats"><span class="io-chip">Crop Insurance</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Crop insurance decisions" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Land Investment Expo crowd" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">October 7, 2025</span><span class="io-chip">Crop Insurance</span></span>
-            <h2 class="io-title">Choosing Coverage Levels: A Practical Guide to Crop Insurance Decisions</h2>
-            <p class="io-teaser">Revenue protection, yield protection, and enterprise units all change the math. Here is how operators think through coverage before the sales closing date.</p>
+            <span class="io-metarow"><span class="io-date">February 27, 2025</span><span class="blg-by">By Emily Oberbroeckling</span></span>
+            <h2 class="io-title">Five Takeaways From This Year&#8217;s Land Investment Expo Sessions</h2>
+            <span class="blg-cats"><span class="io-chip">Land Investment Expo</span><span class="io-chip">Industry Insights</span></span>
           </div>
         </a>
 
-        <a class="io-card" href="./blog-story.html">
-          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Wind turbines on farmland" loading="lazy" decoding="async" /></div>
+        <a class="io-card" href="../final-pc/blog-story.html">
+          <div class="io-ph r169"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Farm listing paperwork" loading="lazy" decoding="async" /></div>
           <div class="io-body">
-            <span class="io-metarow"><span class="io-date">September 29, 2025</span><span class="io-chip">Energy Management</span></span>
-            <h2 class="io-title">Reading the Fine Print on Wind and Solar Easements</h2>
-            <p class="io-teaser">Term length, decommissioning obligations, and setback language decide what a lease is really worth. A closer look at the clauses that matter most.</p>
+            <span class="io-metarow"><span class="io-date">February 14, 2025</span><span class="blg-by">By Kyle Walker</span></span>
+            <h2 class="io-title">Listing a Farm: What Happens Between the Handshake and the Sign</h2>
+            <span class="blg-cats"><span class="io-chip">Real Estate</span><span class="io-chip">News &amp; Events</span></span>
           </div>
         </a>
 
       </div>
 
       <nav class="blg-pager" aria-label="Blog pages">
-        <a class="blg-page" href="./blog.html" aria-current="page">1</a>
-        <a class="blg-page" href="./blog2.html">2</a>
+        <a class="blg-page" href="../final-pc/blog.html">&larr; Prev</a>
+        <a class="blg-page" href="../final-pc/blog.html">1</a>
+        <a class="blg-page" href="./blog2.html" aria-current="page">2</a>
         <a class="blg-page" href="./blog3.html">3</a>
-        <a class="blg-page" href="./blog2.html">Next &rarr;</a>
+        <a class="blg-page" href="./blog3.html">Next &rarr;</a>
       </nav>
 
     </div>
@@ -710,7 +764,7 @@
     <div class="pff-main">
       <!-- connect band on top: logo · newsletter line · subscribe pill -->
       <div class="pff-inner pff-connect">
-        <a class="pff-connect-logo" href="./internal.html" aria-label="Peoples Company home">
+        <a class="pff-connect-logo" href="../final-pc/internal.html" aria-label="Peoples Company home">
           <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
         </a>
         <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
@@ -727,7 +781,7 @@
           <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
                design puts it between the rule and "Corporate Office". Exactly one footer
                lockup is visible at any width. -->
-          <a class="pff-brand-logo" href="./internal.html" aria-label="Peoples Company home">
+          <a class="pff-brand-logo" href="../final-pc/internal.html" aria-label="Peoples Company home">
             <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
           </a>
           <h3>Corporate Office</h3>
@@ -741,58 +795,58 @@
             <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
           </p>
           <div class="pff-cta">
-            <a class="btn btn-subscribe" href="./internal.html">Find an Office</a>
+            <a class="btn btn-subscribe" href="../final-pc/internal.html">Find an Office</a>
           </div>
         </div>
 
         <nav class="pff-col" aria-label="Real Estate">
           <h3>Real Estate</h3>
           <ul>
-            <li><a href="./internal.html">Traditional Search</a></li>
-            <li><a href="./internal.html">AI Search</a></li>
-            <li><a href="./internal.html">Interactive Map</a></li>
-            <li><a href="./internal.html">Auctions</a></li>
-            <li><a href="./internal.html">Prior Transactions</a></li>
-            <li><a href="./internal.html">Find An Agent</a></li>
+            <li><a href="../final-pc/internal.html">Traditional Search</a></li>
+            <li><a href="../final-pc/internal.html">AI Search</a></li>
+            <li><a href="../final-pc/internal.html">Interactive Map</a></li>
+            <li><a href="../final-pc/internal.html">Auctions</a></li>
+            <li><a href="../final-pc/internal.html">Prior Transactions</a></li>
+            <li><a href="../final-pc/internal.html">Find An Agent</a></li>
           </ul>
         </nav>
 
         <nav class="pff-col" aria-label="The Company">
           <h3>The Company</h3>
           <ul>
-            <li><a href="./internal.html">Overview</a></li>
-            <li><a href="./internal.html">Regions</a></li>
-            <li><a href="./internal.html">Industry Collaboration</a></li>
-            <li><a href="./internal.html">Our Team</a></li>
-            <li><a href="./internal.html">Offices</a></li>
-            <li><a href="./internal.html">Culture</a></li>
-            <li><a href="./internal.html">Careers</a></li>
+            <li><a href="../final-pc/internal.html">Overview</a></li>
+            <li><a href="../final-pc/internal.html">Regions</a></li>
+            <li><a href="../final-pc/internal.html">Industry Collaboration</a></li>
+            <li><a href="../final-pc/internal.html">Our Team</a></li>
+            <li><a href="../final-pc/internal.html">Offices</a></li>
+            <li><a href="../final-pc/internal.html">Culture</a></li>
+            <li><a href="../final-pc/internal.html">Careers</a></li>
           </ul>
         </nav>
 
         <nav class="pff-col" aria-label="What We Do">
           <h3>What We Do</h3>
           <ul>
-            <li><a href="./internal.html">Land Brokerage &amp; Auctions</a></li>
-            <li><a href="./internal.html">Agricultural Appraisal</a></li>
-            <li><a href="./internal.html">Land Management</a></li>
-            <li><a href="./internal.html">Energy Management</a></li>
-            <li><a href="./internal.html">Crop Insurance</a></li>
-            <li><a href="./internal.html">Capital Markets</a></li>
-            <li><a href="./internal.html">Corporate Services</a></li>
+            <li><a href="../final-pc/internal.html">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="../final-pc/internal.html">Agricultural Appraisal</a></li>
+            <li><a href="../final-pc/internal.html">Land Management</a></li>
+            <li><a href="../final-pc/internal.html">Energy Management</a></li>
+            <li><a href="../final-pc/internal.html">Crop Insurance</a></li>
+            <li><a href="../final-pc/internal.html">Capital Markets</a></li>
+            <li><a href="../final-pc/internal.html">Corporate Services</a></li>
           </ul>
         </nav>
 
         <nav class="pff-col" aria-label="Insights &amp; News">
           <h3>Insights &amp; News</h3>
           <ul>
-            <li><a href="./internal.html">Industry Research</a></li>
-            <li><a href="./internal.html">National Land Values</a></li>
-            <li><a href="./internal.html">Case Studies</a></li>
-            <li><a href="./internal.html">Newsletters</a></li>
-            <li><a href="./internal.html">Blog</a></li>
-            <li><a href="./internal.html">In the News</a></li>
-            <li><a href="./internal.html">Industry Recognition</a></li>
+            <li><a href="../final-pc/internal.html">Industry Research</a></li>
+            <li><a href="../final-pc/internal.html">National Land Values</a></li>
+            <li><a href="../final-pc/internal.html">Case Studies</a></li>
+            <li><a href="../final-pc/internal.html">Newsletters</a></li>
+            <li><a href="../final-pc/internal.html">Blog</a></li>
+            <li><a href="../final-pc/internal.html">In the News</a></li>
+            <li><a href="../final-pc/internal.html">Industry Recognition</a></li>
           </ul>
         </nav>
       </div>
@@ -803,17 +857,17 @@
         <span class="copy">© 2026 Peoples Company</span>
 
         <span class="legal-links">
-          <a href="./internal.html">Privacy Notice</a>
-          <a href="./internal.html">Disclaimer</a>
-          <a href="./internal.html">Equal Opportunity</a>
+          <a href="../final-pc/internal.html">Privacy Notice</a>
+          <a href="../final-pc/internal.html">Disclaimer</a>
+          <a href="../final-pc/internal.html">Equal Opportunity</a>
         </span>
 
         <span class="pff-social">
-          <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
-          <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
-          <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-          <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
-          <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+          <a href="../final-pc/internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="../final-pc/internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="../final-pc/internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="../final-pc/internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="../final-pc/internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
         </span>
 
       </div>
@@ -827,10 +881,10 @@
     <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
     <div class="pc-toast-body">
       <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
-        <a href="./internal.html">136.57 Acres M/L in Wayne County IA</a><br>
-        <a href="./internal.html"><em>WATCH</em></a><br>
-        <a href="./internal.html">804 Acres M/L in Juneau County WI</a><br>
-        <a href="./internal.html"><em>WATCH</em></a>
+        <a href="../final-pc/internal.html">136.57 Acres M/L in Wayne County IA</a><br>
+        <a href="../final-pc/internal.html"><em>WATCH</em></a><br>
+        <a href="../final-pc/internal.html">804 Acres M/L in Juneau County WI</a><br>
+        <a href="../final-pc/internal.html"><em>WATCH</em></a>
       </p>
     </div>
     <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
@@ -1072,10 +1126,10 @@
       function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
       function badgeHTML(b){
         var emb;
-        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="./internal.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
-        if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="./internal.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
+        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="../final-pc/internal.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
+        if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="../final-pc/internal.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
         // american farmland owner — real horizontal logo (assets/afo.png)
-        return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
+        return '<a class="pcf-badge pcf-badge-logo afo" href="../final-pc/internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
       }
       function colHTML(c){
         if(c.badges){
@@ -1083,18 +1137,18 @@
         }
         if(c.svc){
           var blocks = c.svc.map(function(s){
-            var sub = (s.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+            var sub = (s.items || []).map(function(i){ return '<li><a href="../final-pc/internal.html">'+esc(i)+'</a></li>'; }).join("");
             return '<div class="pcf-svcblock">'+
-              '<div class="pcf-svc"><a href="./internal.html">'+esc(s.name)+'</a></div>'+
+              '<div class="pcf-svc"><a href="../final-pc/internal.html">'+esc(s.name)+'</a></div>'+
               (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
             '</div>';
           }).join("");
           return '<div class="pcf-col">'+blocks+'</div>';
         }
         if(c.h && (!c.items || !c.items.length) && !c.note){
-          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="../final-pc/internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
         }
-        var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+        var links = (c.items || []).map(function(i){ return '<li><a href="../final-pc/internal.html">'+esc(i)+'</a></li>'; }).join("");
         // spacer:true → an invisible h4 so a continuation column's first link lines up
         // with the neighbouring column's first link (see .pcf-h4-ghost in pc.css).
         var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
