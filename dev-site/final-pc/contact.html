@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- ===========================================================================
+     CONTACT
+
+     The corporate office, the enquiry form, and all 25 Peoples Company offices
+     on one page. Companion spec: developer-contact.md.
+
+     Everything prefixed ct- is page-local scaffolding for this page only. It is
+     not a component set - do not port a ct- class into pc.css.
+     =========================================================================== -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,52 +28,25 @@
       overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
       border: 0; }
 
-    /* Page-local values. The two photo numbers are here rather than buried in the
-       carousel rules because they are the ones still being settled. */
-    .ct-scope, .ct-body{ --ct-photo-w: 707px; --ct-photo-ar: 7 / 4; }
+    /* Page-local values: the photograph's width when there is room, and its shape. */
+    .ct-body{ --ct-photo-w: 707px; --ct-photo-ar: 7 / 4; }
 
     .ct-body{ background: var(--pc-white); }
-    /* The TOP padding clears the Interactive Map tab, which nothing else reserves room
-       for: .md-tabwrap is height:0, so the tab hangs OVER the content and the page has to
-       hold it off itself. It is measured off the tab's own peak height - the idle
-       animation breathes it from --md-tab-h to --md-tab-h-peak - so the clearance holds
-       when the tab steps down at the narrow breakpoints instead of being a number that
-       drifts. --space-5 of real space below the tab at full stretch. */
+    /* Top padding clears the Interactive Map tab: .md-tabwrap is height:0, so the tab
+       hangs OVER the content and every page has to hold it off itself. Measured off the
+       tab's own peak height, so the clearance holds as the tab steps down. */
     .ct-wrap{ max-width: var(--site); margin: 0 auto;
       padding: calc(var(--md-tab-h-peak) + var(--space-5)) var(--rail) var(--space-9); }
 
-    /* ---- page head ----
-       The <h1> is VISUALLY HIDDEN, not deleted, exactly as on legal.html: the word
-       "Contact" above a page that says so in its heading, its form and its office cards
-       earns nothing on screen, but the page still needs one h1 for the document outline,
-       for search and for anyone navigating by heading. Hence .sr-only rather than
-       display:none, which would take it out of the accessibility tree too.
-       The .ct-head wrapper collapses to zero height and stays as the hook for a visible
-       eyebrow or intro later - the h1's own margin no longer occupies space, since
-       .sr-only takes it out of the flow. */
+    /* ---- page head ---- */
     .ct-head h1{ margin: 0 0 var(--space-7); }
 
-    /* ---- the layout: THREE BLOCKS, STAGGERED ----
-       THREE blocks, not two columns of two. From 1280 the grid is two columns and two
-       rows, and the corporate office card spans the top:
-
-           corporate office . . . . . . . full width
-           form (380px)     offices (rest)
-
-       So THE FORM STARTS LEVEL WITH THE FIRST ROW OF OFFICE CARDS, and it does it by
-       placement rather than by a top offset - nothing has to know how tall the navy card
-       is, which is just as well: that changes with the width and with the photograph.
-
-       The markup is in reading order - corporate office, form, offices - so the DOM
-       order matches the way the eye crosses the grid and the tab sequence follows it.
-
-       Below 1280 it collapses to one column in that same order and the placements go
-       with it. */
+    /* ---- the layout: three blocks, staggered ---- */
     .ct-top{ display: grid; gap: var(--space-7); }
     @media (min-width: 1280px){
       .ct-top{ grid-template-columns: 380px minmax(0, 1fr);
         gap: var(--space-7) var(--space-8); align-items: start; }
-      /* The navy card spans BOTH columns - it is the page's banner, not a column. */
+      
       .ct-top > .ct-card--navy{ grid-column: 1 / -1; grid-row: 1; }
       .ct-top > .ct-rail{      grid-column: 1; grid-row: 2; }
       .ct-top > .ct-offices{   grid-column: 2; grid-row: 2; }
@@ -73,14 +55,9 @@
     .ct-lede{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
       color: var(--color-text-muted); max-width: 62ch; margin: 0 0 var(--space-6); }
 
-    /* ---- the form ----
-       Mock-up scaffolding. Nothing is wired: the submit handler returns false. The real
-       page runs an embedded third-party form, so treat this as the field list and the
-       visual treatment, not as markup to ship. */
+    /* ---- the form ---- */
     .ct-form{ display: grid; gap: var(--space-5); }
-    /* One field per row at every width - that is what the 380px rail can hold, and below
-       1280 the form runs full width under the map, where a two-up name row would be the
-       only wide thing on the page. */
+    
     .ct-row{ display: grid; gap: var(--space-5); }
     .ct-field{ display: grid; gap: var(--space-2); }
     .ct-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
@@ -97,10 +74,7 @@
       outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
     .ct-form .btn{ justify-self: start; }
 
-    /* ---- LEFT rail ----
-       It holds the form alone: Follow Us lives in the corporate office card.
-       Below 1280 the rail stops being a rail and stacks between the card and the
-       offices, so it takes a rule above it to separate it from the card. */
+    /* ---- the rail: the form, left column from 1280 ---- */
     .ct-rail{ display: grid; gap: var(--space-6); align-content: start; min-width: 0; }
     @media (max-width: 1279px){
       .ct-rail{ padding-top: var(--space-8); border-top: 1px solid var(--color-border); }
@@ -110,80 +84,43 @@
     .ct-card h2{ margin: 0 0 var(--space-4); font-size: var(--h3-size); }
     .ct-card .ct-lede{ font-size: var(--body); max-width: none; margin-bottom: var(--space-5); }
 
-    /* ---- corporate office, left column ----
-       PC Navy ground with white type - the build's on-dark set, so this card reads the
-       same way as every other dark panel on the site. The card sits at the top of its
-       column - it does not stretch to the form's height - and the address is capped in
-       ch so the line does not run the full column. */
+    /* ---- corporate office: the full-width card across the top ---- */
     .ct-card--navy{ background: var(--pc-navy); border-color: var(--pc-navy);
       padding: var(--space-7); }
     .ct-card--navy h2{ color: var(--text-on-dark); }
 
-    /* ---- the card's two halves ----
-       Address left, office photograph right. flex-wrap, NOT a media query: the card's
-       width does not track the viewport (it is 864px at 1024 and 676px at 1280, because
-       that is where the 380px rail appears), so a width query would hide the photo at the
-       width that has the most room for it. Basis values let the row break on its own
-       whenever the card is too narrow to hold both, at any viewport. */
+    /* ---- the card's two halves ---- */
     .ct-corp{ display: flex; flex-wrap: wrap; gap: var(--space-7); align-items: center; }
     .ct-corp-text{ flex: 1 1 300px; min-width: 0; }
-    /* THE FRAME IS TWO NUMBERS, ON PURPOSE. --ct-photo-w is the width it reaches when
-       there is room; --ct-photo-ar is its shape. The width is the old 404px square plus
-       75% (404 x 1.75 = 707), and the ratio is 7 / 4 = 1.75, which is what keeps the
-       HEIGHT at 404 and therefore the card height where it was. Settling on a final size
-       is an edit to these two values and nothing else.
-
-       The photograph takes its share of any spare width but stops at --ct-photo-w, so it
-       cannot grow large enough to out-shout the address beside it.
-
-       THE 12px NEGATIVE MARGIN IS THE POINT. The card pads at --space-7 (48px); the
-       square bleeds 12px into that on every side, which leaves 36px of ground around it
-       - a quarter less - and hands those 24px to the photograph instead. The card height
-       does not move, because the negative margins take back exactly what the larger
-       square adds: 404 - 24 = the 380 the layout saw before. The left bleed closes the
-       gap to the address to 36px too, so the ground reads even all the way round whether
-       the two sit side by side or stacked. */
+    
     .ct-corp-photo{ flex: 0 1 var(--ct-photo-w); max-width: var(--ct-photo-w);
       margin: -12px; }
-    /* ---- the office carousel ----
-       THREE PHOTOGRAPHS, CROSSFADED. The frame owns the shape; the slides are stacked
-       absolutely inside it, so the card height never changes as they cycle.
-
-       THE FRAME IS LANDSCAPE AND THE SOURCES ARE SQUARE, so object-fit: cover is doing
-       real work now: each 500x500 photograph is scaled until it covers a 7:4 box and the
-       top and bottom are cropped away - about 43% of the image height is outside the
-       frame. That is the zoom-to-fill the landscape frame asks for, and it is a stop-gap: the
-       photographs want re-cropping to the final ratio once it is settled. See the note in
-       the markup for the sharpness cost. */
+    /* ---- the office carousel ---- */
     .ct-shots{ position: relative; aspect-ratio: var(--ct-photo-ar); width: 100%;
       border-radius: var(--radius-lg); overflow: hidden; background: var(--pc-navy); }
     .ct-shot{ position: absolute; inset: 0; width: 100%; height: 100%;
       object-fit: cover; object-position: center;
       opacity: 0; transition: opacity .6s ease; }
     .ct-shot.is-on{ opacity: 1; }
-    /* With reduced motion the slide swaps instantly. It still swaps: the dots have to do
-       something when they are pressed. */
+    
     @media (prefers-reduced-motion: reduce){
       .ct-shot{ transition: none; }
     }
 
-    /* ---- carousel controls ----
-       On the photograph, in a bar along the bottom, over a soft scrim so they hold up
-       against a bright sky or a pale brick wall. */
+    /* ---- carousel controls ---- */
     .ct-shotbar{ position: absolute; left: 0; right: 0; bottom: 0;
       display: flex; align-items: center; justify-content: space-between;
       gap: var(--space-3); padding: 10px 12px;
       background: linear-gradient(to top, rgba(7,22,44,.66), rgba(7,22,44,0)); }
     .ct-dots{ display: flex; gap: 8px; }
-    /* Real buttons, not decorative spans: each jumps to its own photograph. The 28px box
-       keeps the target at the WCAG 2.5.8 floor while the visible dot stays 10px. */
+    
     .ct-dot{ width: 28px; height: 28px; padding: 0; border: 0; background: none;
       cursor: pointer; display: grid; place-items: center; }
     .ct-dot::before{ content: ""; width: 10px; height: 10px; border-radius: 50%;
       background: rgba(255,255,255,.45); box-shadow: 0 0 0 1px rgba(7,22,44,.35);
       transition: background .15s ease, transform .15s ease; }
     .ct-dot:hover::before{ background: rgba(255,255,255,.8); }
-    /* The current dot fills solid AND grows - two signals, never colour alone. */
+    
     .ct-dot[aria-current="true"]::before{ background: var(--pc-white);
       transform: scale(1.3); }
     .ct-dot:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 0;
@@ -192,8 +129,8 @@
       .ct-dot::before{ transition: none; }
     }
 
-    /* Pause and play. WCAG 2.2.2: the cycle starts on its own and runs longer than five
-       seconds, so a control that stops it is required, not a nicety. */
+    /* WCAG 2.2.2: the cycle starts on its own and runs longer than five seconds, so a
+       control that stops it is required, not a nicety. */
     .ct-shotplay{ display: inline-flex; align-items: center; justify-content: center;
       width: 28px; height: 28px; padding: 0; cursor: pointer;
       color: var(--pc-white); background: rgba(7,22,44,.45);
@@ -201,7 +138,7 @@
     .ct-shotplay:hover{ background: rgba(7,22,44,.75); }
     .ct-shotplay:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px; }
     .ct-shotplay svg{ width: 12px; height: 12px; display: block; }
-    /* One button, two glyphs: whichever state it is in, the other one is hidden. */
+    
     .ct-shotplay .ct-ico-play{ display: none; }
     .ct-shotplay[data-playing="false"] .ct-ico-play{ display: block; }
     .ct-shotplay[data-playing="false"] .ct-ico-pause{ display: none; }
@@ -213,17 +150,13 @@
     .ct-card--navy .ct-office-line a{ color: var(--text-on-dark); }
     .ct-office-line a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
       text-underline-offset: 3px; }
-    /* Hover on the dark ground takes the bright accent, not the mid blue, which would
-       sink into the navy. */
+    
     .ct-card--navy .ct-office-line a:hover{ color: var(--accent-on-dark); }
     .ct-office-line a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .ct-card--navy .ct-office-line a:focus-visible{ outline-color: var(--pc-blue); }
     .ct-office-line b{ font-weight: 600; }
 
-    /* ---- follow us ----
-       The marks sit inside the corporate office card, so the heading is
-       a quiet label on the navy rather than a card heading: uppercase --label in the
-       on-dark muted tone, with the address above it separated by real space. */
+    /* ---- follow us ---- */
     .ct-follow-h{ margin: var(--space-6) 0 var(--space-3);
       font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
       letter-spacing: .08em; text-transform: uppercase;
@@ -236,30 +169,20 @@
     .ct-social a:hover{ background: var(--pc-light-blue); border-color: var(--pc-medium-blue); }
     .ct-social svg{ width: 18px; height: 18px; }
 
-    /* ---- offices ----
-       The offices sit inside the left column, under the corporate office card, so they
-       take space above them rather than a rule - a hairline directly under a solid navy
-       panel only reads as a seam.
-       scroll-margin clears the sticky header plus the map tab below it, so a link to
-       #offices does not park the first row of cards under the chrome. */
+    /* ---- the offices, right column from 1280 ---- */
     .ct-offices{ margin-top: var(--space-7); min-width: 0;
       scroll-margin-top: calc(var(--navH) + var(--space-6)); }
-    /* At two columns the grid's row gap owns that space - the margin would push the
-       offices below the form and break the alignment the stagger exists for. */
+    
     @media (min-width: 1280px){
       .ct-offices{ margin-top: 0; }
     }
 
-    /* THREE ACROSS in the left column, stepping down on --site steps rather than by
-       card width - so the column count changes where the rest of the site changes.
-       1024+: 3 up (roughly 310px cards at 1536) | 640: 2 | below: 1. */
+    /* ---- three across, stepping on --site steps rather than by card width ---- */
     .ct-officegrid{ display: grid; gap: var(--space-5); grid-template-columns: 1fr;
       list-style: none; margin: 0; padding: 0; }
     @media (min-width: 640px){  .ct-officegrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (min-width: 1024px){ .ct-officegrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    /* Hover is the build's shared card behaviour - lift three pixels and take a soft
-       shadow - the same as .tm-card on team.html and .io-card in pc.css, which the blog
-       and the insights grids use. Do not give this page its own. */
+    
     .ct-officecard{ position: relative; border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
       padding: var(--space-5); background: var(--pc-white);
@@ -274,11 +197,9 @@
       .ct-officecard:hover{ transform: none; }
     }
 
-    /* WHOLE-CARD LINK. The <a> is on the heading only - one link per card, so the
-       office name is what a screen reader announces - and its ::after is stretched over
-       the card to make the whole box clickable. It must NOT be an <a> wrapped round the
-       card: the phone and email inside are links too, and links cannot nest. Those two
-       are lifted above the stretched layer by .ct-addr a { position: relative }. */
+    /* WHOLE-CARD LINK. The <a> is on the heading only and its ::after is stretched over
+       the card. It must NOT be an <a> wrapped round the card: the phone inside is a link
+       too, and links cannot nest. .ct-addr a is lifted above the stretched layer. */
     .ct-cardlink{ color: var(--color-text); text-decoration: none; }
     .ct-cardlink::after{ content: ""; position: absolute; inset: 0;
       border-radius: var(--radius-lg); }
@@ -287,22 +208,15 @@
     .ct-cardlink:focus-visible::after{ outline: 2px solid var(--pc-medium-blue);
       outline-offset: 2px; }
     .ct-officecard h3{ margin: 0; font-size: var(--h4-size); }
-    /* Region chip: a label, not a control - nothing happens when it is clicked. */
+    
     .ct-region{ justify-self: start; font-family: var(--font-sans); font-size: 10px;
       font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
       color: var(--pc-navy); background: var(--pc-light-blue);
       border-radius: var(--radius-pill); padding: 4px 12px; }
-    /* The street is ONE line: a suite or a box number is joined to it with a comma
-       rather than taking a row of its own, so every card runs street / city / phone and
-       the cards in a row keep the same height. Where the joined line is too long for the
-       card it wraps, which is a soft second line, not a hard one. */
+    
     .ct-addr{ font-family: var(--font-sans); font-size: var(--body-sm); line-height: 1.6;
       color: var(--color-text-muted); font-style: normal; margin: var(--space-2) 0 0; }
-    /* position + z-index keep these above the stretched card link, so a click on the
-       phone number dials instead of opening the region page.
-       No underline at rest, underline on hover - the same contract as .tm-contact a on
-       team.html. The email line is gone from these cards: the phone number is the one
-       thing a branch office is contacted on, and Info@ was repeating on 19 of the 25. */
+    
     .ct-addr a{ position: relative; z-index: 1;
       color: var(--color-text); text-decoration: none; word-break: break-word; }
     .ct-addr a:hover{ color: var(--pc-medium-blue); text-decoration: underline;
@@ -310,15 +224,12 @@
     .ct-addr a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .ct-addr .ct-tel{ font-weight: 600; }
 
-
     @media (max-width: 639px){
       .ct-card{ padding: var(--space-5); }
       .ct-card--navy{ padding: var(--space-6); }
     }
   </style>
 </head>
-
-
 
 <body>
   <!-- ================= HEADER ================= -->
@@ -383,11 +294,9 @@
     </div>
   </div>
 
-
   <!-- ================= PAGE CONTENT =================
-       Contact. The corporate office card runs FULL WIDTH across the top and carries
-       the Follow Us marks under its address; below it the 380px rail holds the form on
-       the LEFT, level with the first row of the 25 office cards on the right. -->
+       The corporate office card runs full width across the top; below it the 380px rail
+       holds the form on the left, level with the first row of office cards on the right. -->
   <main class="ct-body" id="top" aria-label="Contact">
     <div class="ct-wrap">
 
@@ -398,86 +307,67 @@
       <div class="ct-top reveal">
 
         <!-- ---------- row 1: the corporate office, full width ---------- -->
-          <div class="ct-card ct-card--navy">
-            <div class="ct-corp">
+        <div class="ct-card ct-card--navy">
+          <div class="ct-corp">
 
-              <div class="ct-corp-text">
-                <h2>Corporate Office</h2>
-                <p class="ct-office-line">
-                  1108 S. 44th Street, Suite 102<br />
-                  Cumming, IA 50061<br />
-                  <b><a href="tel:+18558005263">855.800.5263</a></b><br />
-                  <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
-                </p>
+            <div class="ct-corp-text">
+              <h2>Corporate Office</h2>
+              <p class="ct-office-line">
+                1108 S. 44th Street, Suite 102<br />
+                Cumming, IA 50061<br />
+                <b><a href="tel:+18558005263">855.800.5263</a></b><br />
+                <a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a>
+              </p>
 
-                <!-- FOLLOW US lives in this card, under the address, and this is the
-                     only copy of the marks on the page.
-                     It is an h3 because it is a part of the Corporate Office card, not a
-                     section of its own - the card's own h2 is the heading above it. The
-                     marks keep their white ground, which is what lets them sit on navy
-                     without a second treatment. -->
-                <h3 class="ct-follow-h">Follow Us</h3>
-                <div class="ct-social">
-                  <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
-                  <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
-                  <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-                  <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
-                  <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+              <h3 class="ct-follow-h">Follow Us</h3>
+              <div class="ct-social">
+                <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+                <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+                <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+                <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+                <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+              </div>
+            </div>
+
+            <!-- OFFICE CAROUSEL. Three photographs, crossfading every five seconds,
+                 starting on office1.
+
+                 SLIDE ORDER IS SOURCE ORDER and the dots are generated from the
+                 slides, so adding or removing a photograph here is the whole edit -
+                 nothing else counts them.
+
+                 FILENAMES ARE LOWERCASE .jpg BY CONVENTION. A case-only difference in
+                 a src serves fine from Windows and 404s on the case-sensitive host, so
+                 keep any replacement lowercase.
+
+                 The sources are 500 x 500 in a 707 x 404 frame: object-fit crops the
+                 top and bottom and they are upscaled about 1.41x. See
+                 developer-contact.md for the re-crop this needs.
+
+                 Each alt text describes ITS OWN photograph. -->
+            <figure class="ct-corp-photo">
+              <div class="ct-shots" id="ctShots">
+                <img class="ct-shot is-on" src="../assets/office1.jpg"
+                     alt="The Peoples Company corporate office: a pale brick building with
+                          the company name painted across its upper wall" />
+                <img class="ct-shot" src="../assets/office2.jpg"
+                     alt="The Peoples Company corporate office, second view" />
+                <img class="ct-shot" src="../assets/office3.jpg"
+                     alt="The Peoples Company corporate office, third view" />
+
+                <div class="ct-shotbar">
+                  <div class="ct-dots" id="ctDots" role="group" aria-label="Choose a photograph"></div>
+                  <button class="ct-shotplay" id="ctShotPlay" type="button"
+                          data-playing="true" aria-label="Pause the photographs">
+                    <svg class="ct-ico-pause" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="3" height="10" rx="1"/><rect x="7" y="1" width="3" height="10" rx="1"/></svg>
+                    <svg class="ct-ico-play" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.5 10.5 6 3 10.5V1.5Z"/></svg>
+                  </button>
                 </div>
               </div>
+            </figure>
 
-              <!-- OFFICE CAROUSEL. Three photographs of the corporate office in a
-                   square frame, crossfading every five seconds, starting on office1.
-
-                   SLIDE ORDER IS SOURCE ORDER - office1, office2, office3 - and the dots
-                   are generated from the slides, so adding or removing a photograph here
-                   is the whole edit. Nothing else counts them.
-
-                   ALL THREE FILES ARE LOWERCASE .jpg ON PURPOSE. The exports arrived as
-                   a mix of .jpg and .JPG and were renamed to one convention, because a
-                   case-only difference in a src serves fine from Windows and 404s on the
-                   case-sensitive host. Keep any replacement lowercase.
-
-                   All three are 500x500, about 70KB each - SQUARE SOURCES IN A LANDSCAPE
-                   FRAME. object-fit: cover scales each one to cover a 707 x 404 box and
-                   crops the top and bottom, which is the zoom-to-fill asked for while the
-                   size is being settled.
-
-                   ⚠ THEY ARE NOW BEING UPSCALED. Covering a 707px-wide frame from a 500px
-                   source means about 1.41x on a standard display and 2.8x on a 2x screen,
-                   so expect visible softness - worst on office3, the smallest file. The
-                   fix is the re-crop that is already planned: export at the final ratio,
-                   at least 707px wide for 1x and ideally 1414px for 2x.
-
-                   No loading="lazy" on the second and third: a slide that has not
-                   arrived by the time its crossfade starts shows navy, and at this file
-                   size there is nothing to defer.
-
-                   Each alt text describes ITS OWN photograph. Slides two and three are
-                   placeholders pending a description of what they actually show. -->
-              <figure class="ct-corp-photo">
-                <div class="ct-shots" id="ctShots">
-                  <img class="ct-shot is-on" src="../assets/office1.jpg"
-                       alt="The Peoples Company corporate office: a pale brick building with
-                            the company name painted across its upper wall" />
-                  <img class="ct-shot" src="../assets/office2.jpg"
-                       alt="The Peoples Company corporate office, second view" />
-                  <img class="ct-shot" src="../assets/office3.jpg"
-                       alt="The Peoples Company corporate office, third view" />
-
-                  <div class="ct-shotbar">
-                    <div class="ct-dots" id="ctDots" role="group" aria-label="Choose a photograph"></div>
-                    <button class="ct-shotplay" id="ctShotPlay" type="button"
-                            data-playing="true" aria-label="Pause the photographs">
-                      <svg class="ct-ico-pause" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="3" height="10" rx="1"/><rect x="7" y="1" width="3" height="10" rx="1"/></svg>
-                      <svg class="ct-ico-play" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.5 10.5 6 3 10.5V1.5Z"/></svg>
-                    </button>
-                  </div>
-                </div>
-              </figure>
-
-            </div>
           </div>
+        </div>
 
         <!-- ---------- row 2, left: the form ---------- -->
         <aside class="ct-rail" aria-label="Contact us">
@@ -540,14 +430,9 @@
              with no office on this list.
 
              LEXINGTON KY IS THE EXCEPTION and is deliberately left unlinked: the live
-             site tags it APPALACHIAN, and there is no Appalachian region page. Either
-             it gets one or the office gets re-tagged to a region that has one. -->
+             site tags it APPALACHIAN, and there is no Appalachian region page. -->
         <section class="ct-offices" id="offices" aria-labelledby="offices-h">
 
-          <!-- The visible heading and its teaser are gone: the cards under the
-               corporate office read as the rest of the same column. The h2 stays for
-               screen readers and for the #offices anchor, so the section still
-               announces itself. -->
           <h2 id="offices-h" class="sr-only">Peoples Company Offices</h2>
 
           <ul class="ct-officegrid">
@@ -587,14 +472,12 @@
                 <a class="ct-tel" href="tel:+18006076888">800.607.6888</a>
               </address>
             </li>
-            <!-- CUMMING IS HIDDEN, NOT DELETED. It is the corporate office - the same
-                 address as the navy card at the top of this column - so showing it here
-                 lists the head office twice. It is hidden from everyone including screen
-                 readers rather than sr-only: a duplicate announced twice is noise, not
-                 help. The markup stays so the data is in front of whoever wires the CMS,
-                 and the one thing that differs is kept: the local 515 number, against the
-                 855 on the card above.
-                 In the CMS this is one office record with a flag, not a deletion. -->
+            <!-- CUMMING IS HIDDEN, NOT DELETED. It is the corporate office, given in
+                 full by the navy card at the top of the page, so showing it here lists
+                 the head office twice. Hidden from everyone including screen readers,
+                 not sr-only. The markup stays so the data is in front of whoever wires
+                 the CMS: IN THE CMS THIS IS ONE OFFICE RECORD WITH A FLAG, NOT A
+                 DELETION. -->
             <li class="ct-officecard" hidden>
               <h3><a class="ct-cardlink" href="/regions/midwest">Cumming, IA<span class="sr-only"> — Midwest region</span></a></h3>
               <span class="ct-region">Midwest</span>
@@ -790,10 +673,8 @@
 
       </div>
 
-
     </div>
   </main>
-
 
   <!-- ================= FOOTER ================= -->
   <footer class="pff">
