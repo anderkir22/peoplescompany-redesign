@@ -30,6 +30,14 @@
 
     /* Page-local values: the photograph's width when there is room, and its shape. */
     .ct-body{ --ct-photo-w: 707px; --ct-photo-ar: 7 / 4; }
+    /* The frame narrows by band so the two halves stay side by side. The address column
+       takes whatever is left, so there is no dead ground beside the photograph. */
+    @media (min-width: 900px) and (max-width: 1023px){
+      .ct-body{ --ct-photo-w: 400px; }
+    }
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .ct-body{ --ct-photo-w: 480px; }
+    }
 
     .ct-body{ background: var(--pc-white); }
     /* Top padding clears the Interactive Map tab: .md-tabwrap is height:0, so the tab
@@ -42,7 +50,10 @@
     .ct-head h1{ margin: 0 0 var(--space-7); }
 
     /* ---- the layout: three blocks, staggered ---- */
-    .ct-top{ display: grid; gap: var(--space-7); }
+    /* minmax(0, 1fr), NOT the default 1fr: an implicit track floors at its items'
+       min-content, which below 360 is wider than the viewport and pushes the page
+       sideways. Do not simplify this away. */
+    .ct-top{ display: grid; gap: var(--space-7); grid-template-columns: minmax(0, 1fr); }
     @media (min-width: 1280px){
       .ct-top{ grid-template-columns: 380px minmax(0, 1fr);
         gap: var(--space-7) var(--space-8); align-items: start; }
@@ -168,6 +179,35 @@
       transition: background .15s ease, border-color .15s ease; }
     .ct-social a:hover{ background: var(--pc-light-blue); border-color: var(--pc-medium-blue); }
     .ct-social svg{ width: 18px; height: 18px; }
+
+    /* ---- 768-899: address left, Follow Us right, under the one h2 ---- */
+    @media (min-width: 768px) and (max-width: 899px){
+      .ct-corp-text{ display: grid; grid-template-columns: minmax(0, 1fr) max-content;
+        column-gap: var(--space-7); align-content: start; }
+      .ct-corp-text > h2{ grid-column: 1 / -1; }
+      .ct-corp-text > .ct-office-line{ grid-column: 1; grid-row: 2 / span 2; }
+      .ct-corp-text > .ct-follow-h{ grid-column: 2; grid-row: 2; margin-top: 0; }
+      .ct-corp-text > .ct-social{ grid-column: 2; grid-row: 3; align-self: start;
+        flex-wrap: nowrap; }
+    }
+
+    /* ---- 767 down: one centred column ---- */
+    @media (max-width: 767px){
+      .ct-corp-text{ text-align: center; }
+      .ct-corp-text > .ct-office-line{ margin-inline: auto; }
+      .ct-corp-text > .ct-social{ justify-content: center; }
+    }
+
+    /* Below 354 the address and the five marks no longer fit the column at full size.
+       Both scale with it instead of wrapping, and both cap at their normal size, so 354
+       and up is untouched. */
+    @media (max-width: 353px){
+      .ct-office-line{ font-size: max(14px, calc(7.2vw - 7.6px)); }
+      .ct-social a{ width: min(40px, calc((100vw - 154px) / 5));
+        height: min(40px, calc((100vw - 154px) / 5)); }
+      .ct-social svg{ width: min(18px, calc((100vw - 154px) / 11));
+        height: min(18px, calc((100vw - 154px) / 11)); }
+    }
 
     /* ---- the offices, right column from 1280 ---- */
     .ct-offices{ margin-top: var(--space-7); min-width: 0;
