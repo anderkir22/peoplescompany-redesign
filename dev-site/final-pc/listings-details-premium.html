@@ -22,12 +22,44 @@
      ===========================================================================
 -->
   <style>
-    /* Page-local values. The hero height is the one still being settled.
-       --lp-jump-h is a STARTING VALUE ONLY and lives on :root, because the script
-       measures the real sub nav and writes it back there - declaring it on .lp-body
-       would shadow that update and the jump offsets would never move. */
-    :root{ --lp-jump-h: 53px; }
-    .lp-body{ --lp-hero-h: 900px; --lp-head-lift: 200px; background: var(--pc-white); }
+
+    /* ===========================================================================
+       THE DIALS FOR THIS PAGE. Everything adjustable about the hero and the listing's
+       colour is declared here and nowhere else, so a premium page is set up by editing
+       this one block.
+
+         --lp-hero-h     the hero's height. One number; the photograph crops to it.
+         --lp-h1-top     the H1's top edge, as a PERCENTAGE down the hero. The H2 and H3
+                         follow it, since they sit in the same block.
+         --lp-logo-top   the listing logo's top edge, same measure.
+
+       The two percentages are positions in the composition, not offsets from an edge, so
+       changing --lp-hero-h moves both in step and keeps the arrangement. Do not convert
+       them to px or re-anchor them to the bottom.
+
+         --lp-navbg      the listing's colour. Set it as a 6-digit hex. The sub nav's
+                         ground and the brochure pill both read it.
+         --lp-navfg      DO NOT SET. The script overwrites it with black or white,
+                         whichever has the better contrast against --lp-navbg.
+         --lp-navink     DO NOT SET. The script overwrites it too: the listing's colour
+                         where that colour is legible as type on white, PC Navy where it
+                         is not. Accents inside the tract window use it.
+
+       The pair lives on .lp-body rather than on the sub nav because more than the sub nav
+       uses it - anything wanting the listing's colour inherits from here.
+       =========================================================================== */
+    /* ON :root, NOT ON .lp-body. The tract window is a dialog at the end of the document,
+       outside <main>, so anything scoped to .lp-body would not reach it and the window
+       would fall back to the build's colours. */
+    :root{
+      --lp-hero-h: 700px;
+      --lp-h1-top: 60%;
+      --lp-logo-top: 70%;
+      --lp-navbg: #6B4423;
+      --lp-navfg: #FFFFFF;
+      --lp-navink: #6B4423;
+      --lp-jump-h: 53px; }
+    .lp-body{ background: var(--pc-white); }
 
     /* ---- HERO: full bleed, fixed height ---- */
     /* FULL BLEED, NOT THE CONTENT RAIL. The image spans the viewport edge to edge
@@ -44,25 +76,42 @@
        letterforms and not the image. Do not reintroduce an overlay to help contrast:
        the hero photograph has to be chosen so the type reads against it. */
 
-    /* The hero's own rail. Everything sits on the BOTTOM row: heading bottom left,
-       logo bottom right. The top row is empty and simply holds them down. */
+    /* The hero's own rail. */
     .lp-hero-in{ position: relative; z-index: 1; height: 100%;
       max-width: var(--site); margin: 0 auto; padding: var(--space-7) var(--rail);
       display: grid; grid-template-columns: minmax(0, 1fr) auto;
       grid-template-rows: 1fr auto; column-gap: var(--space-7); }
-    /* --lp-head-lift raises the heading off the bottom edge WITHOUT moving the logo,
-       which keeps its own 48px. One value to change if it wants to sit higher or lower. */
-    .lp-hero-head{ grid-column: 1; grid-row: 2; align-self: end;
-      margin-bottom: var(--lp-head-lift); }
+    .lp-hero-head{ grid-column: 1; grid-row: 2; align-self: end; }
     .lp-hero-logo{ grid-column: 2; grid-row: 2; align-self: end; justify-self: end; }
 
+    /* HEADING AND LOGO ARE PLACED BY PERCENTAGE DOWN THE IMAGE, NOT OFF ITS BOTTOM EDGE.
+       --lp-h1-top and --lp-logo-top are the top edge of each, measured from the top of
+       the hero. Anchoring this way means the two hold their position in the composition
+       when --lp-hero-h changes; anchoring to the bottom made the percentage a
+       by-product of the height instead of a setting.
+
+       They are taken out of the grid to do it, which is why the placements above still
+       exist: they are what the narrow band falls back to. */
+    @media (min-width: 900px){
+      .lp-hero-in{ display: block; padding: 0 var(--rail); }
+      .lp-hero-head{ position: absolute; top: var(--lp-h1-top);
+        left: var(--rail); max-width: 55%; }
+      .lp-hero-logo{ position: absolute; top: var(--lp-logo-top); right: var(--rail); }
+    }
+
+    /* Three lines, each a real heading. They step down in weight as they step down in
+       rank, so the deadline reads before the offering line without either competing with
+       the listing name above them. All three carry their own shadow - the hero has no
+       overlay, so the type has to hold itself against the photograph. */
     .lp-hero-head h1{ margin: 0; color: var(--text-on-dark);
       text-shadow: 0 2px 18px rgba(7,22,44,.55); }
-    /* The h2 is a sentence, not a label, so it takes a real measure rather than the
-       full width of its column. */
     .lp-hero-head h2{ margin: var(--space-4) 0 0;
+      font-family: var(--font-sans); font-size: var(--h3-size); font-weight: 600;
+      line-height: 1.3; color: var(--text-on-dark);
+      text-shadow: 0 2px 14px rgba(7,22,44,.6); }
+    .lp-hero-head h3{ margin: var(--space-2) 0 0;
       font-family: var(--font-sans); font-size: var(--body-lg); font-weight: 400;
-      line-height: 1.6; color: var(--text-on-dark); max-width: 52ch;
+      line-height: 1.45; color: var(--text-on-dark);
       text-shadow: 0 2px 14px rgba(7,22,44,.6); }
 
     /* 927 x 363 source. Capped in px and in a share of the hero so it cannot out-shout
@@ -83,12 +132,24 @@
        --lp-navbg and writes back whichever of #000000 or #FFFFFF has the higher contrast
        ratio against it, so the type is legible on any ground the listing chooses. The
        CSS value below is only the fallback for a page with no script. */
-    .lp-subbar{ --lp-navbg: #6B4423; --lp-navfg: #FFFFFF;
-      position: sticky; top: var(--navH); z-index: 20;
+    .lp-subbar{ position: sticky; top: var(--navH); z-index: 20;
       background: var(--lp-navbg); }
     .lp-subbar-in{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+    /* THE LINKS SPREAD EVENLY ACROSS THE RAIL, WHATEVER THE COUNT. Every link takes an
+       EQUAL share of the width and centres its label in that share, so eight links or
+       three divide the same rail the same way. Nothing here counts them.
+
+       flex: 1 1 0 is what makes the shares equal - a basis of 0 means the labels' own
+       widths do not enter the division, so a long label does not get a wider cell than a
+       short one. min-width: max-content is the guard: a label that cannot fit an equal
+       share takes what it needs rather than wrapping, and the rest divide the remainder.
+
+       NOT justify-content: space-between, deliberately: that looks right on one row and
+       breaks the moment the links wrap, because the last row's two or three items get
+       flung to opposite edges. */
     .lp-jump-inner{ display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); }
-    .lp-jump a{ display: inline-flex; align-items: center; padding: 15px 0;
+    .lp-jump a{ flex: 1 1 0; min-width: max-content;
+      display: inline-flex; align-items: center; justify-content: center; padding: 15px 0;
       font-family: var(--font-sans); font-size: var(--body); font-weight: 500;
       letter-spacing: .02em; color: var(--lp-navfg); text-decoration: none;
       border-bottom: 3px solid transparent; }
@@ -100,9 +161,146 @@
     /* ---- content rail ---- */
     .lp-wrap{ max-width: var(--site); margin: 0 auto;
       padding: var(--space-7) var(--rail) var(--space-9); }
+
+    .sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+      border: 0; }
+
+    /* ---- the opening copy ---- */
+    /* NO MEASURE CAP ON THIS PAGE, DELIBERATELY. The rest of the build caps real body
+       copy in ch; the premium pages do not, and the paragraphs run the full content
+       rail. This is a decision, not an oversight - do not add a max-width here. */
+    .lp-copy{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.65;
+      color: var(--color-text); margin: 0 0 var(--space-5); }
+    .lp-copy:last-of-type{ margin-bottom: var(--space-7); }
+
+    /* The brochure pill. The build's .btn does the shape; only the colours are page-local,
+       and they are the SUB NAV'S PAIR - the same ground the listing chose and the same
+       black-or-white the contrast script picked for it, so the button can never be a
+       colour combination nobody checked.
+       Hover INVERTS the pair rather than shading it. Contrast is symmetric, so the
+       inverted state scores exactly the same ratio as the resting one - on any ground. */
+    .lp-btn{ background: var(--lp-navbg); color: var(--lp-navfg);
+      border-color: var(--lp-navbg);
+      font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .lp-btn:hover{ background: var(--lp-navfg); color: var(--lp-navbg); }
     /* A jump has to clear the sticky header AND the sub nav pinned below it. */
     .lp-wrap > section{
       scroll-margin-top: calc(var(--navH) + var(--lp-jump-h) + var(--space-4)); }
+
+
+    /* ---- TRACTS: THE INDEX LIST ----
+       The 5-or-more treatment from the other listing detail pages: a plain index of
+       tracts, each opening the tract window below rather than expanding in place.
+       FIVE COLUMNS on this page where the others run three - the premium rail is wider
+       and the labels are short. CSS columns, so the list fills down each column in turn
+       and the count is one number to change. */
+    .lp-tlist{ list-style: none; margin: 0; padding: 0;
+      columns: 5; column-gap: var(--space-6); }
+    .lp-tlist li{ break-inside: avoid; }
+    .lp-tlink{ display: block; width: 100%; text-align: left; cursor: pointer;
+      font-family: var(--font-sans); font-size: 15px; line-height: 1.35;
+      padding: 10px var(--space-3); border: 0; background: transparent;
+      border-radius: var(--radius-sm); color: var(--color-text-muted);
+      transition: background-color .12s ease, color .12s ease; }
+    .lp-tlink b{ font-weight: 700; color: var(--pc-navy); }
+    .lp-tlink:hover{ background: var(--pc-soft-white); }
+    .lp-tlink:hover b{ color: var(--pc-medium-blue); }
+    .lp-tlink:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce){ .lp-tlink{ transition: none; } }
+
+    .lp-h2{ margin: 0 0 var(--space-3); }
+    .lp-section{ padding-top: var(--space-8); }
+
+    /* ---- THE TRACT WINDOW ----
+       LIFTED VERBATIM FROM THE OTHER LISTING DETAIL PAGES, class names included. It is
+       the same component, so it keeps the xtw- prefix and the ld- classes its contents
+       use rather than being renamed to lp-. Treat any difference between this window and
+       the one on listings-details-auction.html as a defect. */
+    .xtw{ position: fixed; inset: 0; z-index: 210;
+      background: rgba(7, 22, 44, .72);
+      display: flex; align-items: center; justify-content: center; padding: var(--space-5); }
+    .xtw[hidden]{ display: none; }
+    .xtw-box{ width: min(1040px, 100%); max-height: 88vh; display: flex; flex-direction: column;
+      background: var(--pc-white); border-radius: var(--radius-md); overflow: hidden;
+      box-shadow: 0 24px 60px rgba(7, 22, 44, .35); }
+    /* THE WINDOW WEARS THE LISTING'S COLOURS, not the build's. The bar takes the ground
+       the listing chose and the type on it is the pair the contrast script resolved, so
+       the header is legible on any colour a listing picks. */
+    .xtw-bar{ flex: none; display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4); padding: var(--space-4) var(--space-5); background: var(--lp-navbg); }
+    .xtw-bar h2{ margin: 0; font-family: var(--font-sans); font-weight: 700; font-size: 20px;
+      letter-spacing: 0; color: var(--lp-navfg); }
+    .xtw-x{ flex: none; width: 34px; height: 34px; border: 0; cursor: pointer;
+      border-radius: var(--radius-pill); background: transparent; color: var(--lp-navfg);
+      font-size: 15px; line-height: 1; }
+    /* Inverts, like the brochure pill: the same ratio, whichever way round. */
+    .xtw-x:hover{ background: var(--lp-navfg); color: var(--lp-navbg); }
+    .xtw-x:focus-visible{ outline: 2px solid var(--lp-navfg); outline-offset: 2px; }
+    .xtw-body{ overflow-y: auto; padding: var(--space-5); }
+    .xtw-media{ float: right; width: 380px; max-width: 100%;
+      margin: 0 0 var(--space-5) var(--space-6); }
+    .xtw-frame{ position: relative; aspect-ratio: 4 / 3; overflow: hidden;
+      border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+      background: var(--pc-soft-white); }
+    .xtw-frame img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+    .xtw-chip{ position: absolute; top: 8px; left: 8px; padding: 6px 10px;
+      border-radius: var(--radius-sm); background: var(--lp-navbg);
+      font: 600 12px/1 var(--font-sans); letter-spacing: .04em; color: var(--lp-navfg); }
+    .xtw-count{ position: absolute; bottom: 8px; right: 8px; padding: 5px 9px;
+      border-radius: var(--radius-sm); background: var(--lp-navbg);
+      font: 600 12px/1 var(--font-sans); color: var(--lp-navfg); }
+    .xtw-prev, .xtw-next{ position: absolute; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 58px; border: 0; cursor: pointer;
+      background: var(--lp-navbg);
+      background: color-mix(in srgb, var(--lp-navbg) 55%, transparent);
+      color: var(--lp-navfg); font-size: 26px; line-height: 1; }
+    .xtw-prev:hover, .xtw-next:hover{
+      background: color-mix(in srgb, var(--lp-navbg) 85%, transparent); }
+    .xtw-prev:focus-visible, .xtw-next:focus-visible{ outline: 2px solid var(--lp-navfg);
+      outline-offset: -4px; }
+    .xtw-prev{ left: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    .xtw-next{ right: 0; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .xtw-media .ld-dl-head{ margin-top: var(--space-5); }
+    .xtw-info .ld-dl-head{ margin-top: var(--space-4); margin-bottom: 4px; }
+    .xtw-media > :first-child, .xtw-info > :first-child{ margin-top: 0; }
+    .xtw-media > .ld-fields{ margin-top: var(--space-4); }
+    .xtw-docs{ clear: both; margin-top: var(--space-5); }
+    .xtw-docs > .ld-dl-head{ margin-top: 0; }
+    .xtw-body .xtw-dl{ margin-bottom: 0; }
+    .xtw-info > .ld-tdir{ margin-bottom: var(--space-4); }
+
+    /* The window's own contents, also verbatim from the other pages. */
+    .ld-copy{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.55;
+      color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+    .ld-fields{ display: grid; grid-template-columns: max-content minmax(0, 1fr);
+      gap: var(--space-2) var(--space-4); margin: 0; font-family: var(--font-sans);
+      font-size: 13px; line-height: 1.45; }
+    .ld-fields dt{ font-weight: 600; color: var(--pc-black); }
+    .ld-fields dt::after{ content: ":"; }
+    .ld-fields dd{ margin: 0; color: var(--color-text-muted); }
+    .ld-tfacts{ grid-template-columns: fit-content(45%) minmax(0, 1fr); }
+    .ld-dl-head{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--lp-navink);
+      margin: var(--space-6) 0 var(--space-2); }
+    .ld-dl{ list-style: none; margin: 0 0 var(--space-4); padding: 0;
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-7); }
+    .ld-dl li{ border-bottom: 1px solid var(--color-border); }
+    .ld-dl li:nth-last-child(-n+2){ border-bottom: 0; }
+    .ld-dl a{ display: flex; align-items: baseline; gap: var(--space-3);
+      padding: 12px 2px; font-family: var(--font-sans); font-size: 15px;
+      color: var(--color-text); text-decoration: none; }
+    .ld-dl .n{ flex: 1; }
+    .ld-dl a::after{ content: "\2193"; color: var(--lp-navink); font-weight: 700; }
+    .ld-dl a:hover .n, .ld-dl a:focus-visible .n{ text-decoration: underline; }
+    .ld-dl .m{ font-size: var(--body-sm); color: var(--lp-navink); white-space: nowrap; }
+    .ld-tdir{ display: inline-flex; align-items: center; gap: 5px;
+      font-weight: 600; color: var(--lp-navink); text-decoration: none;
+      border-bottom: 1px solid currentColor; }
+    .ld-tdir:hover{ color: var(--pc-black); border-bottom-color: var(--pc-black); }
+    .ld-tdir:focus-visible{ outline: 2px solid var(--lp-navink); outline-offset: 2px; }
+    .ld-tdir svg{ width: 12px; height: 12px; flex: none; }
 
     /* ---- narrow ----
        Heading and logo stop sharing the bottom row and stack, logo above the heading so
@@ -110,17 +308,16 @@
        left-aligned type reads as a mistake at one column. The hero gives back height it
        no longer needs. */
     @media (max-width: 899px){
-      /* The lift is a two-column idea: at one column the heading no longer has the
-         bottom edge to itself, so it goes back to sitting on the padding. */
-      .lp-body{ --lp-hero-h: 680px; --lp-head-lift: 0px; }
+      :root{ --lp-hero-h: 620px; }
       .lp-hero-in{ grid-template-columns: minmax(0, 1fr);
         grid-template-rows: 1fr auto auto; row-gap: var(--space-6); }
       .lp-hero-logo{ grid-column: 1; grid-row: 2; justify-self: start; }
       .lp-hero-head{ grid-column: 1; grid-row: 3; }
     }
     @media (max-width: 639px){
-      .lp-body{ --lp-hero-h: 560px; }
-      .lp-hero-head h2{ font-size: var(--body); }
+      :root{ --lp-hero-h: 520px; }
+      .lp-hero-head h2{ font-size: var(--h4-size); }
+      .lp-hero-head h3{ font-size: var(--body); }
       .lp-hero-logo img{ width: min(240px, 56vw); }
       /* The height becomes a floor rather than a fixed box down here: at the narrowest
          widths the heading runs long enough that a hard height clipped it off the
@@ -192,11 +389,14 @@
                 the planted blocks toward the river bluffs" />
 
       <div class="lp-hero-in">
+        <!-- Three lines, in display order. The ranks step h1 -> h2 -> h3 so the outline
+             reads as the listing, then its deadline, then what is on offer. -->
         <div class="lp-hero-head">
           <h1 id="lp-h1">Columbia River Farm &amp; Vineyard</h1>
-          <h2>AgriBusiness Trading Group and Peoples Company are pleased to present an
-            irrigated farmland and vineyard sealed bid opportunity located in the Columbia
-            Basin region of the Pacific Northwest.</h2>
+          <h2>Bids due September 15 &mdash; 4:00 PM PT</h2>
+          <!-- The plus-minus sign, not the letters M/L and not "+/-": one character,
+               &plusmn;, sitting between the figure and the unit. -->
+          <h3>Sealed Bid Offering &mdash; 971.50 &plusmn; Acres</h3>
         </div>
 
         <div class="lp-hero-logo">
@@ -212,9 +412,12 @@
         <nav class="lp-jump" aria-label="Jump to section">
           <div class="lp-jump-inner">
             <a href="#lp-tracts">Tracts</a>
-            <a href="#lp-tour">360 Tour</a>
+            <a href="#lp-map">Map</a>
             <a href="#lp-video">Video</a>
+            <a href="#lp-tour">360 Tour</a>
+            <a href="#lp-photos">Photos</a>
             <a href="#lp-downloads">Downloads</a>
+            <a href="#lp-contact">Contact</a>
             <a href="#lp-dataroom">Data Room</a>
           </div>
         </nav>
@@ -223,12 +426,67 @@
 
     <div class="lp-wrap">
 
-      <!-- CONTENT GOES HERE. The six sections below are empty anchor shells so the jump
-           links above have somewhere to land; nothing has been designed into them yet. -->
-      <section id="lp-tracts"></section>
-      <section id="lp-tour"></section>
+      <!-- ==== THE OPENING COPY ==== -->
+      <!-- No jump link points here: it is the lead, so it is what a visitor lands on
+           before any of the sections below. -->
+      <section class="lp-intro reveal" aria-labelledby="lp-intro-h">
+        <h2 id="lp-intro-h" class="sr-only">About this offering</h2>
+
+        <p class="lp-copy">AgriBusiness Trading Group and Peoples Company are pleased to
+          present an irrigated farmland and vineyard sealed bid opportunity located in the
+          Columbia Basin region of the Pacific Northwest. All bids are due on or before
+          Tuesday, September 15, at 4:00 PM (PT).</p>
+
+        <p class="lp-copy">The property consists of 971.50 &plusmn; deeded acres, including
+          approximately 824.80 &plusmn; plantable acres, according to the Seller. Per the
+          Seller, approximately 139.20 &plusmn; acres remain planted primarily to Riesling,
+          Pinot Gris, Merlot, and Malbec grape varieties. The remaining plantable acreage
+          consists of open ground and vineyard blocks in various stages of removal, creating
+          flexibility for future agricultural uses and potential row crop development. There
+          are no structures located on the property. The farm is accessed via county roads
+          and recorded easements. Mineral rights are not included with the sale of the
+          property.</p>
+
+        <p class="lp-copy">Irrigation water for the entire asset is delivered via a Columbia
+          River pumping station that is jointly owned and maintained with a neighboring
+          landowner. Water is supplied under two surface water rights permitting the
+          irrigation of 950 &plusmn; acres, with authorized diversion totaling 6.09 cubic
+          feet per second and 1,093.70 acre-feet annually. In addition to the water rights
+          currently associated with the property, additional Columbia River water rights are
+          available separately from third parties in the area and may provide future
+          opportunities to expand the property&rsquo;s irrigated footprint.</p>
+
+        <p class="lp-copy">Situated within the highly desirable Columbia Basin region, the
+          property benefits from productive soils, a favorable growing climate, and
+          established irrigation infrastructure. The surrounding area supports a wide variety
+          of irrigated crops, including potatoes, onions, sweet corn, alfalfa, wheat, peas,
+          and other specialty crops, making the property well-suited for potential conversion
+          to irrigated row crop production if desired.</p>
+
+        <!-- A real file on the listings host, not a placeholder. It opens in a new tab
+             because it is a 7MB PDF and leaving the page to fetch it loses the visitor's
+             place. -->
+        <a class="btn lp-btn"
+           href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/19278_Wallula%20Vineyard%20Brochure.pdf"
+           target="_blank" rel="noopener">Download Brochure</a>
+      </section>
+
+      <!-- CONTENT GOES HERE. The eight sections below are empty anchor shells so the jump
+           links above have somewhere to land; nothing has been designed into them yet.
+           They are in sub nav order. -->
+      <section id="lp-tracts" class="lp-section reveal" aria-labelledby="lp-tracts-h">
+        <h2 id="lp-tracts-h" class="lp-h2">Tracts</h2>
+        <p class="lp-copy">Click a tract below for individual maps and more information.</p>
+        <ul class="lp-tlist" id="lpTractList"></ul>
+        <noscript><p class="lp-copy">The tract index is built by script. Server-render one
+          line per tract, each opening that tract&rsquo;s detail.</p></noscript>
+      </section>
+      <section id="lp-map"></section>
       <section id="lp-video"></section>
+      <section id="lp-tour"></section>
+      <section id="lp-photos"></section>
       <section id="lp-downloads"></section>
+      <section id="lp-contact"></section>
       <section id="lp-dataroom"></section>
 
     </div>
@@ -344,6 +602,42 @@
   <!-- NO AUCTION ALERTS TOAST ON A PREMIUM PAGE. Every other page in the build carries
        it; this one does not, so a single listing's own presentation is not shared with a
        floating card advertising other sales. The toast script went with the markup. -->
+  <!-- ==== TRACT WINDOW (the 5-or-more treatment) ==== -->
+  <!-- The same component as on the other listing detail pages, markup included. -->
+  <div class="xtw" id="xtw" hidden role="dialog" aria-modal="true" aria-labelledby="xtwTitle">
+    <div class="xtw-box">
+      <div class="xtw-bar">
+        <h2 id="xtwTitle">Tract</h2>
+        <button class="xtw-x" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="xtw-body">
+        <div class="xtw-media">
+          <div class="xtw-frame">
+            <img class="xtw-img" alt="" />
+            <span class="xtw-chip"></span>
+            <button class="xtw-prev" type="button" aria-label="Previous map">&#8249;</button>
+            <button class="xtw-next" type="button" aria-label="Next map">&#8250;</button>
+            <span class="xtw-count"></span>
+          </div>
+          <dl class="ld-fields ld-tfacts xtw-fields"></dl>
+        </div>
+        <div class="xtw-info">
+          <p class="ld-dl-head">Description</p>
+          <p class="ld-copy xtw-desc"></p>
+          <p class="ld-dl-head xtw-legalhead">Legal Description</p>
+          <p class="ld-copy xtw-legal"></p>
+          <p class="ld-dl-head">Directions</p>
+          <p class="ld-copy xtw-dirs"></p>
+          <a class="ld-tdir xtw-dir" href="#" target="_blank" rel="noopener">Get Directions<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+        </div>
+        <div class="xtw-docs">
+          <p class="ld-dl-head xtw-dlhead">Downloads</p>
+          <ul class="ld-dl xtw-dl"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Mega-menu nav built from the real IA. "The Company" panel carries three
     // affiliation badges on the right (this tab only).
@@ -550,8 +844,7 @@
     // wherever the listing record is read and ship the pair already resolved; this runs
     // client-side only because the mock-up has no server.
     (function(){
-      var bar = document.querySelector(".lp-subbar");
-      if(!bar) return;
+      var scope = document.documentElement;
 
       function luminance(hex){
         var h = String(hex).trim().replace(/^#/, "");
@@ -565,12 +858,19 @@
       }
 
       function apply(){
-        var bg = getComputedStyle(bar).getPropertyValue("--lp-navbg");
+        var bg = getComputedStyle(scope).getPropertyValue("--lp-navbg");
         var L = luminance(bg);
         if(L === null) return;
         var whiteRatio = 1.05 / (L + 0.05);
         var blackRatio = (L + 0.05) / 0.05;
-        bar.style.setProperty("--lp-navfg", whiteRatio >= blackRatio ? "#FFFFFF" : "#000000");
+        scope.style.setProperty("--lp-navfg", whiteRatio >= blackRatio ? "#FFFFFF" : "#000000");
+
+        /* --lp-navink: the same colour used as TYPE ON WHITE, which is a different test.
+           whiteRatio is exactly its contrast against a white ground, so a listing colour
+           that clears AA there can carry the window's accents; one that does not - a
+           cream, a pale tan - falls back to PC Navy rather than being set in a colour
+           nobody can read. */
+        scope.style.setProperty("--lp-navink", whiteRatio >= 4.5 ? bg.trim() : "#12406A");
       }
       apply();
     })();
@@ -637,6 +937,165 @@
       }, { threshold: 0.12 });
       els.forEach(function(el){ io.observe(el); });
     })();
+    /* ==== TRACTS: the index and the tract window ====
+       The 5-or-more treatment, same behaviour as the other listing detail pages. The
+       tract records below are MOCK-UP DATA shaped like the real thing - see
+       developer-listing-premium.md for the field list a CMS has to supply. */
+    (function(){
+      var list = document.getElementById("lpTractList");
+      var box  = document.getElementById("xtw");
+      if(!list || !box) return;
+
+      /* This listing's own photographs, standing in for per-tract maps so the carousel
+         shows real imagery rather than grey boxes. A real tract carries its own set. */
+      var PB = "https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_";
+      var MAPS = ["DJI_0696.jpg", "DJI_0741.jpg", "DJI_0745.jpg", "DJI_0749.jpg",
+                  "DJI_0750.jpg", "DJI_0843.jpg", "DJI_0848.jpg", "DJI_0858.jpg",
+                  "DJI_0923.jpg"].map(function(f){ return PB + f; });
+
+      /* The four real attachments on this listing. Every tract points at the same set
+         here; a real tract carries its own documents. */
+      var AB = "https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_";
+      var DOCS = [
+        { name: "Soils Map",     url: AB + "Soils%20Map.pdf" },
+        { name: "Slope Map",     url: AB + "Slope%20Map.pdf" },
+        { name: "Aspect Map",    url: AB + "Aspect%20Map.pdf" },
+        { name: "Elevation Map", url: AB + "Elevation%20Map.pdf" }
+      ];
+
+      /* 19 tracts totalling the listing's 971.50 acres. */
+      var ACRES = [62.40, 38.15, 71.80, 44.25, 55.60, 29.90, 83.10, 47.55, 36.20, 68.45,
+                   52.30, 40.75, 59.15, 33.60, 76.20, 45.90, 28.35, 64.70, 33.15];
+      var SOILS = ["Warden silt loam and Shano silt loam",
+                   "Quincy loamy fine sand and Winchester loamy sand",
+                   "Ritzville silt loam and Warden silt loam",
+                   "Sagemoor very fine sandy loam and Taunton fine sandy loam"];
+      var PLANTED = ["Riesling", "Pinot Gris", "Merlot", "Malbec"];
+      var WHERE = ["north side of Dodd Road", "east side of Highway 12",
+                   "south side of Nine Mile Canyon Road", "west side of McNary Pool"];
+
+      var TRACTS = ACRES.map(function(acres, i){
+        var n = i + 1, r = i % 4;
+        var planted = i % 3 === 0 ? Math.round(acres * (0.30 + (i % 4) * 0.09) * 100) / 100 : 0;
+        var sec = (i % 30) + 2;
+        return {
+          n: n,
+          acres: acres,
+          planted: planted,
+          plantable: Math.round((acres - planted) * 100) / 100,
+          variety: PLANTED[r],
+          soils: SOILS[r],
+          where: WHERE[r],
+          sec: sec,
+          legal: "Section " + sec + ", Township 8 North, Range 31 East, W.M., " +
+                 "Walla Walla County, Washington",
+          geo: "46.07500,-118.90833",
+          dirs: "From Wallula, Washington: travel " + (i % 2 ? "south" : "east") +
+                " for approximately " + ((i % 7) + 2) + " miles. Tract " + n +
+                " begins on the " + WHERE[r] + ".",
+          maps: [MAPS[i % MAPS.length], MAPS[(i + 3) % MAPS.length],
+                 MAPS[(i + 6) % MAPS.length]],
+          docs: DOCS
+        };
+      });
+      window.LP_TRACTS = TRACTS;
+
+      function acreText(t){ return t.acres.toFixed(2) + " Acres M/L"; }
+
+      /* THE INDEX. One button per tract, label bold and the acreage plain:
+         "Tract 3: 71.80 Acres M/L". */
+      TRACTS.forEach(function(t, i){
+        var li = document.createElement("li");
+        var b  = document.createElement("button");
+        b.type = "button";
+        b.className = "lp-tlink";
+        b.innerHTML = "<b>Tract " + t.n + ":</b> " + acreText(t);
+        b.setAttribute("aria-label", "Tract " + t.n + ", " + acreText(t) + ", open details");
+        b.addEventListener("click", function(){ open(i, b); });
+        li.appendChild(b);
+        list.appendChild(li);
+      });
+
+      var title = box.querySelector("#xtwTitle"),
+          img   = box.querySelector(".xtw-img"),
+          chip  = box.querySelector(".xtw-chip"),
+          cnt   = box.querySelector(".xtw-count"),
+          desc  = box.querySelector(".xtw-desc"),
+          flds  = box.querySelector(".xtw-fields"),
+          legal = box.querySelector(".xtw-legal"),
+          dirs  = box.querySelector(".xtw-dirs"),
+          dirlink = box.querySelector(".xtw-dir"),
+          dl    = box.querySelector(".xtw-dl"),
+          xbtn  = box.querySelector(".xtw-x"),
+          scrollBody = box.querySelector(".xtw-body");
+      var ti = 0, mi = 0, last = null;
+
+      function showMap(k){
+        var t = TRACTS[ti];
+        if(!t.maps.length){ cnt.textContent = ""; return; }
+        mi = (k + t.maps.length) % t.maps.length;
+        img.src = t.maps[mi];
+        img.alt = "Tract " + t.n + " map";
+        cnt.textContent = (mi + 1) + " / " + t.maps.length;
+      }
+      function fill(){
+        var t = TRACTS[ti];
+        title.textContent = "Tract " + t.n;
+        chip.textContent  = "Tract " + t.n;
+        desc.innerHTML = "<b>Tract " + t.n + "</b> totals " + t.acres.toFixed(2) +
+          " acres m/l" +
+          (t.planted
+            ? ", of which approximately " + t.planted.toFixed(2) +
+              " acres m/l remain planted to " + t.variety + "."
+            : " and is open ground, plantable in its entirety.") +
+          " Primary soil types include " + t.soils +
+          ". Irrigation is delivered from the Columbia River pumping station serving the " +
+          "wider asset. Located on the " + t.where + ", this tract is situated in Section " +
+          t.sec + ", Walla Walla County, Washington.";
+        flds.innerHTML =
+          "<dt>Total acres</dt><dd>" + t.acres.toFixed(2) + " M/L</dd>" +
+          "<dt>Planted acres</dt><dd>" +
+            (t.planted ? t.planted.toFixed(2) + " (" + t.variety + ")" : "&mdash;") + "</dd>" +
+          "<dt>Plantable acres</dt><dd>" + t.plantable.toFixed(2) + " M/L</dd>" +
+          "<dt>Section</dt><dd>" + t.sec + "</dd>";
+        if(dirlink) dirlink.href = "https://www.google.com/maps/dir/?api=1&destination=" +
+          encodeURIComponent(t.geo);
+        if(dirs) dirs.textContent = t.dirs;
+        legal.textContent = t.legal;
+        dl.innerHTML = t.docs.map(function(d){
+          return '<li><a href="' + d.url + '" target="_blank" rel="noopener">' +
+                 '<span class="n">' + d.name + '</span>' +
+                 '<span class="m">PDF</span></a></li>';
+        }).join("");
+        showMap(0);
+        if(scrollBody) scrollBody.scrollTop = 0;   // a long tract must not open mid-scroll
+      }
+      function open(i, trig){
+        ti = i; last = trig || null;
+        fill();
+        box.hidden = false; pcScrollLock.on();
+        xbtn.focus();
+        document.addEventListener("keydown", key);
+      }
+      function close(){
+        if(box.hidden) return;                     // idempotent, like the drawer
+        box.hidden = true; pcScrollLock.off();
+        document.removeEventListener("keydown", key);
+        if(last) last.focus();
+      }
+      function key(e){
+        if(e.key === "Escape" || e.key === "Esc") close();
+        else if(e.key === "ArrowRight") showMap(mi + 1);
+        else if(e.key === "ArrowLeft") showMap(mi - 1);
+      }
+      xbtn.addEventListener("click", close);
+      box.querySelector(".xtw-prev").addEventListener("click", function(){ showMap(mi - 1); });
+      box.querySelector(".xtw-next").addEventListener("click", function(){ showMap(mi + 1); });
+      /* Backdrop only: a click inside .xtw-box never reaches here and cannot close the
+         window by accident. */
+      box.addEventListener("click", function(e){ if(e.target === box) close(); });
+    })();
+
   </script>
 </body>
 </html>
