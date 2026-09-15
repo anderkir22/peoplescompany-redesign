@@ -424,8 +424,17 @@
     /* ---- DATA ROOM ----
        A gated section: the copy, then the login, then the fine print under it. The form is
        PRESENTATION ONLY in this mock-up - it posts nowhere and it validates nothing. */
-    .lp-login{ display: grid; gap: var(--space-4); max-width: 420px;
+    /* THE TWO FIELDS SIT SIDE BY SIDE, the button on its own row under them. Two equal
+       columns; the button spans both and then takes only its own width, so it sits at the
+       left edge under Username rather than stretching across the pair.
+       The columns collapse to one below 560px - two inputs sharing a phone's width leaves
+       neither wide enough to read what has been typed into it. */
+    .lp-login{ display: grid; gap: var(--space-4) var(--space-5); max-width: 620px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       margin: var(--space-6) 0 var(--space-5); }
+    @media (max-width: 559px){
+      .lp-login{ grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+    }
     .lp-field{ display: grid; gap: 6px; }
     .lp-field label{ font-family: var(--font-sans); font-size: var(--label);
       font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
@@ -441,7 +450,7 @@
     /* The button is the brochure pill's pair, for the reason given at .lp-btn: the
        listing's two colours are the only combination on this page anyone has checked.
        justify-self keeps it to its own width instead of stretching the grid's full 420px. */
-    .lp-login .lp-btn{ justify-self: start; }
+    .lp-login .lp-btn{ grid-column: 1 / -1; justify-self: start; }
     .lp-fine{ font-family: var(--font-sans); font-style: italic; font-size: 14px;
       line-height: 1.6; color: var(--color-text-muted); margin: 0; }
 
