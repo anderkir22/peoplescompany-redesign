@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Peoples Company · Final (PC) — Team Member Pages</title>
-  <meta name="description" content="The two team member detail pages — producer and operations — and the rule that a section with no data is absent, not empty." />
+  <title>Peoples Company · Final (PC) — Careers</title>
+  <meta name="description" content="Careers at Peoples Company: current open positions across the national farmland platform." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,98 +14,170 @@
   <!-- Single source of truth for the final PC direction -->
   <link href="pc.css?v=20260827a" rel="stylesheet" />
 
+  <!-- Page-local (cj-): the careers pair shares this prefix with career-job.html, and the
+       rail below is that page's rail verbatim. Scaffolding for these two pages only - do
+       not port a cj- class into the build. -->
   <style>
-    .sr-only{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
-      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
-      border: 0; }
+    .cj-body{ background: var(--pc-white); --cj-rail-w: 380px; }
+    .cj-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+    .cj-body h1{ margin: 0; }
+    /* Clears the Interactive Map tab: .md-tabwrap is height:0, so the tab hangs OVER the
+       content and every page holds it off itself. Measured off the tab's own peak height,
+       the same way contact.html does it, so the clearance holds as the tab steps down. */
+    .cj-head{ padding-top: calc(var(--md-tab-h-peak) + var(--space-5)); }
 
-    .lx-body{ background: var(--pc-white); }
-    .lx-wrap{ max-width: var(--site); margin: 0 auto; padding: var(--space-8) var(--rail) var(--space-9); }
+    /* Copy left, rail right. NOT sticky - the rail's two blocks run taller than the
+       viewport, and a sticky column taller than the screen pins its top and hides its
+       own bottom. */
+    .cj-cols{ display: grid; grid-template-columns: minmax(0, 1fr) var(--cj-rail-w);
+      gap: var(--space-8); padding: var(--space-7) 0 var(--space-9); align-items: start; }
 
-    .lx-eyebrow{ font-family: var(--font-sans); font-size: var(--label); font-weight: 400;
-      letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-subtle);
-      margin: 0 0 var(--space-3); }
-    .lx-wrap h1{ margin: 0 0 var(--space-4); }
-    .lx-intro{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.7;
-      color: var(--color-text-muted); max-width: 68ch; margin: 0 0 var(--space-7); }
+    /* NO MEASURE CAP ON THIS PAGE, by instruction: the copy runs the full column rather
+       than the 45-75ch band the rest of the build uses. Same call as career-job.html. */
+    .cj-main p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted);
+      margin: 0 0 var(--space-5); }
+    .cj-main p:last-child{ margin-bottom: 0; }
 
-    /* ---- the developer note ----
-       Same colours as the mock-up notes on the listing pages themselves: #FFFAEF on a dashed
-       #C2870B edge, 4px solid down the left. Full width of the content area - no measure cap on
-       the prose, unlike ordinary body copy - and one step down in size, because this block is
-       reference material rather than something to read straight through. */
-    .lx-callout{ background: #FFFAEF; border: 1px dashed #C2870B; border-left: 4px solid #C2870B;
-      border-radius: var(--radius-sm); padding: var(--space-4) var(--space-5);
-      margin: 0 0 var(--space-7); }
-    .lx-tag{ margin: 0 0 var(--space-2); font-family: var(--font-sans); font-size: 10px;
-      font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; }
-    .lx-callout h2{ margin: 0 0 var(--space-2); font-family: var(--font-sans);
-      font-size: 15px; font-weight: 700; letter-spacing: 0; color: #8A5D00; }
-    .lx-callout p{ font-family: var(--font-sans); font-size: 13px; line-height: 1.6;
-      color: var(--color-text); margin: 0 0 var(--space-3); }
-    .lx-callout p:last-child{ margin-bottom: 0; }
-    .lx-callout b{ font-weight: 600; }
-    .lx-callout code{ font-size: 12px; }
-    .lx-callout dl{ display: grid; gap: 2px var(--space-4); margin: 0 0 var(--space-3); }
-    .lx-callout dt{ font-family: var(--font-sans); font-size: 10px; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase; color: #8A5D00; }
-    .lx-callout dd{ font-family: var(--font-sans); font-size: 13px; line-height: 1.6;
-      color: var(--color-text); margin: 0; }
-    .lx-callout .lx-flag{ font-weight: 700; color: #8A5D00; }
-    @media (min-width: 768px){
-      .lx-callout dl{ grid-template-columns: max-content minmax(0, 1fr); align-items: baseline; }
-    }
+    /* ---- the rail -----------------------------------------------------------------
+       TWO SEPARATE BLOCKS, not one panel. Why Work With Us is a PC Navy card - the
+       treatment used by the Corporate Office card on contact.html and the Who We Serve
+       band on the homepage. The enquiry form sits below it on the page's own white, no
+       card, so the two blocks do not read as one stack of boxes. */
+    .cj-aside{ display: flex; flex-direction: column; gap: var(--space-5); }
 
-    /* ---- the table ---- */
-    .lx-tablewrap{ overflow-x: auto; border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg); }
-    table.lx-table{ width: 100%; border-collapse: collapse;
-      font-family: var(--font-sans); background: var(--pc-white); }
-    .lx-table caption{ text-align: left; font-size: var(--body-sm); color: var(--pc-navy);
-      padding: var(--space-4) var(--space-5) 0; }
-    .lx-table th, .lx-table td{ text-align: left; padding: var(--space-4) var(--space-5);
-      border-bottom: 1px solid var(--color-border); vertical-align: middle; }
-    .lx-table thead th{ font-size: var(--label); font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; color: var(--pc-navy); background: var(--pc-soft-white);
-      border-bottom: 1px solid var(--color-border); white-space: nowrap; }
-    .lx-table tbody tr:last-child td{ border-bottom: 0; }
-    .lx-table tbody tr:hover{ background: var(--pc-soft-white); }
+    /* Matches the sidebar headings on blog-story.html (.bs-box h2): EB Garamond 500 at
+       22px, PC Black, over a hairline. */
+    .cj-rail h2{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      text-transform: none; letter-spacing: 0; color: var(--pc-black);
+      margin: 0 0 var(--space-3); padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border); }
 
-    .lx-type{ font-family: var(--font-serif); font-size: var(--h4-size); font-weight: 500;
-      color: var(--color-text); margin: 0 0 2px; }
-    .lx-type a{ color: var(--color-text); text-decoration: underline;
-      text-underline-offset: 3px; text-decoration-thickness: 1px; }
-    .lx-type a:hover{ color: var(--color-accent); }
-    .lx-file{ font-family: var(--font-sans); font-size: var(--body-sm); color: var(--pc-navy); margin: 0; }
-    /* One line each, no wrap. The copy is written to fit; .lx-tablewrap already scrolls on
-       overflow, so a longer line degrades to a scroll rather than a ragged wrap. */
-    /* STATUS BADGE - mock-up scaffolding: the whole column comes out of a production build.
-       Deliberately NOT a <button>: nothing happens when it is clicked, so it is a status
-       label, not a control. Two states. The pending state is the same amber as the mock-up
-       notes elsewhere in the build, on a dashed border. The approved state is PC Navy on
-       PC Light Blue with a SOLID border - the palette has no green, so "approved" reads
-       through the brand blue, the solid edge and the tick, not through colour alone. */
-    .lx-statuscol{ text-align: right; white-space: nowrap; width: 1%; }
-    .lx-status{ display: inline-flex; align-items: center; gap: 8px;
-      background: #FFFAEF; border: 1px dashed #C2870B; border-radius: var(--radius-pill);
-      padding: 8px 16px; font-family: var(--font-sans); font-size: 13px; font-weight: 700;
-      letter-spacing: .02em; color: #8A5D00; }
-    .lx-status svg{ width: 16px; height: 16px; flex: none; fill: #C2870B; }
-    /* Approved: 8.9:1 navy-on-light-blue, the same pairing as the style-guide pill. */
-    .lx-status--ok{ background: var(--pc-light-blue); border: 1px solid var(--pc-navy);
-      color: var(--pc-navy); }
-    .lx-status--ok svg{ fill: var(--pc-navy); }
+    /* The boxed block: PC Soft White on a hairline, the same card the blog sidebar uses
+       (.bs-box on blog-story.html), so the rail's two blocks read as a matched pair. */
+    .cj-rail--box{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-6); }
 
-    .lx-desc{ font-family: var(--font-sans); font-size: var(--body-sm); line-height: 1.6;
-      color: var(--color-text-muted); margin: var(--space-2) 0 0; white-space: nowrap; }
+    /* The navy card. White on PC Navy is 10.4:1; the label takes PC Light Blue (7.6:1),
+       the same move the homepage band makes with its eyebrow. The h2 rule must follow
+       .cj-rail h2 above - same specificity, so order is what makes it win. */
+    .cj-rail--navy{ background: var(--pc-navy); border-radius: var(--radius-md);
+      padding: var(--space-5) var(--space-5) var(--space-6); color: var(--pc-white); }
+    .cj-rail--navy h2{ color: var(--pc-light-blue);
+      border-bottom: 1px solid rgba(255,255,255,.22); }
 
-    /* ---- responsive: breakpoints sit on --site steps ---- */
-    @media (max-width: 767px){
-      .lx-table th, .lx-table td{ padding: var(--space-3) var(--space-4); }
-    }
+    .cj-why{ margin: 0; }
+    /* A rule between the items. Drawn as a border rather than an <hr>, which is not a
+       permitted child of a <dl> - the only children allowed are dt, dd and div. */
+    .cj-why > div + div{ margin-top: var(--space-5); padding-top: var(--space-5);
+      border-top: 1px solid rgba(255,255,255,.22); }
+    .cj-why dt{ font-family: var(--font-serif); font-size: 16px;
+      line-height: 1.25; color: var(--pc-white); }
+    /* Stepped down from --body: this is supporting copy on the rail, not the posting. */
+    .cj-why dd{ margin: 6px 0 0; font-size: 14px; line-height: 1.55;
+      color: var(--pc-white); }
+    /* Each item ends in its own link out, as the live careers page has it. PC Light
+       Blue on PC Navy is 7.6:1; the arrow is part of the link, not a bullet. */
+    /* flex, not inline-flex: the link starts its own line under the paragraph instead
+       of running on from the last sentence. width keeps the hover underline on the
+       words rather than across the column. */
+    .cj-whylink{ display: flex; width: fit-content;
+      align-items: center; gap: 6px; margin-top: 8px;
+      font-family: var(--font-sans); font-size: 14px;
+      text-decoration: none; color: var(--pc-light-blue); }
+    .cj-whylink:hover, .cj-whylink:focus-visible{ color: var(--pc-white);
+      text-decoration: underline; }
+    .cj-whylink svg{ width: 13px; height: 13px; flex: none; }
+
+    /* ---- open positions: the cards -------------------------------------------------
+       One card per posting, whole card clickable. The lift-and-shadow hover is allowed
+       here because the whole card IS the link - the heading's <a> carries a stretched
+       ::after over the card. A row of plain text links would change colour instead. */
+    .cj-open{ margin-top: var(--space-8); }
+    .cj-open > h2{ margin: 0 0 var(--space-5); }
+    .cj-jobgrid{ display: grid; gap: var(--space-5); grid-template-columns: minmax(0, 1fr);
+      list-style: none; margin: 0; padding: 0; }
+    @media (min-width: 640px){  .cj-jobgrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 1280px){ .cj-jobgrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+    .cj-jobcard{ position: relative; background: var(--pc-soft-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-md);
+      padding: var(--space-5) var(--space-5) var(--space-6);
+      display: grid; align-content: start; gap: 6px;
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .cj-jobcard:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
+    @media (prefers-reduced-motion: reduce){ .cj-jobcard:hover{ transform: none; } }
+    /* The <a> sits on the heading only, with ::after stretched over the card. It must NOT
+       wrap the card: links cannot nest, and a card may hold another link later. */
+    .cj-jobcard h3{ margin: 0; font-family: var(--font-serif); font-weight: 500;
+      font-size: 16px; line-height: 1.25; }
+    .cj-jobcard h3 a{ color: var(--pc-black); text-decoration: none; }
+    .cj-jobcard h3 a::after{ content: ""; position: absolute; inset: 0;
+      border-radius: var(--radius-md); }
+    .cj-jobcard:hover h3 a{ color: var(--pc-medium-blue); }
+    .cj-jobcard h3 a:focus-visible{ outline: none; }
+    .cj-jobcard h3 a:focus-visible::after{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .cj-jobmeta{ font-family: var(--font-sans); font-size: 12px; color: var(--pc-black);
+      margin: 0; }
+
+    /* ---- the enquiry form, at the foot of the main column ---------------------------
+       Placeholder markup only: no action, no validation beyond `required`, no routing.
+       Two fields per row here, where the column is wide - the rail version was one. */
+    .cj-formsec{ margin-top: var(--space-8); background: var(--pc-soft-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-md);
+      padding: var(--space-5) var(--space-5) var(--space-6); }
+    .cj-formsec > h2{ margin: 0 0 var(--space-3); font-family: var(--font-serif);
+      font-weight: 500; font-size: 22px; color: var(--pc-black);
+      padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
+    .cj-form{ margin-top: var(--space-5); }
+    .cj-fields{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4) var(--space-5); }
+    @media (max-width: 767px){ .cj-fields{ grid-template-columns: minmax(0, 1fr); } }
+    .cj-field.wide{ grid-column: 1 / -1; }
+    .cj-reqnote{ margin: var(--space-4) 0 0; font-family: var(--font-sans); font-size: 14px;
+      color: var(--color-text-muted); }
+    .cj-reqnote .req{ font-weight: 700; color: var(--pc-medium-blue); }
+    .cj-field{ display: flex; flex-direction: column; gap: var(--space-2); }
+    .cj-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
+    .cj-field .req{ color: var(--pc-medium-blue); }
+    .cj-field input, .cj-field textarea, .cj-field select{ font-family: var(--font-sans);
+      font-size: var(--body); line-height: 1.5; color: var(--color-text);
+      background: var(--pc-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm); padding: 12px 14px; width: 100%; }
+    .cj-field textarea{ resize: vertical; min-height: 160px; }
+    .cj-field input:focus-visible, .cj-field textarea:focus-visible,
+    .cj-field select:focus-visible{ outline: 2px solid var(--pc-medium-blue);
+      outline-offset: 1px; border-color: var(--pc-medium-blue); }
+    /* The select drops the OS chevron for the build's own, so it matches the field
+       height and the PC Navy of the rest of the form's chrome. The arrow is a
+       background image, which leaves the native dropdown behaviour untouched. */
+    .cj-field select{ appearance: none; -webkit-appearance: none; padding-right: 40px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2312406A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+      background-size: 16px 16px; }
+    .cj-form .btn{ margin-top: var(--space-5); }
+
+    /* ---- Growing Together feed, in the rail -----------------------------------------
+       One row per post: the staff member's name is the link, the date sits under it.
+       Same shape as .bs-recent on blog-story.html, minus the thumbnail. */
+    .cj-feed{ display: flex; flex-direction: column; }
+    .cj-post{ display: block; text-decoration: none; padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--color-border); }
+    .cj-post:first-child{ border-top: 1px solid var(--color-border); }
+    .cj-post:last-of-type{ border-bottom: 0; padding-bottom: 0; }
+    .cj-post .t{ display: block; font-family: var(--font-serif); font-size: 16px;
+      line-height: 1.25; color: var(--pc-black); }
+    .cj-post .d{ display: block; margin-top: 5px; font-family: var(--font-sans);
+      font-size: 12px; color: var(--pc-black); }
+    .cj-post:hover .t{ color: var(--pc-medium-blue); }
+    .cj-post:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .cj-feedall{ display: inline-flex; align-items: center; gap: 8px;
+      margin-top: var(--space-5); font-family: var(--font-sans); font-size: 14px;
+      text-decoration: none; color: var(--pc-medium-blue); }
+    .cj-feedall:hover{ color: var(--pc-navy); }
+    .cj-feedall:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
   </style>
 </head>
-
 
 <body>
   <!-- ================= HEADER ================= -->
@@ -170,56 +242,199 @@
     </div>
   </div>
 
-  <!-- ================= PAGE CONTENT ================= -->
-  <main class="lx-body" aria-label="Team member pages">
-    <div class="lx-wrap reveal">
-      <p class="lx-eyebrow">Final PC &middot; Team</p>
-      <h1>Team Member Pages</h1>
-
-      <div class="lx-tablewrap">
-        <table class="lx-table">
-          <caption>The two team member pages.</caption>
-          <thead>
-            <tr>
-              <th scope="col">Content range</th>
-              <th scope="col" class="lx-statuscol">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-
-            <tr>
-              <th scope="row">
-                <p class="lx-type"><a href="./team-member-expanded.html">Expanded</a></p>
-                <p class="lx-file">team-member-expanded.html</p>
-                <p class="lx-desc">Six tabs &mdash; biography, contact, testimonials, available and sold listings, photos &mdash; with licenses, awards and blogs in the rail.</p>
-              </th>
-              <td class="lx-statuscol">
-                <span class="lx-status lx-status--ok">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22zm0 2a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm4.3 5.3L11 13.6l-2.3-2.3-1.4 1.4 3.7 3.7 6.7-6.7z"/></svg>
-                  Design approved
-                </span>
-              </td>
-            </tr>
-
-            <tr>
-              <th scope="row">
-                <p class="lx-type"><a href="./team-member-minimal.html">Minimal</a></p>
-                <p class="lx-file">team-member-minimal.html</p>
-                <p class="lx-desc">The minimum record: no sub-nav, no rail, no headshot.</p>
-              </th>
-              <td class="lx-statuscol">
-                <span class="lx-status lx-status--ok">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22zm0 2a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm4.3 5.3L11 13.6l-2.3-2.3-1.4 1.4 3.7 3.7 6.7-6.7z"/></svg>
-                  Design approved
-                </span>
-              </td>
-            </tr>
-
-          </tbody>
-        </table>
-      </div>
-
+  <!-- ================= PAGE CONTENT — careers index ================= -->
+  <main class="cj-body" aria-label="Page content">
+    <div class="cj-wrap cj-head reveal">
+      <h1>Join the Peoples Company Brand</h1>
     </div>
+
+    <div class="cj-wrap">
+      <div class="cj-cols">
+
+        <!-- Left column. The list of open positions is still to be built, below the copy. -->
+        <div class="cj-main reveal">
+          <p>At Peoples Company, we believe great companies are built by great people, and we
+            have made it our mission to find the best in the industry in every region across
+            the country. Peoples Company's culture demands collaboration, strategic thinking,
+            and the willingness to adapt and excel in an industry that rewards those who are
+            prepared to lead it. Our team members Ride for the Brand, and if you&rsquo;re looking
+            for an exciting new challenge, come build it with us.</p>
+
+          <p>Peoples Company is not the right place for every land professional. Our team
+            members in each division operate within our organization's proven structure. When a
+            new team member joins the firm, they must be aligned with our culture and direction,
+            commit to our proven processes, and complete a training program built to develop the
+            most capable farmland professionals in the industry. We expect each of our team
+            members to create annual business plans that focus on their professional development
+            and require that they learn and utilize a fully integrated suite of professional
+            tools. To put it plainly, we hold our team members to standards that consistently
+            demand their best.</p>
+
+          <p>Peoples Company has built something rare in the farmland industry: a national
+            platform where driven individuals can build exceptional careers without sacrificing
+            the local relationships and market depth that define great land professionals. The
+            opportunities here are real, and they are earned. Whether you are launching your
+            career or bringing decades of expertise to a new chapter, Peoples Company offers the
+            platform, the peers, and the culture to help you do the best work of your
+            professional life.</p>
+
+          <section class="cj-open" id="openings">
+            <h2>Current Open Positions</h2>
+            <!-- Every card points at career-job.html for now: the postings are one template
+                 with different CMS content. Title, location and department are the same three
+                 fields the posting page carries, so a card and its page cannot drift. -->
+            <ul class="cj-jobgrid">
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Land Agent</a></h3>
+              <p class="cj-jobmeta">Illinois &middot; Brokerage</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Land Agent</a></h3>
+              <p class="cj-jobmeta">Michigan &middot; Brokerage</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Land Agent</a></h3>
+              <p class="cj-jobmeta">Minnesota &middot; Brokerage</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Land Agent</a></h3>
+              <p class="cj-jobmeta">Nebraska &middot; Brokerage</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Land Agent</a></h3>
+              <p class="cj-jobmeta">Arkansas &middot; Brokerage</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
+              <p class="cj-jobmeta">Delta &middot; Appraisal</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
+              <p class="cj-jobmeta">Illinois &middot; Appraisal</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
+              <p class="cj-jobmeta">Nebraska &middot; Appraisal</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
+              <p class="cj-jobmeta">Washington &middot; Appraisal</p>
+            </li>
+            <li class="cj-jobcard">
+              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
+              <p class="cj-jobmeta">Wisconsin &middot; Appraisal</p>
+            </li>
+            </ul>
+          </section>
+
+          <!-- Heading copy is placeholder - Kiron's to set. -->
+          <section class="cj-formsec" id="enquiry">
+            <h2>Don't See Your Role?</h2>
+            <p style="font-family:var(--font-sans);font-size:14px;line-height:1.55;color:var(--color-text-muted);margin:0">
+              Tell us about yourself and we will keep you in mind as positions open.</p>
+            <form class="cj-form" action="#" onsubmit="return false;" aria-label="Careers enquiry">
+              <div class="cj-fields">
+                <div class="cj-field">
+                  <label for="cr-first">First Name <span class="req" aria-hidden="true">*</span></label>
+                  <input type="text" id="cr-first" name="first_name" autocomplete="given-name" required />
+                </div>
+                <div class="cj-field">
+                  <label for="cr-last">Last Name <span class="req" aria-hidden="true">*</span></label>
+                  <input type="text" id="cr-last" name="last_name" autocomplete="family-name" required />
+                </div>
+                <div class="cj-field">
+                  <label for="cr-email">Email <span class="req" aria-hidden="true">*</span></label>
+                  <input type="email" id="cr-email" name="email" autocomplete="email" required />
+                </div>
+                <div class="cj-field">
+                  <label for="cr-mobile">Mobile <span class="req" aria-hidden="true">*</span></label>
+                  <input type="tel" id="cr-mobile" name="mobile" autocomplete="tel" required />
+                </div>
+                <div class="cj-field wide">
+                  <label for="cr-interest">Interest</label>
+                  <!-- Options are placeholder copy: the real list is Kiron's to set, and it
+                       should match however these enquiries get routed. -->
+                  <select id="cr-interest" name="interest">
+                    <option value="">Select one</option>
+                    <option>Land Brokerage &amp; Auctions</option>
+                    <option>Agricultural Appraisal</option>
+                    <option>Land Management</option>
+                    <option>Energy Management</option>
+                    <option>Crop Insurance</option>
+                    <option>Capital Markets</option>
+                    <option>Corporate Services</option>
+                    <option>Marketing &amp; Administration</option>
+                    <option>General interest</option>
+                  </select>
+                </div>
+                <div class="cj-field wide">
+                  <label for="cr-comments">Comments</label>
+                  <textarea id="cr-comments" name="comments" rows="4"></textarea>
+                </div>
+              </div>
+              <p class="cj-reqnote"><span class="req" aria-hidden="true">*</span> Indicates a required field.</p>
+              <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+          </section>
+        </div>
+
+        <aside class="cj-aside reveal" aria-label="About working here and related positions">
+          <!-- The rail is career-job.html's rail verbatim: the same four points and the
+               same list of postings, so the two pages carry one block, not two. -->
+          <section class="cj-rail cj-rail--navy">
+            <h2>Why Work With Us</h2>
+            <dl class="cj-why">
+              <div>
+                <dt>Industry Experience</dt>
+                <dd>Six decades of expertise and the nation's leading farmland services
+                  platform, across seven service lines and licensed in 34 states and
+                  Washington D.C.
+                  <a class="cj-whylink" href="/about">About Peoples Company <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></a></dd>
+              </div>
+              <div>
+                <dt>Collaborative Culture</dt>
+                <dd>175+ team members across 24 offices, working under one philosophy:
+                  Ride for the Brand.
+                  <a class="cj-whylink" href="/culture">Explore our culture <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></a></dd>
+              </div>
+              <div>
+                <dt>Award-Winning Firm</dt>
+                <dd>National recognition in farmland real estate, auctions, land management
+                  and marketing, with an internal awards program for top producers.
+                  <a class="cj-whylink" href="/marketing-awards">Awards &amp; recognition <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></a></dd>
+              </div>
+              <div>
+                <dt>Committed to the Land</dt>
+                <dd>Farmland is a generational legacy asset, and our sustainability work
+                  reflects a long-term commitment to land health and farming communities.
+                  <a class="cj-whylink" href="/sustainability">Our sustainability <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></a></dd>
+              </div>
+            </dl>
+          </section>
+
+
+          <!-- Growing Together: a dynamic feed, filled by the series tag. Five rows and a
+               link to the rest, so the rail cannot outgrow the column beside it. The rows
+               below are placeholders. -->
+          <section class="cj-rail cj-rail--box">
+            <h2>Growing Together Blog Series</h2>
+            <nav class="cj-feed" aria-label="Growing Together blog series">
+              <a class="cj-post" href="./blog-story.html"><span class="t">George Baird, Senior Land Manager</span><span class="d">April 15, 2026</span></a>
+              <a class="cj-post" href="./blog-story.html"><span class="t">Mollie Aronowitz, Land Manager</span><span class="d">March 3, 2026</span></a>
+              <a class="cj-post" href="./blog-story.html"><span class="t">Paul Anderson, Land Manager</span><span class="d">January 28, 2026</span></a>
+              <a class="cj-post" href="./blog-story.html"><span class="t">Jared Chambers, Land Agent</span><span class="d">December 9, 2025</span></a>
+              <a class="cj-post" href="./blog-story.html"><span class="t">Mike Nelson, Land Agent</span><span class="d">November 4, 2025</span></a>
+            </nav>
+            <a class="cj-feedall" href="./blog.html">
+              View the full series
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:14px;height:14px;flex:none"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+            </a>
+          </section>
+        </aside>
+
+      </div>
+    </div>
+
   </main>
 
   <!-- ================= FOOTER ================= -->

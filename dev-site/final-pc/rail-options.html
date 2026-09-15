@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Final (PC) — Rail Standard</title>
+  <meta name="description" content="The four side rails as they are built today, and the element-by-element decisions needed to make one standard." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="pc.css?v=20260827a" rel="stylesheet" />
+
+  <!-- STANDALONE REVIEW PAGE, like tab-options.html and nav-options.html. No header, no
+       footer, no map tab: the rails are the whole subject. Page-local prefix rv-.
+
+       Every specimen below is rendered with the REAL values from the page it names, read
+       out of that page's own stylesheet. Nothing here is an approximation, so what you
+       pick is what the page already does. -->
+  <style>
+    body{ background: var(--pc-white); }
+    .rv-wrap{ max-width: 1440px; margin: 0 auto; padding: var(--space-7) var(--space-6) var(--space-9); }
+
+    .rv-intro{ max-width: 70ch; }
+    .rv-intro h1{ margin: 0 0 var(--space-4); }
+    .rv-intro p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted);
+      margin: 0 0 var(--space-4); }
+    .rv-intro strong{ font-weight: 600; }
+
+    .rv-sec{ margin-top: var(--space-9); }
+    .rv-sec > h2{ margin: 0 0 var(--space-3); }
+    .rv-sec > p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted);
+      max-width: 70ch; margin: 0 0 var(--space-6); }
+
+    /* ---- the four rails, side by side at their real widths ---- */
+    .rv-rails{ display: flex; gap: var(--space-6); align-items: start;
+      overflow-x: auto; padding-bottom: var(--space-5); }
+    .rv-rail{ flex: none; }
+    .rv-tag{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--pc-medium-blue);
+      margin: 0 0 var(--space-2); }
+    .rv-tag span{ display: block; font-weight: 400; letter-spacing: 0; text-transform: none;
+      font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+
+    /* ---- decision blocks ---- */
+    .rv-dec{ border-top: 1px solid var(--color-border); padding-top: var(--space-6);
+      margin-top: var(--space-7); }
+    .rv-dec > h3{ margin: 0 0 var(--space-2); font-size: var(--h4-size); }
+    .rv-dec > .rv-q{ font-family: var(--font-sans); font-size: var(--body); line-height: 1.6;
+      color: var(--color-text-muted); margin: 0 0 var(--space-5); max-width: 70ch; }
+    .rv-opts{ display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: start; }
+    .rv-opt{ max-width: 390px; }
+    .rv-opt > figcaption{ font-family: var(--font-sans); font-size: 13px; line-height: 1.5;
+      color: var(--color-text-muted); margin-top: var(--space-3); max-width: 340px; }
+    .rv-opt > figcaption b{ display: block; font-weight: 700; color: var(--pc-navy);
+      font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+
+    /* ======================================================================
+       THE FOUR SYSTEMS, copied verbatim from their pages.
+       ====================================================================== */
+
+    /* --- A. blog-story.html (.bs-box) --- */
+    .A{ width: 380px; }
+    .A .box{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-6); }
+    .A .box + .box{ margin-top: var(--space-5); }
+    .A h4{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      color: var(--pc-black); margin: 0 0 var(--space-3);
+      padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
+    .A .row{ display: block; padding: var(--space-4) 0; text-decoration: none;
+      border-bottom: 1px solid var(--color-border); }
+    .A .row:last-of-type{ border-bottom: 0; padding-bottom: 0; }
+    .A .t{ display: block; font-family: var(--font-serif); font-size: 16px;
+      line-height: 1.25; color: var(--pc-black); }
+    .A .d{ display: block; font-family: var(--font-sans); font-size: 12px;
+      color: var(--pc-black); margin-top: 5px; }
+    .A .row:hover .t{ color: var(--pc-medium-blue); }
+
+    /* --- B. contact.html (.ct-card / .ct-officecard) --- */
+    .B{ width: 380px; }
+    .B .box{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-6); }
+    .B .box + .box{ margin-top: var(--space-6); }
+    .B h4{ font-family: var(--font-serif); font-weight: 500; font-size: var(--h3-size);
+      color: var(--pc-black); margin: 0 0 var(--space-4); }
+    .B .card{ position: relative; border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-5); background: var(--pc-white);
+      display: grid; align-content: start; gap: var(--space-2);
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .B .card + .card{ margin-top: var(--space-5); }
+    .B .card:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
+    .B .card h5{ margin: 0; font-family: var(--font-serif); font-weight: 500;
+      font-size: var(--h4-size); color: var(--color-text); }
+    .B .pill{ justify-self: start; font-family: var(--font-sans); font-size: 10px;
+      font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--pc-navy); background: var(--pc-light-blue);
+      border-radius: var(--radius-pill); padding: 4px 12px; }
+    .B .addr{ font-family: var(--font-sans); font-size: var(--body-sm); line-height: 1.6;
+      color: var(--color-text-muted); margin: var(--space-2) 0 0; }
+    .B .big{ font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.8;
+      color: var(--color-text-muted); margin: 0; }
+    @media (prefers-reduced-motion: reduce){ .B .card:hover{ transform: none; } }
+
+    /* --- C. careers pair (.cj-rail), as built today --- */
+    .C{ width: 380px; }
+    .C .box{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-6); }
+    .C .navy{ background: var(--pc-navy); border-color: var(--pc-navy); color: var(--pc-white); }
+    .C .box + .box{ margin-top: var(--space-5); }
+    .C h4{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      color: var(--pc-black); margin: 0 0 var(--space-3);
+      padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
+    .C .navy h4{ color: var(--pc-light-blue); border-bottom-color: rgba(255,255,255,.22); }
+    .C dl{ margin: 0; }
+    .C dl > div + div{ margin-top: var(--space-5); padding-top: var(--space-5);
+      border-top: 1px solid rgba(255,255,255,.22); }
+    .C dt{ font-family: var(--font-serif); font-size: 16px; line-height: 1.25; color: var(--pc-white); }
+    .C dd{ margin: 6px 0 0; font-family: var(--font-sans); font-size: 14px;
+      line-height: 1.55; color: var(--pc-white); }
+    .C .lnk{ display: flex; width: fit-content; align-items: center; gap: 6px; margin-top: 8px;
+      font-family: var(--font-sans); font-size: 14px; text-decoration: none;
+      color: var(--pc-light-blue); }
+
+    /* --- D. listings-details-auction.html (.ld-auctioncard) --- */
+    .D{ width: 380px; }
+    .D .box{ border-radius: var(--radius-md); background: var(--pc-black);
+      color: var(--pc-white); padding: var(--space-5) var(--space-5) var(--space-6); }
+    .D .eyebrow{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--pc-blue);
+      margin: 0 0 var(--space-2); }
+    .D .date{ font-family: var(--font-serif); font-size: 26px; font-weight: 600;
+      line-height: 1.15; color: var(--pc-white); margin: 0 0 var(--space-2); }
+    .D .time{ font-family: var(--font-sans); font-size: 14px; color: var(--pc-light-blue);
+      margin: 0 0 var(--space-5); }
+    .D dl{ display: grid; gap: var(--space-3); margin: 0 0 var(--space-5); }
+    .D dt{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-blue); }
+    .D dd{ font-family: var(--font-sans); font-size: 14px; line-height: 1.5;
+      color: var(--pc-white); margin: 2px 0 0; }
+
+    /* ---- small specimens used in the decision sheet ---- */
+    .sp{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      width: 340px; }
+    .sp p{ margin: 0; font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+      color: var(--color-text-muted); }
+    .sp .ttl{ font-family: var(--font-serif); font-weight: 500; color: var(--pc-black);
+      margin: 0 0 6px; }
+
+    .rv-ruler{ font-family: var(--font-sans); font-size: 12px; color: var(--pc-navy);
+      margin: 0 0 6px; font-weight: 700; }
+    .rv-bar{ height: 40px; background: var(--pc-light-blue);
+      border: 1px solid var(--pc-medium-blue); border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-sans); font-size: 13px; color: var(--pc-navy); }
+
+    /* ---- decided state ---- */
+    .rv-done{ opacity: .62; }
+    .rv-badge{ display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-sans); font-size: 11px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--pc-white); background: var(--pc-navy);
+      border-radius: var(--radius-pill); padding: 4px 12px; margin-left: var(--space-3);
+      vertical-align: middle; }
+    .rv-badge--open{ color: var(--pc-navy); background: var(--pc-light-blue); }
+    .rv-pick{ outline: 3px solid var(--pc-navy); outline-offset: 6px; border-radius: var(--radius-md); }
+    .rv-settled{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-6);
+      margin-top: var(--space-6); }
+    .rv-settled h2{ margin: 0 0 var(--space-4); font-size: 22px; }
+    .rv-settled table{ border-collapse: collapse; width: 100%; }
+    .rv-settled th, .rv-settled td{ text-align: left; font-family: var(--font-sans);
+      font-size: 14px; padding: 10px 0; border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-muted); vertical-align: top; }
+    .rv-settled th{ font-size: 12px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--pc-navy); }
+    .rv-settled tr:last-child td{ border-bottom: 0; }
+    .rv-settled td b{ color: var(--pc-black); font-weight: 600; }
+
+    .rv-foot{ margin-top: var(--space-9); padding-top: var(--space-6);
+      border-top: 1px solid var(--color-border); font-family: var(--font-sans);
+      font-size: 13px; color: var(--color-text-muted); }
+  </style>
+</head>
+
+<body>
+<div class="rv-wrap">
+
+  <div class="rv-intro">
+    <h1>The rail standard</h1>
+    <p>Four pages carry a side rail, and each was built on its own. This page puts them
+      next to each other, then breaks the difference into <strong>eight decisions</strong>.
+      Every specimen is drawn with the real values from the page it names, so whatever you
+      pick is already running somewhere.</p>
+    <p>Work top to bottom and name a winner per decision. Where a page needs to depart from
+      the standard, that becomes a stated addendum rather than a drift.</p>
+  </div>
+
+  <section class="rv-settled">
+    <h2>The rail standard &mdash; settled 2026-09-15</h2>
+    <table>
+      <tr><th style="width:200px">Decision</th><th style="width:210px">Standard</th><th>Addendum</th></tr>
+      <tr><td>1 &middot; Corner radius</td><td><b>12px</b> (--radius-md)</td><td>&mdash;</td></tr>
+      <tr><td>2 &middot; Padding</td><td><b>24 / 24 / 32</b></td><td>&mdash;</td></tr>
+      <tr><td>3 &middot; Block heading</td><td><b>Serif 22px over a hairline rule</b></td>
+        <td>The auction bid card keeps its 11px eyebrow over a 26px serif date.</td></tr>
+      <tr><td>4 &middot; Item title</td><td><b>Serif 16 over 12px meta</b></td>
+        <td>Contact's office cards keep their 20px title.</td></tr>
+      <tr><td>5 &middot; Body copy</td><td><b>14px</b></td><td>&mdash;</td></tr>
+      <tr><td>6 &middot; Hover</td><td><b>Lift and shadow only where the whole card is a link.</b>
+        A text link changes colour and does not move.</td>
+        <td>Contact office cards, team cards and the blog tiles qualify: each has a stretched
+          link over the card. Every other rail row is colour only.</td></tr>
+      <tr><td>7 &middot; Width and gap</td><td><b>380px rail, 24px between boxes</b></td>
+        <td>The listing rail keeps its step to 340px below 1536: its main column carries a
+          gallery with a fixed thumbnail strip, and the five-stat row below 1279 uses
+          max-content tracks that overflow rather than reflow.</td></tr>
+      <tr><td>8 &middot; Fills</td><td><b>All three allowed</b> &mdash; PC Soft White, PC Navy, PC Black</td>
+        <td>Soft White is the default; Navy carries weight; Black marks a transaction.</td></tr>
+    </table>
+    <p style="font-family:var(--font-sans);font-size:14px;line-height:1.6;color:var(--color-text-muted);margin:var(--space-5) 0 0">
+      The three devices in section 3 &mdash; the region pill, the whole-card link and the team
+      rail's PC Blue cap rule &mdash; stand as they are.</p>
+    <p style="font-family:var(--font-sans);font-size:14px;line-height:1.6;color:var(--color-text-muted);margin:var(--space-3) 0 0">
+      <b>Left alone, still yours to call:</b> the listing agent card's 22px name and 13px copy;
+      contact's navy Corporate Office card (48px padding, 18px address), which is a full-width
+      card rather than a rail box; and contact's photo frame, which keeps 16px corners.</p>
+  </section>
+
+  <!-- ============ the four, as built ============ -->
+  <section class="rv-sec">
+    <h2>1. The four rails as they are today</h2>
+    <p>Shown at their real widths, in their real materials, <strong>with the three settled
+      decisions already applied</strong>. What is left to judge below is type, hover and
+      fills. Scroll sideways if the row runs past the window.</p>
+
+    <div class="rv-rails">
+
+      <div class="rv-rail A">
+        <p class="rv-tag">A · blog-story.html<span>the standard: 380px · 12px corners · 24/24/32</span></p>
+        <div class="box">
+          <h4>Recent Posts</h4>
+          <a class="row" href="#"><span class="t">Iowa Land Values Update, 2026 Q2</span><span class="d">June 30, 2026</span></a>
+          <a class="row" href="#"><span class="t">Land Auction Results, June 2026</span><span class="d">June 18, 2026</span></a>
+          <a class="row" href="#"><span class="t">Global Agriculture Lessons from a Nuffield Scholar</span><span class="d">May 22, 2026</span></a>
+        </div>
+        <div class="box">
+          <h4>Categories</h4>
+          <a class="row" href="#"><span class="t">Land Values</span></a>
+          <a class="row" href="#"><span class="t">Agriculture</span></a>
+        </div>
+      </div>
+
+      <div class="rv-rail B">
+        <p class="rv-tag">B · contact.html<span>the standard, + the 20px office-card title addendum</span></p>
+        <div class="box">
+          <h4>Get In Touch</h4>
+          <p class="big">Whether you are selling, investing, or managing farmland, our local
+            team members are ready to serve.</p>
+        </div>
+        <div class="card">
+          <span class="pill">Midwest</span>
+          <h5>Cumming, Iowa</h5>
+          <p class="addr">1108 S. 44th Street, Suite 102<br />855.800.5263</p>
+        </div>
+        <div class="card">
+          <span class="pill">Delta</span>
+          <h5>Jonesboro, Arkansas</h5>
+          <p class="addr">2703 Browns Lane, Suite E<br />870.336.1259</p>
+        </div>
+      </div>
+
+      <div class="rv-rail C">
+        <p class="rv-tag">C · careers pair<span>the standard</span></p>
+        <div class="box navy">
+          <h4>Why Work With Us</h4>
+          <dl>
+            <div>
+              <dt>Industry Experience</dt>
+              <dd>Six decades of expertise and the nation's leading farmland services platform.
+                <a class="lnk" href="#">About Peoples Company &rarr;</a></dd>
+            </div>
+            <div>
+              <dt>Collaborative Culture</dt>
+              <dd>175+ team members across 24 offices, working under one philosophy.
+                <a class="lnk" href="#">Explore our culture &rarr;</a></dd>
+            </div>
+          </dl>
+        </div>
+        <div class="box">
+          <h4>Other Open Positions</h4>
+          <p style="font-family:var(--font-sans);font-size:14px;color:var(--color-text-muted);margin:0">
+            Nine rows, serif 16 title over sans 12 location.</p>
+        </div>
+      </div>
+
+      <div class="rv-rail D">
+        <p class="rv-tag">D · listing detail<span>the standard, + the 340px step-down and the bid-card addendums</span></p>
+        <div class="box">
+          <p class="eyebrow">Live Auction</p>
+          <p class="date">September 15, 2026</p>
+          <p class="time">10:00 AM CT &middot; 2 tracts</p>
+          <dl>
+            <div><dt>Location</dt><dd>Wayne County, Iowa</dd></div>
+            <div><dt>Acres</dt><dd>136.57 &plusmn;</dd></div>
+          </dl>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ decision sheet ============ -->
+  <section class="rv-sec">
+    <h2>2. The decisions</h2>
+    <p>All eight are answered. The winner in each row carries a navy ring; the options that
+      lost are kept visible so the record of what was considered survives.</p>
+
+    <!-- 1 -->
+    <div class="rv-dec rv-done">
+      <h3>Decision 1 &middot; Corner radius <span class="rv-badge">Decided &middot; 12px</span></h3>
+      <p class="rv-q">12px or 16px, on every rail box. <b>12px won and is applied.</b></p>
+      <div class="rv-opts">
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp rv-pick" style="border-radius:var(--radius-md);padding:var(--space-5)">
+            <p class="ttl" style="font-size:22px">12px corners</p>
+            <p>--radius-md. Tighter, reads as a document panel.</p>
+          </div>
+          <figcaption><b>Used now by</b> blog-story, careers, team member cards.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:16px;padding:var(--space-5)">
+            <p class="ttl" style="font-size:22px">16px corners</p>
+            <p>--radius-lg. Softer, reads as a product card.</p>
+          </div>
+          <figcaption><b>Used now by</b> contact cards, listing bid card, the contact photo frame.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="rv-dec rv-done">
+      <h3>Decision 2 &middot; Padding inside the box <span class="rv-badge">Decided &middot; 24 / 24 / 32</span></h3>
+      <p class="rv-q">Even on all sides, or heavier at the foot. <b>24 / 24 / 32 won and is
+        applied</b> - the asymmetric version stops the last row sitting hard against the
+        bottom edge.</p>
+      <div class="rv-opts">
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp rv-pick" style="border-radius:var(--radius-md);padding:var(--space-5) var(--space-5) var(--space-6)">
+            <p class="ttl" style="font-size:22px">24 / 24 / 32</p>
+            <p>Sides and top 24, foot 32.</p>
+          </div>
+          <figcaption><b>Used now by</b> blog-story, careers.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-6)">
+            <p class="ttl" style="font-size:22px">32 all round</p>
+            <p>Even. More air, taller boxes.</p>
+          </div>
+          <figcaption><b>Used now by</b> contact cards. The contact navy card runs 48.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5)">
+            <p class="ttl" style="font-size:22px">24 all round</p>
+            <p>Even and tight.</p>
+          </div>
+          <figcaption><b>Used now by</b> listing bid card, team member cards, contact office cards.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="rv-dec rv-done">
+      <h3>Decision 3 &middot; The block heading <span class="rv-badge">Decided</span></h3>
+      <p class="rv-q">The biggest visual difference between the rails. Four treatments are
+        in the build today.</p>
+      <div class="rv-opts">
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5) var(--space-5) var(--space-6)">
+            <p class="ttl" style="font-size:22px;padding-bottom:var(--space-3);border-bottom:1px solid var(--color-border);margin-bottom:var(--space-3)">Recent Posts</p>
+            <p>Serif 22px over a hairline rule.</p>
+          </div>
+          <figcaption><b>Used now by</b> blog-story, careers.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5) var(--space-5) var(--space-6)">
+            <p class="ttl" style="font-size:24px;margin-bottom:var(--space-4)">Recent Posts</p>
+            <p>Serif 24px, no rule.</p>
+          </div>
+          <figcaption><b>Used now by</b> contact.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5) var(--space-5) var(--space-6)">
+            <p style="font-family:var(--font-sans);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--pc-navy);margin:0 0 var(--space-4);padding-bottom:10px;border-bottom:1px solid var(--pc-light-blue)">Recent Posts</p>
+            <p>Inter 12px uppercase over a hairline.</p>
+          </div>
+          <figcaption><b>Used now by</b> team member rail (which you have kept as is).</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5);background:var(--pc-black)">
+            <p style="font-family:var(--font-sans);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--pc-blue);margin:0 0 var(--space-2)">Live Auction</p>
+            <p style="font-family:var(--font-serif);font-size:26px;font-weight:600;line-height:1.15;color:var(--pc-white);margin:0">September 15, 2026</p>
+          </div>
+          <figcaption><b>Used now by</b> listing bid card: an 11px eyebrow with a 26px serif line under it, rather than a heading.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="rv-dec rv-done">
+      <h3>Decision 4 &middot; Item title inside a box <span class="rv-badge">Decided</span></h3>
+      <p class="rv-q">The name of a post, an office, a job, a person.</p>
+      <div class="rv-opts">
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5)">
+            <p class="ttl" style="font-size:16px;line-height:1.25">Iowa Land Values Update, 2026 Q2</p>
+            <p style="font-size:12px;margin-top:5px">June 30, 2026</p>
+          </div>
+          <figcaption><b>Serif 16 over 12px meta.</b> Used now by blog-story, careers.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5)">
+            <p class="ttl" style="font-size:20px;line-height:1.25">Cumming, Iowa</p>
+            <p style="font-size:12px;margin-top:5px">1108 S. 44th Street, Suite 102</p>
+          </div>
+          <figcaption><b>Serif 20 over 12px meta.</b> Used now by contact office cards.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="rv-dec rv-done">
+      <h3>Decision 5 &middot; Body copy size in a rail <span class="rv-badge">Decided</span></h3>
+      <p class="rv-q">A sentence or two of real prose, sitting in a rail box.</p>
+      <div class="rv-opts">
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5)">
+            <p style="font-size:14px;line-height:1.55">Whether you are selling, investing, or
+              managing farmland, our local team members are ready to serve.</p>
+          </div>
+          <figcaption><b>14px.</b> Used now by blog-story links, careers.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5)">
+            <p style="font-size:18px;line-height:1.8">Whether you are selling, investing, or
+              managing farmland, our local team members are ready to serve.</p>
+          </div>
+          <figcaption><b>18px.</b> Used now by contact.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="rv-dec rv-done">
+      <h3>Decision 6 &middot; Hover behaviour <span class="rv-badge">Decided</span></h3>
+      <p class="rv-q">Hover over both. One moves, one does not.</p>
+      <div class="rv-opts">
+        <figure class="rv-opt" style="margin:0">
+          <div class="B" style="width:340px">
+            <div class="card" style="margin:0">
+              <h5>Cumming, Iowa</h5>
+              <p class="addr">Lifts 3px with a soft shadow.</p>
+            </div>
+          </div>
+          <figcaption><b>Lift and shadow.</b> Used now by contact office cards and the team cards.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="A" style="width:340px">
+            <div class="box">
+              <a class="row" href="#" style="border-bottom:0;padding:0"><span class="t">Colour change only, no movement</span><span class="d">June 30, 2026</span></a>
+            </div>
+          </div>
+          <figcaption><b>Colour only.</b> Used now by blog-story rows, careers rows.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="rv-dec rv-done">
+      <h3>Decision 7 &middot; Rail width and the gap between boxes
+        <span class="rv-badge">Decided &middot; 380px, 24px gap</span></h3>
+      <p class="rv-q"><b>380px and a 24px gap, applied.</b></p>
+      <div class="rv-opts">
+        <figure class="rv-opt" style="margin:0;max-width:none">
+          <p class="rv-ruler">380px &mdash; the standard</p>
+          <div class="rv-bar rv-pick" style="width:380px">all four rails</div>
+          <p class="rv-ruler" style="margin-top:22px">340px &mdash; stated addendum</p>
+          <div class="rv-bar" style="width:340px">listing detail, 1535 and below</div>
+          <figcaption><b>Width &middot; settled</b> blog-story and careers came down from 390.
+            The listing rail keeps its step-down as a named exception.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-4);text-align:center">24px gap</div>
+          <div style="height:24px"></div>
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-4);text-align:center">between boxes</div>
+          <figcaption><b>24px.</b> blog-story, careers.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-4);text-align:center">32px gap</div>
+          <div style="height:32px"></div>
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-4);text-align:center">between boxes</div>
+          <figcaption><b>32px.</b> contact.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="rv-dec rv-done">
+      <h3>Decision 8 &middot; Fills a rail box may take <span class="rv-badge">Decided</span></h3>
+      <p class="rv-q">Three grounds are in use. The question is which are allowed, and what
+        each one means when a reader sees it.</p>
+      <div class="rv-opts">
+        <figure class="rv-opt" style="margin:0">
+          <div class="sp" style="border-radius:var(--radius-md);padding:var(--space-5)">
+            <p class="ttl" style="font-size:22px">PC Soft White</p>
+            <p>The default. Everywhere.</p>
+          </div>
+          <figcaption><b>Soft White on a Light Blue hairline.</b> All four rails use it.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div style="border-radius:var(--radius-md);padding:var(--space-5);background:var(--pc-navy);width:340px">
+            <p style="font-family:var(--font-serif);font-weight:500;font-size:22px;color:var(--pc-light-blue);margin:0 0 6px">PC Navy</p>
+            <p style="font-family:var(--font-sans);font-size:14px;line-height:1.55;color:var(--pc-white);margin:0">Used when a block should carry weight.</p>
+          </div>
+          <figcaption><b>Navy.</b> Contact's Corporate Office card, the careers Why Work With Us card, the homepage Who We Serve band.</figcaption>
+        </figure>
+        <figure class="rv-opt" style="margin:0">
+          <div style="border-radius:var(--radius-md);padding:var(--space-5);background:var(--pc-black);width:340px">
+            <p style="font-family:var(--font-sans);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--pc-blue);margin:0 0 6px">PC Black</p>
+            <p style="font-family:var(--font-sans);font-size:14px;line-height:1.55;color:var(--pc-white);margin:0">Used when a block is a transaction, not a sidebar.</p>
+          </div>
+          <figcaption><b>Black.</b> The listing bid card only.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ addendums ============ -->
+  <section class="rv-sec">
+    <h2>3. The addendums to name</h2>
+    <p>Three devices exist on some rails and not others. Each is either part of the standard,
+      allowed as a named exception, or dropped.</p>
+
+    <div class="rv-dec">
+      <h3>The region pill</h3>
+      <p class="rv-q">10px uppercase on PC Light Blue, the smallest type on the site. Contact's
+        office cards only.</p>
+      <div class="B"><span class="pill">Midwest</span></div>
+    </div>
+
+    <div class="rv-dec">
+      <h3>The whole-card link</h3>
+      <p class="rv-q">The heading's link is stretched over the whole card, so the card is one
+        big target and the phone number inside stays separately clickable. Contact's office
+        cards and the team cards. Everywhere else, a rail row is an ordinary link.</p>
+    </div>
+
+    <div class="rv-dec">
+      <h3>The PC Blue cap rule</h3>
+      <p class="rv-q">A 3px PC Blue border along the top of each card, repeating the tab
+        underline. Team member rail only, which you have kept as is.</p>
+      <div style="width:340px;background:var(--pc-soft-white);border:1px solid var(--pc-light-blue);border-top:3px solid var(--pc-blue);border-radius:var(--radius-md);padding:var(--space-5)">
+        <p style="font-family:var(--font-sans);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--pc-navy);margin:0">At A Glance</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="rv-foot">Standalone review page. Not linked from the dev index, and nothing on it
+    changes a live page &mdash; it reads the same <code>pc.css</code> every page reads.</p>
+
+</div>
+</body>
+</html>
