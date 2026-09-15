@@ -45,6 +45,10 @@
                          where that colour is legible as type on white, PC Navy where it
                          is not. Accents inside the tract window use it.
 
+         --lp-agent-ph   the agent portrait's diameter on the Contact cards. One number;
+                         the photograph is square-cropped to it and the text column takes
+                         whatever is left. Raise it for a larger look.
+
        The pair lives on .lp-body rather than on the sub nav because more than the sub nav
        uses it - anything wanting the listing's colour inherits from here.
        =========================================================================== */
@@ -58,7 +62,8 @@
       --lp-navbg: #6B4423;
       --lp-navfg: #FFFFFF;
       --lp-navink: #6B4423;
-      --lp-jump-h: 53px; }
+      --lp-jump-h: 53px;
+      --lp-agent-ph: 128px; }
     .lp-body{ background: var(--pc-white); }
 
     /* ---- HERO: full bleed, fixed height ---- */
@@ -427,14 +432,43 @@
        rail there and about 440px here at three-up, so the portrait was reading small
        against the width it now has. Information is unchanged - see the job title below,
        which is the one field the standard card does not carry. */
-    .lp-agents .ld-agent{ grid-template-columns: 96px minmax(0, 1fr); }
-    .lp-agents .ld-agent img{ width: 96px; height: 96px; }
+    /* THE PORTRAIT COLUMN IS A DIAL, NOT A NUMBER IN THIS RULE. --lp-agent-ph is declared
+       with the rest of the page's settings at the top of this block, so the photograph is
+       resized by editing one value there and the text column takes whatever is left.
+       Larger than the 68px of the standard pages, where the same card sits in a ~340px
+       rail rather than the ~440px it has here at three-up. */
+    .lp-agents .ld-agent{ grid-template-columns: var(--lp-agent-ph) minmax(0, 1fr); }
+    .lp-agents .ld-agent img{ width: var(--lp-agent-ph); height: var(--lp-agent-ph); }
+
+    /* EVERY LINE OF TYPE STARTS ON ONE EDGE: the second column's. The standard card spans
+       the name across both columns, so it begins at the photograph's left edge while the
+       phone block below begins at the text column's - two different left edges in one
+       card. Here the name, the job title and the contact block are all placed in column 2
+       and the photograph spans the three rows beside them, so the card has a single text
+       edge and the portrait can grow without moving it. */
+    .lp-agents .ld-agent > img{ grid-column: 1; grid-row: 1 / span 3; }
+    .lp-agents .ld-agent > h4,
+    .lp-agents .ld-agent > .lp-agent-role,
+    .lp-agents .ld-agent > div{ grid-column: 2; }
+
+    /* At one card per row the portrait column and a readable text column no longer both
+       fit, so the photograph moves above the type and everything runs in one column. The
+       span has to be undone explicitly - a grid-row span left in place would hold the
+       photograph across rows that are no longer beside it. */
+    @media (max-width: 559px){
+      .lp-agents .ld-agent{ grid-template-columns: minmax(0, 1fr); }
+      .lp-agents .ld-agent > img{ grid-row: auto; }
+      .lp-agents .ld-agent > img,
+      .lp-agents .ld-agent > h4,
+      .lp-agents .ld-agent > .lp-agent-role,
+      .lp-agents .ld-agent > div{ grid-column: 1; }
+    }
 
     /* THE JOB TITLE. The field the standard listing pages leave out; it is the same
        `role` the team cards show, set the same way. It sits under the name and above the
        phone block, so the name, what the person does and how to reach them read in that
        order. */
-    .lp-agent-role{ grid-column: 1 / -1; font-family: var(--font-sans);
+    .lp-agent-role{ font-family: var(--font-sans);
       font-size: var(--label); font-weight: 600; letter-spacing: .04em;
       text-transform: uppercase; color: var(--lp-navink); margin: -4px 0 0; }
 
