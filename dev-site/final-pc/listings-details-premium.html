@@ -148,15 +148,30 @@
        breaks the moment the links wrap, because the last row's two or three items get
        flung to opposite edges. */
     .lp-jump-inner{ display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); }
-    .lp-jump a{ flex: 1 1 0; min-width: max-content;
+
+       TWO OF THE EIGHT ARE BUTTONS, NOT LINKS. Photos and Downloads open a window over the
+       page instead of scrolling to a section, so they are <button>s - there is nothing on
+       the page for them to jump to. They are styled identically and sit in the same
+       division, so the bar reads as one row of eight either way; the element is chosen by
+       what the control does, not by how it looks. */
+    .lp-jump a, .lp-jump button{ flex: 1 1 0; min-width: max-content;
       display: inline-flex; align-items: center; justify-content: center; padding: 15px 0;
       font-family: var(--font-sans); font-size: var(--body); font-weight: 500;
       letter-spacing: .02em; color: var(--lp-navfg); text-decoration: none;
-      border-bottom: 3px solid transparent; }
+      border-bottom: 3px solid transparent;
+      /* STATED, NOT INHERITED. A <button> does not inherit line-height - it gets
+         `normal` - so without this the two buttons' cells come out a few px shorter than
+         the six links' and their hover underline sits above the others'. */
+      line-height: 1.5; }
+    /* The button needs the three declarations a link does not: browsers give it their own
+       ground, border and cursor. */
+    .lp-jump button{ background: transparent; border-top: 0; border-left: 0; border-right: 0;
+      cursor: pointer; }
     /* Hover and focus draw in the type's own colour rather than a build accent: an
        accent picked here would sit on an unknown ground and could fail against it. */
-    .lp-jump a:hover{ border-bottom-color: currentColor; }
-    .lp-jump a:focus-visible{ outline: 2px solid currentColor; outline-offset: -2px; }
+    .lp-jump a:hover, .lp-jump button:hover{ border-bottom-color: currentColor; }
+    .lp-jump a:focus-visible, .lp-jump button:focus-visible{ outline: 2px solid currentColor;
+      outline-offset: -2px; }
 
     /* ---- content rail ---- */
     .lp-wrap{ max-width: var(--site); margin: 0 auto;
@@ -211,6 +226,57 @@
 
     .lp-h2{ margin: 0 0 var(--space-3); }
     .lp-section{ padding-top: var(--space-8); }
+
+    /* ---- MAP ----
+       ONE RECTANGULAR MAP, THE FULL WIDTH OF THE RAIL. Same module and the same shape as
+       Location on the standard listing detail pages; it is taller here because it has the
+       whole rail rather than a column beside a sticky agent card.
+       A stated height, not an aspect ratio: the module draws its own tiles and wants a box
+       to draw into, and at rail width an aspect ratio would push the map past the fold at
+       the wide end of the ladder.
+       NO ADDRESS AND NO DIRECTIONS on this page - the map is the whole section. */
+    .lp-mapbox{ height: 520px; border-radius: var(--radius-md);
+      background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      padding: var(--space-5); font-family: var(--font-sans); font-size: 14px;
+      font-weight: 500; color: var(--pc-navy); }
+
+    /* ---- VIDEO: THREE ACROSS, ONE ROW ----
+       The standard pages run two; the premium rail takes three. Each keeps its own
+       sub heading, so a listing with fewer videos renders fewer items and the row closes
+       up with no other edit. Two columns in the middle band, one at the bottom. */
+    .lp-videos{ display: grid; gap: var(--space-6);
+      grid-template-columns: minmax(0, 1fr); }
+    @media (min-width: 700px){
+      .lp-videos{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 1100px){
+      .lp-videos{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    .lp-videoitem .ld-dl-head{ margin: 0 0 var(--space-2); }
+    .lp-video{ position: relative; aspect-ratio: 16 / 9; overflow: hidden;
+      border-radius: var(--radius-md); background: var(--pc-black);
+      border: 1px solid var(--color-border); }
+    .lp-video iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    /* ---- 360 TOUR ----
+       THE STANDARD PAGES' TREATMENT, 4 / 3 INCLUDED. The one addition is the width cap:
+       on the standard pages the tour sits in a column about 950px wide, so 4 / 3 lands
+       around 712px tall. Left uncapped on the premium rail the same ratio would be over
+       1000px tall and nothing below it would be on screen. The cap holds the embed at the
+       size it has on the auction page rather than changing its shape. */
+    .lp-embed{ position: relative; aspect-ratio: 4 / 3; max-width: 950px;
+      overflow: hidden; border-radius: var(--radius-md); background: var(--pc-black);
+      border: 1px solid var(--color-border); }
+    .lp-embed iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    /* ---- DOWNLOADS: the list inside the downloads window ----
+       .ld-dl already styles the rows (it is used by the tract window). These two are the
+       odd-count correction and the italic note, both verbatim from the standard pages. */
+    .ld-dl-odd li:nth-last-child(-n+2){ border-bottom: 1px solid var(--color-border); }
+    .ld-dl-odd li:last-child{ border-bottom: 0; }
+    .ld-dl-note{ font-family: var(--font-sans); font-style: italic; font-size: 14px;
+      line-height: 1.5; color: var(--color-text-muted); margin: 0; }
 
     /* ---- THE TRACT WINDOW ----
        LIFTED VERBATIM FROM THE OTHER LISTING DETAIL PAGES, class names included. It is
@@ -301,6 +367,36 @@
     .ld-tdir:hover{ color: var(--pc-black); border-bottom-color: var(--pc-black); }
     .ld-tdir:focus-visible{ outline: 2px solid var(--lp-navink); outline-offset: 2px; }
     .ld-tdir svg{ width: 12px; height: 12px; flex: none; }
+
+    /* ---- THE PHOTO VIEWER ----
+       LIFTED VERBATIM FROM THE STANDARD LISTING DETAIL PAGES, class names included, for
+       the same reason the tract window was: it is the same component. It is what Photos in
+       the sub nav opens, and it is the experience "View all 18 photos" gives on the
+       auction page.
+       UNLIKE THE TRACT WINDOW, THIS ONE DOES NOT WEAR THE LISTING'S COLOURS. It is a
+       darkened room around a photograph; a listing's ground behind the image would tint
+       the photograph it exists to show. Do not wire --lp-navbg into it. */
+    .xlb[hidden]{ display: none; }
+    .xlb{ position: fixed; inset: 0; z-index: 200; display: flex; align-items: center;
+      justify-content: center; background: rgba(7,22,44,.94); padding: var(--space-5); }
+    .xlb-img{ max-width: min(800px, 88vw); max-height: min(600px, 80vh);
+      object-fit: contain; border-radius: var(--radius-sm); margin: 0 auto; }
+    .xlb-x, .xlb-prev, .xlb-next{ position: absolute; width: 48px; height: 48px; border: 0;
+      cursor: pointer; border-radius: var(--radius-pill); background: rgba(255,255,255,.14);
+      color: var(--pc-white); font-size: 22px; line-height: 1; }
+    .xlb-x:hover, .xlb-prev:hover, .xlb-next:hover{ background: rgba(255,255,255,.28); }
+    .xlb-x{ top: 20px; right: 20px; }
+    .xlb-prev{ left: 20px; top: 50%; transform: translateY(-50%); }
+    .xlb-next{ right: 20px; top: 50%; transform: translateY(-50%); }
+    .xlb-x:focus-visible, .xlb-prev:focus-visible, .xlb-next:focus-visible{
+      outline: 3px solid var(--pc-white); outline-offset: 2px; }
+    .xlb-count{ position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-sans); font-size: 13px; color: var(--pc-light-blue); }
+
+    /* The downloads window is the TRACT window, narrower. It uses .xtw-* wholesale and
+       overrides only the width, because its contents are one list rather than a map
+       carousel beside a fact table. */
+    .xtw-narrow .xtw-box{ width: min(620px, 100%); }
 
     /* ---- narrow ----
        Heading and logo stop sharing the bottom row and stack, logo above the heading so
@@ -415,8 +511,10 @@
             <a href="#lp-map">Map</a>
             <a href="#lp-video">Video</a>
             <a href="#lp-tour">360 Tour</a>
-            <a href="#lp-photos">Photos</a>
-            <a href="#lp-downloads">Downloads</a>
+            <!-- BUTTONS, NOT LINKS. Neither of these has a section on the page: Photos
+                 opens the photo viewer and Downloads opens a window, both over the page. -->
+            <button type="button" id="lpPhotos" aria-haspopup="dialog">Photos</button>
+            <button type="button" id="lpDownloads" aria-haspopup="dialog">Downloads</button>
             <a href="#lp-contact">Contact</a>
             <a href="#lp-dataroom">Data Room</a>
           </div>
@@ -471,9 +569,7 @@
            target="_blank" rel="noopener">Download Brochure</a>
       </section>
 
-      <!-- CONTENT GOES HERE. The eight sections below are empty anchor shells so the jump
-           links above have somewhere to land; nothing has been designed into them yet.
-           They are in sub nav order. -->
+      <!-- The sections below are in sub nav order. -->
       <section id="lp-tracts" class="lp-section reveal" aria-labelledby="lp-tracts-h">
         <h2 id="lp-tracts-h" class="lp-h2">Tracts</h2>
         <p class="lp-copy">Click a tract below for individual maps and more information.</p>
@@ -481,11 +577,76 @@
         <noscript><p class="lp-copy">The tract index is built by script. Server-render one
           line per tract, each opening that tract&rsquo;s detail.</p></noscript>
       </section>
-      <section id="lp-map"></section>
-      <section id="lp-video"></section>
-      <section id="lp-tour"></section>
-      <section id="lp-photos"></section>
-      <section id="lp-downloads"></section>
+
+      <!-- ==== MAP ==== -->
+      <!-- The map module is not in this mock-up. The box below is the shape, the size and
+           the place it goes. No address and no directions here, unlike Location on the
+           standard listing detail pages. -->
+      <section id="lp-map" class="lp-section reveal" aria-labelledby="lp-map-h">
+        <h2 id="lp-map-h" class="lp-h2">Map</h2>
+        <div class="lp-mapbox">Property map placeholder &mdash; the FarmWorth map module
+          drops in here, the full width of the rail at 520px tall. See
+          developer-listing-premium.md for the spec.</div>
+      </section>
+
+      <!-- ==== VIDEO ==== -->
+      <!-- THREE ITEMS, ONE ROW. All three embeds are the same representative YouTube
+           source: this listing has no video of its own in the mock-up data. A real page
+           renders one item per video on the record. -->
+      <section id="lp-video" class="lp-section reveal" aria-labelledby="lp-video-h">
+        <h2 id="lp-video-h" class="lp-h2">Video</h2>
+
+        <div class="lp-videos">
+          <div class="lp-videoitem">
+            <h3 class="ld-dl-head">Property video</h3>
+            <div class="lp-video">
+              <iframe src="https://www.youtube.com/embed/BWOnAtdCcu8"
+                      title="Peoples Company property video (representative example)"
+                      loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+          </div>
+          <div class="lp-videoitem">
+            <h3 class="ld-dl-head">Aerial tour</h3>
+            <div class="lp-video">
+              <iframe src="https://www.youtube.com/embed/BWOnAtdCcu8"
+                      title="Peoples Company aerial tour (representative example, same source as the video above)"
+                      loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+          </div>
+          <div class="lp-videoitem">
+            <h3 class="ld-dl-head">Vineyard walkthrough</h3>
+            <div class="lp-video">
+              <iframe src="https://www.youtube.com/embed/BWOnAtdCcu8"
+                      title="Peoples Company vineyard walkthrough (representative example, same source as the two videos above)"
+                      loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==== 360 TOUR ==== -->
+      <!-- The standard pages' section, copy included. A borrowed tour, from listing 19482. -->
+      <section id="lp-tour" class="lp-section reveal" aria-labelledby="lp-tour-h">
+        <h2 id="lp-tour-h" class="lp-h2">360 Tour</h2>
+        <p class="lp-copy">Use the 360 degree interactive tour to view the property from every
+          angle. Click a vantage point to jump to a different part of the property, then click,
+          hold and drag to look around.</p>
+
+        <div class="lp-embed">
+          <iframe src="https://tours.picyourhouse.net/tours/moiGwBEjz"
+                  title="360 degree interactive tour (representative example, borrowed from listing 19482)"
+                  loading="lazy" allowfullscreen></iframe>
+        </div>
+      </section>
+
+      <!-- PHOTOS AND DOWNLOADS HAVE NO SECTION HERE, DELIBERATELY. Both are windows the sub
+           nav opens over the page: the photo viewer (div.xlb) and the downloads window
+           (div.xtw-narrow), each a sibling of <main> at the end of the document. The two
+           shells that used to sit here were removed rather than left empty, so there is no
+           dead anchor on the page. -->
       <section id="lp-contact"></section>
       <section id="lp-dataroom"></section>
 
@@ -636,6 +797,42 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ==== DOWNLOADS WINDOW ==== -->
+  <!-- WHAT "DOWNLOADS" IN THE SUB NAV OPENS. The tract window's shell, narrower, with the
+       listing-level downloads list inside it - the same list and the same italic note the
+       standard listing detail pages carry under their Downloads accordion. It wears the
+       listing's colours for the same reason the tract window does. -->
+  <div class="xtw xtw-narrow" id="lpdw" hidden role="dialog" aria-modal="true" aria-labelledby="lpdwTitle">
+    <div class="xtw-box">
+      <div class="xtw-bar">
+        <h2 id="lpdwTitle">Downloads</h2>
+        <button class="xtw-x" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="xtw-body">
+        <ul class="ld-dl ld-dl-odd">
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/19278_Wallula%20Vineyard%20Brochure.pdf" target="_blank" rel="noopener"><span class="n">Marketing Brochure</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Soils%20Map.pdf" target="_blank" rel="noopener"><span class="n">Soils Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Slope%20Map.pdf" target="_blank" rel="noopener"><span class="n">Slope Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Aspect%20Map.pdf" target="_blank" rel="noopener"><span class="n">Aspect Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Elevation%20Map.pdf" target="_blank" rel="noopener"><span class="n">Elevation Map</span><span class="m">PDF</span></a></li>
+        </ul>
+        <p class="ld-dl-note">Refer to the individual tract details for tract-specific
+          downloadable files.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==== PHOTO VIEWER ==== -->
+  <!-- WHAT "PHOTOS" IN THE SUB NAV OPENS. The same component, markup included, that "View
+       all N photos" opens on the standard listing detail pages. -->
+  <div class="xlb" id="xlb" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="xlb-x" type="button" aria-label="Close">&#10005;</button>
+    <button class="xlb-prev" type="button" aria-label="Previous photo">&#8249;</button>
+    <figure><img class="xlb-img" alt="" /></figure>
+    <button class="xlb-next" type="button" aria-label="Next photo">&#8250;</button>
+    <div class="xlb-count"></div>
   </div>
 
   <script>
@@ -1094,6 +1291,112 @@
       /* Backdrop only: a click inside .xtw-box never reaches here and cannot close the
          window by accident. */
       box.addEventListener("click", function(e){ if(e.target === box) close(); });
+    })();
+
+    /* ==== PHOTO VIEWER ====
+       WHAT "PHOTOS" IN THE SUB NAV OPENS, and the same module the standard listing detail
+       pages run behind "View all N photos". Lifted from them, so the two behave alike:
+       Esc closes, left and right page, the backdrop closes, focus lands on the close
+       button and returns to whatever opened it.
+       It shares pcScrollLock with the tract window, the downloads window and the hamburger
+       drawer, so an open viewer can never leave the page underneath unlocked. */
+    (function(){
+      var box = document.getElementById("xlb"),
+          trig = document.getElementById("lpPhotos");
+      if(!box || !trig) return;
+
+      /* This listing's photographs. The SAME nine files the tract window uses as stand-in
+         maps - the listing has one image set and both readers draw from it. A real page
+         renders the ordered set on the record. */
+      var PB = "https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_";
+      var PHOTOS = [
+        { f: "DJI_0696.jpg", cap: "The vineyard blocks from the south" },
+        { f: "DJI_0741.jpg", cap: "Riesling blocks and open ground" },
+        { f: "DJI_0745.jpg", cap: "Looking north across the plantable acres" },
+        { f: "DJI_0749.jpg", cap: "Vineyard rows at the centre of the offering" },
+        { f: "DJI_0750.jpg", cap: "Open ground in the north east" },
+        { f: "DJI_0843.jpg", cap: "The Columbia River frontage" },
+        { f: "DJI_0848.jpg", cap: "The pumping station on the river" },
+        { f: "DJI_0858.jpg", cap: "Blocks in various stages of removal" },
+        { f: "DJI_0923.jpg", cap: "The offering from the west, river beyond" }
+      ].map(function(p){ return { src: PB + p.f, cap: p.cap }; });
+
+      var img = box.querySelector(".xlb-img"),
+          cnt = box.querySelector(".xlb-count"),
+          xbtn = box.querySelector(".xlb-x");
+      var i = 0, last = null;
+
+      function show(n){
+        i = (n + PHOTOS.length) % PHOTOS.length;
+        img.src = PHOTOS[i].src;
+        /* The photograph IS the content here, so it carries its caption as alt text
+           rather than being decorative. */
+        img.alt = PHOTOS[i].cap;
+        cnt.textContent = (i + 1) + " / " + PHOTOS.length;
+      }
+      img.onerror = function(){ img.removeAttribute("src"); img.alt = ""; };
+
+      function open(n, t){
+        last = t || null; show(n);
+        box.hidden = false; pcScrollLock.on();
+        xbtn.focus();
+        document.addEventListener("keydown", key);
+      }
+      function close(){
+        if(box.hidden) return;                     // idempotent: button, backdrop and Esc
+        box.hidden = true; pcScrollLock.off();
+        document.removeEventListener("keydown", key);
+        if(last) last.focus();
+      }
+      function key(e){
+        if(e.key === "Escape" || e.key === "Esc") close();
+        else if(e.key === "ArrowRight") show(i + 1);
+        else if(e.key === "ArrowLeft") show(i - 1);
+      }
+      xbtn.addEventListener("click", close);
+      box.querySelector(".xlb-prev").addEventListener("click", function(){ show(i - 1); });
+      box.querySelector(".xlb-next").addEventListener("click", function(){ show(i + 1); });
+      box.addEventListener("click", function(e){ if(e.target === box) close(); });
+
+      /* The sub nav's Photos button opens at the first photograph. */
+      trig.addEventListener("click", function(){ open(0, trig); });
+      /* Exposed the way the standard pages expose it, so anything else on the page can
+         open the set at a given index later. */
+      window.lpOpenPhoto = function(n){ open(n, null); };
+    })();
+
+    /* ==== DOWNLOADS WINDOW ====
+       WHAT "DOWNLOADS" IN THE SUB NAV OPENS. The contents are static markup, so this is
+       only the open, the close and the focus handling - the same three the tract window
+       does, and the same shared scroll lock. No arrow keys: there is nothing to page. */
+    (function(){
+      var box = document.getElementById("lpdw"),
+          trig = document.getElementById("lpDownloads");
+      if(!box || !trig) return;
+      var xbtn = box.querySelector(".xtw-x"),
+          body = box.querySelector(".xtw-body");
+      var last = null;
+
+      function open(t){
+        last = t || null;
+        box.hidden = false; pcScrollLock.on();
+        if(body) body.scrollTop = 0;
+        xbtn.focus();
+        document.addEventListener("keydown", key);
+      }
+      function close(){
+        if(box.hidden) return;                     // idempotent, as above
+        box.hidden = true; pcScrollLock.off();
+        document.removeEventListener("keydown", key);
+        if(last) last.focus();
+      }
+      function key(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
+
+      xbtn.addEventListener("click", close);
+      /* Backdrop only, like the tract window: a click on a download row never reaches
+         here and cannot close the window out from under the click. */
+      box.addEventListener("click", function(e){ if(e.target === box) close(); });
+      trig.addEventListener("click", function(){ open(trig); });
     })();
 
   </script>
