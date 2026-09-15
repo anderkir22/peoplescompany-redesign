@@ -368,6 +368,83 @@
     .ld-tdir:focus-visible{ outline: 2px solid var(--lp-navink); outline-offset: 2px; }
     .ld-tdir svg{ width: 12px; height: 12px; flex: none; }
 
+    /* ---- THE AGENT CARD ----
+       LIFTED VERBATIM FROM THE STANDARD LISTING DETAIL PAGES, class names included, for
+       the same reason the tract window and the photo viewer were: it is the same
+       component, carrying the same fields. Everything page-local about it is in the block
+       below this one. */
+    .ld-agentcard{ border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+      background: var(--pc-soft-white); padding: var(--space-5); }
+    .ld-agent{ display: grid; grid-template-columns: 68px minmax(0, 1fr);
+      gap: var(--space-2) var(--space-4); align-items: start; }
+    .ld-agent img{ width: 68px; height: 68px; border-radius: 50%; object-fit: cover;
+      background: var(--pc-light-blue); }
+    .ld-agent h4{ grid-column: 1 / -1; font-family: var(--font-serif); font-weight: 500;
+      font-size: 22px; line-height: 1.2; margin: 0; }
+    .ld-agent p{ font-family: var(--font-sans); font-size: 13px; line-height: 1.7;
+      color: var(--color-text-muted); margin: 0; }
+    .ld-agent-lic{ font-size: 12px !important; line-height: 1.4 !important;
+      color: var(--pc-navy) !important; margin-top: var(--space-2) !important; }
+    .ld-agent a{ color: var(--pc-medium-blue); text-decoration: none; }
+    .ld-agent a:hover{ text-decoration: underline; }
+
+    /* ---- CONTACT: THE AGENT CARDS, SIDE BY SIDE ----
+       The standard listing detail pages stack their agents down a narrow sticky rail; this
+       page has the full content rail, so the cards run ACROSS it - one row, one card per
+       agent.
+
+       auto-fit, NOT a fixed column count. A premium listing carries two or three agents and
+       this one rule renders either: auto-fit drops the empty track, so two agents give two
+       equal cards and three give three, with no count anywhere in the CSS or the script.
+       minmax's 320px floor is what breaks the row to two-up and then one-up on the way
+       down the ladder. */
+    .lp-agents{ display: grid; gap: var(--space-5);
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+    /* The card is .ld-agentcard from the standard pages. What is page-local is only that
+       it stretches to its track's full height, so a card whose agent has a longer title
+       does not leave its neighbours short. */
+    .lp-agents .ld-agentcard{ height: 100%; }
+
+    /* 96px, NOT THE 68px OF THE STANDARD PAGES. The same card is roughly 340px wide in the
+       rail there and about 440px here at three-up, so the portrait was reading small
+       against the width it now has. Information is unchanged - see the job title below,
+       which is the one field the standard card does not carry. */
+    .lp-agents .ld-agent{ grid-template-columns: 96px minmax(0, 1fr); }
+    .lp-agents .ld-agent img{ width: 96px; height: 96px; }
+
+    /* THE JOB TITLE. The field the standard listing pages leave out; it is the same
+       `role` the team cards show, set the same way. It sits under the name and above the
+       phone block, so the name, what the person does and how to reach them read in that
+       order. */
+    .lp-agent-role{ grid-column: 1 / -1; font-family: var(--font-sans);
+      font-size: var(--label); font-weight: 600; letter-spacing: .04em;
+      text-transform: uppercase; color: var(--lp-navink); margin: -4px 0 0; }
+
+    /* ---- DATA ROOM ----
+       A gated section: the copy, then the login, then the fine print under it. The form is
+       PRESENTATION ONLY in this mock-up - it posts nowhere and it validates nothing. */
+    .lp-login{ display: grid; gap: var(--space-4); max-width: 420px;
+      margin: var(--space-6) 0 var(--space-5); }
+    .lp-field{ display: grid; gap: 6px; }
+    .lp-field label{ font-family: var(--font-sans); font-size: var(--label);
+      font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+      color: var(--pc-navy); }
+    .lp-field input{ font-family: var(--font-sans); font-size: var(--body);
+      padding: 12px var(--space-3); border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm); background: var(--pc-white);
+      color: var(--color-text); width: 100%; }
+    /* The focus ring is the LISTING'S colour, via the value the contrast script resolved
+       for type on white - so it is legible whatever ground the listing chose. */
+    .lp-field input:focus-visible{ outline: 2px solid var(--lp-navink); outline-offset: 1px;
+      border-color: var(--lp-navink); }
+    /* The button is the brochure pill's pair, for the reason given at .lp-btn: the
+       listing's two colours are the only combination on this page anyone has checked.
+       justify-self keeps it to its own width instead of stretching the grid's full 420px. */
+    .lp-login .lp-btn{ justify-self: start; }
+    .lp-fine{ font-family: var(--font-sans); font-style: italic; font-size: 14px;
+      line-height: 1.6; color: var(--color-text-muted); margin: 0; }
+
     /* ---- THE PHOTO VIEWER ----
        LIFTED VERBATIM FROM THE STANDARD LISTING DETAIL PAGES, class names included, for
        the same reason the tract window was: it is the same component. It is what Photos in
@@ -647,8 +724,97 @@
            (div.xtw-narrow), each a sibling of <main> at the end of the document. The two
            shells that used to sit here were removed rather than left empty, so there is no
            dead anchor on the page. -->
-      <section id="lp-contact"></section>
-      <section id="lp-dataroom"></section>
+
+      <!-- ==== CONTACT: THE LISTING'S AGENTS ==== -->
+      <!-- THREE CARDS HERE, BUT NOTHING IS BUILT FOR THREE. A premium listing carries two or
+           three agents and the grid renders either without an edit - see .lp-agents in the
+           style block. The card itself is the standard listing detail pages' agent card,
+           same fields, plus the job title those pages do not show. -->
+      <section id="lp-contact" class="lp-section reveal" aria-labelledby="lp-contact-h">
+        <h2 id="lp-contact-h" class="lp-h2">Contact</h2>
+        <p class="lp-copy">Contact any of the agents below for bid packets, tract-level data,
+          or to arrange a property tour.</p>
+
+        <div class="lp-agents">
+          <div class="ld-agentcard">
+            <div class="ld-agent">
+              <h4>Jared Chambers, CAI</h4>
+              <p class="lp-agent-role">Land Agent &amp; Auctioneer</p>
+              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/iwGX3X9aGpGJf3cvayrFjLbV0IWEoyqngqAnd39o.jpg"
+                   alt="" loading="lazy"
+                   onerror="this.removeAttribute('src');this.alt='';" />
+              <div>
+                <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
+                   Mobile <a href="tel:+16414140234">641.414.0234</a><br />
+                   <a href="mailto:Jared@PeoplesCompany.com">Jared@PeoplesCompany.com</a></p>
+                <p class="ld-agent-lic">Washington License: 128416</p>
+              </div>
+            </div>
+          </div>
+          <div class="ld-agentcard">
+            <div class="ld-agent">
+              <h4>Wendy Forthun, ALC</h4>
+              <p class="lp-agent-role">Land Broker</p>
+              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/05CWlx2ooGqoY0jayUQgiU9ojvh9XwY4hfHAzKiJ.jpg"
+                   alt="" loading="lazy"
+                   onerror="this.removeAttribute('src');this.alt='';" />
+              <div>
+                <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
+                   Mobile <a href="tel:+15074402180">507.440.2180</a><br />
+                   <a href="mailto:Wendy@PeoplesCompany.com">Wendy@PeoplesCompany.com</a></p>
+                <p class="ld-agent-lic">Washington License: 131207</p>
+              </div>
+            </div>
+          </div>
+          <div class="ld-agentcard">
+            <div class="ld-agent">
+              <h4>Andrew Zellmer, ALC</h4>
+              <p class="lp-agent-role">Senior Land Agent</p>
+              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/andrew-zellmer.jpg"
+                   alt="" loading="lazy"
+                   onerror="this.removeAttribute('src');this.alt='';" />
+              <div>
+                <p>Office <a href="tel:+18558005263">855.800.LAND</a><br />
+                   Mobile <a href="tel:+13095557412">309.555.7412</a><br />
+                   <a href="mailto:Andrew@PeoplesCompany.com">Andrew@PeoplesCompany.com</a></p>
+                <p class="ld-agent-lic">Washington License: 134882</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==== DATA ROOM ==== -->
+      <!-- PRESENTATION ONLY. The form has no action and no method and the script does not
+           touch it: nothing is submitted, nothing is validated and no credential is checked.
+           It is here to show the gate, not to be one. The real page posts to whatever holds
+           the due-diligence documents - see developer-listing-premium.md. -->
+      <section id="lp-dataroom" class="lp-section reveal" aria-labelledby="lp-dataroom-h">
+        <h2 id="lp-dataroom-h" class="lp-h2">Data Room</h2>
+        <p class="lp-copy">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+          fugiat nulla pariatur.</p>
+
+        <!-- The two fields carry autocomplete tokens so a password manager fills them, and
+             the password field is type="password" so it is masked. Both are real behaviours
+             a mock-up should still get right. -->
+        <form class="lp-login">
+          <div class="lp-field">
+            <label for="lpUser">Username</label>
+            <input type="text" id="lpUser" name="username" autocomplete="username" />
+          </div>
+          <div class="lp-field">
+            <label for="lpPass">Password</label>
+            <input type="password" id="lpPass" name="password" autocomplete="current-password" />
+          </div>
+          <button class="btn lp-btn" type="submit">Login</button>
+        </form>
+
+        <p class="lp-fine">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </section>
 
     </div>
   </main>
