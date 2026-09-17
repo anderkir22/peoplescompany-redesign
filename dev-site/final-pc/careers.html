@@ -497,6 +497,45 @@
       color: var(--color-text-muted); }
     .cj-reqnote .req{ font-weight: 700; color: var(--pc-medium-blue); }
     .cj-form .btn{ margin-top: var(--space-5); }
+
+    /* ==========================================================================
+       TEMPORARY - THE OPEN POSITION CARDS ARE BLANKED
+       --------------------------------------------------------------------------
+       Kiron, 2026-09-17: the card layout is not ready to be shown, so each of the
+       ten postings renders as an empty white box.
+
+       TO REVERT, DELETE THIS BLOCK. That is the whole change - the markup is
+       untouched, every posting and all seven of its fields are still in the page,
+       and no other rule was edited.
+
+       visibility:hidden, NOT display:none and NOT opacity:0, for three reasons:
+         - it STILL RESERVES THE SPACE, so every card keeps the exact height it had
+           and the 3-up grid does not reflow. display:none would collapse all ten
+           to nothing.
+         - it takes the content OUT OF THE ACCESSIBILITY TREE and out of the tab
+           order, so a screen reader does not read out a card that is not being
+           shown and nobody tabs into an invisible link. opacity:0 would leave ten
+           focusable links floating in blank boxes.
+         - it hides the division pill's FILL and the facts hairline too, which
+           colour:transparent would have left on screen.
+
+       THE HOVER IS DELIBERATELY KEPT (Kiron): the blank box still lifts, takes
+       its shadow and grows the PC Blue edge across its top, because that motion
+       is part of what is being reviewed. It works while the contents are hidden
+       because the hover rules sit on .cj-jobcard itself and on its ::before -
+       the card is still visible, only its CHILDREN are not.
+
+       What the hover does NOT do while blanked is go anywhere. The whole card was
+       clickable through the heading link's stretched ::after, and that link is
+       inside the hidden subtree, so the cards are inert for now - they animate but
+       do not navigate, and they show no pointer cursor. Both come back with the
+       content when this block is deleted.
+
+       The filter chips above the grid are also LEFT ALONE and still work - they
+       just filter blank boxes now, which shows the mechanism without showing the
+       card.
+       ========================================================================== */
+    .cj-jobcard > *{ visibility: hidden; }
   </style>
 </head>
 
@@ -729,7 +768,7 @@
           <!-- Two divisions have postings today. The list is short enough to be a row of
                chips rather than a select; when a third division opens it stays a row. -->
           <div class="cj-filters" id="cjFilters" role="group" aria-label="Filter positions by division">
-            <button class="cj-chip" type="button" data-filter="all" aria-pressed="true">All Divisions</button>
+            <button class="cj-chip" type="button" data-filter="all" aria-pressed="true">All</button>
             <button class="cj-chip" type="button" data-filter="Brokerage" aria-pressed="false">Brokerage</button>
             <button class="cj-chip" type="button" data-filter="Appraisal" aria-pressed="false">Appraisal</button>
           </div>
