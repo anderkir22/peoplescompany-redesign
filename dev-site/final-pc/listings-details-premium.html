@@ -73,8 +73,29 @@
     .lp-hero{ position: relative; height: var(--lp-hero-h); overflow: hidden;
       background: var(--pc-navy); }
     /* 3300 x 1500 source in a fixed-height box, so cover crops rather than letterboxes.
-       object-position keeps the crop on the upper half of the frame. */
-    .lp-hero-img{ position: absolute; inset: 0; width: 100%; height: 100%;
+       object-position keeps the crop on the upper half of the frame.
+
+       THE SOURCE FILE HAS A 4px BLACK FRAME BAKED INTO ALL FOUR EDGES. In
+       19278_Hero.png the outermost four pixels on every side are pure (0,0,0). Under
+       cover only ONE axis is cropped at a time, so whichever axis fits exactly puts
+       that black edge on screen: below about 1540px of content width the image fits by
+       height and the frame shows along the top and bottom, and above it the image fits
+       by width and the frame shows down the left and right. It reads as a thin dark
+       border against the sky and it is in the file, not in this CSS.
+
+       THE REAL FIX IS TO RE-EXPORT THE PHOTOGRAPH WITHOUT THE FRAME, on the listings
+       host. Until that happens the image is oversized by 12px and pulled back 6px on
+       every side, so the frame lands outside .lp-hero's overflow: hidden at every
+       width. 6px beats the frame's largest on-screen size by a wide margin - the frame
+       is 4 source pixels, and this hero never renders the source above about 1.2x - but
+       it is a workaround for a bad asset, not a technique. DELETE IT the day the file
+       is clean, and do not copy it onto heroes whose source is fine.
+
+       max-width: none is REQUIRED here: pc.css sets img{ max-width: 100% } globally,
+       which silently clamps the oversize back to the hero's width and puts the navy
+       background back along the right edge. */
+    .lp-hero-img{ position: absolute; top: -6px; left: -6px;
+      width: calc(100% + 12px); height: calc(100% + 12px); max-width: none;
       object-fit: cover; object-position: center 40%; display: block; }
     /* NO SCRIM, NO WASH, NO TINT. The photograph shows exactly as supplied - the only
        thing between it and the viewer is the type's own shadow, which darkens the
