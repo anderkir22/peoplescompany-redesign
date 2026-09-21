@@ -70,15 +70,33 @@
     /* FULL BLEED, NOT THE CONTENT RAIL. The image spans the viewport edge to edge
        directly below the sticky header; only the type and the logo inside it are held
        to the rail, so they line up with the sub nav and the content below. */
-    /* WHITE, NOT NAVY (Kiron, 2026-09-21). This colour is only ever seen in the moment
-       before the photograph paints - the image covers the box at every width - and a
-       navy flash under a white header read as a band. --pc-white is #FFFFFF.
-       NOTE THE TRADE: the hero type is white, so during that moment it is white on
-       white rather than white on navy. It is a single paint, and the alternative was a
-       visible colour block; if the flash ever matters, the fix is a low-quality image
-       placeholder, not a coloured background. */
+    /* WHAT SHOWS BEFORE THE PHOTOGRAPH PAINTS: a low-quality image placeholder, over
+       white (Kiron, 2026-09-21). It replaced a flat PC Navy fill, which flashed as a
+       colour band under the white header on every load.
+
+       THE PLACEHOLDER IS THE HERO ITSELF AT 44x20, blurred, WebP q90 - 282 bytes, and
+       INLINE as a data URI so it costs no request and cannot lose the race with the
+       photograph it is standing in for. Blown up to the hero's width the browser's own
+       smoothing does the blurring; the 0.6px gaussian applied before encoding only
+       takes the edge off the blocks. It is generated from 19278_Hero.png with SIX
+       pixels cropped off every side first - the four black ones and the blended row
+       behind them. Cropping only four left that row to dominate the corner cells and
+       painted a pale blue blob into the top-left of the placeholder.
+
+       cover + center 40% mirror the <img>'s object-fit and object-position, so the
+       placeholder and the photograph frame the scene the same way and the swap is a
+       sharpen rather than a jump. IF THE HERO IMAGE EVER CHANGES, REGENERATE THIS - a
+       stale placeholder is a flash of the wrong photograph. White stays underneath as
+       the base, for the moment before even this decodes.
+
+       The hero type is white and sits over this, which the navy fill happened to suit;
+       the placeholder carries the photograph's own dark lower half, so the type has
+       roughly the ground it will end up on. */
     .lp-hero{ position: relative; height: var(--lp-hero-h); overflow: hidden;
-      background: var(--pc-white); }
+      background-color: var(--pc-white);
+      background-image: url("data:image/webp;base64,UklGRhIBAABXRUJQVlA4IAYBAADQBgCdASosABQAPjESiEKiISEYBVQgAwSxAFqL/ea8aTz/93Ofrcc/2fnD3jzSBhfDYyQSIj9Exm0c94akiAAA/v3+/QE0NCdi//FQf0fdDjaAg8xPJOHxazeKii//+x3b994VL/9vBP8xvFLzuqywP/wTj4zCo+jJ5zVVOjk+g0fPT6KFxHji1dmu/4cDmTSYHmLQkD1c1wKk0cV9OvE3P+bu2J3t1lNdqbeBuCpzz77gu9CLUZ/GFrlt2xEkdO7JcqhMZw37kbWMySTTy3/x/RqK/s/4hwySNmMSIG9wN7sTkez8lNgkeXahyrNgD+FzqN67cy93x3RaMMB9Kw4NwHqInAAA");
+      background-size: cover; background-position: center 40%;
+      background-repeat: no-repeat; }
     /* 3300 x 1500 source in a fixed-height box, so cover crops rather than letterboxes.
        object-position keeps the crop on the upper half of the frame.
 
@@ -91,18 +109,19 @@
        border against the sky and it is in the file, not in this CSS.
 
        THE REAL FIX IS TO RE-EXPORT THE PHOTOGRAPH WITHOUT THE FRAME, on the listings
-       host. Until that happens the image is oversized by 12px and pulled back 6px on
+       host. Until that happens the image is oversized by 16px and pulled back 8px on
        every side, so the frame lands outside .lp-hero's overflow: hidden at every
-       width. 6px beats the frame's largest on-screen size by a wide margin - the frame
-       is 4 source pixels, and this hero never renders the source above about 1.2x - but
-       it is a workaround for a bad asset, not a technique. DELETE IT the day the file
-       is clean, and do not copy it onto heroes whose source is fine.
+       width. THE FRAME IS EFFECTIVELY FIVE PIXELS, not four: four are pure black and
+       the fifth is a blended row, dark enough to read as a line on its own. 8px clears
+       that at any scale this hero plausibly renders. It is a workaround for a bad
+       asset, not a technique. DELETE IT the day the file is clean, and do not copy it
+       onto heroes whose source is fine.
 
        max-width: none is REQUIRED here: pc.css sets img{ max-width: 100% } globally,
        which silently clamps the oversize back to the hero's width and puts the navy
        background back along the right edge. */
-    .lp-hero-img{ position: absolute; top: -6px; left: -6px;
-      width: calc(100% + 12px); height: calc(100% + 12px); max-width: none;
+    .lp-hero-img{ position: absolute; top: -8px; left: -8px;
+      width: calc(100% + 16px); height: calc(100% + 16px); max-width: none;
       object-fit: cover; object-position: center 40%; display: block; }
     /* NO SCRIM, NO WASH, NO TINT. The photograph shows exactly as supplied - the only
        thing between it and the viewer is the type's own shadow, which darkens the
