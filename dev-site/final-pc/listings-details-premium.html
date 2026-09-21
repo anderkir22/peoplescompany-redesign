@@ -244,8 +244,20 @@
       background: var(--pc-soft-white); border: 1px solid var(--color-border);
       overflow: hidden; }
     /* The embed fills the box edge to edge. The border and the radius live on the box, so
-       the iframe itself carries neither and nothing draws a second line inside the first. */
-    .lp-mapbox iframe{ display: block; width: 100%; height: 100%; border: 0; }
+       the iframe itself carries neither and nothing draws a second line inside the first.
+       THE OVERSIZE AND THE NEGATIVE MARGIN ARE A CROP, NOT A MISTAKE. FarmWorth's page
+       carries its own white margin above and below the map: a fixed 20px top and 12px
+       bottom, measured, and fixed means fixed - it is 20/12 whether the frame is 518 tall
+       or 485, so shrinking this box only walks the white down with it. Running the frame
+       32px taller and pulling it up 20px puts the map itself against all four sides, and
+       the box's overflow: hidden clips FarmWorth's margin away. The rounded corners then
+       cut the map, which is the point.
+       Horizontal needs nothing: the map is already flush left and right.
+       This goes when the map module is served from our own origin, or if FarmWorth give
+       us an embed-mode URL without the page margin. It is pinned to two numbers on
+       someone else's stylesheet, so if a white band ever comes back, re-measure these. */
+    .lp-mapbox iframe{ display: block; width: 100%; height: calc(100% + 32px);
+      margin-top: -20px; border: 0; }
 
     /* ---- VIDEO: THREE ACROSS, ONE ROW ----
        The standard pages run two; the premium rail takes three. Each keeps its own
@@ -721,19 +733,16 @@
            The src is one map's share URL; a real page swaps in the URL held on the
            listing record. No address and no directions here, unlike Location on the
            standard listing detail pages: the map is the whole section.
-           NO loading="lazy" HERE, deliberately. FarmWorth draws with Leaflet, which reads
-           its container's size once at start-up and never looks again. Lazy-loading let
-           the frame start up while its section was still mid .reveal transition, and the
-           map painted short inside a correctly sized frame - a strip of empty box above
-           the bottom border. Eager loading settles the size first. The script at the foot
-           of the page is the belt to this pair of braces. -->
+           loading="lazy" keeps the map's tiles and scripts off the initial load - it sits
+           well below the fold and the page has three video embeds under it.
+           The frame is cropped in CSS to hide FarmWorth's own page margin; the note over
+           .lp-mapbox iframe has the measurements. -->
       <section id="lp-map" class="lp-section reveal" aria-labelledby="lp-map-h">
         <h2 id="lp-map-h" class="lp-h2">Map</h2>
         <div class="lp-mapbox">
-          <iframe id="lpMap"
-                  src="https://farmworth.com/interactivemap/acbb3dda-972f-43e6-b4ac-d3323b95448e/vbW3QRY"
+          <iframe src="https://farmworth.com/interactivemap/acbb3dda-972f-43e6-b4ac-d3323b95448e/vbW3QRY"
                   title="Interactive FarmWorth map of the property"
-                  referrerpolicy="strict-origin-when-cross-origin"
+                  loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
                   allow="fullscreen" allowfullscreen></iframe>
         </div>
         <noscript><p class="lp-copy">The map is an embedded FarmWorth application and needs
@@ -1640,29 +1649,6 @@
          here and cannot close the window out from under the click. */
       box.addEventListener("click", function(e){ if(e.target === box) close(); });
       trig.addEventListener("click", function(){ open(trig); });
-    })();
-
-    /* ---- MAP: MAKE THE EMBED RE-MEASURE ITSELF ----
-       Leaflet caches its container size at start-up. If anything moves the frame after
-       that - the .reveal transition landing, a fullscreen exit, a window resize - the map
-       keeps drawing at the old size and leaves a gap inside the box. We are cross-origin
-       so we cannot call the map's own invalidateSize(); what we can do is change the
-       frame's height by a hair and put it back, which fires a resize event INSIDE the
-       frame. Leaflet listens for that and re-measures.
-       Delete this once the map module is served from our own origin. */
-    (function(){
-      var f = document.getElementById("lpMap");
-      if(!f) return;
-      function nudge(){
-        f.style.height = "calc(100% - 1px)";
-        requestAnimationFrame(function(){ f.style.height = ""; });
-      }
-      f.addEventListener("load", function(){ setTimeout(nudge, 700); });
-      /* The reveal transition is .6s; nudge once it has landed. */
-      var sec = document.getElementById("lp-map");
-      if(sec) sec.addEventListener("transitionend", function(e){
-        if(e.propertyName === "transform") nudge();
-      });
     })();
 
   </script>
