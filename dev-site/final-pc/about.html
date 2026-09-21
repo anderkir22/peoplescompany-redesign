@@ -156,82 +156,39 @@
     .ab-fig img{ display: block; width: 100%; height: 100%; object-fit: cover;
       border-radius: var(--radius-md); }
 
-    /* ---- 2 - THE SIX POINTS -----------------------------------------------------
-       3x2 of FLAT tiles: an accent rule down the left edge, no border, no shadow, no
-       fill. The live version of this row is six cards with a 2px silver border and a
-       large drop shadow, which at six-up reads as a wall of boxes; one edge does the
-       same grouping job that four were doing.
+    /* MEDIA ROWS, NOT TILES (Kiron, 2026-09-21). The six points were a 3x2 grid of
+       flat text tiles with the PC icon set watermarked behind each one. They are now
+       the same two-column media row the Platform band used before it was replaced by
+       the homepage services grid: a square image tile, then heading and one sentence.
+       Three rows of two, so each point gets a photograph and the row reads across
+       rather than down.
 
-       THE ICONS ARE PC'S OWN, USED AS WATERMARKS (Kiron, 2026-09-18 - the tiles
-       "need something"). Each tile sets its glyph as --ab-icon inline and
-       .ab-point::after paints it bottom-right at 8% opacity. They are the same six SVGs
-       the live page pairs with these same six points, hotlinked from PC's icon CDN.
+       THE WATERMARK IS GONE WITH THE TILES. It existed because a text-only tile
+       "needed something"; a photograph is that something, and the icon library is
+       still unchosen (see DEVELOPER-NOTES.md). So is the left accent rule - the image
+       now does the grouping the rule was doing. */
+    /* THE HEADING IS VISIBLE NOW (Kiron, 2026-09-21) and it is PC copy, so the note
+       that used to sit here - a placeholder string kept .sr-only because writing a
+       headline for PC's about page was not this build's call - is retired. .ab-h2 zeroes
+       its margin for the bands that open on it; this band does not, so the gap is here. */
+    .ab-points-title{ margin-bottom: var(--space-6); }
 
-       Watermark rather than icon, for three reasons. The set is black-only, so there is
-       no version of it for the navy or black bands and an icon treatment here would not
-       carry across the rest of the page. At 8% it cannot fail contrast against the body
-       copy that sits over it. And it does not commit the build to an icon system that
-       has not been chosen yet - see DEVELOPER-NOTES.md, the library is still open.
-
-       It is on ::after rather than a background-image on the tile because
-       background-image takes no opacity of its own: fading the tile would fade its text
-       with it. It needs no aria-hidden - a pseudo-element is not in the accessibility
-       tree, and the heading already says what the glyph says. */
-    .ab-points{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--space-7) var(--space-6); list-style: none; margin: 0; padding: 0; }
-
-    /* NO HOVER ON THE LEFT RULE. It darkened from PC Light Blue to PC Medium Blue on
-       hover and Kiron took it out (2026-09-18): the tiles are not links, so a hover
-       response was promising an interaction that does not exist. The rule is static. */
-    .ab-point{ position: relative; overflow: hidden;
-      border-left: 3px solid var(--pc-light-blue); padding-left: var(--space-5); }
-    .ab-point::after{ content: ""; position: absolute; right: 0; bottom: 0;
-      width: 116px; height: 116px; opacity: .08; pointer-events: none;
-      background: var(--ab-icon) right bottom / contain no-repeat; }
-    /* position: relative on the text so it paints over the watermark, not under it. */
-    .ab-point h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
-      line-height: 1.2; color: var(--pc-black); margin: 0 0 var(--space-3);
-      position: relative; }
-    .ab-point p{ margin: 0; font-size: 15px; line-height: 1.7;
-      color: var(--color-text-muted); position: relative; }
-
-    /* ---- 3 - PLATFORM -----------------------------------------------------------
-       THE BAND IS ITS HEADING AND THE SIX ROWS, NOTHING ELSE. It carried the live
-       page's Platform lede beside the heading; Kiron removed that paragraph outright
-       (2026-09-18), so .ab-sechead is the heading alone and the grid that held the two
-       side by side went with it. The h2 has no top margin, so the band opens on it -
-       restoring a lede or an eyebrow means restoring the margin too. */
-    .ab-sechead{ margin-bottom: var(--space-8); }
-
-    /* MEDIA ROWS, NOT A CARD DECK. Six services as a two-column directory: a square
-       image tile, then heading, copy and link. The live page runs the same six as
-       image-top cards, and at card size the photography is the loudest thing in the
-       band; at 132px square it identifies the service and the copy leads. */
-    .ab-svcs{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    .ab-points{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--space-7) var(--space-8); list-style: none; margin: 0; padding: 0; }
 
-    .ab-svc{ display: grid; grid-template-columns: 132px minmax(0, 1fr);
+    .ab-point{ display: grid; grid-template-columns: 132px minmax(0, 1fr);
       gap: var(--space-5); align-items: start; }
-    /* The width/height attributes on these six are the INTRINSIC 1200x675, not the
-       132 square they render at - the attributes describe the file, and the CSS below
-       fixes both axes, so there is no layout shift either way. */
-    .ab-svc img{ display: block; width: 132px; height: 132px; object-fit: cover;
+    /* The width/height attributes are the INTRINSIC file size, not the 132 square these
+       render at - the attributes describe the file and the CSS fixes both axes, so
+       there is no layout shift either way. */
+    .ab-point img{ display: block; width: 132px; height: 132px; object-fit: cover;
       border-radius: var(--radius-sm); }
-    .ab-svc h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
-      line-height: 1.2; color: var(--pc-white); margin: 0 0 var(--space-2); }
-    .ab-svc p{ margin: 0 0 var(--space-3); font-size: 15px; line-height: 1.7;
-      color: var(--text-on-dark); }
-    /* "Learn More" six times over is the live label and it stays. It is a weak
-       accessible name repeated six times, so each link carries an aria-label naming
-       its service - the visible text is untouched. */
-    .ab-more{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
-      letter-spacing: .04em; text-transform: uppercase; color: var(--pc-blue);
-      display: inline-flex; align-items: center; gap: 6px; }
-    .ab-more:hover{ color: var(--pc-white); }
-    .ab-more svg{ transition: transform .18s ease; }
-    .ab-more:hover svg{ transform: translateX(3px); }
-    @media (prefers-reduced-motion: reduce){ .ab-more svg{ transition: none; }
-      .ab-more:hover svg{ transform: none; } }
+    /* PC Black on the heading and muted body, not the white pair the Platform rows
+       used: this band is .ab-band--soft, a light band. */
+    .ab-point h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      line-height: 1.2; color: var(--pc-black); margin: 0 0 var(--space-2); }
+    .ab-point p{ margin: 0; font-size: 15px; line-height: 1.7;
+      color: var(--color-text-muted); }
 
     /* ---- 4 - ANNIVERSARY VIDEO --------------------------------------------------
        Copy and player side by side. On the live page the heading and its paragraph
@@ -256,15 +213,17 @@
        centring would leave a gap above and below it. */
     .ab-culture{ display: grid; grid-template-columns: 520px minmax(0, 1fr);
       gap: var(--space-8); align-items: stretch; }
-    /* THE FIGURE MATCHES THE COPY'S HEIGHT rather than carrying a fixed one. It used to
-       be forced into a 520px square, which was a placeholder number picked only to stop
-       the panorama rendering as a strip; now that the copy is wider and shorter, the
-       figure follows it and the two blocks share a top and a bottom edge.
-       It is still a CROP - pc-culture-field.webp is 1700x525, so a 520-wide box at the
-       copy's height shows roughly a third of its width. It wants a real portrait or
-       square culture photograph; when one exists, drop the object-fit with the height. */
+    /* THE FIGURE MATCHES THE COPY'S HEIGHT rather than carrying a fixed one, so the
+       two blocks share a top and a bottom edge.
+       IT IS A CSS CROP, NOT A CROPPED FILE (Kiron supplied the photograph 2026-09-21).
+       pc-heritage-cap.png is the full 884x496 frame; the 520-wide box at the copy's
+       height is taller than it is wide, so cover trims the left and right ends and
+       object-position keeps the cap in frame. 58%, not centre: the cap sits right of
+       the frame's middle, and centring drifts the fence post into the gutter.
+       The file is a 790KB PNG of a photograph - it wants a real crop as WebP or JPEG
+       before this goes anywhere near production, and the CSS crop can come out with it. */
     .ab-culture .ab-fig{ height: 100%; }
-    .ab-culture .ab-fig img{ height: 100%; object-fit: cover; }
+    .ab-culture .ab-fig img{ height: 100%; object-fit: cover; object-position: 58% center; }
     .ab-culture .ab-h2{ margin-bottom: var(--space-5); }
     .ab-culture .ab-prose p{ font-size: 15px; }
     /* GHOST PILL. Transparent fill, a white rule, filling white on hover.
@@ -480,7 +439,7 @@
             <p class="ab-lede">Peoples Company is the nation&#039;s leading farmland services platform, built on more than six decades of expertise, relationships, and an unbreakable commitment to the landowners and families who have entrusted us with their most significant asset. From our origins as the farm management department of a small Iowa savings bank in the 1960s, we have grown into a coast-to-coast organization serving clients across the most productive agricultural regions in America. What has never changed is our core convictions: that great farmland service begins with understanding the land, the families who own it, and the legacy they are working to preserve.</p>
             <p>In 1972, Peoples Trust and Savings Bank separated its farm management and real estate operations to form Peoples Company as an independent firm. For three decades, we served landowners across central Iowa with the kind of personalized, relationship-driven service that can only come from deep local knowledge. That foundation of integrity and trust would be essential when the company embarked on an ambitious transformation in the early 2000’s, to grow from a small, respected Iowa firm into a national platform that provides the same professional, localized service to clients everywhere it operates.</p>
             <p>The strategy to scale Peoples Company into a national platform was the vision of our President, Steve Bruere, who joined the firm in 2003 and assumed his role just a year after graduating college. Steve recognized a need in the farmland market for personalized, kitchen-table service of a local expert with the resources and technology of a national organization. That vision required finding the right people, professionals with local expertise, a relentless work ethic, and genuine commitment to client success.</p>
-            <p>Through several strategic partnerships and the acquisition of numerous respected firms, we have woven together decades of local expertise into a single, integrated platform. When landowners work with Peoples Company, they receive the full depth of 60 years of history, the breadth of our national network and technology assets, and the expertise that only comes from professionals who have dedicated their careers to the land. Today, with <a href="/regions">24 offices</a>, more than <a href="/team">175 team members</a>, and a track record of industry-leading performance, the original vision has become reality.</p>
+            <p>Through several strategic partnerships and the acquisition of numerous respected firms, we have woven together decades of local expertise into a single, integrated platform. When landowners work with Peoples Company, they receive the full depth of 60 years of history, the breadth of our national network and technology assets, and the expertise that only comes from professionals who have dedicated their careers to the land.</p>
           </div>
           <!-- PLACEHOLDER IMAGE - one of the build's existing hero crops, standing in
                for whatever photograph this column ends up carrying. The alt is
@@ -502,99 +461,125 @@
          with no section heading of any kind - which leaves six h4s hanging off the
          h1 with no h2 between them and two levels skipped.
 
-         The heading below is THE ONE STRING ON THIS PAGE THAT IS NOT PC COPY. It
-         exists so the outline is intact and the region has an accessible name, and
-         it is .sr-only rather than visible because writing a visible headline for
-         PC's about page is not this build's call. Replace the text, keep the
-         element - and if it becomes visible, it needs the top margin back. -->
+         The h2 below fixes that: it names the region, restores the outline, and is
+         visible PC copy. -->
     <section class="ab-band ab-band--soft" aria-labelledby="ab-points-h">
       <div class="ab-wrap">
-        <h2 class="ab-h2 sr-only" id="ab-points-h">What defines Peoples Company</h2>
+        <h2 class="ab-h2 ab-points-title" id="ab-points-h">The Peoples Company Difference</h2>
         <ul class="ab-points">
-          <li class="ab-point reveal" style="--ab-icon: url('https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/black/diamond.svg')">
-            <h3>50+ Years of Commitment</h3>
-            <p>Peoples Company’s story began in the 1970s as a central Iowa land brokerage and management firm focused on serving local landowners. More than five decades later, that founding commitment to landowners remains the same.</p>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/auction26.jpg/f733fb2fe0b9015ea27ca1e8191eefe7.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Bidders seated at a Peoples Company farmland auction" />
+            <div>
+              <h3>50+ Years of Commitment</h3>
+              <p>Peoples Company’s story began in the 1970s as a central Iowa land brokerage and management firm focused on serving local landowners.</p>
+            </div>
           </li>
-          <li class="ab-point reveal" style="--ab-icon: url('https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/black/world_location.svg')">
-            <h3>National Platform, Local Expertise</h3>
-            <p>What began as a single-office Iowa firm now spans 24 offices and more than 175 professionals across the country. Each market is served by local experts who understand the land, the people, and the production systems of their region—backed by the resources and technology of our national platform.</p>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/management26.jpg/6115f754ad4c501d00c605b11eb316f9.webp" width="1200" height="675" loading="lazy" decoding="async" alt="A farm manager and landowner walking a field of row crop" />
+            <div>
+              <h3>National Platform, Local Expertise</h3>
+              <p>What began as a single-office Iowa firm now spans 24 offices and more than 175 professionals across the country.</p>
+            </div>
           </li>
-          <li class="ab-point reveal" style="--ab-icon: url('https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/black/farm_land.svg')">
-            <h3>Comprehensive Farmland Services</h3>
-            <p>Peoples Company is the only land services firm in the country offering fully integrated farmland brokerage, land management, appraisal, and capital markets services, with the addition of crop insurance and energy management support. This breadth of expertise allows our firm to serve landowners at every stage of the ownership or transaction process.</p>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/appraisal26.jpg/6a3bff544b4d428c10f180cebddadf3a.webp" width="1200" height="675" loading="lazy" decoding="async" alt="An appraiser documenting a tract of farmland" />
+            <div>
+              <h3>Comprehensive Farmland Services</h3>
+              <p>Peoples Company is the only land services firm in the country offering fully integrated farmland brokerage, land management, appraisal, and capital markets services, with the addition of crop insurance and energy management support.</p>
+            </div>
           </li>
-          <li class="ab-point reveal" style="--ab-icon: url('https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/black/upward_graph.svg')">
-            <h3>A Legacy of Strategic Growth</h3>
-            <p>Peoples Company has united the proud histories of more than a dozen respected regional farmland firms through carefully chosen acquisitions and partnerships. Each firm that joined forces with Peoples Company shares the same values: local knowledge, relentless work ethic, and an unwavering commitment to client success.</p>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/capital26.jpg/48d4d5df6f85f3935ca664fc672ac4f5.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Peoples Company Capital Markets team reviewing a farmland portfolio" />
+            <div>
+              <h3>A Legacy of Strategic Growth</h3>
+              <p>Peoples Company has united the proud histories of more than a dozen respected regional farmland firms through carefully chosen acquisitions and partnerships.</p>
+            </div>
           </li>
-          <li class="ab-point reveal" style="--ab-icon: url('https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/black/ribbon_star.svg')">
-            <h3>Industry Recognized Professionals</h3>
-            <p>Peoples Company is consistently recognized by national trade associations and agricultural media as the benchmark for farmland services. The firm's professionals regularly rank among the top producers in their specific disciplines, and its research and market analysis are widely cited across the industry.</p>
+          <li class="ab-point reveal">
+            <img src="../assets/pc-team-2025.webp" width="1200" height="675" loading="lazy" decoding="async" alt="The Peoples Company team gathered for a company photograph" />
+            <div>
+              <h3>Industry Recognized Professionals</h3>
+              <p>Peoples Company is consistently recognized by national trade associations and agricultural media as the benchmark for farmland services.</p>
+            </div>
           </li>
-          <li class="ab-point reveal" style="--ab-icon: url('https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/black/hand_plant.svg')">
-            <h3>Stewards of American Farmland</h3>
-            <p>Farmland is not merely a financial asset—it is a legacy, often held across generations. Peoples Company professionals understand this feature and brings the same care and long-term perspective to every client relationship that a landowner has in stewarding their asset.</p>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/energy26.jpg/22406f6c49150d555c6307075194c726.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Wind turbines standing in cultivated farmland" />
+            <div>
+              <h3>Stewards of American Farmland</h3>
+              <p>Farmland is not merely a financial asset—it is a legacy, often held across generations.</p>
+            </div>
           </li>
         </ul>
       </div>
     </section>
 
-    <!-- ============ 3 - PLATFORM ============ -->
-    <section class="ab-band ab-band--navy on-dark" aria-labelledby="ab-platform-h">
-      <div class="ab-wrap">
-        <div class="ab-sechead">
-          <h2 class="ab-h2" id="ab-platform-h">Platform</h2>
+    <!-- ============ 3 - SERVICES ============
+         Copied verbatim from index.html section 2. Same markup, same pc.css
+         .hp-svc / .hp-card rules, so the two pages stay one component. -->
+    <section class="hp hp-sec hp-svc reveal" id="services" aria-labelledby="hp-svc-h">
+      <div class="hp-wrap">
+        <div class="hp-svc-head">
+          <h2 id="hp-svc-h">Seven services. One integrated platform.</h2>
         </div>
-        <ul class="ab-svcs">
-          <li class="ab-svc reveal">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/auction26.jpg/f733fb2fe0b9015ea27ca1e8191eefe7.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Bidders seated at a Peoples Company farmland auction" />
-            <div>
-              <h3>Land Brokerage</h3>
-              <p>Our brokerage professionals facilitate farmland transactions across the country, combining regional market intelligence with a national buyer and seller network to consistently achieve industry-leading results for our clients.</p>
-              <a class="ab-more" href="/land-brokerage-and-auctions" aria-label="Learn more about Land Brokerage">Learn More <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="M13 6l6 6-6 6"/></svg></a>
+        <div class="hp-svc-grid">
+          <a class="hp-card" href="./internal.html">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <svg class="hp-gavel" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg>
             </div>
-          </li>
-          <li class="ab-svc reveal">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/management26.jpg/6115f754ad4c501d00c605b11eb316f9.webp" width="1200" height="675" loading="lazy" decoding="async" alt="A farm manager and landowner walking a field of row crop" />
-            <div>
-              <h3>Land Management</h3>
-              <p>Peoples Company manages farmland for landowners who want their farmland assets actively overseen by professionals who understand both the agronomic and financial characteristics of the land. Our management team ensures that tenant relationships, lease structures, and property operations are optimized for long-term performance.</p>
-              <a class="ab-more" href="/land-management" aria-label="Learn more about Land Management">Learn More <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="M13 6l6 6-6 6"/></svg></a>
+            <h4>Land Brokerage &amp; Auctions</h4>
+            <p>Farmland listings and competitive auction services with a 40,000+ buyer database and national reach.</p>
+          </a>
+          <a class="hp-card" href="./internal.html">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_land_management.svg" />
             </div>
-          </li>
-          <li class="ab-svc reveal">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/appraisal26.jpg/6a3bff544b4d428c10f180cebddadf3a.webp" width="1200" height="675" loading="lazy" decoding="async" alt="An appraiser documenting a tract of farmland" />
-            <div>
-              <h3>Appraisal</h3>
-              <p>Our certified appraisers provide credible, defensible valuations for farmland across the nation. We are proud to serve lenders, estates, investors, and institutional clients who require rigorous, market-grounded analysis.</p>
-              <a class="ab-more" href="/agricultural-appraisal" aria-label="Learn more about Appraisal">Learn More <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="M13 6l6 6-6 6"/></svg></a>
+            <h4>Land Management</h4>
+            <p>Full-service stewardship, operator oversight, lease negotiation, and financial reporting.</p>
+          </a>
+          <a class="hp-card" href="./internal.html">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_agricultural_appraisal.svg" />
             </div>
-          </li>
-          <li class="ab-svc reveal">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/capital26.jpg/48d4d5df6f85f3935ca664fc672ac4f5.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Peoples Company Capital Markets team reviewing a farmland portfolio" />
-            <div>
-              <h3>Capital Markets</h3>
-              <p>The Peoples Company Capital Markets team advises institutional investors, family offices, and landowners on complex farmland investment structures, portfolio acquisitions, and capital formation strategies. This team of specialists aim to bridge the worlds of agricultural and institutional finance.</p>
-              <a class="ab-more" href="/capital-markets" aria-label="Learn more about Capital Markets">Learn More <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="M13 6l6 6-6 6"/></svg></a>
+            <h4>Agricultural Appraisal</h4>
+            <p>Certified, data-driven land valuation supported by proprietary comparable-sales modeling.</p>
+          </a>
+          <a class="hp-card" href="./internal.html">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_capital_markets.svg" />
             </div>
-          </li>
-          <li class="ab-svc reveal">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---crop-insurance-update-%28website%29.jpg/907b6b34baf2ea7f2ce58ad83d93e3e6.webp" width="1200" height="675" loading="lazy" decoding="async" alt="A combine harvesting an insured corn field" />
-            <div>
-              <h3>Crop Insurance</h3>
-              <p>Peoples Company&#039;s crop insurance team help landowners and farm operators identify and secure coverage through our crop insurance partnerships that best protect their operation. With a commitment to understanding each client&#039;s operation and unique risk profile, our team ensures that the land, and the income it generates, is protected when it matters most.</p>
-              <a class="ab-more" href="/crop-insurance" aria-label="Learn more about Crop Insurance">Learn More <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="M13 6l6 6-6 6"/></svg></a>
+            <h4>Capital Markets</h4>
+            <p>Equity placement, debt structuring, JV formation, and portfolio advisory for institutional capital.</p>
+          </a>
+          <a class="hp-card" href="./internal.html">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_energy_management.svg" />
             </div>
-          </li>
-          <li class="ab-svc reveal">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/energy26.jpg/22406f6c49150d555c6307075194c726.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Wind turbines standing in cultivated farmland" />
-            <div>
-              <h3>Energy Management</h3>
-              <p>As energy development continues to reshape the agricultural landscape, Peoples Company helps landowners navigate easement negotiations, lease structures, and long-term agreements with energy developers. Our energy management professionals bring rigor and landowner-first advocacy to energy transactions, ensuring clients understand their options and maximize the value of their land&#039;s potential.</p>
-              <a class="ab-more" href="/energy-management" aria-label="Learn more about Energy Management">Learn More <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="M13 6l6 6-6 6"/></svg></a>
+            <h4>Energy Management</h4>
+            <p>Solar, wind, and energy lease strategy, negotiation, and oversight for landowners.</p>
+          </a>
+          <a class="hp-card" href="./internal.html">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_crop_insurance.svg" />
             </div>
-          </li>
-        </ul>
+            <h4>Crop Insurance</h4>
+            <p>Tailored multi-peril and specialty coverage protecting farm operations and yield.</p>
+          </a>
+          <a class="hp-card" href="./internal.html">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_corporate_services.svg" />
+            </div>
+            <h4>Corporate Services</h4>
+            <p>Institutional programs for ag lenders, REITs, and large land portfolios requiring scale.</p>
+          </a>
+          <a class="hp-card hp-card-all" href="./internal.html">
+            <div class="hp-svc-ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 17h7m0 0-3-3m3 3-3 3"/></svg>
+            </div>
+            <h4>Explore All Services</h4>
+            <p>See all seven integrated services and find the right team for your land.</p>
+            <span class="go" aria-hidden="true">View all services &rarr;</span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -622,16 +607,16 @@
     </section>
 
     <!-- ============ 5 - CULTURE ============ -->
-    <section class="ab-band ab-band--medium on-dark" aria-labelledby="ab-culture-h">
+    <section class="ab-band ab-band--navy on-dark" aria-labelledby="ab-culture-h">
       <div class="ab-wrap">
         <div class="ab-culture">
           <figure class="ab-fig reveal">
-            <img src="../assets/pc-culture-field.webp" width="1700" height="525"
+            <img src="../assets/pc-heritage-cap.png" width="884" height="496"
                  loading="lazy" decoding="async"
-                 alt="Peoples Company team members walking a field of standing crop" />
+                 alt="A vintage Peoples Company of Indianola cap and a pair of work gloves resting on a barbed-wire fence post, a planter working the field behind" />
           </figure>
           <div class="reveal">
-            <h2 class="ab-h2" id="ab-culture-h">United by Shared Values</h2>
+            <h2 class="ab-h2" id="ab-culture-h">Company Culture</h2>
             <div class="ab-prose">
               <p>Peoples Company has grown through acquisition and strategic partnerships, but it has endured through culture. Every firm that has joined our platform did so because of an alignment that went beyond geography or common services. They shared our belief that landowners deserve to partner with professionals who show up, do the rigorous work necessary to succeed, and put the client&#039;s success first - every time.</p>
               <p>The culture that has developed across Peoples Company over more than two decades is not manufactured or managed from the top down. It has been built relationship by relationship, hire by hire, by professionals who took ownership of the firm&#039;s vision and made it their own. At Peoples Company, excellence attracts excellence. The values that defined our first team members have been reinforced and deepened by every individual who has since joined the Peoples Company brand.</p>
