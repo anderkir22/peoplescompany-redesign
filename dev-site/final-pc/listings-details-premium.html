@@ -721,14 +721,19 @@
            The src is one map's share URL; a real page swaps in the URL held on the
            listing record. No address and no directions here, unlike Location on the
            standard listing detail pages: the map is the whole section.
-           loading="lazy" keeps the map's tiles and scripts off the initial load - it sits
-           well below the fold and the page has three video embeds under it. -->
+           NO loading="lazy" HERE, deliberately. FarmWorth draws with Leaflet, which reads
+           its container's size once at start-up and never looks again. Lazy-loading let
+           the frame start up while its section was still mid .reveal transition, and the
+           map painted short inside a correctly sized frame - a strip of empty box above
+           the bottom border. Eager loading settles the size first. The script at the foot
+           of the page is the belt to this pair of braces. -->
       <section id="lp-map" class="lp-section reveal" aria-labelledby="lp-map-h">
         <h2 id="lp-map-h" class="lp-h2">Map</h2>
         <div class="lp-mapbox">
-          <iframe src="https://farmworth.com/interactivemap/acbb3dda-972f-43e6-b4ac-d3323b95448e/vbW3QRY"
+          <iframe id="lpMap"
+                  src="https://farmworth.com/interactivemap/acbb3dda-972f-43e6-b4ac-d3323b95448e/vbW3QRY"
                   title="Interactive FarmWorth map of the property"
-                  loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                  referrerpolicy="strict-origin-when-cross-origin"
                   allow="fullscreen" allowfullscreen></iframe>
         </div>
         <noscript><p class="lp-copy">The map is an embedded FarmWorth application and needs
@@ -1635,6 +1640,29 @@
          here and cannot close the window out from under the click. */
       box.addEventListener("click", function(e){ if(e.target === box) close(); });
       trig.addEventListener("click", function(){ open(trig); });
+    })();
+
+    /* ---- MAP: MAKE THE EMBED RE-MEASURE ITSELF ----
+       Leaflet caches its container size at start-up. If anything moves the frame after
+       that - the .reveal transition landing, a fullscreen exit, a window resize - the map
+       keeps drawing at the old size and leaves a gap inside the box. We are cross-origin
+       so we cannot call the map's own invalidateSize(); what we can do is change the
+       frame's height by a hair and put it back, which fires a resize event INSIDE the
+       frame. Leaflet listens for that and re-measures.
+       Delete this once the map module is served from our own origin. */
+    (function(){
+      var f = document.getElementById("lpMap");
+      if(!f) return;
+      function nudge(){
+        f.style.height = "calc(100% - 1px)";
+        requestAnimationFrame(function(){ f.style.height = ""; });
+      }
+      f.addEventListener("load", function(){ setTimeout(nudge, 700); });
+      /* The reveal transition is .6s; nudge once it has landed. */
+      var sec = document.getElementById("lp-map");
+      if(sec) sec.addEventListener("transitionend", function(e){
+        if(e.propertyName === "transform") nudge();
+      });
     })();
 
   </script>
