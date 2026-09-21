@@ -41,6 +41,16 @@
       gap: var(--space-7); margin-top: var(--space-4); }
     .cj-mast-row > div{ min-width: 0; }
     .cj-mast-row .btn{ flex: none; width: var(--cj-rail-w); justify-content: center; }
+
+    /* PC NAVY ON BOTH BUTTONS, PAGE-LOCALLY. The page has exactly two .btn-primary - the
+       masthead's "Apply for this Position" and the form's "Submit Application" - and they
+       are the same action twice, so they match. pc.css's .btn-primary is PC Medium Blue
+       with a PC Navy hover; navy at rest leaves that hover inert, so the hover steps on to
+       PC Black - the navy/black pair .ls-apply uses on the filter bars.
+       Scoped to .cj-body rather than changed in pc.css: .btn-primary is the site's button
+       and this is one page's call. */
+    .cj-body .btn-primary{ background: var(--pc-navy); border-color: var(--pc-navy); }
+    .cj-body .btn-primary:hover{ background: var(--pc-black); border-color: var(--pc-black); }
     .cj-back{ display: inline-flex; align-items: center; gap: 8px;
       font-family: var(--font-sans); font-size: var(--body-sm); font-weight: 600;
       letter-spacing: .08em; text-transform: uppercase; text-decoration: none;
@@ -49,11 +59,25 @@
     .cj-back svg{ width: 14px; height: 14px; flex: none; }
     .cj-mast h1{ margin: 0; }
 
-    /* Facts under the title. A definition list, not a paragraph: each pair is a field the
-       CMS fills, and a screen reader reads the label with its value. Six fields: Division,
-       Region, State, Type, Experience, Status. */
+    /* THE DIVISION MARK: the service glyph and its name, directly under the h1.
+       A filled icon on a light band, so it takes PC Navy - the gavel has no stroke and
+       inherits nothing, which is why the fill is set here rather than left to
+       currentColor. 26px matches the cap height of the 16px name beside it.
+       align-items: center, not baseline: the glyph is a solid shape with no baseline of
+       its own, and sitting it on the text baseline drops it visibly low. */
+    .cj-divmark{ display: flex; align-items: center; gap: 10px;
+      margin: var(--space-4) 0 0; }
+    .cj-divmark-ic{ flex: none; width: 26px; height: 26px;
+      fill: var(--pc-navy); stroke: none; }
+    .cj-divmark span{ font-family: var(--font-sans); font-size: 16px; font-weight: 600;
+      line-height: 1.2; color: var(--pc-navy); }
+
+    /* Facts under the mark. A definition list, not a paragraph: each pair is a field the
+       CMS fills, and a screen reader reads the label with its value. Six fields: Region,
+       State, Office, Type, Experience, Status. Division is not among them - it is the
+       mark above. */
     .cj-facts{ display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6);
-      margin: var(--space-5) 0 0; }
+      margin: var(--space-4) 0 0; }
     .cj-facts div{ display: flex; flex-direction: column; gap: 4px; }
     .cj-facts dt{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
       letter-spacing: .1em; text-transform: uppercase; color: var(--pc-medium-blue); }
@@ -81,6 +105,48 @@
     /* ---- responsibility groups --------------------------------------------------
        Six named groups, each a heading over its own list. Kept as separate <h3>+<ul>
        pairs rather than one long list so the CMS can repeat the group as a block. */
+    /* ---- ACCORDIONS -------------------------------------------------------------
+       Responsibilities, Expectations and Qualifications are <details>, not scripted
+       panels: the disclosure behaviour, the keyboard handling and the expanded/collapsed
+       state come from the element, so there is nothing to wire and nothing to get out of
+       step with the visible arrow. Same pattern the three listings-details-* pages use
+       for Land and Building (.ld-acc there) - if one changes, change both.
+
+       OVERVIEW IS NOT ONE. It is short, it is the first thing a candidate reads, and a
+       posting whose opening paragraph is behind a click is a posting nobody reads.
+
+       RESPONSIBILITIES SHIPS OPEN, the other two CLOSED (Kiron, 2026-09-21) - the `open`
+       attribute is the whole mechanism, there is no script and no stored state. Which
+       panels open on load is a content decision per posting, not a layout one.
+       Worth knowing before adding more: a closed <details> hides its contents from
+       in-page search in older browsers, and from print in all of them. If these postings
+       are ever meant to print or to be found by Ctrl+F, that is the cost. */
+    .cj-acc{ padding-top: var(--space-5); margin-top: var(--space-5);
+      border-top: 1px solid var(--color-border); }
+    .cj-acc:last-of-type{ padding-bottom: var(--space-5);
+      border-bottom: 1px solid var(--color-border); }
+    .cj-acc > summary{ display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4); cursor: pointer; list-style: none; padding: 0; }
+    /* Safari still paints its own triangle without this. */
+    .cj-acc > summary::-webkit-details-marker{ display: none; }
+    .cj-acc > summary h2{ margin: 0; }
+    .cj-acc > summary:hover h2{ color: var(--pc-medium-blue); }
+    .cj-acc > summary:focus-visible{ outline: 2px solid var(--pc-medium-blue);
+      outline-offset: 4px; border-radius: var(--radius-sm); }
+    .cj-acc-chev{ flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill);
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--color-border); color: var(--pc-navy);
+      transition: transform .2s ease, background-color .15s ease, border-color .15s ease; }
+    .cj-acc-chev svg{ width: 16px; height: 16px; }
+    .cj-acc > summary:hover .cj-acc-chev{ background: var(--pc-light-blue);
+      border-color: var(--pc-light-blue); }
+    .cj-acc[open] > summary .cj-acc-chev{ transform: rotate(180deg); }
+    @media (prefers-reduced-motion: reduce){ .cj-acc-chev{ transition: none; } }
+    .cj-acc-body{ padding-top: var(--space-4); }
+    /* The first group inside an open panel does not need its own top margin - the body
+       padding above it already sets it off the summary. */
+    .cj-acc-body > .cj-group:first-child{ margin-top: 0; }
+
     .cj-group{ margin-top: var(--space-6); }
     .cj-group h3{ margin: 0 0 var(--space-3); font-size: var(--h4-size); }
     .cj-group ul{ margin: 0; padding-left: 1.1em; }
@@ -119,10 +185,16 @@
        permitted child of a <dl> - the only children allowed are dt, dd and div. */
     .cj-why > div + div{ margin-top: var(--space-5); padding-top: var(--space-5);
       border-top: 1px solid rgba(255,255,255,.22); }
-    .cj-why dt{ font-family: var(--font-serif); font-size: 16px;
+    /* UP AND BOLDER (Kiron, 2026-09-21): 16 -> 19px, and an explicit 600. The serif ran
+       at its 400 default, which at 16px sat only two points over its own dd and read as
+       another line of copy rather than the label for it.
+       All three rules below are element selectors on .cj-why, so they land on all four
+       points at once - there is nothing per-item to keep in step. */
+    .cj-why dt{ font-family: var(--font-serif); font-size: 19px; font-weight: 600;
       line-height: 1.25; color: var(--pc-white); }
-    /* Stepped down from --body: this is supporting copy on the rail, not the posting. */
-    .cj-why dd{ margin: 6px 0 0; font-size: 14px; line-height: 1.55;
+    /* DOWN a step, 14 -> 13px (Kiron, 2026-09-21): supporting copy on the rail, and the
+       drop under the heavier dt is what makes the label read as a label. */
+    .cj-why dd{ margin: 6px 0 0; font-size: 13px; line-height: 1.55;
       color: var(--pc-white); }
     /* Each item ends in its own link out, as the live careers page has it. PC Light
        Blue on PC Navy is 7.6:1; the arrow is part of the link, not a bullet. */
@@ -131,21 +203,34 @@
        words rather than across the column. */
     .cj-whylink{ display: flex; width: fit-content;
       align-items: center; gap: 6px; margin-top: 8px;
-      font-family: var(--font-sans); font-size: 14px;
+      /* 13px MATCHES .cj-why dd (Kiron, 2026-09-21): the link is the last line of its
+         point, so it tracks the copy it ends rather than the dt above it. */
+      font-family: var(--font-sans); font-size: 13px;
       text-decoration: none; color: var(--pc-light-blue); }
     .cj-whylink:hover, .cj-whylink:focus-visible{ color: var(--pc-white);
       text-decoration: underline; }
     .cj-whylink svg{ width: 13px; height: 13px; flex: none; }
 
-    /* One row per posting: title over location, whole row clickable. */
+    /* ONE LINE PER POSTING: "Title — State", left aligned, whole row clickable.
+       NOT a flex row with the state pushed right (Kiron, 2026-09-21): at this width the
+       right-justified state left a ragged channel of white down the middle of the rail,
+       and the pairing read as two columns rather than as one label.
+
+       The row is plain inline text, so the state simply follows the title and the pair
+       wraps as one phrase when it has to. The em dash is drawn by .cj-job .l::before
+       rather than typed into the markup - the two spans stay clean CMS fields, and the
+       separator cannot be half-deleted with one of them. It is generated content, so it
+       is a separator and not data. */
     .cj-jobs{ display: flex; flex-direction: column; }
     .cj-job{ display: block; text-decoration: none; padding: var(--space-4) 0;
       border-bottom: 1px solid var(--color-border); }
     .cj-job:first-child{ border-top: 1px solid var(--color-border); }
-    .cj-job .t{ display: block; font-family: var(--font-serif); font-size: 16px;
-      line-height: 1.25; color: var(--pc-black); }
-    .cj-job .l{ display: block; margin-top: 5px; font-family: var(--font-sans);
-      font-size: 12px; color: var(--pc-black); }
+    .cj-job .t{ font-family: var(--font-serif); font-size: 16px; line-height: 1.35;
+      color: var(--pc-black); }
+    .cj-job .l{ font-family: var(--font-sans); font-size: 12px;
+      color: var(--color-text-muted); }
+    .cj-job .l::before{ content: "\2014"; margin: 0 6px;
+      color: var(--color-text-muted); }
     .cj-job:last-of-type{ border-bottom: 0; padding-bottom: 0; }
     .cj-job:hover .t{ color: var(--pc-medium-blue); }
     .cj-job:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
@@ -296,10 +381,20 @@
         <div class="cj-mast-row">
           <div>
             <h1>Land Agent</h1>
+
+            <!-- THE DIVISION, AS A MARK RATHER THAN A FACT. It came out of the <dl> below:
+                 the other six pairs are posting attributes a candidate scans, and the
+                 division is what the job IS. The gavel is the homepage's Land Brokerage &
+                 Auctions icon (.hp-gavel there) inlined again rather than shared - the
+                 seven service glyphs are not a component yet, see DEVELOPER-NOTES.md.
+                 The <svg> is aria-hidden and the word carries the meaning, so nothing is
+                 lost when the icon library lands and this is swapped out. -->
+            <p class="cj-divmark"><svg class="cj-divmark-ic" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg><span>Brokerage</span></p>
+
             <dl class="cj-facts">
-              <div><dt>Division</dt><dd>Brokerage</dd></div>
               <div><dt>Region</dt><dd>Midwest</dd></div>
               <div><dt>State</dt><dd>Nebraska</dd></div>
+              <div><dt>Office</dt><dd>Cumming</dd></div>
               <div><dt>Type</dt><dd>Hybrid</dd></div>
               <div><dt>Experience</dt><dd>Intermediate</dd></div>
               <div><dt>Status</dt><dd>Independent Contractor</dd></div>
@@ -333,70 +428,124 @@
             </p>
           </section>
 
-          <section class="cj-sec">
-            <h2>Responsibilities</h2>
+          <details class="cj-acc" id="responsibilities" open>
+            <summary><h2>Responsibilities</h2><span class="cj-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+            <div class="cj-acc-body">
 
-            <div class="cj-group">
-              <h3>Brokerage Proposals &amp; Marketing</h3>
-              <ul>
-                <li>Research properties and assemble brokerage proposals per client direction</li>
-                <li>Create maps, gather information and write marketing descriptions</li>
-                <li>Collaborate with the marketing team on print and digital materials</li>
-                <li>Install, maintain and remove brokerage signs</li>
-                <li>Manage MLS listings, company website listings and third-party platforms</li>
-              </ul>
-            </div>
+              <div class="cj-group">
+                <h3>Brokerage Proposals &amp; Marketing</h3>
+                <ul>
+                  <li>Research properties and assemble brokerage proposals per client direction</li>
+                  <li>Create maps, gather information and write marketing descriptions</li>
+                  <li>Collaborate with the marketing team on print and digital materials</li>
+                  <li>Install, maintain and remove brokerage signs</li>
+                  <li>Manage MLS listings, company website listings and third-party platforms</li>
+                </ul>
+              </div>
 
-            <div class="cj-group">
-              <h3>Brokerage Transactions</h3>
-              <ul>
-                <li>Maintain the sales pipeline via the Peoples Company platform</li>
-                <li>Prepare marketing activity and expense reports</li>
-                <li>Follow internal compliance processes</li>
-                <li>Communicate key dates to all parties</li>
-                <li>Coordinate closing procedures, including title review and document preparation</li>
-              </ul>
-            </div>
+              <div class="cj-group">
+                <h3>Brokerage Transactions</h3>
+                <ul>
+                  <li>Maintain the sales pipeline via the Peoples Company platform</li>
+                  <li>Prepare marketing activity and expense reports</li>
+                  <li>Follow internal compliance processes</li>
+                  <li>Communicate key dates to all parties</li>
+                  <li>Coordinate closing procedures, including title review and document preparation</li>
+                </ul>
+              </div>
 
-            <div class="cj-group">
-              <h3>Client Communication</h3>
-              <ul>
-                <li>Maintain confidentiality of company records and client information</li>
-                <li>Deliver exceptional customer service through professional communication</li>
-                <li>Share market conditions that support client decision-making</li>
-              </ul>
-            </div>
+              <div class="cj-group">
+                <h3>Client Communication</h3>
+                <ul>
+                  <li>Maintain confidentiality of company records and client information</li>
+                  <li>Deliver exceptional customer service through professional communication</li>
+                  <li>Share market conditions that support client decision-making</li>
+                </ul>
+              </div>
 
-            <div class="cj-group">
-              <h3>Technology Utilization</h3>
-              <ul>
-                <li>Use FarmWorth for mapping and land data analysis</li>
-                <li>Capture property media using drone technology</li>
-                <li>Maintain records in Salesforce, Dropbox and Dotloop</li>
-              </ul>
-            </div>
+              <div class="cj-group">
+                <h3>Technology Utilization</h3>
+                <ul>
+                  <li>Use FarmWorth for mapping and land data analysis</li>
+                  <li>Capture property media using drone technology</li>
+                  <li>Maintain records in Salesforce, Dropbox and Dotloop</li>
+                </ul>
+              </div>
 
-            <div class="cj-group">
-              <h3>Business Development &amp; Industry Engagement</h3>
-              <ul>
-                <li>Maintain a professional social media presence weekly</li>
-                <li>Market services to attorneys, CPAs and financial institutions</li>
-                <li>Cultivate relationships with new clients and referral sources</li>
-                <li>Participate in industry events and trade shows</li>
-                <li>Promote the Land Investment Expo through networking and social media</li>
-              </ul>
-            </div>
+              <div class="cj-group">
+                <h3>Business Development &amp; Industry Engagement</h3>
+                <ul>
+                  <li>Maintain a professional social media presence weekly</li>
+                  <li>Market services to attorneys, CPAs and financial institutions</li>
+                  <li>Cultivate relationships with new clients and referral sources</li>
+                  <li>Participate in industry events and trade shows</li>
+                  <li>Promote the Land Investment Expo through networking and social media</li>
+                </ul>
+              </div>
 
-            <div class="cj-group">
-              <h3>Cross-Selling &amp; Collaboration</h3>
-              <ul>
-                <li>Communicate with the appraisal, management and capital markets teams</li>
-                <li>Share market intelligence on land values and transaction volume</li>
-                <li>Promote the full suite of company services</li>
-                <li>Identify co-listing opportunities</li>
-              </ul>
+              <div class="cj-group">
+                <h3>Cross-Selling &amp; Collaboration</h3>
+                <ul>
+                  <li>Communicate with the appraisal, management and capital markets teams</li>
+                  <li>Share market intelligence on land values and transaction volume</li>
+                  <li>Promote the full suite of company services</li>
+                  <li>Identify co-listing opportunities</li>
+                </ul>
+              </div>
             </div>
-          </section>
+          </details>
+
+          <!-- PLACEHOLDER CONTENT. The live Land Agent posting does not break its copy out
+               this way, so there is nothing to lift. Greeked rather than written so it
+               cannot be mistaken for PC's words, and kept to the same shape as
+               Responsibilities - named groups, each a heading over its own list - so the
+               CMS model is the same for all three (see the repeater note in the doc). -->
+          <details class="cj-acc" id="expectations">
+            <summary><h2>Expectations</h2><span class="cj-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+            <div class="cj-acc-body">
+
+              <div class="cj-group">
+                <h3>Lorem Ipsum Dolor</h3>
+                <ul>
+                  <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit</li>
+                  <li>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</li>
+                  <li>Ut enim ad minim veniam, quis nostrud exercitation ullamco</li>
+                </ul>
+              </div>
+
+              <div class="cj-group">
+                <h3>Consectetur Adipiscing</h3>
+                <ul>
+                  <li>Duis aute irure dolor in reprehenderit in voluptate velit esse</li>
+                  <li>Excepteur sint occaecat cupidatat non proident</li>
+                  <li>Sunt in culpa qui officia deserunt mollit anim id est laborum</li>
+                </ul>
+              </div>
+            </div>
+          </details>
+
+          <details class="cj-acc" id="qualifications">
+            <summary><h2>Qualifications</h2><span class="cj-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
+            <div class="cj-acc-body">
+
+              <div class="cj-group">
+                <h3>Lorem Ipsum Dolor</h3>
+                <ul>
+                  <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit</li>
+                  <li>Sed do eiusmod tempor incididunt ut labore et dolore magna</li>
+                  <li>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris</li>
+                </ul>
+              </div>
+
+              <div class="cj-group">
+                <h3>Consectetur Adipiscing</h3>
+                <ul>
+                  <li>Duis aute irure dolor in reprehenderit in voluptate velit</li>
+                  <li>Excepteur sint occaecat cupidatat non proident, sunt in culpa</li>
+                </ul>
+              </div>
+            </div>
+          </details>
 
         </div><!-- /.cj-main -->
 
