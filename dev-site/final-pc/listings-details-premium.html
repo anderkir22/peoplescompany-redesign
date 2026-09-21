@@ -208,6 +208,82 @@
     .lp-wrap > section{
       scroll-margin-top: calc(var(--navH) + var(--lp-jump-h) + var(--space-4)); }
 
+    /* ---- BROCHURE: THE PAGE-FLIP READER -----------------------------------------
+       StPageFlip (page-flip 2.0.7, from jsDelivr) turning SIXTEEN PRE-RENDERED IMAGES,
+       not the PDF. Two reasons it cannot be the PDF. StPageFlip has no PDF reader of
+       its own - it flips elements. And the PDF cannot be rendered in the browser
+       either: peoples-listings.nyc3.digitaloceanspaces.com serves it with no
+       Access-Control-Allow-Origin header, so PDF.js cannot fetch it cross-origin from
+       this host or any other.
+
+       So ../assets/brochure-19278/p01..p16.webp were rendered from that exact file at
+       136dpi - 1496x1156 each, WebP q78, 2.8MB for the set. THEY ARE A BUILD ARTEFACT
+       AND NOTHING HERE DETECTS A STALE ONE. Re-render them whenever the brochure is
+       replaced. A production build renders them in the pipeline that publishes the
+       PDF, or serves the PDF with CORS and drops this image set for PDF.js.
+
+       SINGLE PAGE, NEVER A SPREAD. The brochure is 11x8.5 landscape and every page is
+       composed to stand alone - its own header, its own footer bar - so there is no
+       spread to preserve. The sizes settle it too: two-up across the whole rail gives
+       each page 688px, while one page in the right two thirds gives it about 875px.
+       Single page is both truer to the artwork and substantially larger.
+       StPageFlip chooses portrait when the box is narrower than minWidth * 2. minWidth
+       is 600 in the config below and the rail never reaches 1200, so it is always
+       portrait. DO NOT LOWER minWidth BELOW HALF THE RAIL or it starts drawing spreads.
+
+       NOT ON PHONES, AND NOTHING IS DOWNLOADED THERE. Below 768px the reader does not
+       exist. The sixteen images sit in a <template>, which is inert - a browser never
+       fetches from one - and both the 44KB library and the clone into the stage are
+       behind a matchMedia gate. A phone gets the download pill and nothing else.
+
+       THE DOWNLOAD PILL IS THE PRIMARY ROUTE AT EVERY WIDTH, not the phone's
+       consolation prize. A drag surface is not keyboard operable and offers a screen
+       reader nothing, so the PDF is the accessible path to this content on a 27-inch
+       monitor as much as on a phone. The Previous and Next buttons beside it are real
+       buttons for the same reason: they are the keyboard's way through the reader. */
+    .lp-broch{ display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6);
+      align-items: start; }
+    /* 1fr / 2fr - the left third carries the download and the controls, the right two
+       thirds the reader. ONE COLUMN BELOW 1280, where two thirds of the rail is too
+       narrow to be worth the split and the reader is better off with the full width. */
+    @media (min-width: 1280px){
+      .lp-broch{ grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+        gap: var(--space-8); } }
+
+    .lp-broch-aside .lp-btn{ margin-bottom: var(--space-4); }
+    .lp-broch-meta{ font-family: var(--font-sans); font-size: 13px; line-height: 1.6;
+      color: var(--color-text-muted); margin: 0 0 var(--space-5); }
+
+    /* Hidden until the reader is actually built - on a phone these would be controls
+       for something that is not on the page. The script unhides them. */
+    .lp-broch-ctrls{ display: flex; align-items: center; gap: var(--space-3);
+      flex-wrap: wrap; }
+    .lp-broch-ctrls[hidden]{ display: none; }
+    /* THE SUB NAV'S COLOUR PAIR, like .lp-btn above and for the same reason: it is the
+       one combination on this page whose contrast the listing's own script has checked.
+       Outlined rather than filled so they read as secondary to the download pill. */
+    .lp-broch-ctrls button{ font-family: var(--font-sans); font-size: 13px;
+      font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+      padding: 8px 16px; border: 1px solid var(--lp-navbg); border-radius: 999px;
+      background: transparent; color: var(--lp-navbg); cursor: pointer; }
+    .lp-broch-ctrls button:hover:not(:disabled){ background: var(--lp-navbg);
+      color: var(--lp-navfg); }
+    .lp-broch-ctrls button:disabled{ opacity: .35; cursor: default; }
+    .lp-broch-count{ font-family: var(--font-sans); font-size: 13px;
+      color: var(--color-text-muted); }
+
+    /* THE ASPECT RATIO IS LOAD-BEARING, NOT DECORATION. StPageFlip derives its page
+       height from the container's offsetHeight (Render.getBlockHeight), and autoSize
+       sets only the container's width. Without a height coming from CSS the container
+       measures 0 and every page collapses. 792/612 is the PDF's own trim, so the
+       height it produces is exactly the height the library wants and nothing is
+       clamped. It also holds the space before the library lands, so the section does
+       not jump. Change it only alongside the width/height pair in the config. */
+    .lp-broch-stage{ aspect-ratio: 792 / 612; }
+    .lp-broch-stage[hidden]{ display: none; }
+    .lp-broch-page{ background: var(--pc-white); }
+    .lp-broch-page img{ display: block; width: 100%; height: 100%; object-fit: contain; }
+
 
     /* ---- TRACTS: THE INDEX LIST ----
        The 5-or-more treatment from the other listing detail pages: a plain index of
@@ -711,12 +787,87 @@
           and other specialty crops, making the property well-suited for potential conversion
           to irrigated row crop production if desired.</p>
 
-        <!-- A real file on the listings host, not a placeholder. It opens in a new tab
-             because it is a 7MB PDF and leaving the page to fetch it loses the visitor's
-             place. -->
-        <a class="btn lp-btn"
-           href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/19278_Wallula%20Vineyard%20Brochure.pdf"
-           target="_blank" rel="noopener">Download Brochure</a>
+      </section>
+
+      <!-- ==== BROCHURE ==== -->
+      <!-- NO SUB NAV ENTRY, DELIBERATELY. The jump row already carries eight items and
+           its spacing is an open issue; a ninth item is a change to that row, not to
+           this section. Add <a href="#lp-brochure">Brochure</a> once the row is settled.
+           The PDF is a real file on the listings host, not a placeholder, and the pill
+           opens it in a new tab: it is 7MB and leaving the page to fetch it loses the
+           visitor's place. -->
+      <section id="lp-brochure" class="lp-section reveal" aria-labelledby="lp-brochure-h">
+        <h2 id="lp-brochure-h" class="lp-h2">Brochure</h2>
+        <div class="lp-broch">
+          <div class="lp-broch-aside">
+            <a class="btn lp-btn" href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/19278_Wallula%20Vineyard%20Brochure.pdf"
+               target="_blank" rel="noopener">Download Brochure</a>
+            <p class="lp-broch-meta">PDF &middot; 16 pages &middot; 7&nbsp;MB &middot; opens in a new tab</p>
+            <div class="lp-broch-ctrls" id="lpBrochCtrls" hidden>
+              <button type="button" id="lpBrochPrev">Previous</button>
+              <button type="button" id="lpBrochNext">Next</button>
+              <span class="lp-broch-count" id="lpBrochCount" aria-live="polite">Page 1 of 16</span>
+            </div>
+          </div>
+          <!-- Empty and hidden. The script clones the template below into it. -->
+          <div class="lp-broch-stage" id="lpBrochStage" hidden></div>
+        </div>
+        <!-- THE PAGES LIVE IN A TEMPLATE so that a phone, which never builds the reader,
+             never fetches 2.8MB of images. Template content is inert: it is parsed but
+             not rendered, and its images are not requested until it is cloned.
+             The alt text names the page and no more. It cannot describe what is on the
+             page and should not pretend to - the download pill is the route to this
+             content for anyone who is not looking at it. -->
+        <template id="lpBrochTpl">
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p01.webp"
+              width="1496" height="1156" loading="eager" decoding="async"
+              alt="Brochure page 1 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p02.webp"
+              width="1496" height="1156" loading="eager" decoding="async"
+              alt="Brochure page 2 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p03.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 3 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p04.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 4 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p05.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 5 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p06.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 6 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p07.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 7 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p08.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 8 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p09.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 9 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p10.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 10 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p11.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 11 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p12.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 12 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p13.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 13 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p14.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 14 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p15.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 15 of 16" /></div>
+            <div class="lp-broch-page"><img src="../assets/brochure-19278/p16.webp"
+              width="1496" height="1156" loading="lazy" decoding="async"
+              alt="Brochure page 16 of 16" /></div>
+        </template>
       </section>
 
       <!-- The sections below are in sub nav order. -->
@@ -1649,6 +1800,121 @@
          here and cannot close the window out from under the click. */
       box.addEventListener("click", function(e){ if(e.target === box) close(); });
       trig.addEventListener("click", function(){ open(trig); });
+    })();
+
+    /* ---- BROCHURE: THE PAGE-FLIP READER ----
+       Builds the StPageFlip reader, but only where it belongs and only when it is
+       nearly on screen. The CSS note over .lp-broch has the reasoning; this is the
+       order of operations.
+
+       THREE GATES, IN THIS ORDER.
+       1. matchMedia 768px. Below it nothing happens at all - no library request, no
+          clone, so none of the sixteen images are fetched. The pill stands alone.
+       2. IntersectionObserver. Even on a desktop the reader is not built on load: this
+          section sits above a FarmWorth map and three YouTube embeds, and the library
+          plus the first pages are around 400KB. It is built 400px before it arrives.
+       3. The stage is unhidden BEFORE the library is constructed. StPageFlip measures
+          offsetWidth and offsetHeight at construction, and a display:none box measures
+          zero in both.
+
+       THE MEDIA QUERY IS LIVE, not read once. Rotating a tablet or dragging a window
+       across 768 is a real crossing, so the reader is destroyed on the way down and
+       rebuilt on the way up rather than being left stranded at a width it was never
+       sized for. The template survives destruction - cloneNode does not consume it. */
+    (function(){
+      var stage = document.getElementById("lpBrochStage"),
+          tpl   = document.getElementById("lpBrochTpl"),
+          ctrls = document.getElementById("lpBrochCtrls"),
+          prev  = document.getElementById("lpBrochPrev"),
+          next  = document.getElementById("lpBrochNext"),
+          count = document.getElementById("lpBrochCount");
+      if(!stage || !tpl || !ctrls) return;
+      if(!("IntersectionObserver" in window) || !("content" in tpl)) return;
+
+      var LIB = "https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js";
+      var total = tpl.content.querySelectorAll(".lp-broch-page").length;
+      var mq = window.matchMedia("(min-width: 768px)");
+      var flip = null, io = null, libP = null;
+
+      function loadLib(){
+        if(libP) return libP;
+        libP = new Promise(function(res, rej){
+          var el = document.createElement("script");
+          el.src = LIB; el.async = true;
+          el.onload = res; el.onerror = function(){ libP = null; rej(); };
+          document.head.appendChild(el);
+        });
+        return libP;
+      }
+
+      /* The counter is the only running commentary a keyboard user gets, so it is
+         aria-live. The buttons disable at the ends rather than wrapping: this is a
+         brochure, and page 16 does not lead back to page 1. */
+      function sync(){
+        if(!flip) return;
+        var i = flip.getCurrentPageIndex();
+        prev.disabled = i <= 0;
+        next.disabled = i >= total - 1;
+        count.textContent = "Page " + (i + 1) + " of " + total;
+      }
+
+      function build(){
+        if(flip) return;
+        stage.hidden = false;                      // before construction - see above
+        stage.appendChild(tpl.content.cloneNode(true));
+        loadLib().then(function(){
+          if(!mq.matches){ stage.hidden = true; stage.innerHTML = ""; return; }
+          var slow = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          flip = new St.PageFlip(stage, {
+            /* width/height are the PDF's trim and set the RATIO, not the rendered
+               size - size:"stretch" takes the real width from the container. They
+               must stay in step with the aspect-ratio in the CSS. */
+            width: 792, height: 612, size: "stretch",
+            minWidth: 600, maxWidth: 1000,         // minWidth*2 > the rail => portrait
+            minHeight: 400, maxHeight: 900,
+            usePortrait: true,
+            showCover: false,                      // no cover: page 1 is a page
+            drawShadow: true, maxShadowOpacity: .4,
+            flippingTime: slow ? 0 : 600,
+            useMouseEvents: true,
+            /* Leaves vertical touch drags to the page, so a tablet can still scroll
+               past the reader instead of being trapped flipping it. */
+            mobileScrollSupport: true
+          });
+          flip.loadFromHTML(stage.querySelectorAll(".lp-broch-page"));
+          flip.on("flip", sync);
+          ctrls.hidden = false;
+          sync();
+        }).catch(function(){
+          /* jsDelivr did not answer. Roll all the way back rather than leaving an
+             empty box: the download pill is a complete route to the brochure. */
+          stage.hidden = true; stage.innerHTML = "";
+        });
+      }
+
+      function destroy(){
+        if(io){ io.disconnect(); io = null; }
+        if(flip){ flip.destroy(); flip = null; }
+        stage.innerHTML = ""; stage.hidden = true; ctrls.hidden = true;
+      }
+
+      prev.addEventListener("click", function(){ if(flip) flip.flipPrev(); });
+      next.addEventListener("click", function(){ if(flip) flip.flipNext(); });
+
+      function arm(){
+        if(!mq.matches){ destroy(); return; }
+        if(io || flip) return;
+        io = new IntersectionObserver(function(entries){
+          for(var i = 0; i < entries.length; i++){
+            if(entries[i].isIntersecting){ io.disconnect(); io = null; build(); return; }
+          }
+        }, { rootMargin: "400px 0px" });
+        io.observe(stage.parentNode);
+      }
+
+      if(mq.addEventListener) mq.addEventListener("change", arm);
+      else mq.addListener(arm);
+      arm();
     })();
 
   </script>
