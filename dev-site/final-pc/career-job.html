@@ -34,13 +34,33 @@
        Apply button) below the fold. */
     .cj-mast{ background: var(--pc-soft-white); border-bottom: 1px solid var(--color-border); }
     .cj-mast .cj-wrap{ padding-top: var(--space-6); padding-bottom: var(--space-6); }
-    /* Title block left, Apply right on the same rows, so the button costs the band no
-       height of its own. align-items:end sits it on the facts line rather than the
-       title line, which keeps it clear of a two-line job title. */
+    /* THE APPLY BUTTON SITS BESIDE THE FACTS UNTIL IT CANNOT (Kiron, 2026-09-22).
+       Beside them it costs the facts row 444px - its own 380px plus the 48px gutter - and
+       that is affordable only while --site is at its 1440 cap. The switch is in the
+       responsive section at the bottom: the button drops below the row under 1536, and
+       the arithmetic for why 1536 is the right width is written there.
+
+       align-items: end sits the button on the facts line rather than the title line,
+       which keeps it clear of a two-line job title, and costs the band no height of its
+       own. flex: 1 on the title block is what lets the facts <dl> fill the space left
+       over: without it the block is content-sized, the row has no leftover, and
+       space-between on .cj-facts has nothing to distribute. min-width: 0 lets that block
+       shrink below its content, which a flex item will not do on its own. */
     .cj-mast-row{ display: flex; align-items: end; justify-content: space-between;
       gap: var(--space-7); margin-top: var(--space-4); }
-    .cj-mast-row > div{ min-width: 0; }
-    .cj-mast-row .btn{ flex: none; width: var(--cj-rail-w); justify-content: center; }
+    .cj-mast-row > div{ min-width: 0; flex: 1; }
+    /* max-width IS THE FIX FOR 320, and it is on the base rule rather than in a query
+       on purpose (Kiron, 2026-09-22). --cj-rail-w is a fixed 380px, and stacked below
+       1536 that is wider than the content box under a 420px viewport - the button then
+       set the PAGE's minimum width and everything scrolled sideways: 100px of horizontal
+       overflow at 320, with all eight bands measuring 420px.
+
+       Capping here guards every width at once, so no future breakpoint can reintroduce
+       it. Above 640 the column is wider than 380px and this does nothing; below it the
+       button shrinks to the column and reads full width, which is what blog.html already
+       does to .ls-apply at this end of the ladder. */
+    .cj-mast-row .btn{ flex: none; width: var(--cj-rail-w); max-width: 100%;
+      justify-content: center; }
 
     /* PC NAVY ON BOTH BUTTONS, PAGE-LOCALLY. The page has exactly two .btn-primary - the
        masthead's "Apply for this Position" and the form's "Submit Application" - and they
@@ -76,30 +96,61 @@
        CMS fills, and a screen reader reads the label with its value. Six fields: Region,
        State, Office, Type, Experience, Status. Division is not among them - it is the
        mark above. */
-    .cj-facts{ display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6);
-      margin: var(--space-4) 0 0; }
+    /* THE SIX CELLS ARE SPREAD, NOT PACKED (Kiron, 2026-09-22). justify-content:
+       space-between hands the row's leftover width to the five gaps in equal shares, so
+       the cells sit evenly across the column instead of bunching left and leaving dead
+       space before the Apply button.
+
+       The five gaps are always equal to each other, at every width and for every
+       posting. What they are NOT is the same number from posting to posting: the cells
+       size to their content, so longer values leave less over to share out. That is the
+       trade that was chosen - see the note on .cj-facts below.
+
+       column-gap is the FLOOR, not the gap: space-between only distributes what is left
+       after it, so the cells still cannot touch as the column narrows.
+
+       Not space-evenly or space-around: those pad the outer edges too, which would pull
+       Region off the page's left rail and break its alignment with the h1 and the
+       division mark above it. The first cell must stay flush left. */
+    .cj-facts{ display: flex; flex-wrap: wrap; justify-content: space-between;
+      gap: var(--space-3) var(--space-6); margin: var(--space-4) 0 0; }
     .cj-facts div{ display: flex; flex-direction: column; gap: 4px; }
 
-    /* THE COLUMN WIDTHS ARE LOCKED (Kiron, 2026-09-22). Every field holds the width of
-       the longest value it can ever carry, so a short value leaves the row spaced exactly
-       as it is here - "Midwest" must not pull Region's column in and shift the five
-       fields after it left.
+    /* THE CELLS SIZE TO THEIR CONTENT, AND THE GAP IS WHAT IS LEFT OVER (Kiron,
+       2026-09-22). Each cell is as wide as the wider of its label and its value, and
+       space-between hands the remaining width to the five gaps in equal shares. So the
+       WHITESPACE BETWEEN VALUES IS EQUAL - the space after "Delta" matches the space
+       after "Remote" - which is the thing being held constant here.
 
-       The mechanism is the gauge span, not a set of pixel widths: each cell carries a
-       second copy of its longest possible value, which is measured for the cell's
-       intrinsic width and then not painted. height:0 keeps it off the row's height and
-       visibility:hidden keeps it off the screen, but it still sets the min width, so the
-       column cannot be narrower than its worst case. No magic numbers, and nothing to
-       re-measure when the font or the value list changes - a developer swaps the gauge's
-       text and the width follows.
+       The widths are deliberately NOT pinned. An earlier pass locked each column to the
+       longest value its field can hold, via a hidden gauge span, so that every posting
+       spaced identically; that is what made the gaps visibly uneven, because a short
+       value left its locked column half empty. Even gaps and identical-across-postings
+       positions cannot both be had, and even gaps won.
 
-       aria-hidden on every gauge: it is a duplicate of the dd beside it and a screen
-       reader must not read the value twice. It inherits the dd's font from .cj-facts div,
-       so it must stay a sibling of the dd - moving it changes what it measures. */
-    .cj-facts-gauge{ display: block; height: 0; overflow: hidden; visibility: hidden;
-      font-family: var(--font-sans); font-size: var(--body); font-weight: 600;
-      white-space: nowrap; pointer-events: none; }
-    .cj-facts dt{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+       The cost, so it is not rediscovered as a bug: A POSTING'S COLUMNS MOVE WITH ITS
+       CONTENT. A Midwest posting sits its cells further left than a Pacific Northwest
+       one. Nothing else on the page aligns to these columns, so nothing breaks - but do
+       not add anything below that expects a fixed x. */
+    /* THE LABEL DOES NOT SET THE CELL'S WIDTH - THE VALUE DOES (Kiron, 2026-09-22).
+       width: 0 with overflow visible takes the <dt> out of the cell's width calculation
+       while still drawing it in place, so the cell is exactly as wide as its <dd>. That
+       is what makes the whitespace BETWEEN VALUES equal rather than merely the whitespace
+       between cell edges: three labels here - REGION, STATE and EXPERIENCE - are wider
+       than their own values, and while they sized their cells, "Delta" and "Iowa" carried
+       trailing space that "Remote" did not.
+
+       The label then overhangs its cell to the right, into the gap. THE GAP FLOOR IS WHAT
+       KEEPS THAT SAFE: column-gap is var(--space-6), 32px, and the worst overhang in
+       today's content is REGION over "Delta" at about 13px. A value far shorter than its
+       own label would eat into that headroom - a two-letter Region against REGION would
+       need ~20px more than the floor allows - so if the value lists ever gain something
+       that short, check this row before shipping it.
+
+       white-space: nowrap because a zero-width box would otherwise wrap the label to one
+       character per line. */
+    .cj-facts dt{ width: 0; overflow: visible; white-space: nowrap;
+      font-family: var(--font-sans); font-size: 12px; font-weight: 700;
       letter-spacing: .1em; text-transform: uppercase; color: var(--pc-medium-blue); }
     .cj-facts dd{ margin: 0; font-family: var(--font-sans); font-size: var(--body);
       font-weight: 600; color: var(--color-text); }
@@ -243,7 +294,9 @@
     .cj-jobs{ display: flex; flex-direction: column; }
     .cj-job{ display: block; text-decoration: none; padding: var(--space-4) 0;
       border-bottom: 1px solid var(--color-border); }
-    .cj-job:first-child{ border-top: 1px solid var(--color-border); }
+    /* NO border-top on the first row. .cj-rail h2 already carries a border-bottom, and
+       the two together drew a double line under "Other Open Positions" at every width
+       (Kiron, 2026-09-22). The heading's line is the top of the list. */
     .cj-job .t{ font-family: var(--font-serif); font-size: 16px; line-height: 1.35;
       color: var(--pc-black); }
     .cj-job .l{ font-family: var(--font-sans); font-size: 12px;
@@ -316,12 +369,229 @@
       margin: 0; }
 
     /* ---- responsive --------------------------------------------------------------- */
-    @media (max-width: 1023px){
-      .cj-cols{ grid-template-columns: 1fr; gap: var(--space-7); }
+
+    /* THE APPLY BUTTON DROPS BELOW THE FACTS ROW HERE, AND ONLY HERE (Kiron,
+       2026-09-22). Not a style preference - it is the width at which the two stop
+       fitting side by side:
+
+         the widest real posting needs   666.8px of content + 5 x 32px gap floor = 827px
+         beside the button it is offered  column - 380px button - 48px gutter
+           at 1536 and up (--site 1440)   1376 - 428 = 948px   -> fits, 121px spare
+           just below 1536 (--site 1280)  1201 - 428 = 773px   -> 54px short, wraps
+
+       So above this the button costs the row nothing it needs, and below it the button is
+       the only reason the six cells would break. --site is capped at 1440, so the 948px
+       never grows and this never needs a second rung upward.
+
+       Stacked, the band becomes a plain block: title, mark, facts, button. The title
+       block's flex: 1 and the button's flex: none simply stop applying - a block child
+       fills its parent by itself, and that full width is what space-between distributes.
+       The button is left justified by being an inline-flex box in block flow; there is no
+       float or auto margin to undo. It keeps --cj-rail-w, so it still measures the same
+       as the rail below it and the two share an edge down the page. */
+    @media (max-width: 1535px){
+      .cj-mast-row{ display: block; }
+      .cj-mast-row .btn{ margin-top: var(--space-6); }
     }
+
+    /* UNDER 1024 THE PAGE IS ONE COLUMN, AND OTHER OPEN POSITIONS MOVES BELOW THE FORM
+       (Kiron, 2026-09-22). Stacked order: copy, Why Work With Us, Submit Your
+       Application, Other Open Positions, Equal Opportunity.
+
+       WHY THIS IS NOT JUST AN `order` ON .cj-cols. The form is a full-bleed band and a
+       direct child of <main>; Other Open Positions is nested two levels in, inside
+       .cj-aside inside .cj-cols. `order` only sorts siblings, so the two have to become
+       siblings first. display: contents on the wrap, the grid and the aside dissolves
+       those three boxes without touching the markup, promoting .cj-main and the two
+       .cj-rail sections to children of <main> alongside the form and the EEO band. Then
+       one set of order values sorts all five.
+
+       The alternative was moving the form's markup inside .cj-cols, which would have cost
+       it its full-bleed background - it would have been trapped in the content box, a
+       soft-white panel with white either side instead of an edge-to-edge band.
+
+       THE THREE DISSOLVED BOXES TAKE THEIR LAYOUT WITH THEM, so it is re-supplied here:
+         - the wrap's max-width and --rail inset, as a width on each promoted item. A
+           width, not padding: .cj-rail--navy is a filled card, and padding would push its
+           text inward instead of insetting the card.
+         - .cj-cols' own padding and gap, as top and bottom margins.
+       <main> carries no gap: its other children are full-bleed bands that must stay
+       flush, and a row-gap would open white seams between them.
+
+       The masthead sections need no order - 0 is the default and sorts them first. */
+
+    @media (max-width: 1023px){
+      /* minmax(0, 1fr), NOT 1fr. A 1fr track is minmax(auto, 1fr), and its auto
+         minimum is the widest item's min-content contribution. The Apply button is a
+         fixed 380px, and a percentage max-width on it resolves to none while the track
+         is being intrinsically sized - so the track floored at 380 + two rails = 420px,
+         the bands all stretched to 420, and the page scrolled sideways below that width
+         however the button was capped. minmax(0, ...) lets the track shrink below its
+         content, which makes the column definite and the button's max-width bite.
+         Same reason .cj-cols uses minmax(0, 1fr) for its main column. */
+      .cj-body{ display: grid; grid-template-columns: minmax(0, 1fr); }
+      .cj-colswrap, .cj-cols, .cj-aside{ display: contents; }
+
+      /* Only the copy column takes the wrap's inset. Both rail sections go full bleed
+         below - see the band rules underneath. */
+      .cj-main{ width: min(100%, calc(var(--site) - 2 * var(--rail)));
+        margin-inline: auto; }
+
+      .cj-main{ order: 1; margin-top: var(--space-8);
+        margin-bottom: var(--space-8); }
+      .cj-rail--navy{ order: 2; }
+      .cj-form-sec{ order: 3; }
+      .cj-rail--box{ order: 4; }
+      .cj-eeo{ order: 5; }
+
+      /* ---- BOTH RAIL CARDS BECOME FULL-BLEED PC NAVY BANDS (Kiron, 2026-09-22) -------
+         Above 1024 these are two 380px cards stacked in the rail: Why Work With Us filled
+         navy, Other Open Positions a soft-white box. Below it they are both edge-to-edge
+         navy bands, so the stacked page reads as a run of bands - navy, soft-white form,
+         navy, white EEO - rather than a card floating above a band.
+
+         Going full bleed needs no negative margins or 100vw: display: contents on the
+         wrap, the grid and the aside has already promoted these to children of the
+         <main> grid, so dropping the width constraint is enough. padding-inline of
+         --rail then lands their content on exactly the same edge as .cj-main above,
+         because --site is 100% in this band (pc.css does that deliberately, see §5
+         there) and the wrap's content box is therefore also 100% minus two rails.
+
+         No margins: the bands sit flush against the form band and each other. The colour
+         change is the separation, so a gap would only open a white seam. */
+      .cj-rail{ width: auto; margin-inline: 0; border: 0; border-radius: 0;
+        background: var(--pc-navy); color: var(--pc-white);
+        padding: var(--space-7) var(--rail); }
+
+      /* The colour hierarchy is the navy card's own, reused rather than reinvented:
+         PC Light Blue heading and labels at 7.6:1, white titles at 10.4:1, hairlines at
+         22% white. Applied to .cj-rail so the box matches the card it now sits beside. */
+      .cj-rail h2{ color: var(--pc-light-blue);
+        border-bottom-color: rgba(255,255,255,.22); }
+      .cj-job{ border-bottom-color: rgba(255,255,255,.22); }
+      .cj-job .t{ color: var(--pc-white); }
+      .cj-job .l, .cj-job .l::before{ color: var(--pc-light-blue); }
+      .cj-job:hover .t{ color: var(--pc-light-blue); }
+      /* Centred in the band. display: flex, not margin-inline: auto - .cj-alljobs is
+         inline-flex, and auto margins do not centre an inline-level box. */
+      .cj-alljobs{ display: flex; justify-content: center;
+        color: var(--pc-light-blue); }
+      .cj-alljobs:hover{ color: var(--pc-white); }
+      /* The focus ring was PC Navy, which is invisible on a PC Navy band. */
+      .cj-job:focus-visible, .cj-alljobs:focus-visible{ outline-color: var(--pc-white); }
+    }
+
+    /* ---- THE EIGHT POSITIONS GO TWO-UP BETWEEN 768 AND 1023 (Kiron, 2026-09-22) -------
+       A column of four, then a column of four. column-count, not a grid: it flows DOWN
+       the first column and continues in the second, which is the reading order a list
+       wants, where a two-column grid would fill across and read 1-2 / 3-4. It is also
+       count-agnostic - the CMS decides how many rows there are, since the list omits the
+       posting you are on, and column-count balances whatever it gets.
+
+       WHY IT STOPS AT 767, measured rather than picked: the widest row is "Certified
+       General Appraiser - Washington" at 285.4px on one line. Two of those plus the 48px
+       gap need 619px of content, so they collide at about a 683px viewport. 768 is the
+       nearest rung above that and leaves 328px per column, 42px of headroom; 640 would
+       give 264px and break the row. Below 767 it returns to one column of eight.
+
+       The borders change with the layout. One column hangs a hairline under every row and
+       drops it on the last. Two columns cannot do that - the fourth row is the bottom of
+       a column but not the last row - so every row takes a hairline above instead and the
+       <nav> closes both columns with one below. break-inside stops a row being split
+       across the column boundary. */
+    @media (min-width: 768px) and (max-width: 1023px){
+      /* display: block is required, not tidiness - .cj-jobs is a flex column by
+         default and column-count has no effect on a flex container. */
+      .cj-jobs{ display: block; column-count: 2; column-gap: var(--space-7); }
+      /* Every row keeps its hairline BELOW, including the last one. That closes the
+         bottom of both columns - row 4 ends the first, row 8 ends the second - while the
+         heading's own border closes the top of both, since the columns start on the same
+         line. Hairlines above would have doubled with the heading's, and nth-child would
+         have hard-coded four rows into a list whose length the CMS decides. */
+      .cj-job{ break-inside: avoid; }
+      .cj-job:last-of-type{ border-bottom: 1px solid rgba(255,255,255,.22);
+        padding-bottom: var(--space-4); }
+    }
+    /* ONCE THE FACTS ROW WRAPS, IT PACKS FROM THE LEFT (Kiron, 2026-09-22).
+       space-between is right for a single line - it spreads the six cells evenly across
+       the column and lands Region on the rail. On a WRAPPED row it is wrong: it stretches
+       the short last line to the full width too, so a 4 + 2 split flung Status out to the
+       right edge with a chasm beside Experience.
+
+       flex-start instead, with the gap as the gap. Status stops hitting the right edge,
+       Experience lands directly under Region, and every line still starts on the rail -
+       the same left edge as the back link, the title, the mark and the button.
+
+       WHY 890 AND NOT 1023. CSS cannot ask whether a flex line wrapped; justify-content
+       applies to every line at once. So this is a width, and it is the width at which the
+       widest real posting stops fitting on one line:
+
+         widest posting   666.8px of content + 5 x 32px gap = 826.8px
+         available        viewport - 2 x 32px rail
+         so it wraps below 890.8px
+
+       Switching there rather than at 1023 keeps the two behaviours from colliding: above
+       890 space-between still has room to distribute, and below it the row has wrapped
+       anyway. Pinning it to 1023 would have left a 130px band where the row still fits on
+       one line but no longer filled it, which reads as a jump at the breakpoint.
+
+       Shorter postings wrap later - the narrowest not until about 535px - so between 890
+       and 535 their single line is left-packed rather than spread. That is the deliberate
+       trade: the line simply does not reach the right edge, instead of drifting off the
+       left rail, which is what centring would have cost every line. */
+    @media (max-width: 890px){
+      .cj-facts{ justify-content: flex-start; }
+    }
+
     @media (max-width: 767px){
       .cj-fields{ grid-template-columns: 1fr; }
+      /* THE SPAN HAS TO GO WITH THE COLUMNS (Kiron, 2026-09-22). grid-template-columns:
+         1fr alone did not give one column: .cj-field.half still carried grid-column:
+         span 2, and a span wider than the explicit grid CREATES AN IMPLICIT COLUMN. The
+         four half fields spanned an invented second track while the four plain ones sat
+         in the first, so First Name got a label-width column with a square input in it
+         and Last Name ran wide beside it. Resetting the span is what makes the single
+         column real. .wide needs no reset - 1 / -1 is the whole grid whatever its
+         width. */
+      .cj-field.half{ grid-column: auto; }
       .cj-facts{ gap: var(--space-4) var(--space-5); }
+    }
+
+    /* THE APPLY BUTTON CENTRES IN THE COLUMN BELOW 640 (Kiron, 2026-09-22). Everywhere
+       above this it is left justified, on the same rail as the back link, the title, the
+       mark and the facts. 639 is where --rail steps from 32px to 20px, so the band this
+       covers is exactly the one where the page runs on the narrow rail.
+
+       display: flex, not the inline-flex .btn carries by default: an inline-level box
+       ignores auto margins, so it has to become block-level before margin-inline can
+       centre it. The width stays --cj-rail-w, so what centres is the 380px button itself,
+       not its label. */
+    @media (max-width: 639px){
+      .cj-mast-row .btn{ display: flex; margin-inline: auto; }
+
+      /* AND THE TWO SWAP OVER HERE. Above 640 the Apply button is left justified and
+         "View All Open Positions" is centred in its navy band; below 640 the button
+         centres and the link goes left. That is deliberate and it is not a mistake to
+         tidy up (Kiron, 2026-09-22) - at this width the button is the page's one action
+         and centring gives it the weight, while the link sits under a left-aligned list
+         of positions and reads as the last row of it. */
+      .cj-alljobs{ justify-content: flex-start; }
+    }
+
+    /* ONE FACT PER LINE BELOW 480 (Kiron, 2026-09-22). Wrapping six cells into a 280px
+       column gave 2 + 2 + 2 at 320 but 2 + 3 + 1 at 360 and 375, and 3 + 2 + 1 at 430 -
+       a different shape at every width, with a stranded cell on the last line at three of
+       them. One column is the same shape everywhere and has no orphan.
+
+       flex-direction: column rather than forcing each cell to 100%: the row-gap of the
+       existing gap pair then spaces them, and justify-content: flex-start from the 890
+       rule keeps meaning the same thing on the new main axis. Cells stretch to the full
+       column width by default, so label and value both start on the rail.
+
+       479 is the build's convention for this rung - blog, team, the three listing detail
+       pages and both team-member pages all break here. */
+    @media (max-width: 479px){
+      .cj-facts{ flex-direction: column; }
     }
   </style>
 </head>
@@ -413,22 +683,37 @@
             <p class="cj-divmark"><svg class="cj-divmark-ic" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg><span>Brokerage</span></p>
 
             <dl class="cj-facts">
-              <!-- THE SHIPPED VALUES ARE THE LONGEST EACH FIELD CAN HOLD, on purpose
-                   (Kiron, 2026-09-22): the row is the spacing standard, so it is drawn at
-                   its worst case and the locked columns hold that width for every posting.
-                   The Nebraska posting's real values are Midwest / Nebraska / Cumming.
-                     Region      longest of the six in the careers.html filter
-                     State       longest US state name; both Carolinas are in the build
-                     Office      longest of the 24 office cities on contact.html
-                   Type, Experience and Status already show their longest option.
-                   Each cell's .cj-facts-gauge repeats that longest value to pin the
-                   column width - see the CSS. Change a gauge only with its dd. -->
-              <div><dt>Region</dt><dd>Pacific Northwest</dd><span class="cj-facts-gauge" aria-hidden="true">Pacific Northwest</span></div>
-              <div><dt>State</dt><dd>South Carolina</dd><span class="cj-facts-gauge" aria-hidden="true">South Carolina</span></div>
-              <div><dt>Office</dt><dd>Mineral Point</dd><span class="cj-facts-gauge" aria-hidden="true">Mineral Point</span></div>
-              <div><dt>Type</dt><dd>Hybrid</dd><span class="cj-facts-gauge" aria-hidden="true">In Office</span></div>
-              <div><dt>Experience</dt><dd>Intermediate</dd><span class="cj-facts-gauge" aria-hidden="true">Intermediate</span></div>
-              <div><dt>Status</dt><dd>Independent Contractor</dd><span class="cj-facts-gauge" aria-hidden="true">Independent Contractor</span></div>
+              <!-- THE WIDEST ROW A REAL POSTING CAN PRODUCE (Kiron, 2026-09-22).
+                   Not the six fields' individual maxima - that combination cannot exist.
+                   Region, State and Office are correlated, so the worst case is the
+                   widest REAL triple, taken from the 24 offices on contact.html:
+
+                     Pacific Northwest / Washington / Walla Walla = 318.4px
+
+                   and it is forced. Pacific Northwest has exactly one office, so the
+                   widest region necessarily brings Washington and Walla Walla with it.
+                   The runner-up is Lake States / Wisconsin / Mineral Point at 271.8px.
+                   An earlier pass used Pacific Northwest / South Carolina / Mineral
+                   Point, which overstated the requirement by 34px by pairing a region,
+                   a state and an office that cannot occur together.
+
+                   Type, Experience and Status are independent of the office - any
+                   posting can carry any of them - so each takes its own widest option:
+                   In Office 65.4px, Intermediate 97.9px, Independent Contractor 185.1px.
+
+                   Total content 666.8px, so the row needs 826.8px to hold one line at
+                   the 32px gap floor. The Nebraska posting this page really describes is
+                   Midwest / Nebraska / Cumming, around 210px in its first three fields.
+
+                   These values pin no widths - the cells size to their content - so this
+                   is a content choice, made so the band shows the tightest case the
+                   responsive work has to survive. -->
+              <div><dt>Region</dt><dd>Pacific Northwest</dd></div>
+              <div><dt>State</dt><dd>Washington</dd></div>
+              <div><dt>Office</dt><dd>Walla Walla</dd></div>
+              <div><dt>Type</dt><dd>In Office</dd></div>
+              <div><dt>Experience</dt><dd>Intermediate</dd></div>
+              <div><dt>Status</dt><dd>Independent Contractor</dd></div>
             </dl>
           </div>
           <a class="btn btn-primary" href="#apply">Apply for this Position</a>
@@ -437,7 +722,10 @@
     </section>
 
     <!-- ---------- copy + apply card ---------- -->
-    <div class="cj-wrap">
+    <!-- cj-colswrap names THIS wrap specifically: under 1024 it becomes display: contents
+         so its contents can be reordered against the form band. There are four other
+         .cj-wrap elements in this page and none of them must be caught by that. -->
+    <div class="cj-wrap cj-colswrap">
       <div class="cj-cols">
 
         <div class="cj-main reveal">
@@ -614,8 +902,11 @@
             </dl>
           </section>
 
-          <!-- Other open positions. Every row points at this page for now - the other
-               postings are the same template with different CMS content. -->
+          <!-- Other open positions: EIGHT rows. Every row points at this page for now -
+               the other postings are the same template with different CMS content.
+               The ninth row, Certified General Appraiser - Delta, was removed (Kiron,
+               2026-09-22): every row's second field is a state and Delta is a region, so
+               it was the one row that did not fit the pattern the label describes. -->
           <section class="cj-rail cj-rail--box">
             <h2>Other Open Positions</h2>
             <nav class="cj-jobs" aria-label="Other open positions">
@@ -623,7 +914,6 @@
               <a class="cj-job" href="./career-job.html"><span class="t">Land Agent</span><span class="l">Michigan</span></a>
               <a class="cj-job" href="./career-job.html"><span class="t">Land Agent</span><span class="l">Minnesota</span></a>
               <a class="cj-job" href="./career-job.html"><span class="t">Land Agent</span><span class="l">Arkansas</span></a>
-              <a class="cj-job" href="./career-job.html"><span class="t">Certified General Appraiser</span><span class="l">Delta</span></a>
               <a class="cj-job" href="./career-job.html"><span class="t">Certified General Appraiser</span><span class="l">Illinois</span></a>
               <a class="cj-job" href="./career-job.html"><span class="t">Certified General Appraiser</span><span class="l">Nebraska</span></a>
               <a class="cj-job" href="./career-job.html"><span class="t">Certified General Appraiser</span><span class="l">Washington</span></a>
