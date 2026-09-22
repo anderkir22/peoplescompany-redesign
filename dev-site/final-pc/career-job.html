@@ -79,6 +79,26 @@
     .cj-facts{ display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6);
       margin: var(--space-4) 0 0; }
     .cj-facts div{ display: flex; flex-direction: column; gap: 4px; }
+
+    /* THE COLUMN WIDTHS ARE LOCKED (Kiron, 2026-09-22). Every field holds the width of
+       the longest value it can ever carry, so a short value leaves the row spaced exactly
+       as it is here - "Midwest" must not pull Region's column in and shift the five
+       fields after it left.
+
+       The mechanism is the gauge span, not a set of pixel widths: each cell carries a
+       second copy of its longest possible value, which is measured for the cell's
+       intrinsic width and then not painted. height:0 keeps it off the row's height and
+       visibility:hidden keeps it off the screen, but it still sets the min width, so the
+       column cannot be narrower than its worst case. No magic numbers, and nothing to
+       re-measure when the font or the value list changes - a developer swaps the gauge's
+       text and the width follows.
+
+       aria-hidden on every gauge: it is a duplicate of the dd beside it and a screen
+       reader must not read the value twice. It inherits the dd's font from .cj-facts div,
+       so it must stay a sibling of the dd - moving it changes what it measures. */
+    .cj-facts-gauge{ display: block; height: 0; overflow: hidden; visibility: hidden;
+      font-family: var(--font-sans); font-size: var(--body); font-weight: 600;
+      white-space: nowrap; pointer-events: none; }
     .cj-facts dt{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
       letter-spacing: .1em; text-transform: uppercase; color: var(--pc-medium-blue); }
     .cj-facts dd{ margin: 0; font-family: var(--font-sans); font-size: var(--body);
@@ -96,7 +116,6 @@
     .cj-main p, .cj-main li{ font-size: var(--body); line-height: 1.7;
       color: var(--color-text-muted); }
     .cj-main > p{ margin: var(--space-4) 0 0; }
-    .cj-lede{ font-size: var(--body-lg) !important; }
 
     .cj-sec + .cj-sec{ margin-top: var(--space-8); padding-top: var(--space-8);
       border-top: 1px solid var(--color-border); }
@@ -115,8 +134,8 @@
        OVERVIEW IS NOT ONE. It is short, it is the first thing a candidate reads, and a
        posting whose opening paragraph is behind a click is a posting nobody reads.
 
-       RESPONSIBILITIES SHIPS OPEN, the other two CLOSED (Kiron, 2026-09-21) - the `open`
-       attribute is the whole mechanism, there is no script and no stored state. Which
+       ALL THREE SHIP CLOSED (Kiron, 2026-09-22) - no `open` attribute on any of them.
+       That attribute is the whole mechanism, there is no script and no stored state. Which
        panels open on load is a content decision per posting, not a layout one.
        Worth knowing before adding more: a closed <details> hides its contents from
        in-page search in older browsers, and from print in all of them. If these postings
@@ -290,7 +309,9 @@
     /* ---- EEO --------------------------------------------------------------------- */
     .cj-eeo{ border-top: 1px solid var(--color-border); }
     .cj-eeo .cj-wrap{ padding-top: var(--space-7); padding-bottom: var(--space-7); }
-    .cj-eeo h2{ font-size: var(--h4-size); margin: 0 0 var(--space-3); }
+    /* No font-size override: the heading takes the shared h2 (--h2-size serif), so it
+       matches Overview and the three accordion headings above it (Kiron, 2026-09-22). */
+    .cj-eeo h2{ margin: 0 0 var(--space-3); }
     .cj-eeo p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted);
       margin: 0; }
 
@@ -392,12 +413,22 @@
             <p class="cj-divmark"><svg class="cj-divmark-ic" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg><span>Brokerage</span></p>
 
             <dl class="cj-facts">
-              <div><dt>Region</dt><dd>Midwest</dd></div>
-              <div><dt>State</dt><dd>Nebraska</dd></div>
-              <div><dt>Office</dt><dd>Cumming</dd></div>
-              <div><dt>Type</dt><dd>Hybrid</dd></div>
-              <div><dt>Experience</dt><dd>Intermediate</dd></div>
-              <div><dt>Status</dt><dd>Independent Contractor</dd></div>
+              <!-- THE SHIPPED VALUES ARE THE LONGEST EACH FIELD CAN HOLD, on purpose
+                   (Kiron, 2026-09-22): the row is the spacing standard, so it is drawn at
+                   its worst case and the locked columns hold that width for every posting.
+                   The Nebraska posting's real values are Midwest / Nebraska / Cumming.
+                     Region      longest of the six in the careers.html filter
+                     State       longest US state name; both Carolinas are in the build
+                     Office      longest of the 24 office cities on contact.html
+                   Type, Experience and Status already show their longest option.
+                   Each cell's .cj-facts-gauge repeats that longest value to pin the
+                   column width - see the CSS. Change a gauge only with its dd. -->
+              <div><dt>Region</dt><dd>Pacific Northwest</dd><span class="cj-facts-gauge" aria-hidden="true">Pacific Northwest</span></div>
+              <div><dt>State</dt><dd>South Carolina</dd><span class="cj-facts-gauge" aria-hidden="true">South Carolina</span></div>
+              <div><dt>Office</dt><dd>Mineral Point</dd><span class="cj-facts-gauge" aria-hidden="true">Mineral Point</span></div>
+              <div><dt>Type</dt><dd>Hybrid</dd><span class="cj-facts-gauge" aria-hidden="true">In Office</span></div>
+              <div><dt>Experience</dt><dd>Intermediate</dd><span class="cj-facts-gauge" aria-hidden="true">Intermediate</span></div>
+              <div><dt>Status</dt><dd>Independent Contractor</dd><span class="cj-facts-gauge" aria-hidden="true">Independent Contractor</span></div>
             </dl>
           </div>
           <a class="btn btn-primary" href="#apply">Apply for this Position</a>
@@ -413,7 +444,7 @@
 
           <section class="cj-sec">
             <h2>Overview</h2>
-            <p class="cj-lede">
+            <p>
               Seeking a Land Agent licensed in the state of Nebraska. The Land Agent is
               responsible for managing the full brokerage lifecycle &mdash; from business
               development, property research and proposal development through marketing
@@ -428,7 +459,7 @@
             </p>
           </section>
 
-          <details class="cj-acc" id="responsibilities" open>
+          <details class="cj-acc" id="responsibilities">
             <summary><h2>Responsibilities</h2><span class="cj-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></summary>
             <div class="cj-acc-body">
 
