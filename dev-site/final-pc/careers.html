@@ -124,6 +124,40 @@
       font-size: 15px; line-height: 1.7; color: var(--color-text-muted); }
     .cj-prose p:last-child{ margin-bottom: 0; }
 
+    /* ---- the three squares under the prose (Kiron, 2026-09-22) -------------------
+       The left column ran out before the navy rail did, leaving a tall band of white
+       under the third paragraph. Three squares fill it: one row, equal tracks, the
+       band's own --space-5 gutter, so they line up with the rail's top and bottom
+       edges rather than floating in the gap.
+
+       They are DECORATIVE - empty alt + aria-hidden - so a screen reader is not read
+       three photographs that carry nothing the prose beside them does not already say.
+       Each frame keeps its aspect-ratio and its gradient ground, which is what shows
+       while the photograph loads and what stays if the host blocks the hotlink. */
+    /* THE ROW FILLS THE FULL COLUMN AND THE TILES GO SLIGHTLY LANDSCAPE, INSTEAD OF
+       CAPPING THE ROW'S WIDTH (Kiron, 2026-09-22 — supersedes the same day's width-cap
+       version). Squared tiles at the 932px column width hung 26px below the navy rail;
+       narrowing the ROW to bring them up to the rail's bottom left ~78px of white to the
+       right of the third tile. This does both at once: the grid stays three EQUAL
+       columns at the FULL 932px width (so tile 1 sits flush left and tile 3 flush right,
+       the standard grid gap reading as identical on both sides of the middle tile — no
+       per-side gap hack needed), and --cj-pic-ar trims the height instead: 294.67px wide
+       (932 - 2×24 gap, ÷3) at 1.0968:1 comes out to 268.67px tall, the same height the
+       cap produced, so the row's bottom still meets the rail's.
+       ⚠ THE RATIO IS TIED TO THE COPY, same caveat as before: it is the prose height vs.
+       the rail's height at --site 1440. Re-derive it (new width ÷ desired height) if
+       either column's content changes, the rail's card list grows, or the 380px split
+       moves. Below 1024 the split stacks and the ratio reverts to square — there is no
+       rail to line up with once the columns stack. */
+    .cj-intropics{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-5); margin-top: var(--space-6); }
+    .cj-intropic{ display: block; position: relative; aspect-ratio: var(--cj-pic-ar, 1.0968 / 1);
+      overflow: hidden; border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--pc-black) 0%, var(--pc-medium-blue) 100%); }
+    @media (max-width: 1023px){ .cj-intropic{ aspect-ratio: 1 / 1; } }
+    .cj-intropic img{ display: block; width: 100%; height: 100%; object-fit: cover;
+      object-position: center; }
+
     /* Section head: heading left, one control or link right. align-items:end so a
        one-line link sits on the heading's LAST line rather than floating at the top of a
        two-line heading. The left cell is still a <div> wrapping the heading alone - it is
@@ -311,7 +345,7 @@
     /* ---- THE STICKY FILTER BAR --------------------------------------------------
        THE SHARED ls- BAR, the one team.html, blog.html and listings.html carry (Kiron,
        2026-09-21). It replaces the three cj-chip buttons that sat in the section head -
-       a division-only row that could not hold Region or Type.
+       a division-only row that could not hold Region or Experience.
 
        Rules copied from team.html rather than written again, so the four pages stay one
        component. Two page-local departures, both below: the bar's fill, and the map
@@ -366,7 +400,7 @@
       gap: var(--space-2); flex-wrap: nowrap; flex: 1 1 0; min-width: 0; }
     .ls-right{ display: flex; align-items: center; gap: var(--space-4); flex: none; }
 
-    /* ---- shared pill trigger: DIVISION, REGION and TYPE ---- */
+    /* ---- shared pill trigger: DIVISION, REGION and EXPERIENCE ---- */
     .ls-f{ position: relative; }
     .ls-pill{ display: inline-flex; align-items: center; justify-content: center;
       width: var(--ls-pill-w); gap: var(--space-2); text-align: center;
@@ -452,17 +486,32 @@
     @media (max-width: 1279px){ .cj-jobgrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 767px){  .cj-jobgrid{ grid-template-columns: minmax(0, 1fr); } }
 
-    .cj-jobcard{ position: relative; display: flex; flex-direction: column;
-      background: var(--pc-white); border: 1px solid var(--color-border);
+    /* SOLID NAVY CARD (Kiron, 2026-09-22 — replaces the white/bordered card). Same
+       PC Navy the "Why Work With Us" rail already carries (.cj-rail--navy) so the two
+       navy blocks on this page read as one family: white text at 10.4:1, PC Light Blue
+       for labels/marks at 7.6:1, rgba(255,255,255,.22) hairlines instead of
+       --color-border (which is a light-mode gray and disappears on navy). */
+    /* z-index:0 IS LOAD-BEARING, not tidiness (found on rows 3-4's watermark, Kiron
+       2026-09-22). position:relative alone does NOT make an element its own stacking
+       context - it only becomes one once z-index is something other than auto, OR a
+       transform/opacity/filter is applied. This card had none of those AT REST, only on
+       :hover (transform: translateY). So at rest the watermark's z-index:-1 escaped past
+       .cj-jobcard to the page's own stacking context and painted BEHIND the navy
+       background instead of just behind the text - invisible until hover supplied the
+       transform and pulled the card into its own context. z-index:0 here makes that
+       context permanent, so the watermark reads the same at rest and on hover. */
+    .cj-jobcard{ position: relative; z-index: 0; display: flex; flex-direction: column;
+      background: var(--pc-navy); color: var(--pc-white);
       border-radius: var(--radius-md); padding: var(--space-5); overflow: hidden;
       transition: box-shadow .18s ease, transform .18s ease; }
     /* The accent edge across the card top, drawn at zero width and grown in on hover -
        the "makes you want to click" motion, on a pseudo-element so it costs no markup
-       and cannot be read out. transform, not width, so it runs on the compositor. */
+       and cannot be read out. transform, not width, so it runs on the compositor.
+       PC Blue still reads clearly against the navy fill beneath it. */
     .cj-jobcard::before{ content: ""; position: absolute; top: 0; left: 0; right: 0;
       height: 3px; background: var(--pc-blue); transform: scaleX(0); transform-origin: left;
       transition: transform .3s ease; }
-    .cj-jobcard:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
+    .cj-jobcard:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.28); transform: translateY(-3px); }
     .cj-jobcard:hover::before{ transform: scaleX(1); }
     @media (prefers-reduced-motion: reduce){
       .cj-jobcard, .cj-jobcard::before{ transition: none; }
@@ -470,46 +519,133 @@
     }
     .cj-jobtop{ display: flex; align-items: center; justify-content: space-between;
       gap: var(--space-3); }
-    .cj-jobdiv{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
-      letter-spacing: .09em; text-transform: uppercase; line-height: 1;
-      padding: 7px 13px; border-radius: var(--radius-pill);
-      background: var(--pc-light-blue); color: var(--pc-navy); }
+    /* THE DIVISION MARK — icon + text, not a text-only pill (Kiron, 2026-09-22). Same
+       pattern as career-job.html's .cj-divmark below its H1, recoloured for a dark card:
+       that page sets the mark PC Navy on a white band; here the icon is drawn/tinted
+       white and the label takes PC Light Blue so it still reads as a supporting mark,
+       not a second heading. The gavel (Brokerage) is inline and fill-based, so it takes
+       currentColor; the other six real service glyphs are the CDN's white
+       "nocircle" set (already white artwork - no filter needed on a dark card); Leadership
+       and Operations have no glyph in that set, so they get two local stroke icons built
+       to match the "view position" arrow's weight (stroke-width 2, round caps). */
+    .cj-jobdiv{ display: flex; align-items: center; gap: 9px; margin: 0;
+      font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; line-height: 1.2;
+      color: var(--pc-light-blue); }
+    .cj-jobdiv-ic{ flex: none; width: 20px; height: 20px; display: block; }
+    .cj-jobdiv-ic.is-svg{ fill: currentColor; stroke: none; }
+    .cj-jobdiv-ic.is-line{ fill: none; stroke: currentColor; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ROW 3 TRIAL — division mark drops its icon; the icon moves to a big watermark on
+       the card instead (Kiron, 2026-09-22, row 3 only, for comparison against rows 1-2).
+       .cj-jobdiv-noicon is just the label text at that point - no flex/gap needed once
+       there's nothing beside it to align with.
+       The watermark sits right side, vertically centered, bleeding slightly off the
+       card's right edge (the card's own overflow:hidden clips it there). z-index:-1 is
+       load-bearing: an absolutely positioned element normally paints ABOVE static
+       in-flow content regardless of DOM order, so without a negative z-index the
+       watermark would sit on top of the title/state/facts instead of behind them.
+       -1 drops it below the card's own background per the stacking spec, then normal
+       in-flow text paints over it. opacity:.3 is on the wrapper, not the glyph, so the
+       same white icon markup used at full strength in the division mark elsewhere works
+       here unchanged - CDN <img> icons included, no filter needed. */
+    .cj-jobwatermark{ position: absolute; top: 50%; right: -14px;
+      transform: translateY(-50%); width: 132px; height: 132px; z-index: -1;
+      opacity: .3; color: var(--pc-white); pointer-events: none; }
+    .cj-jobwatermark svg, .cj-jobwatermark img{ display: block; width: 100%; height: 100%; }
+    .cj-jobwatermark.is-svg svg{ fill: currentColor; stroke: none; }
+    .cj-jobwatermark.is-line svg{ fill: none; stroke: currentColor; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ROW 3 ONLY, FOR COMPARISON AGAINST ROW 4 (Kiron, 2026-09-22): the watermark fades
+       out on hover here instead of staying put. --cj-jobcard--wm-hide is a card-level
+       modifier, not something the grid can target by row (a 3-up CSS grid has no "3rd
+       row" selector - rows are a byproduct of wrapping, not structure), so it is applied
+       to these three <article>s by hand. Opacity, not display/visibility, so it stays
+       reversible and animated; reduced-motion drops straight to the end state. */
+    .cj-jobcard--wm-hide .cj-jobwatermark{ transition: opacity .18s ease; }
+    .cj-jobcard--wm-hide:hover .cj-jobwatermark{ opacity: 0; }
+    @media (prefers-reduced-motion: reduce){
+      .cj-jobcard--wm-hide .cj-jobwatermark{ transition: none; }
+    }
     .cj-jobstatus{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
-      letter-spacing: .09em; text-transform: uppercase; color: var(--pc-medium-blue);
+      letter-spacing: .09em; text-transform: uppercase; color: rgba(255,255,255,.65);
       margin: 0; text-align: right; }
+
+    /* ROW 5 ONLY, ANOTHER TOP-ROW OPTION (Kiron, 2026-09-22): the mark trades places
+       with the status text - division (name + icon) moves to where Employee/Independent
+       Contractor sat, a size down since it is a secondary mark here, not the card's lead
+       identifier. margin-left:auto is load-bearing: .cj-jobtop is a flex row with
+       justify-content:space-between, which only spaces MULTIPLE children apart - a
+       single child (this is now the row's only one, Schedule having been dropped) falls
+       back to flex-start with nothing to space it against, so it would sit left without
+       this. Text-then-icon, not icon-then-text (Kiron): the flex row draws children
+       left-to-right in markup order, so the icon (last) lands flush at the card's right
+       edge with the label immediately to its left. */
+    .cj-jobdiv--right{ font-size: 11px; margin-left: auto; }
+    .cj-jobdiv--right .cj-jobdiv-ic{ width: 16px; height: 16px; }
     /* The <a> sits on the heading only, with ::after stretched over the card. It must
        NOT wrap the card: links cannot nest, and a card may hold another link later. */
     .cj-jobcard h3{ margin: var(--space-4) 0 0; font-family: var(--font-serif);
       font-weight: 500; font-size: 24px; line-height: 1.15; }
-    .cj-jobcard h3 a{ color: var(--pc-black); text-decoration: none; }
+    .cj-jobcard h3 a{ color: var(--pc-white); text-decoration: none; }
     .cj-jobcard h3 a::after{ content: ""; position: absolute; inset: 0;
       border-radius: var(--radius-md); }
-    .cj-jobcard:hover h3 a{ color: var(--pc-medium-blue); }
+    .cj-jobcard:hover h3 a{ color: var(--pc-blue); }
     .cj-jobcard h3 a:focus-visible{ outline: none; }
-    .cj-jobcard h3 a:focus-visible::after{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-    /* The geography line. Middot separators come from CSS so the markup stays a clean
-       list of facts - the treatment .lc-meta uses on a listing card. */
+    .cj-jobcard h3 a:focus-visible::after{ outline: 2px solid var(--pc-light-blue); outline-offset: 2px; }
+    /* THE STATE — its own line, not buried in the facts grid (Kiron, 2026-09-22: "Job
+       Title / State / ... division"). A location pin at the same 20px the division icon
+       uses, so the two marks under the title read as a pair. */
+    .cj-jobstate{ display: flex; align-items: center; gap: 8px;
+      margin: var(--space-3) 0 0; font-family: var(--font-sans); font-size: 16px;
+      font-weight: 600; color: var(--pc-white); }
+    .cj-jobstate svg{ flex: none; width: 18px; height: 18px; color: var(--pc-light-blue); }
+    /* The region, one step down from the state it sits under - the geography line keeps
+       its middot pattern for any second value that joins it later. */
     .cj-jobwhere{ font-family: var(--font-sans); font-size: 13px; line-height: 1.5;
-      color: var(--pc-black); margin: var(--space-3) 0 0; }
-    .cj-jobwhere span + span::before{ content: "\00b7"; margin: 0 7px; color: var(--pc-medium-blue); }
-    /* The two remaining fields as a label-over-value pair each, over a hairline. A <dl>
-       because they are name/value: the label names the thing, it is not a caption. */
+      color: rgba(255,255,255,.75); margin: 2px 0 0 26px; }
+    .cj-jobwhere span + span::before{ content: "\00b7"; margin: 0 7px; color: var(--pc-light-blue); }
+    /* The two remaining fields as a label-over-value pair each, over a hairline - the
+       same rgba(255,255,255,.22) rule .cj-why uses between its points on the navy rail. */
     .cj-jobfacts{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--space-4); margin: var(--space-5) 0 0; padding-top: var(--space-4);
-      border-top: 1px solid var(--color-border); }
+      border-top: 1px solid rgba(255,255,255,.22); }
     .cj-jobfacts dt{ font-family: var(--font-sans); font-size: 10px; font-weight: 600;
-      letter-spacing: .11em; text-transform: uppercase; color: var(--pc-medium-blue); }
+      letter-spacing: .11em; text-transform: uppercase; color: var(--pc-light-blue); }
     .cj-jobfacts dd{ margin: 4px 0 0; font-family: var(--font-sans); font-size: 13px;
-      font-weight: 600; color: var(--pc-black); }
+      font-weight: 600; color: var(--pc-white); }
     /* margin-top:auto pins this to the card's foot, so a two-line position title does
        not leave one card's link floating above its neighbour's. */
     .cj-jobgo{ display: flex; align-items: center; gap: 8px; margin-top: auto;
       padding-top: var(--space-5); font-family: var(--font-sans); font-size: 13px;
-      font-weight: 600; color: var(--pc-navy); }
+      font-weight: 600; color: var(--pc-light-blue); }
     .cj-jobgo svg{ width: 14px; height: 14px; flex: none; transition: transform .25s ease; }
-    .cj-jobcard:hover .cj-jobgo{ color: var(--pc-medium-blue); }
+    .cj-jobcard:hover .cj-jobgo{ color: var(--pc-blue); }
     .cj-jobcard:hover .cj-jobgo svg{ transform: translateX(4px); }
     @media (prefers-reduced-motion: reduce){ .cj-jobcard:hover .cj-jobgo svg{ transform: none; } }
+
+    /* ROWS 5-6 ONLY (Kiron, 2026-09-22): "View position" is dropped - it is decorative,
+       not the actual link (the whole card is already clickable through the title's
+       stretched ::after), so removing it costs no functionality, only the footer cue.
+       Row 5 keeps a small affordance instead, INLINE with the title rather than a
+       footer row of its own: .cj-jobtitle-go sits beside the h3 text, outside the <a>
+       (decorative, aria-hidden - the link's accessible name stays just the title).
+       Row 6 drops the affordance entirely, for comparison. */
+    .cj-jobtitle-go{ width: 15px; height: 15px; flex: none; display: inline-block;
+      vertical-align: -2px; margin-left: 8px; color: var(--pc-light-blue);
+      transition: transform .25s ease; }
+    .cj-jobcard:hover .cj-jobtitle-go{ color: var(--pc-blue); transform: translateX(4px); }
+    @media (prefers-reduced-motion: reduce){ .cj-jobcard:hover .cj-jobtitle-go{ transform: none; } }
+
+    /* THE HEIGHT TRIM (Kiron, 2026-09-22): rows 5-6 lose the footer row's own height
+       automatically once cj-jobgo is gone - a 3-up CSS grid sizes each ROW by its own
+       tallest card, not the whole grid, so rows 1-4 are untouched. This modifier trims
+       further, on top of that: less internal padding, since a card with four lines of
+       content in --space-5 (24px) padding reads as padded-for-more than it holds. */
+    .cj-jobcard--compact{ padding: var(--space-4) var(--space-5); }
+    .cj-jobcard--compact .cj-jobfacts{ margin-top: var(--space-4); padding-top: var(--space-3); }
     /* The filter's empty state. It cannot happen while the bar is unwired, and it exists
        so the section never renders a blank grid once the bar is. */
     .cj-jobnone{ margin: 0; font-family: var(--font-sans); font-size: var(--body);
@@ -532,7 +668,10 @@
        margin above only exists to separate the in-column copy from the paragraph over it.
        Delete this rule with whichever copy loses. */
     .cj-enq--band{ margin-top: 0; }
-    .cj-enqlede{ margin: var(--space-4) 0 0; font-size: 15px; line-height: 1.65;
+    /* The bottom margin is the gap to the form (Kiron, 2026-09-22) - the lede had 0
+       under it, so the FIRST NAME label sat right on the sentence. --space-6 (32px) is
+       the same step the band head uses, so the two blocks read as separate. */
+    .cj-enqlede{ margin: var(--space-4) 0 var(--space-6); font-size: 15px; line-height: 1.65;
       color: var(--color-text-muted); }
 
     /* ROW 1: all five short fields across. At 932px, five tracks and four 16px gaps put
@@ -569,44 +708,6 @@
     .cj-reqnote .req{ font-weight: 700; color: var(--pc-medium-blue); }
     .cj-form .btn{ margin-top: var(--space-5); }
 
-    /* ==========================================================================
-       TEMPORARY - THE OPEN POSITION CARDS ARE BLANKED
-       --------------------------------------------------------------------------
-       Kiron, 2026-09-17: the card layout is not ready to be shown, so each of the
-       ten postings renders as an empty white box.
-
-       TO REVERT, DELETE THIS BLOCK. That is the whole change - the markup is
-       untouched, every posting and all seven of its fields are still in the page,
-       and no other rule was edited.
-
-       visibility:hidden, NOT display:none and NOT opacity:0, for three reasons:
-         - it STILL RESERVES THE SPACE, so every card keeps the exact height it had
-           and the 3-up grid does not reflow. display:none would collapse all ten
-           to nothing.
-         - it takes the content OUT OF THE ACCESSIBILITY TREE and out of the tab
-           order, so a screen reader does not read out a card that is not being
-           shown and nobody tabs into an invisible link. opacity:0 would leave ten
-           focusable links floating in blank boxes.
-         - it hides the division pill's FILL and the facts hairline too, which
-           colour:transparent would have left on screen.
-
-       THE HOVER IS DELIBERATELY KEPT (Kiron): the blank box still lifts, takes
-       its shadow and grows the PC Blue edge across its top, because that motion
-       is part of what is being reviewed. It works while the contents are hidden
-       because the hover rules sit on .cj-jobcard itself and on its ::before -
-       the card is still visible, only its CHILDREN are not.
-
-       What the hover does NOT do while blanked is go anywhere. The whole card was
-       clickable through the heading link's stretched ::after, and that link is
-       inside the hidden subtree, so the cards are inert for now - they animate but
-       do not navigate, and they show no pointer cursor. Both come back with the
-       content when this block is deleted.
-
-       The filter chips above the grid are also LEFT ALONE and still work - they
-       just filter blank boxes now, which shows the mechanism without showing the
-       card.
-       ========================================================================== */
-    .cj-jobcard > *{ visibility: hidden; }
   </style>
 </head>
 
@@ -725,6 +826,34 @@
                 and the culture to help you do the best work of your professional life.</p>
             </div>
 
+            <!-- THREE SQUARES (Kiron, 2026-09-22). They fill the white the left column
+                 left under the prose, and they run the column's full width in one row.
+                 NO PEOPLE, by instruction - the office and two land photographs, all
+                 LOCAL files in ../assets/ rather than the listings-host headshots this
+                 row carried first. Real alt text, not decorative: each one shows
+                 something the prose beside it does not. -->
+            <div class="cj-intropics">
+              <span class="cj-intropic">
+                <img src="../assets/office1.jpg"
+                     alt="The Peoples Company corporate office, a pale brick building with
+                          the company name across its entry canopy"
+                     loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" />
+              </span>
+              <span class="cj-intropic">
+                <img src="../assets/pc-hero8.jpg"
+                     alt="An irrigated corn field running flat to the horizon under an open sky"
+                     loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" />
+              </span>
+              <span class="cj-intropic">
+                <img src="../assets/pc-hero2.jpg"
+                     alt="Rolling grain fields at sunrise, the sun low on the horizon"
+                     loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" />
+              </span>
+            </div>
+
             <!-- HIDDEN, NOT DELETED (Kiron, 2026-09-21). This is the in-column placement
                  of the enquiry form; the page-foot copy is the one on show. The markup
                  stays so the placement can be brought back by deleting one attribute.
@@ -742,8 +871,9 @@
                  While it is hidden the left column is shorter than the navy rail beside
                  it, so band 1 has white under the copy again. -->
             <div class="cj-enq" id="enquiry" hidden>
-              <h2 class="cj-h2">Don't See Your Role?</h2>
-              <p class="cj-enqlede">Tell us about yourself and we will keep you in mind as positions open.</p>
+              <h2 class="cj-h2">Contact Our Team</h2>
+              <p class="cj-enqlede">Peoples Company is always looking for talent. If you don&rsquo;t see an
+            opportunity that fits you, contact us using the form below.</p>
 
               <form class="cj-form" action="#" onsubmit="return false;" aria-label="Careers enquiry">
                 <div class="cj-fields">
@@ -848,13 +978,11 @@
              - the heading and its intro take the whole content width. -->
         <div class="cj-gthead">
           <h2 class="cj-h2">Growing Together</h2>
-          <!-- LOREM, NOT COPY. Greeked on purpose so nobody mistakes it for PC's words -
-               it holds the shape and the width for whatever intro this band ends up
-               carrying, and it wants replacing before this page goes anywhere. -->
-          <p class="cj-gtlede">Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-            sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-            minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-            commodo consequat.</p>
+          <!-- REAL COPY (Kiron, 2026-09-22). Replaced the greeked placeholder that held
+               this band's intro; Kiron owns all copy, so this is verbatim as supplied. -->
+          <p class="cj-gtlede">Growing Together highlights the people, partnerships, and
+            opportunities that drive success at Peoples Company, sharing authentic stories
+            of growth, collaboration, and achievement across our team.</p>
         </div>
 
         <nav class="cj-gtgrid" aria-label="Growing Together blog series">
@@ -937,14 +1065,15 @@
 
          data-division is on the <li>, not the card, so hiding a posting hides its list item
          and the grid reflows - hiding the card would leave an empty grid cell behind. It is
-         the only filterable value carried as an attribute; Region and Type are only in the
-         card's visible text today, so whoever wires the bar wants data-region and data-type
+         the only filterable value carried as an attribute; Region and Experience are only in
+         the card's visible text today, so whoever wires the bar wants data-region and
+         data-experience
          beside it rather than parsing the markup. -->
     <section class="cj-band cj-band--soft cj-open" id="openings">
       <div class="cj-wrap reveal">
         <div class="cj-sechead">
           <div>
-            <h2 class="cj-h2">Current Open Positions</h2>
+            <h2 class="cj-h2">Career Opportunities</h2>
           </div>
         </div>
       </div>
@@ -953,9 +1082,11 @@
            page width and .ls-bar-in supplies the rail, which is how the bar lines up with
            the content on team.html, blog.html and listings.html.
 
-           Every option below is drawn from the ten cards in the grid. Division and Type are
-           real card values; the six Regions are the set this build invented (see the note on
-           the CSS), so that pill is placeholder until PC's own region names are settled. -->
+           ALL THREE OPTION SETS ARE PC'S OWN NOW (Kiron, 2026-09-22), not values scraped off
+           the ten cards: nine Divisions, seven Regions - the same seven the rest of the site
+           uses - and the three Experience levels. The cards below still carry the OLD
+           division and region strings, so once the bar is wired the postings' own values
+           have to be restated against these lists or nothing will match. -->
       <div class="ls-bar">
         <div class="ls-bar-in">
           <div class="ls-controls">
@@ -973,8 +1104,15 @@
               <fieldset class="ls-fieldset">
                 <legend>Division</legend>
                 <div class="ls-poplist">
-                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Brokerage" /> Brokerage</label>
-                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Appraisal" /> Appraisal</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Land Brokerage &amp; Auctions" /> Land Brokerage &amp; Auctions</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Agricultural Appraisal" /> Agricultural Appraisal</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Land Management" /> Land Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Energy Management" /> Energy Management</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Crop Insurance" /> Crop Insurance</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Capital Markets" /> Capital Markets</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Corporate Services" /> Corporate Services</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Leadership" /> Leadership</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-division" value="Operations" /> Operations</label>
                 </div>
               </fieldset>
               <div class="ls-actions">
@@ -991,12 +1129,13 @@
               <fieldset class="ls-fieldset">
                 <legend>Region</legend>
                 <div class="ls-poplist">
-                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Corn Belt" /> Corn Belt</label>
                   <label class="ls-opt"><input type="checkbox" name="cj-region" value="Delta" /> Delta</label>
-                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Great Lakes" /> Great Lakes</label>
-                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Great Plains" /> Great Plains</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Lake States" /> Lake States</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Midwest" /> Midwest</label>
                   <label class="ls-opt"><input type="checkbox" name="cj-region" value="Pacific Northwest" /> Pacific Northwest</label>
-                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Upper Midwest" /> Upper Midwest</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Pacific West" /> Pacific West</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Southeast" /> Southeast</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-region" value="Southern Plains" /> Southern Plains</label>
                 </div>
               </fieldset>
               <div class="ls-actions">
@@ -1006,21 +1145,26 @@
             </div>
           </div>
 
+          <!-- EXPERIENCE, NOT TYPE (Kiron, 2026-09-22). The third pill filtered on
+               In Office / Hybrid / Remote, which is the cards' LOCATION row, not a type -
+               so it duplicated a value the Region pill already sits next to. It filters the
+               cards' Experience row now, and its three options are that row's three real
+               values: Entry Level, Intermediate, Experienced. -->
           <div class="ls-f">
-            <button class="ls-pill" id="cjTypeBtn" type="button" data-label="Type"
-                    aria-expanded="false" aria-controls="cjTypePop">Type <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
-            <div class="ls-pop" id="cjTypePop" hidden>
+            <button class="ls-pill" id="cjExperienceBtn" type="button" data-label="Experience"
+                    aria-expanded="false" aria-controls="cjExperiencePop">Experience <span class="ls-chev" aria-hidden="true">&#9662;</span></button>
+            <div class="ls-pop" id="cjExperiencePop" hidden>
               <fieldset class="ls-fieldset">
-                <legend>Type</legend>
+                <legend>Experience</legend>
                 <div class="ls-poplist">
-                  <label class="ls-opt"><input type="checkbox" name="cj-type" value="In Office" /> In Office</label>
-                  <label class="ls-opt"><input type="checkbox" name="cj-type" value="Hybrid" /> Hybrid</label>
-                  <label class="ls-opt"><input type="checkbox" name="cj-type" value="Remote" /> Remote</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-experience" value="Entry Level" /> Entry Level</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-experience" value="Intermediate" /> Intermediate</label>
+                  <label class="ls-opt"><input type="checkbox" name="cj-experience" value="Experienced" /> Experienced</label>
                 </div>
               </fieldset>
               <div class="ls-actions">
-                <button class="ls-clear" type="button" data-clear="types">Clear</button>
-                <button class="ls-apply" type="button" data-done="types">Done</button>
+                <button class="ls-clear" type="button" data-clear="experience">Clear</button>
+                <button class="ls-apply" type="button" data-done="experience">Done</button>
               </div>
             </div>
           </div>
@@ -1035,14 +1179,15 @@
 
       <div class="cj-wrap">
         <ul class="cj-jobgrid" id="cjJobGrid">
-          <li data-division="Brokerage">
+          <li data-division="Agricultural Appraisal">
             <article class="cj-jobcard">
               <div class="cj-jobtop">
-                <span class="cj-jobdiv">Brokerage</span>
-                <p class="cj-jobstatus">Independent Contractor</p>
+                <p class="cj-jobdiv"><img class="cj-jobdiv-ic" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_agricultural_appraisal.svg" alt="" /><span>Agricultural Appraisal</span></p>
+                <p class="cj-jobstatus">Employee</p>
               </div>
-              <h3><a href="./career-job.html">Land Agent</a></h3>
-              <p class="cj-jobwhere"><span>Illinois</span><span>Corn Belt</span></p>
+              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Iowa</span></p>
+              <p class="cj-jobwhere"><span>Midwest</span></p>
               <dl class="cj-jobfacts">
                 <div><dt>Location</dt><dd>In Office</dd></div>
                 <div><dt>Experience</dt><dd>Experienced</dd></div>
@@ -1052,84 +1197,15 @@
             </article>
           </li>
 
-          <li data-division="Brokerage">
+          <li data-division="Agricultural Appraisal">
             <article class="cj-jobcard">
               <div class="cj-jobtop">
-                <span class="cj-jobdiv">Brokerage</span>
-                <p class="cj-jobstatus">Independent Contractor</p>
-              </div>
-              <h3><a href="./career-job.html">Land Agent</a></h3>
-              <p class="cj-jobwhere"><span>Michigan</span><span>Great Lakes</span></p>
-              <dl class="cj-jobfacts">
-                <div><dt>Location</dt><dd>Hybrid</dd></div>
-                <div><dt>Experience</dt><dd>Intermediate</dd></div>
-              </dl>
-              <p class="cj-jobgo">View position
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
-            </article>
-          </li>
-
-          <li data-division="Brokerage">
-            <article class="cj-jobcard">
-              <div class="cj-jobtop">
-                <span class="cj-jobdiv">Brokerage</span>
-                <p class="cj-jobstatus">Independent Contractor</p>
-              </div>
-              <h3><a href="./career-job.html">Land Agent</a></h3>
-              <p class="cj-jobwhere"><span>Minnesota</span><span>Upper Midwest</span></p>
-              <dl class="cj-jobfacts">
-                <div><dt>Location</dt><dd>In Office</dd></div>
-                <div><dt>Experience</dt><dd>Experienced</dd></div>
-              </dl>
-              <p class="cj-jobgo">View position
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
-            </article>
-          </li>
-
-          <li data-division="Brokerage">
-            <article class="cj-jobcard">
-              <div class="cj-jobtop">
-                <span class="cj-jobdiv">Brokerage</span>
-                <p class="cj-jobstatus">Independent Contractor</p>
-              </div>
-              <h3><a href="./career-job.html">Land Agent</a></h3>
-              <p class="cj-jobwhere"><span>Nebraska</span><span>Great Plains</span></p>
-              <dl class="cj-jobfacts">
-                <div><dt>Location</dt><dd>Hybrid</dd></div>
-                <div><dt>Experience</dt><dd>Entry Level</dd></div>
-              </dl>
-              <p class="cj-jobgo">View position
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
-            </article>
-          </li>
-
-          <li data-division="Brokerage">
-            <article class="cj-jobcard">
-              <div class="cj-jobtop">
-                <span class="cj-jobdiv">Brokerage</span>
-                <p class="cj-jobstatus">Independent Contractor</p>
-              </div>
-              <h3><a href="./career-job.html">Land Agent</a></h3>
-              <p class="cj-jobwhere"><span>Arkansas</span><span>Delta</span></p>
-              <dl class="cj-jobfacts">
-                <div><dt>Location</dt><dd>In Office</dd></div>
-                <div><dt>Experience</dt><dd>Intermediate</dd></div>
-              </dl>
-              <p class="cj-jobgo">View position
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
-            </article>
-          </li>
-
-          <li data-division="Appraisal">
-            <article class="cj-jobcard">
-              <div class="cj-jobtop">
-                <span class="cj-jobdiv">Appraisal</span>
+                <p class="cj-jobdiv"><img class="cj-jobdiv-ic" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_agricultural_appraisal.svg" alt="" /><span>Agricultural Appraisal</span></p>
                 <p class="cj-jobstatus">Employee</p>
               </div>
-              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
-              <!-- The live posting names the DELTA region and no state - the one card where
-                   the state field has nothing real behind it. -->
-              <p class="cj-jobwhere"><span>Multi-State</span><span>Delta</span></p>
+              <h3><a href="./career-job.html">Appraisal Manager</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Illinois</span></p>
+              <p class="cj-jobwhere"><span>Midwest</span></p>
               <dl class="cj-jobfacts">
                 <div><dt>Location</dt><dd>Hybrid</dd></div>
                 <div><dt>Experience</dt><dd>Experienced</dd></div>
@@ -1139,14 +1215,15 @@
             </article>
           </li>
 
-          <li data-division="Appraisal">
+          <li data-division="Agricultural Appraisal">
             <article class="cj-jobcard">
               <div class="cj-jobtop">
-                <span class="cj-jobdiv">Appraisal</span>
+                <p class="cj-jobdiv"><img class="cj-jobdiv-ic" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_agricultural_appraisal.svg" alt="" /><span>Agricultural Appraisal</span></p>
                 <p class="cj-jobstatus">Employee</p>
               </div>
-              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
-              <p class="cj-jobwhere"><span>Illinois</span><span>Corn Belt</span></p>
+              <h3><a href="./career-job.html">Senior Certified General Appraiser</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Arkansas</span></p>
+              <p class="cj-jobwhere"><span>Delta</span></p>
               <dl class="cj-jobfacts">
                 <div><dt>Location</dt><dd>In Office</dd></div>
                 <div><dt>Experience</dt><dd>Experienced</dd></div>
@@ -1156,56 +1233,259 @@
             </article>
           </li>
 
-          <li data-division="Appraisal">
+          <li data-division="Land Brokerage & Auctions">
             <article class="cj-jobcard">
               <div class="cj-jobtop">
-                <span class="cj-jobdiv">Appraisal</span>
-                <p class="cj-jobstatus">Employee</p>
+                <p class="cj-jobdiv"><svg class="cj-jobdiv-ic is-svg" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg><span>Land Brokerage & Auctions</span></p>
               </div>
-              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
-              <p class="cj-jobwhere"><span>Nebraska</span><span>Great Plains</span></p>
+              <h3><a href="./career-job.html">Designated Managing Broker</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Washington</span></p>
+              <p class="cj-jobwhere"><span>Pacific Northwest</span></p>
               <dl class="cj-jobfacts">
-                <div><dt>Location</dt><dd>Hybrid</dd></div>
-                <div><dt>Experience</dt><dd>Intermediate</dd></div>
+                <div><dt>Location</dt><dd>In Office</dd></div>
+                <div><dt>Office</dt><dd>Walla Walla, WA</dd></div>
               </dl>
               <p class="cj-jobgo">View position
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
             </article>
           </li>
 
-          <li data-division="Appraisal">
+          <li data-division="Land Brokerage & Auctions">
             <article class="cj-jobcard">
               <div class="cj-jobtop">
-                <span class="cj-jobdiv">Appraisal</span>
-                <p class="cj-jobstatus">Employee</p>
+                <p class="cj-jobdiv"><svg class="cj-jobdiv-ic is-svg" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg><span>Land Brokerage & Auctions</span></p>
               </div>
-              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
-              <p class="cj-jobwhere"><span>Washington</span><span>Pacific Northwest</span></p>
+              <h3><a href="./career-job.html">Land Agent &amp; Auctioneer</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Nebraska</span></p>
+              <p class="cj-jobwhere"><span>Southern Plains</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>Hybrid</dd></div>
+                <div><dt>Office</dt><dd>Kearney, NE</dd></div>
+              </dl>
+              <p class="cj-jobgo">View position
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
+            </article>
+          </li>
+
+          <li data-division="Land Brokerage & Auctions">
+            <article class="cj-jobcard">
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><svg class="cj-jobdiv-ic is-svg" viewBox="19.16 29.12 73.72 47.75" aria-hidden="true"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg><span>Land Brokerage & Auctions</span></p>
+              </div>
+              <h3><a href="./career-job.html">Land Broker</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Georgia</span></p>
+              <p class="cj-jobwhere"><span>Southeast</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>In Office</dd></div>
+                <div><dt>Office</dt><dd>Atlanta, GA</dd></div>
+              </dl>
+              <p class="cj-jobgo">View position
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
+            </article>
+          </li>
+
+          <li data-division="Land Brokerage & Auctions">
+            <article class="cj-jobcard cj-jobcard--wm-hide">
+              <div class="cj-jobwatermark is-svg" aria-hidden="true"><svg viewBox="19.16 29.12 73.72 47.75"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg></div>
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><span>Land Brokerage & Auctions</span></p>
+              </div>
+              <h3><a href="./career-job.html">Licensing &amp; Compliance Broker</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Iowa</span></p>
+              <p class="cj-jobwhere"><span>Midwest</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>Hybrid</dd></div>
+                <div><dt>Office</dt><dd>Indianola, IA</dd></div>
+              </dl>
+              <p class="cj-jobgo">View position
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
+            </article>
+          </li>
+
+          <li data-division="Land Brokerage & Auctions">
+            <article class="cj-jobcard cj-jobcard--wm-hide">
+              <div class="cj-jobwatermark is-svg" aria-hidden="true"><svg viewBox="19.16 29.12 73.72 47.75"><path d="m91.6,62.21c-.61-.9-1.5-1.44-2.5-1.85-8.57-3.46-25.91-8.61-34.84-10.87-.66-.17-1.23-.21-1.87.25-.74.54-1.66.27-2.36-.17-.47-.3-.6-.74-.58-1.18l2.34-7.12c.99.21,1.93.1,2.72-.68,1.06-1.04,1.2-2.44,1.22-3.74-.44-1.45-1.52-1.96-2.71-2.36-5.05-1.68-10.1-3.36-15.16-5.04-2.37-.79-3.72-.17-4.45,2.01-.69,2.06-.39,3.23,1.22,4.04l-6.34,19.32c-1.83-.37-2.81.43-3.49,2.57-.66,2.1-.04,3.36,2.15,4.09,5.21,1.76,10.43,3.48,15.64,5.22,1.14.38,2.31.68,3.28-.3,1.08-1.09,1.38-2.49,1.34-3.84-.28-1.08-.92-1.69-1.73-2.06l2.44-7.44c.2-.22.49-.37.92-.33.85.08,1.85.37,2.13,1.34.22.77.72,1.04,1.35,1.31,8.22,3.51,24.99,9.51,33.62,11.91,1.24.35,2.48.64,3.77.3,3.48-1.21,4.05-2.24,1.91-5.39h0Z"/><path d="m51.58,74.62c0-1.24-1.45-2.25-3.24-2.25h-25.94c-1.79,0-3.24,1.01-3.24,2.25s1.45,2.25,3.24,2.25h25.94c1.79,0,3.24-1.01,3.24-2.25h0Z"/></svg></div>
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><span>Land Brokerage & Auctions</span></p>
+              </div>
+              <h3><a href="./career-job.html">Senior Land Agent</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Michigan</span></p>
+              <p class="cj-jobwhere"><span>Lake States</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>In Office</dd></div>
+                <div><dt>Office</dt><dd>Marlette, MI</dd></div>
+              </dl>
+              <p class="cj-jobgo">View position
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
+            </article>
+          </li>
+
+          <li data-division="Land Management">
+            <article class="cj-jobcard cj-jobcard--wm-hide">
+              <div class="cj-jobwatermark" aria-hidden="true"><img src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_land_management.svg" alt="" /></div>
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><span>Land Management</span></p>
+              </div>
+              <h3><a href="./career-job.html">Associate Director of Land Management</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Missouri</span></p>
+              <p class="cj-jobwhere"><span>Midwest</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>Hybrid</dd></div>
+                <div><dt>Office</dt><dd>Columbia, MO</dd></div>
+              </dl>
+              <p class="cj-jobgo">View position
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
+            </article>
+          </li>
+
+          <li data-division="Land Management">
+            <article class="cj-jobcard">
+              <div class="cj-jobwatermark" aria-hidden="true"><img src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_land_management.svg" alt="" /></div>
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><span>Land Management</span></p>
+              </div>
+              <h3><a href="./career-job.html">Senior Land Manager</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Wisconsin</span></p>
+              <p class="cj-jobwhere"><span>Lake States</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>In Office</dd></div>
+                <div><dt>Office</dt><dd>Mineral Point, WI</dd></div>
+              </dl>
+              <p class="cj-jobgo">View position
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
+            </article>
+          </li>
+
+          <li data-division="Operations">
+            <article class="cj-jobcard">
+              <div class="cj-jobwatermark is-line" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></div>
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><span>Operations</span></p>
+              </div>
+              <h3><a href="./career-job.html">Graphic Designer</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Iowa</span></p>
+              <p class="cj-jobwhere"><span>Midwest</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>In Office</dd></div>
+                <div><dt>Office</dt><dd>DeWitt, IA</dd></div>
+              </dl>
+              <p class="cj-jobgo">View position
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
+            </article>
+          </li>
+
+          <li data-division="Energy Management">
+            <article class="cj-jobcard">
+              <div class="cj-jobwatermark" aria-hidden="true"><img src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_energy_management.svg" alt="" /></div>
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><span>Energy Management</span></p>
+              </div>
+              <h3><a href="./career-job.html">Energy Analyst</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>North Dakota</span></p>
+              <p class="cj-jobwhere"><span>Southern Plains</span></p>
               <dl class="cj-jobfacts">
                 <div><dt>Location</dt><dd>Remote</dd></div>
-                <div><dt>Experience</dt><dd>Experienced</dd></div>
+                <div><dt>Office</dt><dd>Fargo, ND</dd></div>
               </dl>
               <p class="cj-jobgo">View position
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
             </article>
           </li>
 
-          <li data-division="Appraisal">
-            <article class="cj-jobcard">
+          <li data-division="Capital Markets">
+            <article class="cj-jobcard cj-jobcard--compact">
               <div class="cj-jobtop">
-                <span class="cj-jobdiv">Appraisal</span>
-                <p class="cj-jobstatus">Employee</p>
+                <p class="cj-jobdiv cj-jobdiv--right"><span>Capital Markets</span><img class="cj-jobdiv-ic" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_capital_markets.svg" alt="" /></p>
               </div>
-              <h3><a href="./career-job.html">Certified General Appraiser</a></h3>
-              <p class="cj-jobwhere"><span>Wisconsin</span><span>Upper Midwest</span></p>
+              <h3><a href="./career-job.html">Director of Acquisitions</a><svg class="cj-jobtitle-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>California</span></p>
+              <p class="cj-jobwhere"><span>Pacific West</span></p>
               <dl class="cj-jobfacts">
-                <div><dt>Location</dt><dd>In Office</dd></div>
-                <div><dt>Experience</dt><dd>Entry Level</dd></div>
+                <div><dt>Office</dt><dd>Fresno, CA</dd></div>
+                <div><dt>Experience</dt><dd>Experienced</dd></div>
               </dl>
-              <p class="cj-jobgo">View position
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></p>
             </article>
           </li>
+
+          <li data-division="Capital Markets">
+            <article class="cj-jobcard cj-jobcard--compact">
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv cj-jobdiv--right"><span>Capital Markets</span><img class="cj-jobdiv-ic" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_capital_markets.svg" alt="" /></p>
+              </div>
+              <h3><a href="./career-job.html">Director of Capital Partnerships</a><svg class="cj-jobtitle-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Utah</span></p>
+              <p class="cj-jobwhere"><span>Pacific West</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Office</dt><dd>Salt Lake City, UT</dd></div>
+                <div><dt>Experience</dt><dd>Experienced</dd></div>
+              </dl>
+            </article>
+          </li>
+
+          <li data-division="Corporate Services">
+            <article class="cj-jobcard cj-jobcard--compact">
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv cj-jobdiv--right"><span>Corporate Services</span><img class="cj-jobdiv-ic" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_corporate_services.svg" alt="" /></p>
+              </div>
+              <h3><a href="./career-job.html">Corporate Services Manager</a><svg class="cj-jobtitle-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Iowa</span></p>
+              <p class="cj-jobwhere"><span>Midwest</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Office</dt><dd>Plainfield, IA</dd></div>
+                <div><dt>Experience</dt><dd>Experienced</dd></div>
+              </dl>
+            </article>
+          </li>
+
+          <li data-division="Corporate Services">
+            <article class="cj-jobcard cj-jobcard--compact">
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><img class="cj-jobdiv-ic" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_corporate_services.svg" alt="" /><span>Corporate Services</span></p>
+                <p class="cj-jobstatus">Employee</p>
+              </div>
+              <h3><a href="./career-job.html">Land Development Advisor</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Kentucky</span></p>
+              <p class="cj-jobwhere"><span>Delta</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>Hybrid</dd></div>
+                <div><dt>Experience</dt><dd>Intermediate</dd></div>
+              </dl>
+            </article>
+          </li>
+
+          <li data-division="Leadership">
+            <article class="cj-jobcard cj-jobcard--compact">
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><svg class="cj-jobdiv-ic is-line" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 2.5Z"/></svg><span>Leadership</span></p>
+                <p class="cj-jobstatus">Employee</p>
+              </div>
+              <h3><a href="./career-job.html">Director of Land Management</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Iowa</span></p>
+              <p class="cj-jobwhere"><span>Midwest</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>In Office</dd></div>
+                <div><dt>Experience</dt><dd>Experienced</dd></div>
+              </dl>
+            </article>
+          </li>
+
+          <li data-division="Operations">
+            <article class="cj-jobcard cj-jobcard--compact">
+              <div class="cj-jobtop">
+                <p class="cj-jobdiv"><svg class="cj-jobdiv-ic is-line" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg><span>Operations</span></p>
+                <p class="cj-jobstatus">Employee</p>
+              </div>
+              <h3><a href="./career-job.html">Operations Manager</a></h3>
+              <p class="cj-jobstate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Iowa</span></p>
+              <p class="cj-jobwhere"><span>Midwest</span></p>
+              <dl class="cj-jobfacts">
+                <div><dt>Location</dt><dd>In Office</dd></div>
+                <div><dt>Experience</dt><dd>Experienced</dd></div>
+              </dl>
+            </article>
+          </li>
+        </ul>
+
         </ul>
 
         <p class="cj-jobnone" id="cjJobNone" hidden>No open positions match those filters right now.</p>
@@ -1231,8 +1511,9 @@
     <section class="cj-band" id="enquiry-foot">
       <div class="cj-wrap reveal">
         <div class="cj-enq cj-enq--band" id="enquiry-bottom">
-          <h2 class="cj-h2">Don't See Your Role?</h2>
-          <p class="cj-enqlede">Tell us about yourself and we will keep you in mind as positions open.</p>
+          <h2 class="cj-h2">Contact Our Team</h2>
+          <p class="cj-enqlede">Peoples Company is always looking for talent. If you don&rsquo;t see an
+            opportunity that fits you, contact us using the form below.</p>
 
           <form class="cj-form" action="#" onsubmit="return false;" aria-label="Careers enquiry (page foot)">
             <div class="cj-fields">
@@ -1520,8 +1801,8 @@
 
       var divG = pillGroup("cjDivisionBtn", "cjDivisionPop", "cj-division", "divisions");
       var rgG  = pillGroup("cjRegionBtn",   "cjRegionPop",   "cj-region",   "regions");
-      var tyG  = pillGroup("cjTypeBtn",     "cjTypePop",     "cj-type",     "types");
-      var groups = [divG, rgG, tyG].filter(Boolean);
+      var exG  = pillGroup("cjExperienceBtn", "cjExperiencePop", "cj-experience", "experience");
+      var groups = [divG, rgG, exG].filter(Boolean);
 
       function apply(){
         if(!WIRED){
