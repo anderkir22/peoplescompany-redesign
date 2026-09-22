@@ -350,13 +350,33 @@
     .lp-tlink{ display: block; width: 100%; text-align: left; cursor: pointer;
       font-family: var(--font-sans); font-size: 15px; line-height: 1.35;
       padding: 10px var(--space-3); border: 0; background: transparent;
-      border-radius: var(--radius-sm); color: var(--color-text-muted);
-      transition: background-color .12s ease, color .12s ease; }
-    .lp-tlink b{ font-weight: 700; color: var(--pc-navy); }
-    .lp-tlink:hover{ background: var(--pc-soft-white); }
-    .lp-tlink:hover b{ color: var(--pc-medium-blue); }
-    .lp-tlink:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 2px; }
-    @media (prefers-reduced-motion: reduce){ .lp-tlink{ transition: none; } }
+      border-radius: var(--radius-sm); color: var(--color-text-muted); }
+    /* THE LISTING'S COLOUR, NOT THE SITE'S BLUE (Kiron, 2026-09-21). These four rules
+       used PC Navy for the resting label, PC Soft White for the hover ground and PC
+       Medium Blue for the hover label and the focus ring - the same blue family as the
+       rest of the site. A premium page is meant to read as the listing's own, so all
+       four now come from --lp-navbg / --lp-navfg, the pair at the top of this file.
+       Three things that buys: it is per listing, so no two premium pages hover alike;
+       it is the one pair on this page whose contrast the script has actually checked,
+       because --lp-navfg is computed black-or-white against --lp-navbg; and it is the
+       same language as .lp-btn and the brochure controls, so the page has one hover
+       idiom rather than three.
+       HOVER FILLS rather than tinting. A tint of an arbitrary per-listing colour is a
+       value nobody has checked the label against; the filled pair is checked by
+       construction. Do not reintroduce a --pc-* colour here to 'fix' contrast - change
+       --lp-navbg instead, and the script re-derives the rest. */
+    .lp-tlink b{ font-weight: 700; color: var(--lp-navbg); }
+    .lp-tlink:hover{ background: var(--lp-navbg); color: var(--lp-navfg); }
+    .lp-tlink:hover b{ color: var(--lp-navfg); }
+    .lp-tlink:focus-visible{ outline: 2px solid var(--lp-navbg); outline-offset: 2px; }
+    /* NO TRANSITION, DELIBERATELY. It used to fade background-color and color together
+       over .12s, which was fine when hover only tinted the ground. It is not fine now
+       that hover FILLS and inverts the label: for the length of the fade the text is
+       already light while the ground is still nearly white, so the row passes through
+       white-on-white in both directions. An instant swap has no intermediate state to
+       be illegible in. Do not put the transition back without going back to a tint.
+       This is also why there is no longer a prefers-reduced-motion rule here - there
+       is no motion left to reduce. */
 
     .lp-h2{ margin: 0 0 var(--space-3); }
     .lp-section{ padding-top: var(--space-8); }
@@ -1267,7 +1287,6 @@
       </div>
       <div class="xtw-body">
         <ul class="ld-dl ld-dl-odd">
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/19278_Wallula%20Vineyard%20Brochure.pdf" target="_blank" rel="noopener"><span class="n">Marketing Brochure</span><span class="m">PDF</span></a></li>
           <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Soils%20Map.pdf" target="_blank" rel="noopener"><span class="n">Soils Map</span><span class="m">PDF</span></a></li>
           <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Slope%20Map.pdf" target="_blank" rel="noopener"><span class="n">Slope Map</span><span class="m">PDF</span></a></li>
           <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Aspect%20Map.pdf" target="_blank" rel="noopener"><span class="n">Aspect Map</span><span class="m">PDF</span></a></li>
