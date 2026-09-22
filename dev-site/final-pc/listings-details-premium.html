@@ -450,8 +450,16 @@
        the same component, so it keeps the xtw- prefix and the ld- classes its contents
        use rather than being renamed to lp-. Treat any difference between this window and
        the one on listings-details-auction.html as a defect. */
+    /* THE DIM GROUND IS THE LISTING'S COLOUR (Kiron, 2026-09-21), at the SAME .72 it
+       was as PC Black. ONE RULE, TWO WINDOWS: .xtw is the tract window and the
+       Downloads window both, so they dim alike and neither can drift.
+       Less exposed than the photo viewer's room at .94 - a white card sits over most
+       of it and there is no photograph being judged against it - but the same caveat
+       applies: at .72 a light or hot listing colour will read as a wash rather than a
+       dim. The fallback below is the old PC Black, for browsers without color-mix. */
     .xtw{ position: fixed; inset: 0; z-index: 210;
       background: rgba(7, 22, 44, .72);
+      background: color-mix(in srgb, var(--lp-navbg) 72%, transparent);
       display: flex; align-items: center; justify-content: center; padding: var(--space-5); }
     .xtw[hidden]{ display: none; }
     .xtw-box{ width: min(1040px, 100%); max-height: 88vh; display: flex; flex-direction: column;
@@ -672,12 +680,26 @@
        the same reason the tract window was: it is the same component. It is what Photos in
        the sub nav opens, and it is the experience "View all 18 photos" gives on the
        auction page.
-       UNLIKE THE TRACT WINDOW, THIS ONE DOES NOT WEAR THE LISTING'S COLOURS. It is a
-       darkened room around a photograph; a listing's ground behind the image would tint
-       the photograph it exists to show. Do not wire --lp-navbg into it. */
+       THE ROOM IS THE LISTING'S COLOUR (Kiron, 2026-09-21), REVERSING WHAT THIS NOTE
+       USED TO SAY. It was rgba(7,22,44,.94) - PC Black at 94%, the site's own dark -
+       and the argument for keeping it neutral was that a coloured ground tints the
+       photograph it exists to show. The premium pages are meant to read as the
+       listing's, so the ground now comes from --lp-navbg at the SAME 94%.
+       KNOW THE TRADE THAT WAS MADE: 94% is close enough to opaque that the room really
+       is that colour, so photographs are judged against it. A listing colour that is
+       warm, light or highly saturated will push what surrounds the image; the darker
+       and more neutral --lp-navbg is, the less it does. If a listing's colour ever
+       fights its photography, the fix is to dim the room for that listing, not to go
+       back to PC Black here.
+       color-mix takes the alpha because --lp-navbg is a hex dial, not a triple. The
+       rgba line above it is the fallback for browsers without color-mix - it is the
+       old PC Black, deliberately: a browser that cannot compute the listing colour
+       should get the neutral room rather than a wrong one. */
     .xlb[hidden]{ display: none; }
     .xlb{ position: fixed; inset: 0; z-index: 200; display: flex; align-items: center;
-      justify-content: center; background: rgba(7,22,44,.94); padding: var(--space-5); }
+      justify-content: center; padding: var(--space-5);
+      background: rgba(7,22,44,.94);                        /* fallback - see the note */
+      background: color-mix(in srgb, var(--lp-navbg) 94%, transparent); }
     .xlb-img{ max-width: min(800px, 88vw); max-height: min(600px, 80vh);
       object-fit: contain; border-radius: var(--radius-sm); margin: 0 auto; }
     .xlb-x, .xlb-prev, .xlb-next{ position: absolute; width: 48px; height: 48px; border: 0;
