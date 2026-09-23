@@ -266,7 +266,18 @@
        narrow slot. */
     .cj-gtgrid{ display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: var(--space-5); }
-    @media (max-width: 1279px){ .cj-gtgrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    /* SIX ACROSS HOLDS AT 1024-1279 (Kiron, 2026-09-23), on smaller portraits rather
+       than fewer of them - the row is the band's whole point, and three of six reads as
+       a broken grid with a gap where the other half was.
+       ⚠ CLOSED AT BOTH ENDS ON PURPOSE. `max-width: 1279px` alone would also match 1023
+       and down, where the content box is the viewport and six does not fit.
+       The arithmetic: --site is 1024 and --rail 32, so the content box is 960. Six tracks
+       on the base --space-5 (24px) gap leave 140px a card, and SENIOR LAND MANAGER needs
+       151.9 at the base 11px - the role wraps. The 16px gap buys 6.7px a track (146.7)
+       and the 10px role measures 138.1, so both fit on one line with room over. The name
+       steps with it: Mollie Aronowitz is 136.5 at 20px, 116.0 at 17px. */
+    @media (min-width: 1024px) and (max-width: 1279px){ .cj-gtgrid{ gap: var(--space-4); } }
+    @media (max-width: 1023px){ .cj-gtgrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     @media (max-width: 767px){  .cj-gtgrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
     /* The band head. No flex row and no fixed track - the heading and the intro run the
@@ -303,6 +314,14 @@
     .cj-gtrole{ display: block; margin-top: 5px; font-family: var(--font-sans);
       font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
       color: var(--pc-light-blue); }
+    /* The type half of the 1024-1279 band (the grid's gap is up with the grid rules).
+       ⚠ IT HAS TO SIT HERE, AFTER .cj-gtname AND .cj-gtrole, NOT WITH THE GRID. A media
+       query carries no extra specificity, so up there the base rules - later in the file
+       - won on the tie and the role stayed 11px and wrapped to two lines. */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .cj-gtname{ font-size: 17px; margin-top: var(--space-3); }
+      .cj-gtrole{ font-size: 10px; }
+    }
     .cj-gtcard:hover .cj-gtname{ color: var(--pc-blue); }
     .cj-gtcard:focus-visible{ outline: 2px solid var(--pc-blue); outline-offset: 4px;
       border-radius: var(--radius-md); }
@@ -666,7 +685,35 @@
        rather than --space-5 for exactly that reason: 8px per gap bought back. */
     .cj-fields{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: var(--space-4); }
-    @media (max-width: 1279px){ .cj-fields{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    /* 2 OVER 3 AT 1024-1279 (Kiron, 2026-09-23): the row splits First / Last, then
+       Email / Mobile / Interest. Three even tracks put Email up on the name row and left
+       Mobile and Interest short below it; the two names belong together and the three
+       contact fields belong together.
+       Done on a SIX-track grid with spans rather than by reordering the markup, so the
+       DOM order - and with it the tab order and every `for`/`id` pair - is untouched.
+       3+3 and 2+2+2 both fill the row exactly, so neither line has a stranded cell.
+       ⚠ Closed at both ends: below 1024 the three-track rule takes over again. */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .cj-fields{ grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .cj-fields > .cj-field:nth-child(-n+2){ grid-column: span 3; }
+      .cj-fields > .cj-field:nth-child(n+3){  grid-column: span 2; }
+    }
+    @media (max-width: 1023px){ .cj-fields{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    /* THE SAME 2-OVER-3 SHAPE CARRIES DOWN TO 768 (Kiron, 2026-09-23). Only the form:
+       the Growing Together row is three across from 1023 down and stays that way.
+       It repeats the rule rather than joining the band above into one query, because
+       the two bands do not share a --site: above 1024 the box is 960, here it is the
+       viewport less the two rails, so this one has to be re-measured on its own. At the
+       768 floor that is 704 - row 1 at 344 a field, row 2 at 224, still clear of the
+       174px this row was tuned to. 767 is where the whole form goes one column anyway,
+       so the shape runs out at the same rung the row does.
+       ⚠ Closed at both ends, and it MUST FOLLOW the 1023 rule above: same specificity,
+       so source order is what lets it win inside the band. */
+    @media (min-width: 768px) and (max-width: 1023px){
+      .cj-fields{ grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .cj-fields > .cj-field:nth-child(-n+2){ grid-column: span 3; }
+      .cj-fields > .cj-field:nth-child(n+3){  grid-column: span 2; }
+    }
     @media (max-width: 767px){  .cj-fields{ grid-template-columns: minmax(0, 1fr); } }
     /* ROW 2: Comments, the full width of the column. */
     .cj-field--comments{ margin-top: var(--space-4); }
@@ -693,6 +740,62 @@
       color: var(--color-text-muted); }
     .cj-reqnote .req{ font-weight: 700; color: var(--pc-medium-blue); }
     .cj-form .btn{ margin-top: var(--space-5); }
+
+    /* ---- the 320 rung, 479 down (Kiron, 2026-09-23) --------------------------------
+       480 AND UP IS SIGNED OFF, so everything here is closed above at 479 - the ladder's
+       rung below 480 - and nothing in this block may be widened into the approved range.
+
+       IT IS ONE BLOCK AT THE FOOT OF THE STYLESHEET ON PURPOSE. Every rule in it is a
+       plain size override on a selector declared earlier in this file, and a media query
+       carries no specificity of its own, so source order is the only thing that makes
+       them win. Keep it last. It also keeps the whole 320 pass in one place to read.
+
+       The measured problem: the content box at 320 is 280px (--site is 100% below 640,
+       --rail 20), and the type was still at its desktop scale. The h1 alone was 52px and
+       225px tall - four lines of headline before any of the page showed. */
+    @media (max-width: 479px){
+      /* Selectors MATCH THE ONES THEY OVERRIDE (.cj-intro h1, not h1) - the base rule is
+         0,1,1 and a bare element would lose the tie. */
+      .cj-intro h1{ font-size: 34px; line-height: 1.12; }
+      .cj-h2{ font-size: 26px; }
+      /* THE WHOLE POSTING CARD STEPS, NOT JUST ITS TITLE (Kiron, 2026-09-23). The card
+         is the only thing in the column from here down - 24 of them at 280px - so it is
+         what the rung is really about. Every line of it moves together, keeping the
+         card's own hierarchy: title over division over state over region. */
+      .cj-jobcard h3{ font-size: 20px; }
+      .cj-jobstate{ font-size: 14px; }
+      .cj-jobwhere{ font-size: 12px; }
+      .cj-jobdiv{ font-size: 11px; }
+
+      /* "VIEW POSITION" COMES OFF THE CARD AND THE FOOT CLOSES UP (Kiron, 2026-09-23).
+         It is a <p>, never a link - the <a> is on the <h3> title - so hiding it takes
+         no target away and leaves the whole card clickable exactly as before.
+         THE PADDING HAS TO BE PUT BACK WITH IT. .cj-jobcard--pairs trims the foot to
+         --space-4 against --space-5 on the other three sides, and that trim exists only
+         to answer the link's half-filled line box (see THE FOOT TRIM above). With the
+         line gone the reason goes with it, so the foot returns to the symmetrical 24px
+         and the card's last line is the region. */
+      .cj-jobgo{ display: none; }
+      .cj-jobcard--pairs{ padding-bottom: var(--space-5); }
+      .cj-prose p, .cj-gtlede, .cj-enqlede{ font-size: 14px; }
+
+      /* GROWING TOGETHER STAYS TWO ACROSS AND THE TYPE COMES DOWN INSTEAD (Kiron,
+         2026-09-23) - the same call the 1024 band makes, for the same reason: the row is
+         the band, and dropping to one portrait a row loses it.
+         The card is 128px at 320 (280 box, two tracks, one 24px gap), and both lines
+         overran it at the base sizes: Mollie Aronowitz measures 136.5 at 20px and
+         SENIOR LAND MANAGER 151.9 at 11px, so each wrapped to two lines.
+         The role needs the TRACKING as well as the size - at 9px alone it is 124.3 in
+         128, which is inside but with 4px to spare; .07em takes it to about 120.5. */
+      .cj-gtname{ font-size: 17px; margin-top: var(--space-3); }
+      .cj-gtrole{ font-size: 9px; letter-spacing: .07em; }
+
+      /* The three decorative squares come out entirely (Kiron, 2026-09-23). Three tracks
+         in a 280px box put them at 77px each - a thumbnail strip, not photographs, and
+         they carry no information: empty alt and aria-hidden, so display:none takes
+         nothing out of the accessibility tree that was ever in it. They return at 480. */
+      .cj-intropics{ display: none; }
+    }
 
   </style>
 </head>
