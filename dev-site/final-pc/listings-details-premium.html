@@ -422,6 +422,41 @@
     .lp-h2{ margin: 0 0 var(--space-3); }
     .lp-section{ padding-top: var(--space-7); }
 
+    /* ---- THE SHADED SECTION (Kiron, 2026-09-23, first try) ----------------------
+       The page is one long white column and the sections are told apart only by their
+       headings; this puts a panel behind one of them - Tracts - to break that up.
+
+       A TINT, NOT A COLOUR. rgba(7,22,44,.04) is PC Navy at 4%, which lands at about
+       #F7F8FA over white: enough to read as a panel, not enough to read as a band. It
+       is stated as a transparent navy rather than as PC Soft White (#F3FBFE) on purpose
+       - the tint stays right if the page's ground ever changes, and it is the navy the
+       page is already built from rather than a second near-white in the palette.
+
+       IT BLEEDS PAST THE CONTENT RAIL, by --space-5 either side, so the copy inside it
+       keeps the same left edge as every section above and below rather than stepping in.
+       The negative margin and the padding are the same value for exactly that reason -
+       change one and you must change the other, or the whole section shifts off the
+       rail.
+
+       THE 48px GAP MOVES FROM PADDING TO MARGIN. .lp-section's padding-top is what sets
+       every section off the one above it; inside a tinted box that padding would be
+       PART of the panel, so the panel would start hard against the previous section's
+       last line. Margin puts the gap back outside the tint, where it shows as white. */
+    .lp-section--tint{ background: rgba(7, 22, 44, .04);
+      border-radius: var(--radius-md);
+      margin: var(--space-7) calc(var(--space-5) * -1) 0;
+      padding: var(--space-6) var(--space-5); }
+    /* The jump link lands on the PANEL's top edge, not on the heading inside it: the
+       shared rule above cancels .lp-section's padding so a heading sits just under the
+       bar, and doing that here would slide the panel's top edge up underneath it. */
+    .lp-wrap > .lp-section--tint{
+      scroll-margin-top: calc(var(--navH) + var(--lp-jump-h) + var(--space-4)); }
+    /* On a phone the rail is 20px, so a 24px bleed would push the panel off-screen and
+       give the page a horizontal scrollbar. It squares off and sits inside the rail
+       instead. */
+    @media (max-width: 639px){
+      .lp-section--tint{ margin-left: 0; margin-right: 0; padding: var(--space-5); } }
+
     /* ---- MAP ----
        ONE RECTANGULAR MAP, THE FULL WIDTH OF THE RAIL. Same module and the same shape as
        Location on the standard listing detail pages; it is taller here because it has the
@@ -1014,7 +1049,7 @@
       </section>
 
       <!-- The sections below are in sub nav order. -->
-      <section id="lp-tracts" class="lp-section reveal" aria-labelledby="lp-tracts-h">
+      <section id="lp-tracts" class="lp-section lp-section--tint reveal" aria-labelledby="lp-tracts-h">
         <h2 id="lp-tracts-h" class="lp-h2">Tracts</h2>
         <p class="lp-copy">Click a tract below for individual maps and more information.</p>
         <ul class="lp-tlist" id="lpTractList"></ul>
