@@ -530,21 +530,27 @@
       border: 1px solid var(--color-border); }
 
     /* ---- PHOTOS: THE CONTACT SHEET (Kiron, 2026-09-23) --------------------------
-       Six across with NO gap, so the set reads as one block of photography rather than
-       nine separate cards. Zero gap is the whole look, and it only works if every tile
-       is identically shaped - hence the square below. Nine photographs fill six and
-       leave a short row of three, which is what an uneven set does here; nothing is
-       stretched to even it up. */
-    .lp-photogrid{ display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+       FOUR ACROSS WITH NO GAP (Kiron, 2026-09-23; it was six). Zero gap is the whole
+       look, and it only works if every tile is identically shaped.
+       THE TILE MATCHES THE PHOTOGRAPHS, 3:2, rather than being square. At six across a
+       square tile threw away the left and right thirds of every frame; at four across
+       and 3:2 the crop is gone - object-fit: cover has nothing left to trim, so each
+       tile shows the whole photograph. Fewer, larger, uncropped beats more and cropped
+       on a set this small.
+       Nine photographs over four tracks leave one alone on the last row. That is what
+       an uneven set does here; nothing is stretched or dropped to even it up. */
+    .lp-photogrid{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0; list-style: none; margin: 0; padding: 0; }
     /* The tile is a <button>, not a link: it opens the viewer, it does not navigate.
        display:block and the reset are needed because a button brings its own border,
        padding, background and font with it. */
-    .lp-thumb{ display: block; position: relative; width: 100%; aspect-ratio: 1 / 1;
+    .lp-thumb{ display: block; position: relative; width: 100%; aspect-ratio: 3 / 2;
       margin: 0; padding: 0; border: 0; background: var(--pc-navy); overflow: hidden;
       cursor: pointer; }
-    /* The source files are 3:2 and the tile is square, so the crop happens here rather
-       than by letterboxing the photograph into a box it does not fit. */
+    /* cover, not contain: the tile and the files are both 3:2 today, so cover has
+       nothing to crop - but it is the right instruction for the day a portrait or a
+       panorama turns up in the set, which would otherwise letterbox inside its tile and
+       break the sheet's flat surface. */
     .lp-thumb img{ display: block; width: 100%; height: 100%; object-fit: cover;
       transition: transform .25s ease, opacity .18s ease; }
     .lp-thumb:hover img{ transform: scale(1.06); opacity: .88; }
@@ -560,7 +566,8 @@
     /* ---- DOWNLOADS: the list inside the downloads window ----
        .ld-dl already styles the rows (it is used by the tract window). These two are the
        odd-count correction and the italic note, both verbatim from the standard pages. */
-    .ld-dl-odd li:nth-last-child(-n+2){ border-bottom: 1px solid var(--color-border); }
+    .ld-dl-odd li:nth-last-child(-n+2){ border-bottom: 1px solid var(--color-border);
+      border-bottom-color: color-mix(in srgb, var(--lp-navbg) 40%, transparent); }
     .ld-dl-odd li:last-child{ border-bottom: 0; }
     .ld-dl-note{ font-family: var(--font-sans); font-style: italic; font-size: 14px;
       line-height: 1.5; color: var(--color-text-muted); margin: 0; }
@@ -639,7 +646,15 @@
     .ld-dl{ list-style: none; margin: 0 0 var(--space-4); padding: 0;
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
       column-gap: var(--space-7); }
-    .ld-dl li{ border-bottom: 1px solid var(--color-border); }
+    /* THE RULE BETWEEN ROWS IS THE LISTING'S COLOUR (Kiron, 2026-09-23), not the
+       build's grey --color-border. At 40% it still reads as a hairline rather than a
+       drawn line, but it is unmistakably this page's brown rather than a neutral - the
+       same move the sub nav, the brochure pill and the tract rows already make.
+       40% IS THE KNOB. Lower for a fainter rule, higher for a firmer one; at 100% the
+       line competes with the file names beside it. The flat --color-border first is the
+       fallback for a browser without color-mix(). */
+    .ld-dl li{ border-bottom: 1px solid var(--color-border);
+      border-bottom-color: color-mix(in srgb, var(--lp-navbg) 40%, transparent); }
     .ld-dl li:nth-last-child(-n+2){ border-bottom: 0; }
     .ld-dl a{ display: flex; align-items: baseline; gap: var(--space-3);
       padding: 12px 2px; font-family: var(--font-sans); font-size: 15px;
@@ -792,12 +807,20 @@
        the same reason the tract window was: it is the same component. It is what Photos in
        the sub nav opens, and it is the experience "View all 18 photos" gives on the
        auction page.
-       UNLIKE THE TRACT WINDOW, THIS ONE DOES NOT WEAR THE LISTING'S COLOURS. It is a
-       darkened room around a photograph; a listing's ground behind the image would tint
-       the photograph it exists to show. Do not wire --lp-navbg into it. */
+       IT WEARS THE LISTING'S COLOUR NOW (Kiron, 2026-09-23). It was rgba(7,22,44,.94),
+       PC Navy, on the argument that a coloured ground behind a photograph tints the
+       photograph it exists to show. That argument still holds and is the reason for the
+       alpha: the ground is --lp-navbg at 94%, dark enough to read as a room rather than
+       as a wash, and the photograph itself is untouched - nothing is laid over it.
+       IF A LISTING EVER CHOOSES A LIGHT COLOUR, this is the rule that suffers first: a
+       pale ground at 94% is a bright room, and the close and paging controls are white
+       on a 14% white fill. Both were picked against a dark ground. Check this viewer
+       when a light --lp-navbg turns up. */
     .xlb[hidden]{ display: none; }
     .xlb{ position: fixed; inset: 0; z-index: 200; display: flex; align-items: center;
-      justify-content: center; background: rgba(7,22,44,.94); padding: var(--space-5); }
+      justify-content: center; background: rgba(7,22,44,.94);
+      background: color-mix(in srgb, var(--lp-navbg) 94%, transparent);
+      padding: var(--space-5); }
     .xlb-img{ max-width: min(800px, 88vw); max-height: min(600px, 80vh);
       object-fit: contain; border-radius: var(--radius-sm); margin: 0 auto; }
     .xlb-x, .xlb-prev, .xlb-next{ position: absolute; width: 48px; height: 48px; border: 0;
