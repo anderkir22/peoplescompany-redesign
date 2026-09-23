@@ -402,13 +402,26 @@
        because --lp-navfg is computed black-or-white against --lp-navbg; and it is the
        same language as .lp-btn and the brochure controls, so the page has one hover
        idiom rather than three.
-       HOVER FILLS rather than tinting. A tint of an arbitrary per-listing colour is a
-       value nobody has checked the label against; the filled pair is checked by
-       construction. Do not reintroduce a --pc-* colour here to 'fix' contrast - change
-       --lp-navbg instead, and the script re-derives the rest. */
+       THE HOVER NO LONGER FILLS (Kiron, 2026-09-23). It used to flood the row with
+       --lp-navbg and flip the label to --lp-navfg, which on a five-column list meant a
+       solid dark block appearing under the cursor - far louder than the row deserved,
+       and louder still now that the section sits on its own shaded band. It is a 10%
+       tint of the same colour instead, and the label darkens from muted text to full
+       text rather than inverting.
+
+       WHY A TINT IS SAFE HERE, WHERE THE NOTE ABOVE SAYS IT IS NOT. The old warning was
+       about putting the LABEL in an unchecked colour. That has not changed and must not:
+       what is on the tint is --color-text, the page's own body colour, not a per-listing
+       value. And the tint itself cannot go dark whatever --lp-navbg is - 10% of any
+       colour over a light ground stays light - so dark text on it holds contrast by
+       construction, the same way the filled pair did.
+       The bold tract number keeps --lp-navbg, exactly as it does at rest on white. That
+       is not a new risk: it is the same pairing the row already ships. */
     .lp-tlink b{ font-weight: 700; color: var(--lp-navbg); }
-    .lp-tlink:hover{ background: var(--lp-navbg); color: var(--lp-navfg); }
-    .lp-tlink:hover b{ color: var(--lp-navfg); }
+    /* The flat rgba first, then the mix: a browser without color-mix() keeps a neutral
+       5% grey hover rather than no hover at all. */
+    .lp-tlink:hover{ background: rgba(0, 0, 0, .05); color: var(--color-text); }
+    .lp-tlink:hover{ background: color-mix(in srgb, var(--lp-navbg) 10%, transparent); }
     .lp-tlink:focus-visible{ outline: 2px solid var(--lp-navbg); outline-offset: 2px; }
     /* NO TRANSITION, DELIBERATELY. It used to fade background-color and color together
        over .12s, which was fine when hover only tinted the ground. It is not fine now
@@ -422,40 +435,44 @@
     .lp-h2{ margin: 0 0 var(--space-3); }
     .lp-section{ padding-top: var(--space-7); }
 
-    /* ---- THE SHADED SECTION (Kiron, 2026-09-23, first try) ----------------------
+    /* ---- THE SHADED SECTION ------------------------------------------------------
        The page is one long white column and the sections are told apart only by their
-       headings; this puts a panel behind one of them - Tracts - to break that up.
+       headings; this puts a shaded band behind one of them - Tracts - to break that up.
 
-       A TINT, NOT A COLOUR. rgba(7,22,44,.04) is PC Navy at 4%, which lands at about
-       #F7F8FA over white: enough to read as a panel, not enough to read as a band. It
-       is stated as a transparent navy rather than as PC Soft White (#F3FBFE) on purpose
-       - the tint stays right if the page's ground ever changes, and it is the navy the
-       page is already built from rather than a second near-white in the palette.
+       4% BLACK (Kiron, 2026-09-23). rgba(0,0,0,.04) over white is about #F5F5F5. It was
+       4% PC Navy first, which tints very slightly blue; plain black is the neutral of
+       the two and does not pick a side against the listing's own colour, which changes
+       from page to page.
 
-       IT BLEEDS PAST THE CONTENT RAIL, by --space-5 either side, so the copy inside it
-       keeps the same left edge as every section above and below rather than stepping in.
-       The negative margin and the padding are the same value for exactly that reason -
-       change one and you must change the other, or the whole section shifts off the
-       rail.
+       FULL BLEED, EDGE TO EDGE (Kiron, 2026-09-23). It was a rounded panel inset to the
+       content rail; it is a band across the whole viewport now. The section still sits
+       inside .lp-wrap, so it gets there by pulling its own edges out to the viewport and
+       then pushing its content back in by the same amount:
+           margin  = 50% - half the viewport   (negative: out to the edges)
+           padding = half the viewport - 50%   (positive: content back onto the rail)
+       Those two are mirror images and MUST stay that way - change one without the other
+       and the section's copy stops lining up with every section above and below it.
+       Here 50% is half the SECTION's width, which is the content rail, because the
+       section is a block child of .lp-wrap's padding box.
 
-       THE 48px GAP MOVES FROM PADDING TO MARGIN. .lp-section's padding-top is what sets
-       every section off the one above it; inside a tinted box that padding would be
-       PART of the panel, so the panel would start hard against the previous section's
-       last line. Margin puts the gap back outside the tint, where it shows as white. */
-    .lp-section--tint{ background: rgba(7, 22, 44, .04);
-      border-radius: var(--radius-md);
-      margin: var(--space-7) calc(var(--space-5) * -1) 0;
-      padding: var(--space-6) var(--space-5); }
-    /* The jump link lands on the PANEL's top edge, not on the heading inside it: the
+       --vw IS THE VIEWPORT WIDTH WITHOUT THE SCROLLBAR, set by script beside --navH.
+       100vw INCLUDES the classic scrollbar Windows browsers draw, so the plain-vw
+       version of this trick makes the band ~15px too wide and gives the whole page a
+       horizontal scrollbar. The 100vw in the fallback below is only what applies before
+       the script runs. */
+    .lp-section--tint{ background: rgba(0, 0, 0, .04);
+      margin-left: calc(50% - 50vw);  margin-right: calc(50% - 50vw);
+      margin-left: calc(50% - var(--vw, 100vw) / 2);
+      margin-right: calc(50% - var(--vw, 100vw) / 2);
+      padding-left: calc(var(--vw, 100vw) / 2 - 50%);
+      padding-right: calc(var(--vw, 100vw) / 2 - 50%);
+      margin-top: var(--space-7);
+      padding-top: var(--space-6); padding-bottom: var(--space-6); }
+    /* The jump link lands on the BAND's top edge, not on the heading inside it: the
        shared rule above cancels .lp-section's padding so a heading sits just under the
-       bar, and doing that here would slide the panel's top edge up underneath it. */
+       bar, and doing that here would slide the band's top edge up underneath it. */
     .lp-wrap > .lp-section--tint{
       scroll-margin-top: calc(var(--navH) + var(--lp-jump-h) + var(--space-4)); }
-    /* On a phone the rail is 20px, so a 24px bleed would push the panel off-screen and
-       give the page a horizontal scrollbar. It squares off and sits inside the rail
-       instead. */
-    @media (max-width: 639px){
-      .lp-section--tint{ margin-left: 0; margin-right: 0; padding: var(--space-5); } }
 
     /* ---- MAP ----
        ONE RECTANGULAR MAP, THE FULL WIDTH OF THE RAIL. Same module and the same shape as
@@ -1695,6 +1712,10 @@
 
     // Keeps --navH and --lp-jump-h in step with the sticky header and the sub nav, which
     // the sections' scroll-margin is measured against - a jump has to clear both.
+    // It also publishes --vw, the viewport width WITHOUT the scrollbar, which the
+    // full-bleed shaded section uses in place of 100vw - see .lp-section--tint. It is
+    // set here rather than in a module of its own because this is already the one place
+    // that measures the page and re-measures it on resize.
     (function(){
       var header = document.querySelector("header.pcf");
       if(!header) return;
@@ -1702,6 +1723,8 @@
       function syncNavH(){
         document.documentElement.style.setProperty("--navH", header.offsetHeight + "px");
         if(subbar) document.documentElement.style.setProperty("--lp-jump-h", subbar.offsetHeight + "px");
+        // clientWidth on <html> excludes the scrollbar; window.innerWidth does not.
+        document.documentElement.style.setProperty("--vw", document.documentElement.clientWidth + "px");
       }
       syncNavH();
       window.addEventListener("resize", syncNavH);
