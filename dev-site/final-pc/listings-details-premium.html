@@ -201,11 +201,12 @@
        flung to opposite edges. */
     .lp-jump-inner{ display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); }
 
-    /* TWO OF THE EIGHT ARE BUTTONS, NOT LINKS. Photos and Downloads open a window over the
-       page instead of scrolling to a section, so they are <button>s - there is nothing on
-       the page for them to jump to. They are styled identically and sit in the same
-       division, so the bar reads as one row of eight either way; the element is chosen by
-       what the control does, not by how it looks. */
+    /* ALL NINE ARE LINKS NOW (Kiron, 2026-09-23). Photos and Downloads were <button>s,
+       because they opened a window over the page rather than scrolling to a section;
+       both have sections on the page now, so both are <a href="#..."> like the rest.
+       THE BUTTON SELECTORS STAY in this rule and the ones under it. Nothing matches them
+       today, they cost nothing, and they are what a control that opens a window rather
+       than jumping would need again - which this bar has had before. */
     .lp-jump a, .lp-jump button{ flex: 1 1 0; min-width: max-content;
       display: inline-flex; align-items: center; justify-content: center; padding: 15px 0;
       font-family: var(--font-sans); font-size: var(--body); font-weight: 500;
@@ -465,6 +466,33 @@
     .lp-embed{ position: relative; aspect-ratio: 4 / 3; max-width: 950px;
       overflow: hidden; border-radius: var(--radius-md); background: var(--pc-black);
       border: 1px solid var(--color-border); }
+
+    /* ---- PHOTOS: THE CONTACT SHEET (Kiron, 2026-09-23) --------------------------
+       Six across with NO gap, so the set reads as one block of photography rather than
+       nine separate cards. Zero gap is the whole look, and it only works if every tile
+       is identically shaped - hence the square below. Nine photographs fill six and
+       leave a short row of three, which is what an uneven set does here; nothing is
+       stretched to even it up. */
+    .lp-photogrid{ display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0; list-style: none; margin: 0; padding: 0; }
+    /* The tile is a <button>, not a link: it opens the viewer, it does not navigate.
+       display:block and the reset are needed because a button brings its own border,
+       padding, background and font with it. */
+    .lp-thumb{ display: block; position: relative; width: 100%; aspect-ratio: 1 / 1;
+      margin: 0; padding: 0; border: 0; background: var(--pc-navy); overflow: hidden;
+      cursor: pointer; }
+    /* The source files are 3:2 and the tile is square, so the crop happens here rather
+       than by letterboxing the photograph into a box it does not fit. */
+    .lp-thumb img{ display: block; width: 100%; height: 100%; object-fit: cover;
+      transition: transform .25s ease, opacity .18s ease; }
+    .lp-thumb:hover img{ transform: scale(1.06); opacity: .88; }
+    @media (prefers-reduced-motion: reduce){ .lp-thumb img{ transition: none; }
+      .lp-thumb:hover img{ transform: none; } }
+    /* OUTLINE INSET, NOT OFFSET. With no gap between tiles an outline drawn outside the
+       box would be painted over by the neighbour; drawn inside, the focused tile is
+       clearly the focused one wherever it sits in the sheet. */
+    .lp-thumb:focus-visible{ outline: 3px solid var(--pc-blue); outline-offset: -3px;
+      z-index: 1; }
     .lp-embed iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
     /* ---- DOWNLOADS: the list inside the downloads window ----
@@ -841,10 +869,11 @@
             <a href="#lp-map">Map</a>
             <a href="#lp-video">Video</a>
             <a href="#lp-tour">360 Tour</a>
-            <!-- BUTTONS, NOT LINKS. Neither of these has a section on the page: Photos
-                 opens the photo viewer and Downloads opens a window, both over the page. -->
-            <button type="button" id="lpPhotos" aria-haspopup="dialog">Photos</button>
-            <button type="button" id="lpDownloads" aria-haspopup="dialog">Downloads</button>
+            <!-- LINKS NOW, LIKE THE REST (Kiron, 2026-09-23). Both had been buttons that
+                 opened a window over the page; both are sections on the page now, so
+                 neither needs to announce a dialog any more. -->
+            <a href="#lp-photos">Photos</a>
+            <a href="#lp-downloads">Downloads</a>
             <a href="#lp-contact">Contact</a>
             <a href="#lp-dataroom">Data Room</a>
           </div>
@@ -1058,11 +1087,74 @@
         </div>
       </section>
 
-      <!-- PHOTOS AND DOWNLOADS HAVE NO SECTION HERE, DELIBERATELY. Both are windows the sub
-           nav opens over the page: the photo viewer (div.xlb) and the downloads window
-           (div.xtw-narrow), each a sibling of <main> at the end of the document. The two
-           shells that used to sit here were removed rather than left empty, so there is no
-           dead anchor on the page. -->
+      <!-- ==== PHOTOS ==== -->
+      <!-- ON THE PAGE NOW, NOT BEHIND A BUTTON (Kiron, 2026-09-23). The sub nav's Photos
+           button used to open the viewer straight from the bar, with nothing on the page
+           to land on. The set is a contact sheet here instead, and the viewer stays -
+           every tile opens it at its own photograph, so nothing is lost, and the visitor
+           can now choose WHICH photograph to open rather than always starting at the
+           first.
+
+           SIX ACROSS, NO GAP, per Kiron. The tiles are square (aspect-ratio 1/1) because
+           a zero-gap grid only reads as one sheet if every tile is the same shape; the
+           source photographs are 3:2, so object-fit: cover crops them to the square
+           rather than letterboxing.
+
+           THE THUMBNAILS ARE THE 1200px FILES. There is no thumbnail derivative on the
+           listings host to point at, so the grid downloads nine full-size images to show
+           them at ~180px. That is a MOCKUP COMPROMISE, not a pattern to ship - a real
+           page serves a small derivative here. loading="lazy" keeps it off the critical
+           path in the meantime. -->
+      <section id="lp-photos" class="lp-section reveal" aria-labelledby="lp-photos-h">
+        <h2 id="lp-photos-h" class="lp-h2">Photos</h2>
+        <ul class="lp-photogrid">
+          <li><button type="button" class="lp-thumb" data-i="0">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0696.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The vineyard blocks from the south" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="1">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0741.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Riesling blocks and open ground" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="2">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0745.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Looking north across the plantable acres" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="3">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0749.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Vineyard rows at the centre of the offering" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="4">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0750.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Open ground in the north east" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="5">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0843.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The Columbia River frontage" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="6">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0848.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The pumping station on the river" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="7">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0858.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Blocks in various stages of removal" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="8">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0923.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The offering from the west, river beyond" />
+          </button></li>
+        </ul>
+      </section>
+
+      <!-- ==== DOWNLOADS ==== -->
+      <!-- ON THE PAGE NOW (Kiron, 2026-09-23), lifted out of the window it used to open
+           in - same list, same italic note, same markup the standard listing detail pages
+           carry under their Downloads accordion. Four short rows never needed a dialog,
+           a scroll lock and a focus trap to show four short rows. -->
+      <section id="lp-downloads" class="lp-section reveal" aria-labelledby="lp-downloads-h">
+        <h2 id="lp-downloads-h" class="lp-h2">Downloads</h2>
+        <ul class="ld-dl ld-dl-odd">
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Soils%20Map.pdf" target="_blank" rel="noopener"><span class="n">Soils Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Slope%20Map.pdf" target="_blank" rel="noopener"><span class="n">Slope Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Aspect%20Map.pdf" target="_blank" rel="noopener"><span class="n">Aspect Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Elevation%20Map.pdf" target="_blank" rel="noopener"><span class="n">Elevation Map</span><span class="m">PDF</span></a></li>
+        </ul>
+        <p class="ld-dl-note">Refer to the individual tract details for tract-specific
+          downloadable files.</p>
+      </section>
+
 
       <!-- ==== CONTACT: THE LISTING'S AGENTS ==== -->
       <!-- THREE CARDS HERE, BUT NOTHING IS BUILT FOR THREE. A premium listing carries two or
@@ -1303,28 +1395,10 @@
   </div>
 
   <!-- ==== DOWNLOADS WINDOW ==== -->
-  <!-- WHAT "DOWNLOADS" IN THE SUB NAV OPENS. The tract window's shell, narrower, with the
-       listing-level downloads list inside it - the same list and the same italic note the
-       standard listing detail pages carry under their Downloads accordion. It wears the
-       listing's colours for the same reason the tract window does. -->
-  <div class="xtw xtw-narrow" id="lpdw" hidden role="dialog" aria-modal="true" aria-labelledby="lpdwTitle">
-    <div class="xtw-box">
-      <div class="xtw-bar">
-        <h2 id="lpdwTitle">Downloads</h2>
-        <button class="xtw-x" type="button" aria-label="Close">&#10005;</button>
-      </div>
-      <div class="xtw-body">
-        <ul class="ld-dl ld-dl-odd">
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Soils%20Map.pdf" target="_blank" rel="noopener"><span class="n">Soils Map</span><span class="m">PDF</span></a></li>
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Slope%20Map.pdf" target="_blank" rel="noopener"><span class="n">Slope Map</span><span class="m">PDF</span></a></li>
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Aspect%20Map.pdf" target="_blank" rel="noopener"><span class="n">Aspect Map</span><span class="m">PDF</span></a></li>
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Elevation%20Map.pdf" target="_blank" rel="noopener"><span class="n">Elevation Map</span><span class="m">PDF</span></a></li>
-        </ul>
-        <p class="ld-dl-note">Refer to the individual tract details for tract-specific
-          downloadable files.</p>
-      </div>
-    </div>
-  </div>
+  <!-- THE DOWNLOADS WINDOW IS GONE (Kiron, 2026-09-23). Its list is a section on the
+       page now - see #lp-downloads. The dialog shell, its open/close module and its
+       focus handling came out with it; the .xtw / .xtw-narrow rules stay, because the
+       tract window still uses them. -->
 
   <!-- ==== PHOTO VIEWER ==== -->
   <!-- WHAT "PHOTOS" IN THE SUB NAV OPENS. The same component, markup included, that "View
@@ -1805,9 +1879,12 @@
        It shares pcScrollLock with the tract window, the downloads window and the hamburger
        drawer, so an open viewer can never leave the page underneath unlocked. */
     (function(){
-      var box = document.getElementById("xlb"),
-          trig = document.getElementById("lpPhotos");
-      if(!box || !trig) return;
+      var box = document.getElementById("xlb");
+      if(!box) return;
+      /* NO LONGER GUARDED ON A TRIGGER (Kiron, 2026-09-23). The sub nav's Photos button
+         was the only way in, so the module bailed out when it was missing. The contact
+         sheet is the way in now, and the button is gone, so the box alone is the test -
+         guarding on the old trigger would have switched the viewer off entirely. */
 
       /* This listing's photographs. The SAME nine files the tract window uses as stand-in
          maps - the listing has one image set and both readers draw from it. A real page
@@ -1862,46 +1939,25 @@
       box.querySelector(".xlb-next").addEventListener("click", function(){ show(i + 1); });
       box.addEventListener("click", function(e){ if(e.target === box) close(); });
 
-      /* The sub nav's Photos button opens at the first photograph. */
-      trig.addEventListener("click", function(){ open(0, trig); });
+      /* EVERY TILE IN THE CONTACT SHEET OPENS THE SET AT ITS OWN PHOTOGRAPH, via one
+         delegated listener on the grid rather than nine - the tiles carry their index in
+         data-i, which is also the index into PHOTOS above, because both are built from
+         the same ordered set. `last` is the tile itself, so closing returns focus to the
+         photograph the visitor opened rather than to the top of the sheet. */
+      var sheet = document.querySelector(".lp-photogrid");
+      if(sheet) sheet.addEventListener("click", function(e){
+        var t = e.target.closest(".lp-thumb");
+        if(t) open(parseInt(t.getAttribute("data-i"), 10) || 0, t);
+      });
       /* Exposed the way the standard pages expose it, so anything else on the page can
          open the set at a given index later. */
       window.lpOpenPhoto = function(n){ open(n, null); };
     })();
 
-    /* ==== DOWNLOADS WINDOW ====
-       WHAT "DOWNLOADS" IN THE SUB NAV OPENS. The contents are static markup, so this is
-       only the open, the close and the focus handling - the same three the tract window
-       does, and the same shared scroll lock. No arrow keys: there is nothing to page. */
-    (function(){
-      var box = document.getElementById("lpdw"),
-          trig = document.getElementById("lpDownloads");
-      if(!box || !trig) return;
-      var xbtn = box.querySelector(".xtw-x"),
-          body = box.querySelector(".xtw-body");
-      var last = null;
+    /* THE DOWNLOADS WINDOW'S MODULE IS GONE (Kiron, 2026-09-23) - open, close, focus
+       return and its share of the scroll lock, all of it. The list it used to reveal is
+       a plain section on the page now, so there is nothing left to open. */
 
-      function open(t){
-        last = t || null;
-        box.hidden = false; pcScrollLock.on();
-        if(body) body.scrollTop = 0;
-        xbtn.focus();
-        document.addEventListener("keydown", key);
-      }
-      function close(){
-        if(box.hidden) return;                     // idempotent, as above
-        box.hidden = true; pcScrollLock.off();
-        document.removeEventListener("keydown", key);
-        if(last) last.focus();
-      }
-      function key(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
-
-      xbtn.addEventListener("click", close);
-      /* Backdrop only, like the tract window: a click on a download row never reaches
-         here and cannot close the window out from under the click. */
-      box.addEventListener("click", function(e){ if(e.target === box) close(); });
-      trig.addEventListener("click", function(){ open(trig); });
-    })();
 
     /* ---- BROCHURE: THE PAGE-FLIP READER ----
        Builds the StPageFlip reader, but only where it belongs and only when it is
