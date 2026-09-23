@@ -173,22 +173,53 @@
        its margin for the bands that open on it; this band does not, so the gap is here. */
     .ab-points-title{ margin-bottom: var(--space-6); }
 
-    .ab-points{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--space-7) var(--space-8); list-style: none; margin: 0; padding: 0; }
+    /* ---- 2 - THE DIFFERENCE, AS OVERLAY CARDS -----------------------------------
+       Kiron, 2026-09-23. Was a 2-up list of 132px thumbnail + copy beside it. Each
+       point is now a PICTURE-LED CARD - the photograph is the whole card and the copy
+       sits over a gradient at its foot - which is the premium listing card's idea
+       (pc.css .lc-pic) applied to an editorial point.
 
-    .ab-point{ display: grid; grid-template-columns: 132px minmax(0, 1fr);
-      gap: var(--space-5); align-items: start; }
-    /* The width/height attributes are the INTRINSIC file size, not the 132 square these
-       render at - the attributes describe the file and the CSS fixes both axes, so
-       there is no layout shift either way. */
-    .ab-point img{ display: block; width: 132px; height: 132px; object-fit: cover;
-      border-radius: var(--radius-sm); }
-    /* PC Black on the heading and muted body, not the white pair the Platform rows
-       used: this band is .ab-band--soft, a light band. */
+       BOTH LAYOUTS ARE ON THE PAGE, to be compared and one of them deleted: the 3-up
+       grid first, the 2-up under it. Same cards, same copy, same CSS - only the track
+       count differs.
+
+       NO FIXED ASPECT RATIO, deliberately. These points carry two sentences each, and
+       a ratio that fits the shortest one clips the longest at 3-up width. The card is
+       a flex column pinned to the bottom instead: min-height sets the floor, the copy
+       sets the real height, and a CSS grid stretches every card in a row to its
+       tallest sibling - so the row stays level whatever the copy does. */
+    .ab-points{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-5); list-style: none; margin: 0; padding: 0; }
+    /* The 2-up alternative. Wider cards, so the same copy runs shorter and the cards
+       come out less tall. */
+    .ab-points--2up{ grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: var(--space-7); }
+
+    .ab-point{ position: relative; display: flex; flex-direction: column;
+      justify-content: flex-end; min-height: 420px; overflow: hidden;
+      border-radius: var(--radius-md); background: var(--pc-navy);
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .ab-point:hover{ box-shadow: 0 16px 40px rgba(7,22,44,.30); transform: translateY(-3px); }
+    @media (prefers-reduced-motion: reduce){ .ab-point:hover{ transform: none; } }
+    /* The photograph fills the card. The width/height attributes stay on the <img> as
+       the INTRINSIC file size; object-fit does the framing. */
+    .ab-point img{ position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; z-index: 0; }
+    /* The scrim. Same PC Black stops the premium listing card uses, pulled TALLER: that
+       card carries a name and three short fact lines, these carry a heading and two
+       sentences, so the dark has to reach further up to hold them. Clear by 78%, so the
+       top fifth or so of the photograph is still untouched. */
+    .ab-point::after{ content: ""; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to top, rgba(7,22,44,.94) 0%, rgba(7,22,44,.88) 30%,
+        rgba(7,22,44,.62) 56%, rgba(7,22,44,0) 78%); }
+    .ab-pointtext{ position: relative; z-index: 2; padding: var(--space-5); }
+    /* White type now, not the PC Black pair - the copy sits on a dark scrim, not on the
+       band's soft white. White on the .94 base is 15:1; the body drops to 86% so the
+       heading still leads, which is ~12:1 and well clear. */
     .ab-point h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
-      line-height: 1.2; color: var(--pc-black); margin: 0 0 var(--space-2); }
+      line-height: 1.2; color: var(--pc-white); margin: 0 0 var(--space-2); }
     .ab-point p{ margin: 0; font-size: 15px; line-height: 1.7;
-      color: var(--color-text-muted); }
+      color: rgba(255,255,255,.86); }
 
     /* ---- 4 - ANNIVERSARY VIDEO --------------------------------------------------
        Copy and player side by side. On the live page the heading and its paragraph
@@ -469,42 +500,89 @@
         <ul class="ab-points">
           <li class="ab-point reveal">
             <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/auction26.jpg/f733fb2fe0b9015ea27ca1e8191eefe7.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Bidders seated at a Peoples Company farmland auction" />
-            <div>
+            <div class="ab-pointtext">
               <h3>50+ Years of Commitment</h3>
               <p>Peoples Company began in the 1970s as a central Iowa land brokerage and management firm serving local landowners. More than five decades later, that founding commitment remains the same.</p>
             </div>
           </li>
           <li class="ab-point reveal">
             <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/management26.jpg/6115f754ad4c501d00c605b11eb316f9.webp" width="1200" height="675" loading="lazy" decoding="async" alt="A farm manager and landowner walking a field of row crop" />
-            <div>
+            <div class="ab-pointtext">
               <h3>National Platform, Local Expertise</h3>
               <p>What began as a single-office Iowa firm now spans a national network of offices, each led by local experts who understand the land, the people, and the production systems of their region.</p>
             </div>
           </li>
           <li class="ab-point reveal">
             <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/appraisal26.jpg/6a3bff544b4d428c10f180cebddadf3a.webp" width="1200" height="675" loading="lazy" decoding="async" alt="An appraiser documenting a tract of farmland" />
-            <div>
+            <div class="ab-pointtext">
               <h3>Comprehensive Farmland Services</h3>
               <p>Peoples Company is the only land services firm offering fully integrated brokerage, land management, appraisal, and capital markets, along with crop insurance and energy management support.</p>
             </div>
           </li>
           <li class="ab-point reveal">
             <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/capital26.jpg/48d4d5df6f85f3935ca664fc672ac4f5.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Peoples Company Capital Markets team reviewing a farmland portfolio" />
-            <div>
+            <div class="ab-pointtext">
               <h3>A Legacy of Strategic Growth</h3>
               <p>Peoples Company has united the histories of more than a dozen respected regional farmland firms through carefully chosen partnerships, each sharing a commitment to local knowledge and client success.</p>
             </div>
           </li>
           <li class="ab-point reveal">
             <img src="../assets/pc-team-2025.webp" width="1200" height="675" loading="lazy" decoding="async" alt="The Peoples Company team gathered for a company photograph" />
-            <div>
+            <div class="ab-pointtext">
               <h3>Industry Recognized Professionals</h3>
               <p>Peoples Company is recognized by national trade associations and agricultural media as the benchmark for farmland services. Its professionals rank among the top producers in their disciplines.</p>
             </div>
           </li>
           <li class="ab-point reveal">
             <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/energy26.jpg/22406f6c49150d555c6307075194c726.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Wind turbines standing in cultivated farmland" />
-            <div>
+            <div class="ab-pointtext">
+              <h3>Stewards of American Farmland</h3>
+              <p>Farmland is not merely a financial asset, it is a legacy, often held across generations. Peoples Company professionals bring the same care and long-term perspective landowners bring to stewarding it.</p>
+            </div>
+          </li>
+        </ul>
+
+        <!-- THE 2-UP ALTERNATIVE, same six cards. One of these two grids comes out
+             once Kiron picks. -->
+        <ul class="ab-points ab-points--2up">
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/auction26.jpg/f733fb2fe0b9015ea27ca1e8191eefe7.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Bidders seated at a Peoples Company farmland auction" />
+            <div class="ab-pointtext">
+              <h3>50+ Years of Commitment</h3>
+              <p>Peoples Company began in the 1970s as a central Iowa land brokerage and management firm serving local landowners. More than five decades later, that founding commitment remains the same.</p>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/management26.jpg/6115f754ad4c501d00c605b11eb316f9.webp" width="1200" height="675" loading="lazy" decoding="async" alt="A farm manager and landowner walking a field of row crop" />
+            <div class="ab-pointtext">
+              <h3>National Platform, Local Expertise</h3>
+              <p>What began as a single-office Iowa firm now spans a national network of offices, each led by local experts who understand the land, the people, and the production systems of their region.</p>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/appraisal26.jpg/6a3bff544b4d428c10f180cebddadf3a.webp" width="1200" height="675" loading="lazy" decoding="async" alt="An appraiser documenting a tract of farmland" />
+            <div class="ab-pointtext">
+              <h3>Comprehensive Farmland Services</h3>
+              <p>Peoples Company is the only land services firm offering fully integrated brokerage, land management, appraisal, and capital markets, along with crop insurance and energy management support.</p>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/capital26.jpg/48d4d5df6f85f3935ca664fc672ac4f5.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Peoples Company Capital Markets team reviewing a farmland portfolio" />
+            <div class="ab-pointtext">
+              <h3>A Legacy of Strategic Growth</h3>
+              <p>Peoples Company has united the histories of more than a dozen respected regional farmland firms through carefully chosen partnerships, each sharing a commitment to local knowledge and client success.</p>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="../assets/pc-team-2025.webp" width="1200" height="675" loading="lazy" decoding="async" alt="The Peoples Company team gathered for a company photograph" />
+            <div class="ab-pointtext">
+              <h3>Industry Recognized Professionals</h3>
+              <p>Peoples Company is recognized by national trade associations and agricultural media as the benchmark for farmland services. Its professionals rank among the top producers in their disciplines.</p>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/energy26.jpg/22406f6c49150d555c6307075194c726.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Wind turbines standing in cultivated farmland" />
+            <div class="ab-pointtext">
               <h3>Stewards of American Farmland</h3>
               <p>Farmland is not merely a financial asset, it is a legacy, often held across generations. Peoples Company professionals bring the same care and long-term perspective landowners bring to stewarding it.</p>
             </div>
