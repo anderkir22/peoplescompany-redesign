@@ -60,13 +60,14 @@
 
        BAND RHYTHM, top to bottom:
          1 intro        white           h1 + lede + regional map
-         2 numbers      PC Light Blue   four figures
-         3 outlook      white           the Corn Belt narrative, long tail folded
-         4 drivers      PC Navy         income / interest rates / inflation
-         5 offices      PC Soft White   the office list
-         6 listings     white           lc- cards straight out of pc.css
-         7 team         PC Soft White   the regional roster
-         8 cta          PC Black        talk to someone here
+         2 numbers      PC Light Blue   four figures off the report
+         3 outlook      white           the Corn Belt write-up, long tail folded
+         4 the four I's PC Navy         income / interest rates / inflation / trade
+         5 performance  white           the returns table + the two series charts
+         6 offices      PC Soft White   the office list
+         7 listings     white           lc- cards straight out of pc.css
+         8 team         PC Soft White   the regional roster
+         9 cta          PC Black        talk to someone here
        ========================================================================= */
 
     .mw-body{ background: var(--pc-white); }
@@ -116,13 +117,14 @@
 
     /* ---- 3 outlook -------------------------------------------------------- */
     /* Two columns of prose, then the rest of the regional write-up inside a
-       <details>. The live page runs all nine paragraphs at full length top to
-       bottom - folding the tail is the consolidation, and nothing is thrown away. */
+       <details>. The source runs to five printed pages - folding the tail is the
+       consolidation, and nothing is thrown away. */
     .mw-outlook{ max-width: 1100px; }
     .mw-cols{ columns: 2; column-gap: var(--space-8); }
     .mw-cols p{ margin: 0 0 var(--space-4); line-height: 1.65; break-inside: avoid; }
-    .mw-more{ margin-top: var(--space-6); border-top: 1px solid var(--color-border);
-              padding-top: var(--space-5); }
+    /* clear:both so the floated 6% callout above can never run under the rule. */
+    .mw-more{ clear: both; margin-top: var(--space-6);
+              border-top: 1px solid var(--color-border); padding-top: var(--space-5); }
     .mw-more > summary{ font-family: var(--font-sans); font-size: 14px; font-weight: 600;
                         color: var(--pc-navy); cursor: pointer; list-style: none;
                         display: inline-flex; align-items: center; gap: var(--space-2); }
@@ -131,26 +133,84 @@
     .mw-more[open] > summary::after{ transform: rotate(180deg); }
     .mw-more > summary:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px; }
     .mw-morebody{ margin-top: var(--space-5); }
-    .mw-summary{ margin-top: var(--space-6); padding: var(--space-5) var(--space-6);
+    .mw-summary{ clear: both; margin-top: var(--space-6); padding: var(--space-5) var(--space-6);
                  background: var(--pc-soft-white); border-left: 3px solid var(--pc-blue); }
     .mw-summary h3{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
                     letter-spacing: .12em; text-transform: uppercase;
                     color: var(--text-on-light-muted); margin-bottom: var(--space-3); }
 
-    /* ---- 4 drivers -------------------------------------------------------- */
-    .mw-drivers{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6);
+    /* The callout box that carries a single headline figure with its explanation.
+       The printed report draws this as a speech-bubble with a notched corner; here
+       it is a bordered box with a serif head, which is the same emphasis without
+       borrowing a shape the rest of the site does not use. */
+    .mw-pull{ float: right; width: 420px; margin: 0 0 var(--space-5) var(--space-7);
+              border: 1px solid var(--pc-medium-blue); border-radius: var(--radius-md);
+              padding: var(--space-5) var(--space-6); background: var(--pc-white); }
+    .mw-pull h3{ font-family: var(--font-serif); font-weight: 600; font-size: 28px;
+                 line-height: 1.1; color: var(--pc-navy); margin-bottom: var(--space-3); }
+    .mw-pull p{ font-family: var(--font-serif); font-size: 17px; line-height: 1.55;
+                color: var(--pc-navy); margin: 0; }
+    .mw-pull em{ font-style: italic; }
+
+    /* ---- 4 the four I's --------------------------------------------------- */
+    .mw-drivers{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6);
                  margin-bottom: var(--space-7); }
     .mw-driver{ border-top: 2px solid var(--pc-blue); padding-top: var(--space-4); }
     .mw-driver h3{ font-family: var(--font-serif); font-weight: 500; font-size: var(--h3-size);
                    margin-bottom: var(--space-3); }
     .mw-driver p{ font-size: 15px; line-height: 1.6; }
-    .mw-facts{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6);
+    .mw-facts{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6);
                border-top: 1px solid rgba(255,255,255,.22); padding-top: var(--space-6); }
     .mw-fact b{ font-family: var(--font-serif); font-weight: 500; font-size: 32px;
                 color: var(--accent-on-dark); display: block; margin-bottom: var(--space-2); }
     .mw-fact span{ font-family: var(--font-sans); font-size: 14px; line-height: 1.45; display: block; }
 
-    /* ---- 5 offices -------------------------------------------------------- */
+    /* ---- 5 performance ---------------------------------------------------- */
+    /* The returns table and the two long-run series charts, side by side with the
+       commentary. Every figure in the table is from the 2025 National Land Values
+       report and is a real number - do not round, re-derive or "refresh" any of
+       them here. They change once a year when the report does. */
+    .mw-perfsplit{ display: grid; grid-template-columns: 1fr 460px; gap: var(--space-8);
+                   align-items: start; }
+    .mw-tablewrap{ overflow-x: auto; }
+    .mw-table{ width: 100%; border-collapse: collapse; font-family: var(--font-sans); }
+    .mw-table caption{ text-align: left; font-size: var(--label); font-weight: 600;
+                       letter-spacing: .12em; text-transform: uppercase;
+                       color: var(--text-on-light-muted); padding-bottom: var(--space-3); }
+    .mw-table th, .mw-table td{ padding: var(--space-3) var(--space-2); text-align: right;
+                                font-size: 13px; line-height: 1.35;
+                                border-bottom: 1px solid var(--color-border); }
+    .mw-table thead th{ font-weight: 600; color: var(--pc-navy); white-space: nowrap; }
+    .mw-table thead th span{ display: block; font-weight: 400; font-size: 11px;
+                             color: var(--text-on-light-muted); }
+    .mw-table tbody th{ text-align: left; font-weight: 400; white-space: nowrap; }
+    .mw-table tr.is-total th, .mw-table tr.is-total td{ font-weight: 700;
+                                border-bottom: 2px solid var(--pc-medium-blue); }
+    .mw-table tr.is-rule th, .mw-table tr.is-rule td{ border-top: 1px solid var(--color-border); }
+
+    /* Chart frames. The axes, the ranges and the legend are real - the plotted
+       series are not in this file. The series live in the report's dataset and the
+       build will draw them from it, so the plot area carries a note rather than a
+       fabricated line. DO NOT hand-draw approximate lines in here to fill it. */
+    .mw-charts{ display: grid; gap: var(--space-6); }
+    .mw-chart{ border: 1px solid var(--color-border); border-radius: var(--radius-md);
+               background: var(--pc-white); padding: var(--space-5); }
+    .mw-chart h3{ font-family: var(--font-serif); font-weight: 600; font-size: var(--h4-size);
+                  color: var(--pc-navy); text-align: right; margin-bottom: var(--space-3);
+                  border-top: 2px solid var(--pc-medium-blue); padding-top: var(--space-3); }
+    .mw-legend{ display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4);
+                margin-bottom: var(--space-3); }
+    .mw-legend span{ display: inline-flex; align-items: center; gap: 6px;
+                     font-family: var(--font-sans); font-size: 11px; color: var(--pc-navy); }
+    .mw-legend i{ width: 16px; height: 0; border-top: 2px solid currentColor; display: block; }
+    .mw-legend .is-avg i{ border-top-style: dotted; border-top-width: 3px; }
+    .mw-chart svg{ display: block; width: 100%; height: auto; }
+    .mw-plotnote{ font-family: var(--font-sans); font-size: 11px; fill: var(--pc-navy); }
+
+    .mw-source{ margin-top: var(--space-6); font-family: var(--font-sans); font-size: 12px;
+                line-height: 1.5; color: var(--text-on-light-muted); }
+    .mw-source a{ color: var(--pc-navy); }
+    /* ---- 6 offices -------------------------------------------------------- */
     /* Four across at desktop. Each card is one office record - city/state, street,
        phone, and an email only where the office publishes one. */
     .mw-offices{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
@@ -164,13 +224,13 @@
     .mw-office address a:hover{ color: var(--accent-on-light); text-decoration: underline; }
     .mw-office-st{ display: block; margin-bottom: var(--space-3); }
 
-    /* ---- 6 listings ------------------------------------------------------- */
+    /* ---- 7 listings ------------------------------------------------------- */
     /* .lc-grid and .lc are pc.css components, used here exactly as the listings
        page uses them. Nothing about the card is restyled for this page. */
     .mw-listings .lc-grid{ margin-bottom: var(--space-7); }
     .mw-more-cta{ text-align: center; }
 
-    /* ---- 7 team ----------------------------------------------------------- */
+    /* ---- 8 team ----------------------------------------------------------- */
     .mw-team{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
     .mw-person{ background: var(--pc-white); border: 1px solid var(--color-border);
                 border-radius: var(--radius-md); overflow: hidden; }
@@ -190,7 +250,7 @@
     .mw-basedin{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45;
                  color: var(--text-on-light-muted); }
 
-    /* ---- 8 cta ------------------------------------------------------------ */
+    /* ---- 9 cta ------------------------------------------------------------ */
     .mw-cta{ text-align: center; max-width: 720px; margin: 0 auto; }
     .mw-cta .mw-h2{ margin-bottom: var(--space-4); }
     .mw-cta p{ font-size: var(--body-lg); line-height: 1.6; margin-bottom: var(--space-6); }
@@ -272,8 +332,8 @@
         <h1>Midwest Region</h1>
         <div class="mw-headsplit">
           <div class="mw-prose reveal">
-            <p class="mw-lede">The Corn Belt includes the relatively homogenous row-crop heavy production region across much of the Midwest, including Iowa, Illinois, Indiana, Ohio and Missouri. Iowa and Illinois rank first and second, respectively, in the value of agricultural outputs in the region, and all five states rank in the top 13 nationally in terms of agricultural production value, each in the top 10 for corn and soybean production.</p>
-            <p>High-quality farmland in the Corn Belt is viewed as the gold standard for agricultural investments. It shows the greatest residual demand of any region and the greatest concentration of deep-pocket buyers in the country, and it tends to register both increases and decreases in economic fortunes a little ahead of the other row-crop regions.</p>
+            <p class="mw-lede">The Corn Belt is 111.2 million acres of the most efficient, most closely watched farmland in the world: Iowa, Illinois, Indiana, Ohio and Missouri. It is the region with the most sophisticated farm operations in the country, and it has long been the first place capital looks when it wants exposure to agriculture.</p>
+            <p>Its record is steady income that generally exceeds Treasury returns, appreciation near 6% a year over the long run, and the strongest inflation hedge of any major production region. What is different this year is the spread around that record: policy, trade and government payments now move local markets more than input costs and output prices do.</p>
             <p>Peoples Company has worked this region since the company started, and it is where the largest share of our offices, our brokers, our land managers and our appraisers sit.</p>
           </div>
           <div class="reveal">
@@ -289,110 +349,279 @@
     </section>
 
     <!-- ============ 2 - NUMBERS ============
-         Four figures, all of them sourced from the regional write-up below or
-         from the office list further down the page. Nothing here is invented -
-         if a figure changes, change it in both places. -->
+         Four figures, every one of them from the Corn Belt section of the 2025
+         National Land Values report. If the report changes, these change - do not
+         round them, restate them or refresh them from anywhere else. -->
     <section class="mw-band mw-band--tint" aria-labelledby="mw-numbers-h">
       <div class="mw-wrap">
         <h2 class="sr-only" id="mw-numbers-h">The region in figures</h2>
         <div class="mw-numbers reveal">
           <div class="mw-num">
-            <b>5</b>
-            <span>States in the Corn Belt: Iowa, Illinois, Indiana, Ohio and Missouri</span>
+            <b>111.2M</b>
+            <span>Acres of farmland across Iowa, Illinois, Indiana, Ohio and Missouri</span>
           </div>
           <div class="mw-num">
-            <b>$125B+</b>
-            <span>In annual receipts across all commodities produced in the region</span>
+            <b>$110&ndash;120B</b>
+            <span>Gross farm receipts annually across the five-state region (USDA, 2025)</span>
           </div>
           <div class="mw-num">
             <b>30%+</b>
-            <span>Of the nation&#039;s annual corn and soybean production from Illinois and Iowa alone</span>
+            <span>Of total U.S. corn and soybean production from Iowa and Illinois together</span>
           </div>
           <div class="mw-num">
-            <b>16</b>
-            <span>Peoples Company offices serving the Midwest and Plains</span>
+            <b>~6%</b>
+            <span>Long-term annual appreciation, with income returns near 3.5%</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ============ 3 - REGIONAL OUTLOOK ============
-         The narrative carried over from the live /regions/midwest page. The first
-         three paragraphs run in two columns; everything after that is folded into
-         the <details> so the page does not open at nine paragraphs of analysis.
-         The copy is unedited - it is the economist write-up and reads as one voice,
-         so trimming sentences out of it would do more harm than folding it. -->
+         The Corn Belt market write-up from the 2025 National Land Values report,
+         which supersedes the older text on the live /regions/midwest page. The
+         opening runs in two columns with the 6% callout floated into it, and the
+         rest - trade, the payment history, what the payments mean for values -
+         folds into the <details>.
+         The copy is the economist write-up and reads as one voice, so trimming
+         sentences out of it would do more harm than folding it. The SUMMARY at the
+         bottom is the report's own summary, shortened. -->
     <section class="mw-band" aria-labelledby="mw-outlook-h">
       <div class="mw-wrap">
         <div class="mw-outlook">
-          <p class="mw-eyebrow">Regional outlook</p>
-          <h2 class="mw-h2" id="mw-outlook-h">What the Corn Belt has done, and what it is doing now</h2>
+          <p class="mw-eyebrow">Corn Belt market</p>
+          <h2 class="mw-h2" id="mw-outlook-h">Steady returns, and a year of unusually wide spreads</h2>
 
-          <div class="mw-cols reveal">
-            <p>As suggested by the name, the region dominates in the production of corn and soybeans, with Illinois and Iowa combining for over 30% of the nation&#039;s total annual production. The financial performance of investments in the Corn Belt can be characterized as a long history of steady annual income that follows and generally exceeds the return to Treasuries, with reliable but more variable appreciation over time.</p>
-            <p>Total returns have been competitive with or have exceeded returns from investments in publicly traded equities with much lower volatility, but the thin market and heterogenous nature of farm investments does make access to the asset class more complicated than direct investments in equities. Farmland investments in the Corn Belt have served as remarkable inflation hedges, with highly correlated returns that have exceeded inflation in all but a few distinct years.</p>
-            <p>Neighboring farmers have always been the primary purchasers of farmland in the Corn Belt, but the share of active farmer cash purchasers has increased markedly as higher interest rates have kept some leveraged buyers and institutional buyers on the sideline. The market has shown considerable strength, with prices leveling or backing off only slightly from their peaks.</p>
+          <aside class="mw-pull reveal">
+            <h3>6% Annual Appreciation</h3>
+            <p>There is an adage that says, <em>&ldquo;you make more on your balance sheet than on your income statement with farmland,&rdquo;</em> and this has historically held true in the Corn Belt, with long-term appreciation averaging around 6% per year and income returns averaging approximately 3.5% annually.</p>
+          </aside>
+
+          <div class="reveal">
+            <p>The Corn Belt contains approximately 111.2 million acres of farmland across the relatively homogeneous, row-crop&ndash;dominated production region of Iowa, Illinois, Indiana, Ohio and Missouri. Iowa and Illinois consistently rank first and second in the value of agricultural output within the region, and all five states rank among the top 13 nationally in agricultural production value, as well as within the top 10 for both corn and soybean production. Iowa leads the nation in corn production, while Illinois leads in soybeans.</p>
+            <p>Iowa is unique within this group due to its substantial reliance on livestock production, generating nearly $19.5 billion in annual livestock revenue &mdash; ranking third nationally behind Texas ($24 billion) and Nebraska ($20 billion). Indiana, Missouri and Ohio each generate approximately $6&ndash;7 billion annually from livestock, while Illinois generates roughly $4 billion. Livestock income is of particular importance, as livestock and crop sectors tend to move inversely: lower commodity prices reduce feed costs for livestock operations, and vice versa.</p>
+            <p>Total returns have exceeded those of publicly traded equity indexes with substantially lower volatility for nearly every possible 10-year holding period since 1990. However, the &ldquo;thin market&rdquo; and heterogeneous nature of farmland investments complicate access to the asset class relative to equities. Corn Belt farmland has also served as a strong inflation hedge, with returns exceeding inflation in all but one year since 1990.</p>
           </div>
 
           <details class="mw-more">
             <summary>Read the full regional analysis</summary>
-            <div class="mw-morebody mw-cols">
-              <p>The basic economic factors that drive the farmland markets in the Corn Belt can be summarized as income, interest rates and inflation. On the farmer side, income potential is the most important factor, whether for purchasing or for paying cash rents to control the land. A collection of positive factors over the past few years included a run-up in commodity prices along with the attendant support of crop insurance prices, a strong balance sheet effect from the series of government payments stemming from the trade war with China, pandemic-related payments, strong world demand signals, and ever-increasing choruses calling for payments to support future conservation and carbon sequestration efforts at the field level.</p>
-              <p>Turning to the impact of elevated interest rates, the sector carries very low aggregate long-term real estate leverage at about 13%, and much of that is in fixed-rate financing that to some degree became locked in with increases in new-money borrowing rates. Operating loans do represent an increased burden, but for many operators even a 4% increase in their operating line rates equates to just a few bushels of production. The main effect of increased interest rates is probably to limit the interest of investor-buyers, who typically carry more leverage than individual farmers.</p>
-              <p>Farmland markets in the Midwest in general continue to move toward cash rent and flexible cash rental arrangements, with a tick up in custom farming arrangements as well. About 60% of total acreage is leased in the Corn Belt and these lease arrangements are viewed as sticky for many reasons. The result to those outside the ag sector may appear slow to respond, as rental rates tend to move less quickly than annual incomes, with the resulting smoothness of annual returns to investors being incredibly stable.</p>
-              <p>The transactional pace question that has many concerned in the farmland brokerage space is whether the volume of transactions will return to its more normal historical levels. The long-term volume of agricultural land brought to market in arms-length transactions has been about 1.5% of total acres over much of the Corn Belt. This pattern raises the question of whether the previous period represented an abnormal acceleration, or whether there is a building balance of transactions that will accelerate in the future if economic conditions change. In either case, the demand for exposure to farmland in otherwise equity-heavy portfolios remains strong.</p>
-              <p>Farmland is a slow-turnover, long-duration asset with higher acquisition and disposition costs than pure financial assets, and thus requires intentional and committed acquisition strategies to attain meaningful holdings. The Corn Belt has a great deal of historic and continuing interest by non-operating investors, a feature that is likely to continue and to return with capacity to absorb any increase in transactional volume without requiring substantial decreases in prices, given the attractive return features of investments in the region.</p>
+            <div class="mw-morebody">
+              <p>Contrasting with these long-term characteristics, recent developments have introduced elevated uncertainty. While the three I&rsquo;s identified in last year&rsquo;s summary &mdash; income, interest rates and inflation &mdash; remain critical drivers of farmland valuation, their impacts have proven far more pronounced than anticipated due to short-term structural and policy-related changes. Inflation has been more persistent than expected, compounded by the effects of broad-based tariffs, uncertainty surrounding interest rate policy, and tensions between the administration and the Federal Reserve regarding monetary independence.</p>
+              <p>A fourth I, international trade, has had an outsized impact on the Corn Belt due to its heavy reliance on export markets. Historically, nearly 50% of U.S. soybean production was exported, with China alone accounting for approximately 45% of exports and Mexico an additional 9%. Following tariff announcements in April, China largely halted U.S. soybean purchases, shifting to Southern Hemisphere suppliers, and returned only marginally in late 2025. These shifts have resulted in lower U.S. soybean prices and a permanent reallocation of global demand. Even if trade relationships normalize, lost income during the disruption period is unlikely to be recovered.</p>
+              <p>It is worth restating some history to put the current cases into context. During the first Trump administration, Market Facilitation Program payments totaled more than $23 billion in 2018&ndash;2019, largely compensating soybean producers for trade-related losses. This was followed by approximately $31 billion in Coronavirus Food Assistance Program payments during 2020&ndash;2021. In many cases, total transfers exceeded market losses, resulting in net positive income effects. Farmland values rose accordingly. By late 2023, land values peaked in many areas, but strong balance sheets and thin markets prevented sharp declines; 2024 and early 2025 were instead characterized by increased dispersion in transaction prices around modest declines.</p>
+              <p>In 2025, major changes to crop insurance further increased government support. Premium subsidies rose substantially, often covering up to 80% of premiums and allowing coverage of up to 95% of expected area revenue, with net premium transfers to producers estimated at approximately $10 billion. USDA forecasts indicated total direct farm payments of $42.3 billion, with 73% classified as ad hoc, and subsequent authorization of an additional $12 billion in Farmer Bridge Assistance suggests this figure will rise further. ARC/PLC payments for the 2025 crop year, paid in 2026, are expected to average $30&ndash;65 per acre across much of the Corn Belt.</p>
+              <p>The short-term question in this region is therefore somewhat removed from the basic economics of input costs and output prices, and depends to an uncomfortable degree on the federal response to policy-influenced market impediments. Academic studies tend to find that 15&ndash;30% of a government payment is viewed as the equivalent of permanent, while changes in export market volumes transmit more directly to longer-term income expectations. Given the thin market conditions that still occur, with roughly 1.5% to 1.75% average annual turnover, the strength of local buyer balance sheets may be the primary short-term factor supporting asset values &mdash; and that strength is increasingly dependent on government program payments.</p>
+              <p>Transactional volumes remain low, driven by a sense of caution and uncertainty. Neighboring farmers have always been the primary purchasers of farmland in the Corn Belt, but others, including high net worth and family office buyers, have begun a more intentional investigation. Higher interest rates compared to 2020&ndash;2023 have kept some leveraged buyers and institutional buyers on the sideline as well, though farmers are beginning to view these levels as a new normal and remain fairly lowly leveraged, so the impact of elevated borrowing costs registers primarily in the cost of operating loans.</p>
+              <p>Finally, farmland markets in this region continue to move even further toward cash rent and flexible cash rental arrangements, with an increase in the use of custom farming arrangements as well. Around 60% of total acreage is leased in the Corn Belt, and for the first time this year a lease proposal was investigated with terms that included sharing any additional ad hoc payments occurring during the lease term. In simplest terms, lease management has an increasingly important role in determining the economic splits when more of the cash flows are associated with government payments.</p>
             </div>
           </details>
 
           <div class="mw-summary reveal">
-            <h3>Summary</h3>
-            <p>The Corn Belt continues to be the most important region for row crop production in the U.S. and thus in turn for the world. The region has performed exceptionally well during recent periods of instability in traditional financial markets. The factors surrounding agricultural production and investment valuation models that create the steady and competitive returns, inflation hedging features and diversification benefits in the Corn Belt appear to remain firmly intact, now and into the future.</p>
+            <h3>Corn Belt summary</h3>
+            <p>The Corn Belt has long been a target for financial investment in agriculture, and is the region with the most efficient and sophisticated farm operations. The historic financial performance has been remarkable relative to competing investments, but the current uncertainties stemming from recent policy changes have created greater variability in local market conditions than has come from market or weather conditions in the past.</p>
+            <p>In total, the factors surrounding agricultural production and investment valuation models that created the steady and competitive returns, inflation hedging features and diversification benefits in the Corn Belt appear to remain, and returns are still relatively attractive, but in a widely expanded possibility set. The longer-term prospects remain positive, though shorter-term minor additional pullbacks would not be surprising. The best summary may still be that there will be both opportunities and disappointments as the markets churn back to a longer-run position of greater market certainty.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ 4 - WHAT DRIVES THE MARKET ============
-         The three-factor frame pulled out of the analysis above and set as its own
-         band so it is legible without reading the whole write-up. The figures in
-         the bottom row come from the same text - keep them in step with it. -->
+    <!-- ============ 4 - THE FOUR I'S ============
+         The frame the report uses, pulled out of the prose and set as its own band
+         so it reads without the full write-up. Three I's last year, four this year -
+         international trade is the new one, and it is the one doing the damage.
+         The figures in the bottom row come from the same text - keep them in step. -->
     <section class="mw-band mw-band--navy on-dark" aria-labelledby="mw-drivers-h">
       <div class="mw-wrap">
         <p class="mw-eyebrow">What moves this market</p>
-        <h2 class="mw-h2" id="mw-drivers-h">Income, interest rates, inflation</h2>
+        <h2 class="mw-h2" id="mw-drivers-h">Income, interest rates, inflation &mdash; and now trade</h2>
         <div class="mw-drivers reveal">
           <div class="mw-driver">
             <h3>Income</h3>
-            <p>On the farmer side, income potential is the most important single factor, whether the question is buying ground or paying the cash rent to control it.</p>
+            <p>Sector income is not highly correlated with commodity prices alone. Government payments have eclipsed every other factor, and they are increasingly what local balance sheets rest on.</p>
           </div>
           <div class="mw-driver">
             <h3>Interest rates</h3>
-            <p>Rates bear on investor-buyers far more than on farmer-buyers, who carry less leverage and more often pay cash. They set who is at the auction, not whether the ground sells.</p>
+            <p>Higher for longer than anticipated. Rates bear on investor-buyers more than on farmer-buyers, who remain lowly leveraged and feel it mostly in the cost of operating loans.</p>
           </div>
           <div class="mw-driver">
             <h3>Inflation</h3>
-            <p>Corn Belt farmland has hedged inflation in all but a few distinct years. Expected inflation settling at higher levels bodes well for long-term farmland prices.</p>
+            <p>More persistent than expected. Corn Belt returns show the highest correlation with inflation of any major region over long holding periods &mdash; nearly 75% at ten years.</p>
+          </div>
+          <div class="mw-driver">
+            <h3>International trade</h3>
+            <p>The new fourth I, and the one with outsized impact here. China largely halted U.S. soybean purchases after April, and the reallocation of global demand looks permanent.</p>
           </div>
         </div>
         <div class="mw-facts reveal">
           <div class="mw-fact">
             <b>~60%</b>
-            <span>Of total Corn Belt acreage is leased, and those arrangements are sticky</span>
+            <span>Of total Corn Belt acreage is leased, and increasingly on flexible cash terms</span>
           </div>
           <div class="mw-fact">
-            <b>~1.5%</b>
-            <span>Of total acres come to market in arms-length transactions in a normal year</span>
+            <b>1.5&ndash;1.75%</b>
+            <span>Average annual turnover, which is what makes this a genuinely thin market</span>
           </div>
           <div class="mw-fact">
-            <b>~13%</b>
-            <span>Aggregate long-term real estate leverage across the sector, much of it fixed-rate</span>
+            <b>$42.3B</b>
+            <span>Forecast total direct farm payments in 2025, 73% of it classified as ad hoc</span>
+          </div>
+          <div class="mw-fact">
+            <b>~50%</b>
+            <span>Of U.S. soybean production has historically been exported, China ~45% of that</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ 5 - REGIONAL OFFICES ============
+    <!-- ============ 5 - PERFORMANCE ============
+         The returns table and the two long-run series charts.
+
+         THE TABLE IS REAL DATA, every cell of it, straight from the 2025 National
+         Land Values report. Do not round, re-derive or "update" a number here.
+
+         THE CHARTS ARE FRAMES, NOT PLOTS. The axes, the ranges, the years and the
+         legend are real; the five state series and the five-state average are not
+         in this file, because the series data is in the report's dataset and is not
+         something to eyeball off a printed figure. The build draws them from the
+         dataset. Do not hand-draw approximate lines to fill the plot area. -->
+    <section class="mw-band" aria-labelledby="mw-perf-h">
+      <div class="mw-wrap">
+        <p class="mw-eyebrow">Long-run performance</p>
+        <h2 class="mw-h2" id="mw-perf-h">What the region has actually returned</h2>
+
+        <div class="mw-perfsplit">
+          <div class="reveal">
+            <div class="mw-tablewrap">
+              <table class="mw-table">
+                <caption>Corn Belt &mdash; five-state average, annualized</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Period</th>
+                    <th scope="col">1991&ndash;2025 <span>35 years</span></th>
+                    <th scope="col">2001&ndash;2025 <span>25 years</span></th>
+                    <th scope="col">2011&ndash;2025 <span>15 years</span></th>
+                    <th scope="col">2016&ndash;2025 <span>10 years</span></th>
+                    <th scope="col">2021&ndash;2025 <span>5 years</span></th>
+                    <th scope="col">2022&ndash;2025 <span>4 years</span></th>
+                    <th scope="col">2023&ndash;2025 <span>3 years</span></th>
+                    <th scope="col">2024&ndash;2025 <span>2 years</span></th>
+                    <th scope="col">2025 <span>1 year</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Income %/year</th>
+                    <td>3.95%</td><td>3.36%</td><td>3.07%</td><td>2.90%</td><td>2.80%</td><td>2.75%</td><td>2.70%</td><td>2.66%</td><td>2.55%</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Capital gain %/year</th>
+                    <td>5.97%</td><td>6.02%</td><td>6.02%</td><td>2.71%</td><td>6.09%</td><td>7.42%</td><td>7.49%</td><td>5.54%</td><td>4.59%</td>
+                  </tr>
+                  <tr class="is-total">
+                    <th scope="row">Total return %/year</th>
+                    <td>9.91%</td><td>9.38%</td><td>9.09%</td><td>5.61%</td><td>8.89%</td><td>10.16%</td><td>10.19%</td><td>8.20%</td><td>7.14%</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">After tax and expenses</th>
+                    <td>9.40%</td><td>8.94%</td><td>8.57%</td><td>5.37%</td><td>8.60%</td><td>9.84%</td><td>9.84%</td><td>7.87%</td><td>6.86%</td>
+                  </tr>
+                  <tr class="is-rule">
+                    <th scope="row">CPI</th>
+                    <td>2.54%</td><td>2.54%</td><td>2.50%</td><td>2.95%</td><td>3.90%</td><td>4.42%</td><td>3.79%</td><td>2.99%</td><td>2.86%</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">CMT-10</th>
+                    <td>4.13%</td><td>3.32%</td><td>2.91%</td><td>2.65%</td><td>2.96%</td><td>3.37%</td><td>3.85%</td><td>4.15%</td><td>4.29%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mw-prose" style="margin-top: var(--space-6);">
+              <p>Returns from this region display the highest correlation with inflation over longer holding periods of any major production region, at nearly 75% over ten years, and the lowest drawdown risk. Iowa farmland prices react a little more than Illinois or Indiana in both rising and falling environments, but all three of the I states share very similar patterns, which correspond closely with rental rates as well. Ohio and Missouri have lower productivity on average and more diversified agriculture, with dairy, livestock and recreational ground representing a larger share of the land base.</p>
+            </div>
+
+            <p class="mw-source">Source: Peoples Company, <a href="./internal.html"><em>2025 National Land Values</em></a>, Corn Belt section. Figures are five-state averages and are updated once a year when the report is published.</p>
+          </div>
+
+          <div class="mw-charts reveal">
+
+            <figure class="mw-chart">
+              <h3>Price &mdash; $/Acre, Corn Belt</h3>
+              <div class="mw-legend" aria-hidden="true">
+                <span style="color:#9FD9F4"><i></i>Ohio</span>
+                <span style="color:#00AEEF"><i></i>Missouri</span>
+                <span style="color:#316F96"><i></i>Iowa</span>
+                <span style="color:#12406A"><i></i>Indiana</span>
+                <span style="color:#07162C"><i></i>Illinois</span>
+                <span class="is-avg" style="color:#6B7C93"><i></i>5-state average</span>
+              </div>
+              <svg viewBox="0 0 420 240" role="img" aria-labelledby="mw-chart1-t mw-chart1-d">
+                <title id="mw-chart1-t">Farmland price per acre, Corn Belt states, 2000 to 2025</title>
+                <desc id="mw-chart1-d">Axis frame only in this mockup. Five state series and a five-state average run from about $2,000 per acre in 2000 to about $10,000 per acre in 2025, with Iowa highest and Missouri lowest.</desc>
+                <g stroke="#D7EFFB" stroke-width="1">
+                  <line x1="52" y1="210" x2="410" y2="210"/><line x1="52" y1="178" x2="410" y2="178"/>
+                  <line x1="52" y1="145" x2="410" y2="145"/><line x1="52" y1="113" x2="410" y2="113"/>
+                  <line x1="52" y1="81"  x2="410" y2="81"/><line x1="52" y1="48"  x2="410" y2="48"/>
+                  <line x1="52" y1="16"  x2="410" y2="16"/>
+                </g>
+                <g fill="#12406A" font-family="Inter, sans-serif" font-size="9" text-anchor="end">
+                  <text x="46" y="213">$0</text><text x="46" y="181">$2,000</text>
+                  <text x="46" y="148">$4,000</text><text x="46" y="116">$6,000</text>
+                  <text x="46" y="84">$8,000</text><text x="46" y="51">$10,000</text>
+                  <text x="46" y="19">$12,000</text>
+                </g>
+                <g fill="#12406A" font-family="Inter, sans-serif" font-size="9" text-anchor="middle">
+                  <text x="52" y="226">2000</text><text x="124" y="226">2005</text>
+                  <text x="195" y="226">2010</text><text x="267" y="226">2015</text>
+                  <text x="338" y="226">2020</text><text x="410" y="226">2025</text>
+                </g>
+                <rect x="52" y="16" width="358" height="194" fill="none" stroke="#316F96"
+                      stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>
+                <text class="mw-plotnote" x="231" y="116" text-anchor="middle">Series plotted from the report dataset</text>
+              </svg>
+            </figure>
+
+            <figure class="mw-chart">
+              <h3>Cash Rent &mdash; $/Acre, Corn Belt</h3>
+              <div class="mw-legend" aria-hidden="true">
+                <span style="color:#9FD9F4"><i></i>Ohio</span>
+                <span style="color:#00AEEF"><i></i>Missouri</span>
+                <span style="color:#316F96"><i></i>Iowa</span>
+                <span style="color:#12406A"><i></i>Indiana</span>
+                <span style="color:#07162C"><i></i>Illinois</span>
+                <span class="is-avg" style="color:#6B7C93"><i></i>5-state average</span>
+              </div>
+              <svg viewBox="0 0 420 240" role="img" aria-labelledby="mw-chart2-t mw-chart2-d">
+                <title id="mw-chart2-t">Cash rent per acre, Corn Belt states, 2000 to 2025</title>
+                <desc id="mw-chart2-d">Axis frame only in this mockup. Five state series and a five-state average run from about $100 per acre in 2000 to between $155 and $275 per acre in 2025.</desc>
+                <g stroke="#D7EFFB" stroke-width="1">
+                  <line x1="52" y1="210" x2="410" y2="210"/><line x1="52" y1="178" x2="410" y2="178"/>
+                  <line x1="52" y1="145" x2="410" y2="145"/><line x1="52" y1="113" x2="410" y2="113"/>
+                  <line x1="52" y1="81"  x2="410" y2="81"/><line x1="52" y1="48"  x2="410" y2="48"/>
+                  <line x1="52" y1="16"  x2="410" y2="16"/>
+                </g>
+                <g fill="#12406A" font-family="Inter, sans-serif" font-size="9" text-anchor="end">
+                  <text x="46" y="213">$0</text><text x="46" y="181">$50</text>
+                  <text x="46" y="148">$100</text><text x="46" y="116">$150</text>
+                  <text x="46" y="84">$200</text><text x="46" y="51">$250</text>
+                  <text x="46" y="19">$300</text>
+                </g>
+                <g fill="#12406A" font-family="Inter, sans-serif" font-size="9" text-anchor="middle">
+                  <text x="52" y="226">2000</text><text x="124" y="226">2005</text>
+                  <text x="195" y="226">2010</text><text x="267" y="226">2015</text>
+                  <text x="338" y="226">2020</text><text x="410" y="226">2025</text>
+                </g>
+                <rect x="52" y="16" width="358" height="194" fill="none" stroke="#316F96"
+                      stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>
+                <text class="mw-plotnote" x="231" y="116" text-anchor="middle">Series plotted from the report dataset</text>
+              </svg>
+            </figure>
+
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ============ 6 - REGIONAL OFFICES ============
          All sixteen offices the live page lists for this region, in the same order
          (alphabetical by city). Phone and street address are real. An email row
          appears only on the offices that publish one - do not invent the rest.
@@ -527,7 +756,7 @@
       </div>
     </section>
 
-    <!-- ============ 6 - REGIONAL LISTINGS ============
+    <!-- ============ 7 - REGIONAL LISTINGS ============
          Six cards, not the live page's ten - the point of this band is to show the
          region has inventory and send people to the filtered listings page, not to
          be a second listings page. The cards are the pc.css .lc component used
@@ -685,7 +914,7 @@
       </div>
     </section>
 
-    <!-- ============ 7 - REGIONAL TEAM ============
+    <!-- ============ 8 - REGIONAL TEAM ============
          Eight people, the same pattern as the team page card but a local, simpler
          card: photo, name, designations, role, home office. The live region page
          loads its roster from the team directory filtered by region, and this band
@@ -796,7 +1025,7 @@
       </div>
     </section>
 
-    <!-- ============ 8 - CTA ============ -->
+    <!-- ============ 9 - CTA ============ -->
     <section class="mw-band mw-band--dark on-dark" aria-labelledby="mw-cta-h">
       <div class="mw-wrap">
         <div class="mw-cta reveal">
