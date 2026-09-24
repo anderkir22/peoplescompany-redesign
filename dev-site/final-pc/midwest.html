@@ -93,19 +93,21 @@
 
     /* ---- 1 intro ---------------------------------------------------------- */
     .mw-intro h1{ margin-bottom: var(--space-6); }
-    .mw-headsplit{ display: grid; grid-template-columns: 640px 1fr; gap: var(--space-8);
+    .mw-headsplit{ display: grid; grid-template-columns: 1.1fr 1fr; gap: var(--space-8);
                    align-items: start; }
     .mw-lede{ font-size: var(--body-lg); line-height: 1.6; margin-bottom: var(--space-4); }
     .mw-prose p{ margin-bottom: var(--space-4); line-height: 1.65; }
     .mw-prose p:last-child{ margin-bottom: 0; }
-    /* The map is the real PC regional footprint art - a wide national map, used
-       whole. When the art is cut up per region, swap the src for the Midwest crop
-       and the figure needs no other change. */
-    .mw-fig{ margin: 0; border: 1px solid var(--color-border); border-radius: var(--radius-md);
-             overflow: hidden; background: var(--pc-soft-white); }
+    /* The map is the Midwest/Plains region cut out of the real PC regional
+       footprint art (assets/midwest-region-map.png): ND, SD, NE, KS, MN, IA and MO
+       plus IL, IN and OH, with the office pins and the region label intact and
+       every other state removed. It is a transparent PNG, so there is no box round
+       it - a border would only draw a rectangle round a shape that is not one.
+       Cut the other regions the same way when their pages come up. */
+    .mw-fig{ margin: 0; }
     .mw-fig img{ display: block; width: 100%; height: auto; }
     .mw-figcap{ font-family: var(--font-sans); font-size: var(--body-sm); line-height: 1.5;
-                color: var(--text-on-light-muted); padding: var(--space-3) var(--space-4); }
+                color: var(--text-on-light-muted); padding-top: var(--space-4); }
 
     /* ---- 2 numbers -------------------------------------------------------- */
     .mw-numbers{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
@@ -119,12 +121,16 @@
     /* Two columns of prose, then the rest of the regional write-up inside a
        <details>. The source runs to five printed pages - folding the tail is the
        consolidation, and nothing is thrown away. */
-    .mw-outlook{ max-width: 1100px; }
-    .mw-cols{ columns: 2; column-gap: var(--space-8); }
-    .mw-cols p{ margin: 0 0 var(--space-4); line-height: 1.65; break-inside: avoid; }
-    /* clear:both so the floated 6% callout above can never run under the rule. */
-    .mw-more{ clear: both; margin-top: var(--space-6);
-              border-top: 1px solid var(--color-border); padding-top: var(--space-5); }
+    /* NO MEASURE CAP ANYWHERE ON THIS PAGE. There is deliberately no max-width on
+       a text block here - the bands run the full content rail and the copy is kept
+       readable by splitting it into columns, not by narrowing the row. Do not
+       reintroduce a ch- or px-based cap on a prose block. */
+    .mw-cols{ columns: 3; column-gap: var(--space-8); }
+    .mw-cols > *{ break-inside: avoid; }
+    .mw-cols p{ margin: 0 0 var(--space-4); line-height: 1.65; }
+    .mw-cols p:last-child{ margin-bottom: 0; }
+    .mw-more{ margin-top: var(--space-6); border-top: 1px solid var(--color-border);
+              padding-top: var(--space-5); }
     .mw-more > summary{ font-family: var(--font-sans); font-size: 14px; font-weight: 600;
                         color: var(--pc-navy); cursor: pointer; list-style: none;
                         display: inline-flex; align-items: center; gap: var(--space-2); }
@@ -133,19 +139,22 @@
     .mw-more[open] > summary::after{ transform: rotate(180deg); }
     .mw-more > summary:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px; }
     .mw-morebody{ margin-top: var(--space-5); }
-    .mw-summary{ clear: both; margin-top: var(--space-6); padding: var(--space-5) var(--space-6);
+    .mw-summary{ margin-top: var(--space-6); padding: var(--space-5) var(--space-6);
                  background: var(--pc-soft-white); border-left: 3px solid var(--pc-blue); }
     .mw-summary h3{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
                     letter-spacing: .12em; text-transform: uppercase;
                     color: var(--text-on-light-muted); margin-bottom: var(--space-3); }
+    .mw-summary .mw-sumcols{ columns: 2; column-gap: var(--space-8); }
+    .mw-summary p{ margin: 0 0 var(--space-4); line-height: 1.65; break-inside: avoid; }
+    .mw-summary p:last-child{ margin-bottom: 0; }
 
     /* The callout box that carries a single headline figure with its explanation.
        The printed report draws this as a speech-bubble with a notched corner; here
        it is a bordered box with a serif head, which is the same emphasis without
        borrowing a shape the rest of the site does not use. */
-    .mw-pull{ float: right; width: 420px; margin: 0 0 var(--space-5) var(--space-7);
-              border: 1px solid var(--pc-medium-blue); border-radius: var(--radius-md);
-              padding: var(--space-5) var(--space-6); background: var(--pc-white); }
+    .mw-pull{ margin: 0 0 var(--space-4); border: 1px solid var(--pc-medium-blue);
+              border-radius: var(--radius-md); padding: var(--space-5) var(--space-6);
+              background: var(--pc-white); }
     .mw-pull h3{ font-family: var(--font-serif); font-weight: 600; font-size: 28px;
                  line-height: 1.1; color: var(--pc-navy); margin-bottom: var(--space-3); }
     .mw-pull p{ font-family: var(--font-serif); font-size: 17px; line-height: 1.55;
@@ -251,7 +260,7 @@
                  color: var(--text-on-light-muted); }
 
     /* ---- 9 cta ------------------------------------------------------------ */
-    .mw-cta{ text-align: center; max-width: 720px; margin: 0 auto; }
+    .mw-cta{ text-align: center; }
     .mw-cta .mw-h2{ margin-bottom: var(--space-4); }
     .mw-cta p{ font-size: var(--body-lg); line-height: 1.6; margin-bottom: var(--space-6); }
     .mw-ctabtns{ display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; }
@@ -338,10 +347,10 @@
           </div>
           <div class="reveal">
             <figure class="mw-fig">
-              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/maps/peoples-company-regional-map-6-30-26.jpg/9761b73340f147c2df67f872b8c1a626.webp"
-                   width="1400" height="900" loading="lazy" decoding="async"
-                   alt="Map of the United States with the Peoples Company regions shaded and office locations marked, the Midwest and Plains region at the center" />
-              <figcaption class="mw-figcap">The Peoples Company footprint. The Midwest and Plains region sits at the center of it.</figcaption>
+              <img src="../assets/midwest-region-map.png"
+                   width="1071" height="816" loading="lazy" decoding="async"
+                   alt="Map of the Peoples Company Midwest and Plains region: North Dakota, South Dakota, Nebraska, Kansas, Minnesota, Iowa and Missouri with Illinois, Indiana and Ohio, marked with office locations" />
+              <figcaption class="mw-figcap">The Midwest and Plains region, with the sixteen offices that serve it.</figcaption>
             </figure>
           </div>
         </div>
@@ -391,12 +400,11 @@
           <p class="mw-eyebrow">Corn Belt market</p>
           <h2 class="mw-h2" id="mw-outlook-h">Steady returns, and a year of unusually wide spreads</h2>
 
-          <aside class="mw-pull reveal">
-            <h3>6% Annual Appreciation</h3>
-            <p>There is an adage that says, <em>&ldquo;you make more on your balance sheet than on your income statement with farmland,&rdquo;</em> and this has historically held true in the Corn Belt, with long-term appreciation averaging around 6% per year and income returns averaging approximately 3.5% annually.</p>
-          </aside>
-
-          <div class="reveal">
+          <div class="mw-cols reveal">
+            <aside class="mw-pull">
+              <h3>6% Annual Appreciation</h3>
+              <p>There is an adage that says, <em>&ldquo;you make more on your balance sheet than on your income statement with farmland,&rdquo;</em> and this has historically held true in the Corn Belt, with long-term appreciation averaging around 6% per year and income returns averaging approximately 3.5% annually.</p>
+            </aside>
             <p>The Corn Belt contains approximately 111.2 million acres of farmland across the relatively homogeneous, row-crop&ndash;dominated production region of Iowa, Illinois, Indiana, Ohio and Missouri. Iowa and Illinois consistently rank first and second in the value of agricultural output within the region, and all five states rank among the top 13 nationally in agricultural production value, as well as within the top 10 for both corn and soybean production. Iowa leads the nation in corn production, while Illinois leads in soybeans.</p>
             <p>Iowa is unique within this group due to its substantial reliance on livestock production, generating nearly $19.5 billion in annual livestock revenue &mdash; ranking third nationally behind Texas ($24 billion) and Nebraska ($20 billion). Indiana, Missouri and Ohio each generate approximately $6&ndash;7 billion annually from livestock, while Illinois generates roughly $4 billion. Livestock income is of particular importance, as livestock and crop sectors tend to move inversely: lower commodity prices reduce feed costs for livestock operations, and vice versa.</p>
             <p>Total returns have exceeded those of publicly traded equity indexes with substantially lower volatility for nearly every possible 10-year holding period since 1990. However, the &ldquo;thin market&rdquo; and heterogeneous nature of farmland investments complicate access to the asset class relative to equities. Corn Belt farmland has also served as a strong inflation hedge, with returns exceeding inflation in all but one year since 1990.</p>
@@ -404,7 +412,7 @@
 
           <details class="mw-more">
             <summary>Read the full regional analysis</summary>
-            <div class="mw-morebody">
+            <div class="mw-morebody mw-cols">
               <p>Contrasting with these long-term characteristics, recent developments have introduced elevated uncertainty. While the three I&rsquo;s identified in last year&rsquo;s summary &mdash; income, interest rates and inflation &mdash; remain critical drivers of farmland valuation, their impacts have proven far more pronounced than anticipated due to short-term structural and policy-related changes. Inflation has been more persistent than expected, compounded by the effects of broad-based tariffs, uncertainty surrounding interest rate policy, and tensions between the administration and the Federal Reserve regarding monetary independence.</p>
               <p>A fourth I, international trade, has had an outsized impact on the Corn Belt due to its heavy reliance on export markets. Historically, nearly 50% of U.S. soybean production was exported, with China alone accounting for approximately 45% of exports and Mexico an additional 9%. Following tariff announcements in April, China largely halted U.S. soybean purchases, shifting to Southern Hemisphere suppliers, and returned only marginally in late 2025. These shifts have resulted in lower U.S. soybean prices and a permanent reallocation of global demand. Even if trade relationships normalize, lost income during the disruption period is unlikely to be recovered.</p>
               <p>It is worth restating some history to put the current cases into context. During the first Trump administration, Market Facilitation Program payments totaled more than $23 billion in 2018&ndash;2019, largely compensating soybean producers for trade-related losses. This was followed by approximately $31 billion in Coronavirus Food Assistance Program payments during 2020&ndash;2021. In many cases, total transfers exceeded market losses, resulting in net positive income effects. Farmland values rose accordingly. By late 2023, land values peaked in many areas, but strong balance sheets and thin markets prevented sharp declines; 2024 and early 2025 were instead characterized by increased dispersion in transaction prices around modest declines.</p>
@@ -417,8 +425,10 @@
 
           <div class="mw-summary reveal">
             <h3>Corn Belt summary</h3>
+            <div class="mw-sumcols">
             <p>The Corn Belt has long been a target for financial investment in agriculture, and is the region with the most efficient and sophisticated farm operations. The historic financial performance has been remarkable relative to competing investments, but the current uncertainties stemming from recent policy changes have created greater variability in local market conditions than has come from market or weather conditions in the past.</p>
             <p>In total, the factors surrounding agricultural production and investment valuation models that created the steady and competitive returns, inflation hedging features and diversification benefits in the Corn Belt appear to remain, and returns are still relatively attractive, but in a widely expanded possibility set. The longer-term prospects remain positive, though shorter-term minor additional pullbacks would not be surprising. The best summary may still be that there will be both opportunities and disappointments as the markets churn back to a longer-run position of greater market certainty.</p>
+            </div>
           </div>
         </div>
       </div>
