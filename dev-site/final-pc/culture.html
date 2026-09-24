@@ -313,10 +313,12 @@
     /* PICTURE-LED OVERLAY CARDS - the same treatment as the Difference cards on
        about.html (.ab-point): the photograph is the whole card and the copy sits over
        a gradient at its foot.
-       NO FIXED ASPECT RATIO, deliberately. The summaries differ in length, and a ratio
-       that fits the shortest clips the longest at 3-up width. min-height sets the
-       floor, the copy sets the real height, and the grid stretches every card in a row
-       to its tallest sibling, so the rows stay level whatever the copy does.
+       THE CARD CARRIES NO SUMMARY PARAGRAPH - only the eyebrow, the name and the
+       trigger. The summary lives in the window, as the lede beside the picture, so it
+       is read once rather than twice. That is what lets the cards be short.
+       With nothing variable-length left in them, every card is now exactly min-height
+       and the two rows line up without the grid having to stretch anything. Put a
+       paragraph back and the cards start setting their own heights again.
 
        THE STACKING, which is load-bearing and easy to break:
          .cu-awardpic   position:absolute, Z-INDEX -1   - the photograph and its scrim
@@ -331,7 +333,7 @@
        which reads as the photograph simply failing to load. */
     .cu-award{ position: relative; isolation: isolate;
       display: flex; flex-direction: column; justify-content: flex-end;
-      min-height: 420px; overflow: hidden; border-radius: var(--radius-md);
+      min-height: 320px; overflow: hidden; border-radius: var(--radius-md);
       background: var(--pc-navy);
       /* The service cards' motion from pc.css .hp-card, to the millisecond. */
       transition: box-shadow .18s, transform .18s; }
@@ -344,17 +346,34 @@
     /* The scrim rides on the PICTURE, not the card - it has to sit over the photograph
        and under the copy. The same PC Black stops as .ab-point: clear by 78%, so the
        top fifth of the photograph is untouched. */
+    /* The scrim rides on the PICTURE, not the card - it has to sit over the
+       photograph and under the copy.
+       PULLED RIGHT DOWN. The copy is now a single row in the bottom ~15% of the card,
+       so the dark only has to cover that: it is clear by 42%, leaving the TOP 58% OF
+       THE PHOTOGRAPH COMPLETELY UNTOUCHED. The .ab-point stops this started from
+       cleared at 78% and were carrying a paragraph.
+       Contrast is measured against the WORST CASE, a white photograph under the
+       densest stop: white copy on that blend is 7.7:1 and the PC Light Blue eyebrow is
+       6.3:1, both clear of AA. Raise the clear point above ~45% and re-measure. */
     .cu-awardpic::after{ content: ""; position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(7,22,44,.94) 0%, rgba(7,22,44,.88) 30%,
-        rgba(7,22,44,.62) 56%, rgba(7,22,44,0) 78%); }
+      background: linear-gradient(to top, rgba(7,22,44,.92) 0%, rgba(7,22,44,.80) 14%,
+        rgba(7,22,44,.45) 26%, rgba(7,22,44,0) 42%); }
     /* The wine photograph is 600 x 555 and the card is much taller than it is wide, so
        cover crops the sides hard. Holding the focal point at 40% keeps the corks and
        the labels in frame rather than centring on the bottles' middles. */
     .cu-awardpic--wine img{ object-position: center 40%; }
 
-    /* UNPOSITIONED - see the stacking note above. No bottom padding: the button's
-       margin supplies it, so the copy and the trigger share one rhythm. */
-    .cu-awardtext{ padding: var(--space-5) var(--space-5) 0; }
+    /* THE FOOT ROW: the two lines of copy bottom-left, the trigger bottom-right, on
+       one line. align-items:flex-end is what puts "Details" on the bottom of the name
+       rather than the middle of the two-line stack beside it.
+       BOTH THIS AND .cu-awardtext ARE UNPOSITIONED, and must stay that way - see the
+       stacking note on .cu-award. Position either and the button's stretched ::after
+       stops resolving against the card and the hit area collapses to the foot.
+       The padding that used to be split between the copy and the button's margin is
+       all here now, so the row sits one gutter in from all three edges. */
+    .cu-awardfoot{ display: flex; align-items: flex-end;
+      justify-content: space-between; gap: var(--space-4); padding: var(--space-5); }
+    .cu-awardtext{ min-width: 0; }
 
     /* ---- THE CARD AS A TARGET ------------------------------------------------
        THE WHOLE CARD IS CLICKABLE, and the thing that makes it clickable is a real
@@ -370,7 +389,9 @@
        its heading. */
     /* UNPOSITIONED, so the stretched ::after below resolves against .cu-award and the
        hit area becomes the whole card - see the stacking note on .cu-award. */
-    .cu-awardgo{ align-self: flex-start; margin: var(--space-5);
+    /* flex:none stops the trigger being squeezed by a long award name; nowrap keeps
+       "Details" and its arrow on one line whatever the name does. */
+    .cu-awardgo{ flex: none; white-space: nowrap;
       display: inline-flex; align-items: center; gap: var(--space-2);
       background: none; border: 0; padding: 0; cursor: pointer;
       font-family: var(--font-sans); font-size: 14px; font-weight: 600;
@@ -383,10 +404,28 @@
     .cu-award:hover .cu-awardgo{ color: var(--text-on-dark-muted); }
     .cu-award:hover .cu-awardgo .cu-arw{ transform: translateX(3px); }
     /* The focus ring goes on the CARD, so keyboard focus shows the whole target rather
-       than a ring round two words at its foot. :focus-within is what carries it out to
-       the card; the button's own outline is suppressed only because the card is
-       drawing one for it. PC Blue, because the ring lands on a dark photograph. */
+       than a ring round two words at its foot. The button's own outline is suppressed
+       only because the card is drawing one for it. PC Blue, because the ring lands on
+       a dark photograph.
+
+       WHY THIS IS TWO RULES AND NOT ONE. Closing the window returns focus to the card
+       that opened it, which is correct - but plain :focus-within then draws the ring
+       for a MOUSE user too, so every card kept a blue border after its window closed.
+       :focus-visible is the distinction that fixes it: browsers set it when focus
+       arrived by keyboard and withhold it when it arrived by pointer, including for a
+       programmatic .focus() like the one in close().
+
+       The base rule stays :focus-within so that a browser without :has() still shows
+       keyboard users a ring - losing it entirely would be a real regression, where an
+       extra ring after a mouse click is only untidy. Inside @supports, :focus-within
+       is switched off and :has(:focus-visible) takes over. Drop the fallback only when
+       :has() is a safe baseline. */
     .cu-award:focus-within{ outline: 2px solid var(--pc-blue); outline-offset: 2px; }
+    @supports selector(:has(*)){
+      .cu-award:focus-within{ outline: none; }
+      .cu-award:has(.cu-awardgo:focus-visible){ outline: 2px solid var(--pc-blue);
+        outline-offset: 2px; }
+    }
     .cu-awardgo:focus-visible{ outline: none; }
     /* Covers the card lift and the arrow nudge together - the same override pc.css
        gives .hp-card. */
@@ -530,11 +569,13 @@
        the card heading can be the name on its own. */
     .cu-awardkind{ display: block; font-size: 11px; letter-spacing: .1em;
       text-transform: uppercase; font-weight: 700; color: var(--text-on-dark-muted);
-      margin-bottom: var(--space-3); }
+      margin-bottom: var(--space-2); }
+    /* margin:0 - the name is the last thing in the left-hand column of the foot row,
+       and any bottom margin would push it off the trigger's baseline. */
     .cu-award h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
-      line-height: 1.2; color: var(--pc-white); margin: 0 0 var(--space-3); }
-    .cu-award p{ margin: 0; font-size: 15px; line-height: 1.7;
-      color: rgba(255,255,255,.86); }
+      line-height: 1.2; color: var(--pc-white); margin: 0; }
+    /* No .cu-award p rule: there is no paragraph on a card any more. The window's
+       copy is styled by .cu-modalhead p and .cu-modal-body p instead. */
 
     /* ---- 7 - ANNUAL COMPANY TRIP ------------------------------------------------
        The closing band, and the only picture-led one. The photograph IS the band and
@@ -820,50 +861,54 @@
         <ul class="cu-awards">
           <li class="cu-award reveal">
             <div class="cu-awardpic"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/auction26.jpg/f733fb2fe0b9015ea27ca1e8191eefe7.webp" width="1200" height="675" loading="lazy" decoding="async" alt="A Peoples Company auctioneer taking bids at a farmland auction" /></div>
-            <div class="cu-awardtext">
-            <span class="cu-awardkind">Annual award</span>
-            <h3>Top Producers</h3>
-            <p>Our annual awards recognize the top producers in brokerage, land management, and appraisal who are at the top of their game and execute at the highest level.</p>
+            <div class="cu-awardfoot">
+              <div class="cu-awardtext">
+                <span class="cu-awardkind">Annual award</span>
+                <h3>Top Producers</h3>
+              </div>
+              <button class="cu-awardgo" type="button" data-award="top-producers">
+                Details<span class="sr-only"> about Top Producers</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
+              </button>
             </div>
-            <button class="cu-awardgo" type="button" data-award="top-producers">
-              Read more<span class="sr-only"> about Top Producers</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
-            </button>
           </li>
           <li class="cu-award reveal">
             <div class="cu-awardpic"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/management26.jpg/6115f754ad4c501d00c605b11eb316f9.webp" width="1200" height="675" loading="lazy" decoding="async" alt="A farm manager and a landowner walking a field of row crop together" /></div>
-            <div class="cu-awardtext">
-            <span class="cu-awardkind">Annual award</span>
-            <h3>The Abundance Award</h3>
-            <p>Honors those who live our collaborative values, putting the success of the team and its clients ahead of their own individual book of business.</p>
+            <div class="cu-awardfoot">
+              <div class="cu-awardtext">
+                <span class="cu-awardkind">Annual award</span>
+                <h3>The Abundance Award</h3>
+              </div>
+              <button class="cu-awardgo" type="button" data-award="abundance">
+                Details<span class="sr-only"> about The Abundance Award</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
+              </button>
             </div>
-            <button class="cu-awardgo" type="button" data-award="abundance">
-              Read more<span class="sr-only"> about The Abundance Award</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
-            </button>
           </li>
           <li class="cu-award reveal">
             <div class="cu-awardpic cu-awardpic--wine"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/wine1.jpg/5b7949a38e5dd274e6f379b3d74a3be2.webp" width="600" height="555" loading="lazy" decoding="async" alt="Four Peoples Company award wine bottles in a row, labelled Branded Award, Design of the Year, Abundance Award and Top Producer" /></div>
-            <div class="cu-awardtext">
-            <span class="cu-awardkind">Annual award</span>
-            <h3>The Branded Award</h3>
-            <p>Celebrates team members in every role who are all in for Peoples Company, whatever their title and wherever in the platform they sit.</p>
+            <div class="cu-awardfoot">
+              <div class="cu-awardtext">
+                <span class="cu-awardkind">Annual award</span>
+                <h3>The Branded Award</h3>
+              </div>
+              <button class="cu-awardgo" type="button" data-award="branded">
+                Details<span class="sr-only"> about The Branded Award</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
+              </button>
             </div>
-            <button class="cu-awardgo" type="button" data-award="branded">
-              Read more<span class="sr-only"> about The Branded Award</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
-            </button>
           </li>
           <li class="cu-award reveal">
             <!-- The picture is a real Peoples Company offering brochure cover, which is
                  the kind of work this award is for. It is 1489 x 1160 (about 1.28:1),
                  so the 5:4 card window crops it barely at all. -->
             <div class="cu-awardpic"><img src="../assets/brochure-19278/p01.webp" width="1489" height="1160" loading="lazy" decoding="async" alt="The cover of a Peoples Company sealed bid offering brochure for Columbia River Farm and Vineyard" /></div>
-            <div class="cu-awardtext">
-            <span class="cu-awardkind">Annual award</span>
-            <h3>Design of the Year</h3>
-            <p>Recognizes the marketing and offering design that set the standard for the year: the brochures, campaigns, and presentations that bring a property to market.</p>
+            <div class="cu-awardfoot">
+              <div class="cu-awardtext">
+                <span class="cu-awardkind">Annual award</span>
+                <h3>Design of the Year</h3>
+              </div>
+              <button class="cu-awardgo" type="button" data-award="design">
+                Details<span class="sr-only"> about Design of the Year</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
+              </button>
             </div>
-            <button class="cu-awardgo" type="button" data-award="design">
-              Read more<span class="sr-only"> about Design of the Year</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
-            </button>
           </li>
           <li class="cu-award reveal">
             <!-- No photograph for this one yet. The .cu-awardpic layer stays so the
@@ -871,14 +916,15 @@
                  one; it simply has nothing in it, and the PC Navy card fill shows
                  through. Drop an <img> in here when the photograph lands. -->
             <div class="cu-awardpic"></div>
-            <div class="cu-awardtext">
-            <span class="cu-awardkind">10 years of service</span>
-            <h3>The Belt Buckle</h3>
-            <p>The Peoples Company belt buckle our team members earn at ten years, worn with pride by those who have given a significant portion of their career to our mission.</p>
+            <div class="cu-awardfoot">
+              <div class="cu-awardtext">
+                <span class="cu-awardkind">10 years of service</span>
+                <h3>The Belt Buckle</h3>
+              </div>
+              <button class="cu-awardgo" type="button" data-award="belt-buckle">
+                Details<span class="sr-only"> about The Belt Buckle</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
+              </button>
             </div>
-            <button class="cu-awardgo" type="button" data-award="belt-buckle">
-              Read more<span class="sr-only"> about The Belt Buckle</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
-            </button>
           </li>
           <li class="cu-award reveal">
             <!-- No photograph for this one yet. The .cu-awardpic layer stays so the
@@ -886,14 +932,15 @@
                  one; it simply has nothing in it, and the PC Navy card fill shows
                  through. Drop an <img> in here when the photograph lands. -->
             <div class="cu-awardpic"></div>
-            <div class="cu-awardtext">
-            <span class="cu-awardkind">20 years of service</span>
-            <h3>The Cowboy Boots</h3>
-            <p>At twenty years, team members receive the Peoples Company cowboy boots: our recognition of longevity, loyalty, and a career spent building the brand.</p>
+            <div class="cu-awardfoot">
+              <div class="cu-awardtext">
+                <span class="cu-awardkind">20 years of service</span>
+                <h3>The Cowboy Boots</h3>
+              </div>
+              <button class="cu-awardgo" type="button" data-award="cowboy-boots">
+                Details<span class="sr-only"> about The Cowboy Boots</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
+              </button>
             </div>
-            <button class="cu-awardgo" type="button" data-award="cowboy-boots">
-              Read more<span class="sr-only"> about The Cowboy Boots</span><span class="cu-arw" aria-hidden="true">&rarr;</span>
-            </button>
           </li>
         </ul>
       </div>
@@ -990,7 +1037,7 @@
             <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
           </p>
           <div class="pff-cta">
-            <a class="btn btn-subscribe" href="./internal.html">Find an Office</a>
+            <a class="btn btn-subscribe" href="./contact.html">Find an Office</a>
           </div>
         </div>
 
@@ -1009,12 +1056,12 @@
         <nav class="pff-col" aria-label="The Company">
           <h3>The Company</h3>
           <ul>
-            <li><a href="./internal.html">Overview</a></li>
+            <li><a href="./about.html">Overview</a></li>
             <li><a href="./internal.html">Regions</a></li>
             <li><a href="./internal.html">Industry Collaboration</a></li>
             <li><a href="./team.html">Our Team</a></li>
             <li><a href="./contact.html">Offices</a></li>
-            <li><a href="./internal.html">Culture</a></li>
+            <li><a href="./culture.html">Culture</a></li>
             <li><a href="./careers.html">Careers</a></li>
           </ul>
         </nav>
