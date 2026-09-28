@@ -54,25 +54,79 @@
 
        BAND RHYTHM, top to bottom:
          1 intro        white
-         2 living       PC Soft White
-         3 legacy       white
-         4 brand        PC Navy
-         5 hat          white
-         6 awards       PC Soft White
+         2 living       white  - NO FILL: reads as the tail of the intro, see below
+         3 legacy       PC Light Blue
+         4 brand        white, PC Diamond watermark behind the copy
+         5 hat          PC Light Blue
+         6 awards       PC Soft White  - PARKED, hidden attribute on the section
          7 trip         PC Black, photograph behind
          (then the white footer)
        The fill change IS the section boundary, so only the tint bands carry a
        hairline, on their top edge. A tint band's bottom runs into white, where a
        rule would read as a seam rather than an edge.
+       BAND 2 IS DELIBERATELY UNFILLED, AND BAND 3 CARRIES THE TINT IT USED TO. The
+       statement is not a section of its own - it is the close of the intro's argument,
+       so it runs on the intro's white and is separated from the copy above it by space
+       alone. Do not give it a fill or a hairline: either one puts the boundary back in
+       the wrong place. PC Light Blue moved down one band, so the first fill change a
+       reader meets now falls at "Forging a Legacy", where the page really does start a
+       new section.
        ========================================================================= */
 
     .cu-band{ padding: var(--space-8) 0; }
+    /* A PARKED BAND TAKES NO SPACE. pc.css's reset already handles [hidden], but
+       .cu-band's own padding would survive any stylesheet that did not, and leave a
+       128px empty band where the parked section was. Stated here so it cannot. */
+    .cu-band[hidden]{ display: none; }
     .cu-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
     .cu-band--soft{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border); }
     /* PC Light Blue. NO HAIRLINE on this one: --color-border IS PC Light Blue, so a
        top rule would be invisible against the fill. It does not need one - the fill
        change is a strong enough boundary on its own at this saturation. */
     .cu-band--light{ background: var(--pc-light-blue); }
+    /* A statement band sets its own vertical rhythm on .cu-living, so the band's own
+       padding is zeroed rather than added to it. */
+    .cu-band--statement{ padding: 0; }
+    /* SHALLOWER CEILING than the standard band's 64px, to match the 48px of white
+       .cu-living leaves above the tint edge. The fill change is the boundary here, so
+       the padding only has to keep the heading off the edge - it does not have to
+       announce a new section by itself.
+       This is on the BAND, not on the inner .cu-legacy: put it on the inner block and
+       it adds to the band's own 64px rather than replacing it, which is what left
+       112px above the heading. */
+    .cu-band--tight{ padding-top: var(--space-7); }
+
+    /* A WHITE BAND WITH THE PC DIAMOND WASHED IN BEHIND THE COPY. The band was PC
+       Navy with on-dark type; it is white now, and the mark is what carries it instead
+       of a fill.
+       THE MARK IS DECORATION, so it is a ::before and a background-image, not an
+       <img>. There is nothing in it for a screen reader to read - the words are the
+       content - and a background cannot be announced, dragged or saved, which is what
+       a watermark should be.
+       aria-hidden is not needed for the same reason: generated content is not in the
+       accessibility tree to begin with.
+       SIZED OFF THE BAND'S HEIGHT (auto 100%), not its width: the source is square
+       (288 x 288), so height drives it and the diamond comes out as tall as the band
+       and centred on it - which is what puts it behind the three columns rather than
+       floating above or below them. overflow: hidden on the band keeps it from
+       spilling past the edges if the copy ever shortens.
+       OPACITY 0.05. The mark is #11416a, so at full strength it would be a graphic
+       rather than a watermark. Anything over about 0.08 starts to compete with the
+       16px body copy sitting on top of it - if the mark needs to read stronger, the
+       thing to raise is its SIZE, not its opacity. Body copy on this band is
+       --color-text-muted, and at 0.05 the mark does not measurably move its contrast
+       against white.
+       pointer-events: none so the mark never eats a click or a text selection. */
+    .cu-band--wash{ background: var(--pc-white); position: relative;
+      overflow: hidden; }
+    .cu-band--wash::before{ content: ""; position: absolute; inset: 0;
+      background: url("../assets/PC_Logomark-Navy.svg") center center / auto 100%
+        no-repeat;
+      opacity: .05; pointer-events: none; }
+    /* The copy sits ABOVE the mark. Without this the mark is painted over the band's
+       background but still under nothing in particular, and a stacking context change
+       anywhere above could put it over the text. */
+    .cu-band--wash > .cu-wrap{ position: relative; z-index: 1; }
     .cu-band--navy{ background: var(--pc-navy); }
 
     /* Bands open on their h2, so it carries no top margin. Adding a section eyebrow
@@ -117,6 +171,14 @@
        the content and every page holds it off itself, measured off the tab's peak
        height so the clearance holds as the tab breathes. */
     .cu-intro{ padding-top: calc(var(--md-tab-h-peak) + var(--space-6)); }
+    /* SHALLOWER FLOOR than the standard band's 64px. Band 2 runs on this band's white
+       and closes its argument, so the gap between them is set here and in .cu-living
+       as ONE number: 48px total, half the standard band-to-band gap and 1.5x the gap
+       between the statement's own two paragraphs. That ladder - 24px between body
+       paragraphs, 32px between statement paragraphs, 48px to the statement - is what
+       makes the statement read as the last beat of this section rather than the first
+       beat of a new one. */
+    .cu-intro{ padding-bottom: var(--space-7); }
     /* Spans both columns: it heads the copy AND the figure. */
     .cu-intro h1{ font-size: 52px; line-height: 1.08; margin: 0 0 var(--space-7); }
 
@@ -129,35 +191,96 @@
        load-bearing - it is what lets the figure fill the copy's full height. */
     .cu-headsplit{ display: grid; grid-template-columns: 850px minmax(0, 1fr);
       gap: var(--space-8); align-items: stretch; }
-    .cu-headsplit .cu-figcol{ display: block; }
-    .cu-headsplit .cu-fig{ height: 100%; }
-    /* A CSS CROP, not a fitted image: the column is roughly 462 x 620, so a landscape
-       source shows about a quarter of its width at full height. That suits farmland
-       texture and will not suit a subject - a photograph of people needs a portrait
-       crop of its own. */
+    /* THE COPY SETS THE ROW HEIGHT, AND THE PICTURE IS CROPPED TO IT. The image is
+       taken OUT OF FLOW (position: absolute inside a relative column) so it
+       contributes nothing to the row's height - the row is exactly as tall as the
+       three paragraphs, and the photograph fills that. Drop position: relative here
+       and height: 100% on the image resolves against a figure that is itself
+       height: 100% - a circular reference that falls back to the source's intrinsic
+       size, which is what used to push the picture past the bottom of the copy and
+       leave white space under the text. */
+    .cu-headsplit .cu-figcol{ position: relative; }
+    .cu-headsplit .cu-fig{ position: absolute; inset: 0; }
+    /* A CSS CROP, not a fitted image: the slot is roughly 462 x 356, so the source is
+       cut to about 1.3:1 LANDSCAPE. object-position holds the crop just right of
+       centre, which keeps the entrance on frame. */
     .cu-headsplit .cu-fig img{ object-position: 60% center; }
 
     /* ---- 2 - LIVING OUR CULTURE -------------------------------------------------
-       Copy in a full-width block ABOVE, a single row of photographs beneath it. No
-       columns and no mosaic: the band is one paragraph and one strip, read top to
-       bottom.
-       NO MEASURE CAP on the copy - it runs the full content box, about 130 characters
-       at 1536. That is over the 45-75 recommendation and is a deliberate call: it is
-       one short paragraph, and the band reads as one block when the text and the photo
-       strip start and end on the same two edges. */
-    .cu-livingtext{ margin-bottom: var(--space-7); }
-    .cu-living .cu-h2{ margin-bottom: var(--space-5); }
-
-    /* ONE ROW OF FOUR, equal width. The row height is fixed at 280px and object-fit
-       does the framing, so the four sources can be any shape and the strip still reads
-       level - at 1536 each tile is about 329 x 280, near enough 7:6.
-       NOTE the tiles are not links and carry no hover: they are editorial, and a lift
-       would promise an action they cannot deliver.
-       Adding or removing a picture means changing the column count here; the row does
-       not wrap, by design. */
-    .cu-mosaic{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-      grid-auto-rows: 280px; gap: var(--space-4); }
-    .cu-mosaic .cu-fig{ min-height: 0; }
+       A TYPOGRAPHIC BAND, NOT A PICTURE BAND. It used to carry a strip of four
+       photographs under the copy. They were placeholders that the paragraph never
+       referred to, and four tiles competed with the one sentence that matters here -
+       so the band is now the sentence, set large, with space around it doing the work
+       the pictures were doing.
+       LEFT ALIGNED AND FULL CONTENT WIDTH: the block runs the whole 1376px content box
+       at 1536, flush left with the h1, the other bands and the footer. No max-width
+       and no centring - the statement is a wide slab of type, and it lines up with
+       everything else on the page rather than floating in the middle of the band.
+       Deeper padding than the standard band (--space-9 rather than --space-8): with
+       no photographs to fill it, the air IS the design, and a statement band set at
+       the same rhythm as the reading bands reads like a paragraph someone forgot to
+       finish. */
+    /* ASYMMETRIC PADDING, because the band's two edges are doing different jobs.
+       ABOVE (zero): the whole gap is the intro's shallowed 48px floor - see
+       .cu-intro. Kept as one number in one place rather than two paddings that have
+       to be read together, because this gap is the only thing holding the two bands
+       together now that the fill does not.
+       BELOW (--space-7, 48px): the space used to be 96px here, on the reasoning that
+       with no fill change to mark the boundary the gap had to carry it alone. PC Light
+       Blue on band 3 now carries it, so the space does not have to - and 96 plus the
+       next band's own padding read as a hole in the page. 48px of white above the
+       tint edge, matched by the 48px .cu-legacy takes below it, is enough. */
+    .cu-living{ padding: 0 0 var(--space-7); }
+    /* THE HEADING IS AN EYEBROW, NOT A SMALLER SERIF. It used to be EB Garamond at
+       28px above an EB Garamond statement at 32px - the same voice twice, four points
+       apart, which read as one block of type that changed its mind rather than a label
+       and the thing it labels.
+       Now it changes TYPEFACE, not just size: Inter, uppercase, 13px, 600 weight, wide
+       tracking. That is the same eyebrow idiom the Ride for the Brand band already
+       uses for .cu-brandkick, so the page gains no new pattern - and against 32px
+       serif the contrast is in the letterforms, which holds at any size.
+       It stays a real h2 in the outline and the band's accessible name is unchanged:
+       only its rendering is an eyebrow. */
+    .cu-living .cu-h2{ font-family: var(--font-sans); font-size: 13px;
+      font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+      line-height: 1.2; color: var(--pc-navy); margin: 0 0 var(--space-5); }
+    /* THE STATEMENT. Serif ITALIC at 28px/1.45. The italic is the whole point of the
+       treatment: it reads as the page changing tone - an aside, said in its own voice -
+       where the roman at 32px read as a heading that had lost its section. Italic also
+       carries the drop in size for free, because a sloped face is already distinct
+       from everything around it and does not need the extra four points to be seen.
+       EB Garamond italic 500 is in the font request at the top of the file (the
+       `1,500` in the ital,wght axis), so this is a real italic cut and not a browser
+       slant. Changing the weight here means adding it there first.
+       Line height opens to 1.45 from the roman's 1.4: italic ascenders and descenders
+       are longer, and 1.4 crowds them at this size.
+       Tracking eases to -0.005em: the tighter -0.01em was set for the larger roman,
+       and an italic at 28px does not want the same pull.
+       PC Black rather than the muted body grey: this is the page speaking in its own
+       voice, not supporting copy.
+       NO MEASURE CAP, like the rest of the page: across the full 1376px box a 28px
+       line runs about 105 characters, over the 45-75 recommendation and deliberately
+       so - long lines read as a statement, where the same words in a narrow column
+       read as a pull quote. */
+    .cu-livingtext .cu-prose p{ font-family: var(--font-serif); font-size: 28px;
+      font-style: italic; line-height: 1.45; font-weight: 500;
+      letter-spacing: -0.005em;
+      color: var(--pc-black);
+      /* TWO PARAGRAPHS. The gap between them is --space-6 rather than the body
+         copy's --space-5: at 28px/1.45 the lines are 41px tall, and a 24px gap would
+         not read as a paragraph break against them. The last paragraph zeroes its
+         own margin so the band's 96px floor is exactly 96px. */
+      margin: 0 0 var(--space-6);
+      /* pretty, not balance: balance would even the lines by pulling the measure in,
+         which is exactly what this band is not for. pretty leaves the measure alone
+         and only stops the sentence ending on a one-word line. Where it is
+         unsupported the paragraph wraps normally, so nothing depends on it. */
+      text-wrap: pretty; }
+    .cu-livingtext .cu-prose p:last-child{ margin-bottom: 0; }
+    /* The copy block no longer sits above anything, so it carries no bottom margin.
+       Restoring one is the first thing to do if a button or a second paragraph is ever
+       added under it. */
+    .cu-livingtext{ margin-bottom: 0; }
 
     /* ---- 3 - FORGING A LEGACY ---------------------------------------------------
        The one long read on the page. The heading is parked in a narrow left column and
@@ -172,12 +295,19 @@
        beside it. The two columns end level by construction, not by a tuned number. */
     .cu-legacybody{ display: grid; grid-template-columns: 850px minmax(0, 1fr);
       gap: var(--space-8); align-items: stretch; }
-    /* THE PHOTOGRAPH IS CROPPED TO THE PROSE. height:100% plus object-fit: cover means
-       the column height is set by the copy and the picture is cut to fit it.
-       NOTE THE SOURCE IS A CUT-OUT on a transparent ground (old-hat-color.png), so a
-       cover crop bites into the hat. It wants replacing with a full-bleed photograph
-       cut to roughly 460 x 900 - PORTRAIT, about 1:2. */
-    .cu-legacyfig{ margin: 0; height: 100%; }
+    /* THE PHOTOGRAPH IS CROPPED TO THE PROSE, and the copy alone sets the row height.
+       The figure is taken OUT OF FLOW (position: absolute inside a relative column) so
+       it contributes nothing to the row - the row is exactly as tall as the four
+       paragraphs, and the picture fills that. This is the same construction as the
+       intro's .cu-headsplit, and for the same reason: height: 100% on a figure that is
+       itself height: 100% is a circular reference, so it falls back to the source's
+       intrinsic size and the picture ends up taller than the copy beside it. That is
+       what used to leave the image hanging about 60px below the last line.
+       The slot is roughly 462 x 630, so the source wants cutting to about 3:4
+       PORTRAIT - cover crops whatever it is handed, but a source cut to it loses
+       nothing. */
+    .cu-legacyfigcol{ position: relative; }
+    .cu-legacyfig{ margin: 0; position: absolute; inset: 0; }
     .cu-legacyfig img{ display: block; width: 100%; height: 100%;
       object-fit: cover; border-radius: var(--radius-md); }
 
@@ -193,108 +323,106 @@
        The philosophy line is kept, promoted to a KICKER ABOVE the heading - it reads
        as the label on the phrase rather than an attribution under a quotation, which
        is what it always was: the section has no speaker to attribute to. */
+    /* PC Navy, not the on-dark muted white it carried while the band was navy. */
     .cu-brandkick{ margin: 0 0 var(--space-3); font-size: 13px; letter-spacing: .1em;
       text-transform: uppercase; font-weight: 600;
-      color: var(--text-on-dark-muted); }
+      color: var(--color-text-subtle); }
     /* .cu-h2 zeroes its top margin because bands open on their heading. This band
        opens on the kicker instead, so the gap under the pair is set here. */
     .cu-brandhead{ margin: 0 0 var(--space-7); }
-    /* Three paragraphs across two columns: at 16px/1.75 a single 1376px column runs
-       about 130 characters, which is unreadable. CSS columns rather than a grid,
-       because the break between the columns should fall wherever the copy runs out
-       rather than on a paragraph boundary. */
-    /* The band's photograph: FULL CONTENT WIDTH, fixed 440px tall - a letterbox
-       strip UNDER the argument, not a column beside it and not a header above it. The
-       band reads quote -> argument -> the words on the office wall, which is the order
-       that lands: the photograph is the proof, so it comes last.
-       At 1536 the slot is 1376 x 440, about 3.1:1, and the source
-       (pc-ride-for-the-brand.webp) is cut to 1920 x 614 - the SAME ratio, so cover
-       scales it and crops nothing.
-       The height is fixed rather than an aspect-ratio because 440 is the number the
-       picture was cut to, and it should stay 440 whatever the content box does above
-       1280. */
-    .cu-brandfig{ margin: var(--space-7) 0 0; height: 440px; }
-    .cu-brandfig img{ display: block; width: 100%; height: 100%; object-fit: cover;
-      border-radius: var(--radius-md); }
-    /* Three paragraphs across two full-box columns: each runs about 656px at 1536. */
-    .cu-brandcols{ column-count: 2; column-gap: var(--space-8); }
-    /* Guards against a paragraph splitting across the column break with a single line
-       stranded on one side. */
-    .cu-brandcols p{ break-inside: avoid; }
-    /* The CTA is the LAST ITEM IN THE COLUMN FLOW, not a sibling under it. The three
-       paragraphs run out partway down the second column, and putting the button in the
-       flow drops it into exactly that gap - so the band loses the full-width row the
-       button used to occupy and shortens by roughly 100px.
-       break-inside: avoid stops the button being split off from nothing and landing
-       alone at the top of a column. */
-    .cu-brandcta{ margin: var(--space-6) 0 0; break-inside: avoid; }
+    /* THREE PARAGRAPHS, THREE COLUMNS - a GRID, one paragraph per column, not CSS
+       columns. It was column-count: 2 with break-inside: avoid, which meant three
+       blocks of very different lengths being poured into two columns: the balancer
+       put the two long paragraphs on the left and the short one on the right, and no
+       arrangement of three unequal blocks fills two columns evenly. That is what left
+       a hole of navy under the button, and it could not be tuned away - only the
+       construction could change.
+       A grid ends the guesswork: each paragraph gets a column and starts at the top of
+       it, so the three tops align and the ragged bottoms are the natural result of
+       three paragraphs of different lengths rather than a balancing accident.
+       At 1536 each column is (1376 - 128) / 3 = about 416px, which runs roughly 62
+       characters at 16px - inside the 45-75 recommendation, the only place on this page
+       that is. Three columns is what puts it there; it was not aimed at.
+       THE PHOTOGRAPH IS GONE. The band carried a 440px letterbox strip of the words on
+       the office wall under the copy. The argument is the band now.
+       align-items: start so a short paragraph does not stretch. */
+    .cu-brandcols{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-8); align-items: start; }
+    /* Each column is one paragraph, so the paragraph's own bottom margin would only
+       add space under the shortest one. */
+    .cu-brandcols p{ margin: 0; }
+    /* A ROW OF ITS OWN under the grid. It used to be the last item in the two-column
+       flow, which dropped it into the gap under the short column - deliberately, to
+       fill that gap. A grid has no such flow, and nothing to fill. */
+    .cu-brandcta{ margin: var(--space-7) 0 0; }
 
-    /* SOLID PILL. A white fill with PC Navy text, and the border set to the fill
-       colour so there is no outline reading round it. The markup carries the bare .btn
-       for its padding, font, radius and press behaviour; every colour is set here.
-
-       It RESTS in PC Light Blue with PC Black text and BRIGHTENS TO WHITE on hover,
-       rather than the other way round - the resting state is the tinted one.
-
-       WHY NOT THE SITE'S PC MEDIUM BLUE PRIMARY: .btn-primary is built for light
-       backgrounds. PC Medium Blue on this PC Navy band is 2.0:1, so the button's own
-       edge would fail WCAG 1.4.11, which asks 3:1 of a control boundary. Measured for
-       what is here: the resting PC Light Blue pill edge on PC Navy is 9.0:1 with PC
-       Black text at 15.2:1, and the white hover edge is 10.7:1 with PC Navy text at
-       10.7:1. DO NOT swap this for .btn-primary without re-measuring against the band.
-
-       THE .cu-band--navy PREFIX IS LOAD-BEARING, not decoration. This button sits
-       inside .cu-prose on a navy band, so TWO prose link rules reach it:
-         .cu-prose a                  (0,2,0)  PC Navy + underline
-         .cu-band--navy .cu-prose a   (0,3,0)  PC Blue
-       The second is the on-dark link colour, and at (0,3,0) it beats a plain
-       .cu-brandcta .btn - which is why the resting pill came out in PC Blue rather
-       than PC Black. Prefixing these rules to (0,3,0) ties the specificity, and being
-       later in the file settles it.
+    /* THE PILL, REBUILT FOR A WHITE BAND. Every number in the old treatment was
+       measured against PC Navy - it rested in PC Light Blue and brightened to white,
+       which on white is a pill you cannot see. It is the site's standard light-band
+       primary now: PC Medium Blue fill, white text, PC Navy on hover, the same pill as
+       every other light-background button in pc.css.
+       MEASURED FOR WHAT IS HERE: white text on PC Medium Blue (#316F96) is 5.5:1, over
+       the 4.5:1 WCAG 1.4.3 asks of body-size text, and the pill's own edge against
+       white is the same 5.5:1, over the 3:1 WCAG 1.4.11 asks of a control boundary.
+       The PC Navy hover is stronger on both. Re-measure if the fill changes.
+       THE SPECIFICITY IS LOAD-BEARING, not decoration. The button sits inside
+       .cu-prose, so the prose link rule reaches it:
+         .cu-prose a        (0,2,0)  PC Navy + underline
+         .cu-brandcta .btn  (0,2,0)  this
+       They tie, and being later in the file settles it. Drop a class from this
+       selector and the prose rule takes the colour back.
+       The old rules were prefixed .cu-band--navy for the same reason - that prefix was
+       buying specificity against an on-dark link rule that no longer applies here.
        TEXT-DECORATION IS RESET FOR THE SAME REASON: .cu-prose a underlines the button
-       and out-specifies .btn's own text-decoration:none. The hover needs it too, or
+       and out-specifies .btn's own text-decoration: none. The hover needs it too, or
        .cu-prose a:hover puts the underline back at 2px through the pill's fill. */
-    .cu-band--navy .cu-brandcta .btn{ background: var(--pc-light-blue);
-      color: var(--pc-black); border-color: var(--pc-light-blue);
-      text-decoration: none; }
-    .cu-band--navy .cu-brandcta .btn:hover{ background: var(--pc-white);
-      color: var(--pc-navy); border-color: var(--pc-white);
-      text-decoration: none; }
-    .cu-band--navy .cu-brandcta .btn:focus-visible{ outline: 2px solid var(--pc-white);
+    .cu-brandcta .btn{ background: var(--pc-medium-blue); color: var(--pc-white);
+      border-color: var(--pc-medium-blue); text-decoration: none; }
+    .cu-brandcta .btn:hover{ background: var(--pc-navy); color: var(--pc-white);
+      border-color: var(--pc-navy); text-decoration: none; }
+    .cu-brandcta .btn:focus-visible{ outline: 2px solid var(--pc-navy);
       outline-offset: 3px; }
 
     /* ---- 5 - COWBOY HAT ---------------------------------------------------------
        A SQUARED-OFF BAND: the heading takes a full-width row of its own, and beneath it
        the photograph and the copy run as two columns that start and finish level.
-       The heading used to sit INSIDE the right-hand column, which pushed the first
-       paragraph down by the height of a 36px serif line and left the top of the
-       photograph floating against nothing. Lifting it to its own row is what puts the
-       top of the hat on the top of the paragraph text.
-       THE VIDEO IS PART OF THE COPY COLUMN, not a row beneath the band: it is entirely
-       about the hat, so it reads as the section's evidence rather than an appendix.
-       The right column is copy + closing line + player, and the photograph is stretched
-       to that whole stack, so the two columns square off at the bottom too.
-
-       ITS CROP: the column is 520px wide and the stack beside it now runs about 780px
-       (the heading having left the column), so the source wants to be roughly
-       520 x 780 - PORTRAIT, about 1:1.5. cover crops whatever it is handed to that, but
-       a source cut to it loses nothing. */
+       THE FILM IS GONE, AND THE PHOTOGRAPH IS NOW HORIZONTAL. A Vimeo player used to
+       sit at the bottom of the copy column, and it was what made the two columns
+       finish level against a 520 x 690 portrait picture. Without it the copy is two
+       paragraphs and a closing line - 360px - so the picture had to come down to meet
+       it rather than the other way round.
+       THE SLOT IS 640 x 360 - a 640px column at 16:9. 640 was solved for, not picked:
+       it is the width at which a standard 16:9 crop and this copy are the same height,
+       and 16:9 because the page already uses that ratio for its embeds.
+       WHICH IT SQUARES EXACTLY AT: a 1520px viewport, where --site is 1280 and the
+       content box is 1216, so the copy column is 1216 - 640 - 64 = 512px and the copy
+       measures exactly 360px in it. That is a 1536 window WITH a scrollbar, which is
+       the ordinary case.
+       In a scrollbar-free 1536 viewport --site steps up to 1440, the content box is
+       1376, the copy column widens to 672 and the copy shortens to 304 - so the
+       picture sits about 56px below it. No 16:9 column width squares at both, because
+       the copy's height moves in 28px line steps while the picture's moves smoothly.
+       640 was chosen for the case with the scrollbar.
+       IF THE COPY CHANGES, THIS BREAKS. Add or remove a line and the picture is no
+       longer the height of the text beside it. The fix is to re-solve for the column
+       width, not to nudge the ratio - the ratio is what the supplied photograph is cut
+       to. */
     .cu-hathead{ margin-bottom: var(--space-7); }
-    .cu-hat{ display: grid; grid-template-columns: 520px minmax(0, 1fr);
-      gap: var(--space-8); align-items: stretch; }
-    /* height:100% on the figure AND the img is what makes the photograph exactly as
-       tall as the column beside it - the figure fills the stretched grid cell, and the
-       image fills the figure. Drop either and the hat reverts to its intrinsic height
-       and the band stops squaring. */
-    .cu-hat .cu-fig{ height: 100%; }
+    /* align-items: start, NOT stretch: the photograph holds the ratio it was cut to
+       and is never stretched to the row. Nothing needs stretching now that the two
+       columns are the same height by construction. */
+    .cu-hat{ display: grid; grid-template-columns: 640px minmax(0, 1fr);
+      gap: var(--space-8); align-items: start; }
+    /* THE RATIO IS THE SLOT. 640 x 360 at 1536. object-fit: cover still crops whatever
+       it is handed, so an off-ratio source degrades rather than breaks - but a source
+       cut to 16:9 loses nothing. */
+    .cu-hat .cu-fig{ aspect-ratio: 16 / 9; }
     /* The band's closing line, set apart from the body copy: serif, one step up, PC
-       Navy. It is the sentence the section is really about. */
+       Navy. It is the sentence the section is really about. It sits in normal flow: it
+       briefly took margin-top: auto to push it to the foot of a taller column, and
+       there is no longer a taller column to push against. */
     .cu-hatline{ margin: var(--space-5) 0 0; font-family: var(--font-serif);
       font-weight: 500; font-size: 24px; line-height: 1.35; color: var(--pc-navy); }
-    /* The Vimeo embed, in the copy column under the closing line. At ~790px wide the
-       16:9 frame is about 445px tall - enough to be worth playing without becoming the
-       largest thing on the page. */
-    .cu-hatvideo{ margin-top: var(--space-6); }
 
     /* ---- 6 - AWARDS & RECOGNITIONS ----------------------------------------------
        SIX recognitions on a 3-up grid: two full rows, no gap at the end.
@@ -586,25 +714,82 @@
     .cu-band--dark{ position: relative; background: var(--pc-black); overflow: hidden;
       min-height: 520px; display: flex; align-items: center; }
     .cu-band--dark > .cu-wrap{ position: relative; z-index: 2; width: 100%; }
-    .cu-trippic{ position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; z-index: 0; }
-    /* The scrim runs left to right rather than bottom to top: the copy is in the left
-       half, and the right half of the photograph is what the band is there to show.
-       Clear by 78%, so the right fifth is untouched. */
+    /* THE CROP IS OFF-CENTRE ON PURPOSE. The source (pc-trip-silos.jpg) is 4:3 and the
+       band is about 2.55:1, so cover throws away most of the height - and a centred
+       crop lands on the silo wall with the group cut off along the bottom edge. The
+       team is in the lower middle of the frame, so the crop is pulled to 72%: that
+       holds the whole group with a little grass under it, and keeps the silos behind
+       them as the backdrop they are.
+       RE-CHECK THIS IF THE BAND HEIGHT CHANGES. The crop is a percentage, so a taller
+       band takes in more of the frame and 72% stops being the right number - and the
+       band height is set by its copy, which means adding a line moves this too. */
+    /* THE PHOTOGRAPH IS PANNED RIGHT, AND IT DOES NOT REACH THE LEFT EDGE. left: 12%
+       holds it off, so the picture covers the right 88% of the band and the leftmost
+       12% carries no image at all.
+       WHY: the band is about 2.55:1 and the source is 4:3, so cover already showed the
+       photograph's FULL WIDTH - there was no horizontal slack to pan into, and the
+       whole team was in frame with the left of the group simply buried under the copy.
+       Holding the image off the left edge is what buys the slack: it slides everyone
+       12% to the right, out from behind the densest part of the scrim.
+       AND IT IS ZOOMED. width: 112% rather than the 88% that would exactly fill the
+       remaining space - so the picture is scaled about a quarter larger than the band
+       needs and overflows the right edge, which the band clips (overflow: hidden).
+       That is what makes the faces big enough to read. The cost is the right edge of
+       the frame: a little of the fence and the far right of the silo go off-canvas.
+       Nobody is lost - at this scale the group ends about where the band does.
+       THE MISSING STRIP IS HIDDEN BY THE SCRIM, NOT BY A SECOND BACKGROUND. The
+       gradient is fully opaque across the first 12% - see .cu-band--dark::after - so
+       the strip reads as the same dark ground as the scrimmed photograph beside it.
+       The two have to stay in step: move this 12% and the gradient's opaque stop moves
+       with it, or a seam opens up.
+       THE VERTICAL CROP IS OFF-CENTRE at 72%. A centred crop lands on the silo wall
+       with the group cut off along the bottom edge; 72% holds the whole group with a
+       little grass under it, and keeps the silos as the backdrop they are.
+       RE-CHECK 72% IF THE BAND HEIGHT CHANGES - it is a percentage, so a taller band
+       takes in more of the frame. The band height is set by its copy, which means
+       adding a line moves this too. */
+    .cu-trippic{ position: absolute; top: 0; bottom: 0; left: 12%;
+      width: 112%; height: 100%;
+      object-fit: cover; object-position: center 72%; z-index: 0; }
+    /* The scrim runs left to right rather than bottom to top: EVERYTHING in this band
+       - the heading, the paragraph and both films - lives in one 720px column in the
+       left half, and the right of the photograph is what the band is there to show.
+       Clear by 80%, so the right fifth is untouched.
+       THE FIRST 12% IS FULLY OPAQUE, and that is load-bearing rather than styling: the
+       photograph is held off the left edge by the same 12% so it can be panned right
+       (see .cu-trippic), and this flat stop is what covers the strip where there is no
+       image. The two numbers are one number in two places. Change either and a seam
+       appears at the join.
+       The stops in between were nudged along with it so the falloff still reads as one
+       move rather than a flat panel with a gradient stuck on the end. */
     .cu-band--dark::after{ content: ""; position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(to right, rgba(7,22,44,.94) 0%, rgba(7,22,44,.88) 30%,
-        rgba(7,22,44,.62) 56%, rgba(7,22,44,0) 78%); }
+      background: linear-gradient(to right,
+        rgba(7,22,44,1) 0%, rgba(7,22,44,1) 12%,
+        rgba(7,22,44,.93) 18%, rgba(7,22,44,.88) 34%,
+        rgba(7,22,44,.62) 58%, rgba(7,22,44,0) 80%); }
     /* White on the .94 base is 15:1. The body copy stays at full white rather than
        dropping to 86% as the About page's overlay cards do, because this is a full
        paragraph rather than a two-line caption. */
-    /* 720px rather than 640: the YouTube embed sits under the copy in this same
-       column, and at 640 wide it was a 360px-tall video on a full-bleed band - too
-       small to be worth the weight. At 720 the frame is 720 x 405.
-       The column stays in the LEFT half on purpose, where the scrim is at its densest,
-       so the player chrome never has to sit on open photograph. */
+    /* ONE 720px COLUMN holds the whole band: heading, paragraph and both films. It
+       stays in the LEFT half on purpose, where the scrim is at its densest, so no
+       player chrome ever has to sit on open photograph. */
     .cu-trip{ max-width: 720px; }
     .cu-trip .cu-h2{ margin-bottom: var(--space-5); }
-    .cu-tripvideo{ margin-top: var(--space-6); }
+    /* TWO FILMS SIDE BY SIDE INSIDE THE COLUMN. At 720 each frame is
+       (720 - 24) / 2 = 348px, and .cu-embed's 16:9 makes that 196px tall - so the pair
+       is 196px where the single 720px player was 405px. That is what shortens the
+       band: two films in a row are less than half the height of one across the column.
+       THE TRADE IS FRAME SIZE. 348 x 196 is a small player - readable, and fine for a
+       film a viewer chooses to open, but the YouTube chrome is close to its minimum
+       here. Going wider means taking the row out of the column, which is the version
+       this replaced.
+       --space-5 between them rather than --space-6: at 348px wide, 32px of gutter is
+       a tenth of each frame. 24px still separates them and buys back 8px of picture
+       each.
+       The row does not wrap by design. A third film means changing the column count
+       here, and at 232px wide the frames would be below what the player can show. */
+    .cu-tripvideos{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-5); margin-top: var(--space-6); }
   </style>
 </head>
 <body>
@@ -690,7 +875,7 @@
                content, not chrome. Rewrite it with the image. -->
           <div class="cu-figcol reveal">
             <figure class="cu-fig">
-              <img src="../assets/office1.jpg" width="1200" height="800"
+              <img src="../assets/office1.jpg" width="500" height="500"
                    loading="lazy" decoding="async"
                    alt="Peoples Company colleagues talking together in the office" />
             </figure>
@@ -700,40 +885,21 @@
     </section>
 
     <!-- ============ 2 - LIVING OUR CULTURE ============
-         Copy above, one row of four photographs below. The four tiles stand in for
-         the real traditions photography - company trip, awards night, an office, a
-         field day. None of them is referenced by the copy, but each still carries a
-         real alt because each shows a distinct thing. -->
-    <section class="cu-band cu-band--light" aria-labelledby="cu-living-h">
+         NO FILL: it runs on the intro's white so the statement reads as the close of
+         the intro rather than a section of its own.
+         One left-aligned statement, no photography. The strip of four tiles that used to
+         run under this paragraph is gone: they were placeholders, the copy never
+         referred to them, and they pulled the eye off the one sentence the band is
+         for. -->
+    <section class="cu-band cu-band--statement" aria-labelledby="cu-living-h">
       <div class="cu-wrap">
         <div class="cu-living">
           <div class="cu-livingtext reveal">
             <h2 class="cu-h2" id="cu-living-h">Living Our Culture</h2>
             <div class="cu-prose">
-              <p>The culture we&#039;ve built at Peoples Company isn&#039;t just something we talk about in mission statements or company memos, it&#039;s something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              <p>The culture is something we live every day through our traditions, our celebrations, and the ways we connect as a team.</p>
+              <p>These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
             </div>
-          </div>
-          <div class="cu-mosaic reveal">
-            <figure class="cu-fig">
-              <img src="../assets/pc-team-2025.webp" width="1200" height="675"
-                   loading="lazy" decoding="async"
-                   alt="The Peoples Company team gathered for the annual company photograph" />
-            </figure>
-            <figure class="cu-fig">
-              <img src="../assets/office2.jpg" width="1200" height="800"
-                   loading="lazy" decoding="async"
-                   alt="A Peoples Company team meeting in progress" />
-            </figure>
-            <figure class="cu-fig">
-              <img src="../assets/office3.jpg" width="1200" height="800"
-                   loading="lazy" decoding="async"
-                   alt="Team members working together at a shared desk" />
-            </figure>
-            <figure class="cu-fig">
-              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/dji_0019-1.jpg/41159d5f97338cb46e9c60c9791a4173.webp"
-                   width="1200" height="800" loading="lazy" decoding="async"
-                   alt="Aerial view of farmland at the edge of a Peoples Company market" />
-            </figure>
           </div>
         </div>
       </div>
@@ -742,7 +908,7 @@
     <!-- ============ 3 - FORGING A LEGACY ============
          Sticky heading left, the long read right. Five paragraphs, the most on the
          page - see .cu-legacy for why the heading is pulled out of the column. -->
-    <section class="cu-band" aria-labelledby="cu-legacy-h">
+    <section class="cu-band cu-band--light cu-band--tight" aria-labelledby="cu-legacy-h">
       <div class="cu-wrap">
         <div class="cu-legacy">
           <div class="cu-legacyhead reveal">
@@ -757,14 +923,15 @@
           </div>
           <!-- The hat on the post. This is the image the live /culture page runs with
                this section, and it is content rather than decoration here, so it takes
-               a real alt. It is cropped to the height of the prose beside it - see
-               .cu-legacyfig, which also notes that the source is a cut-out and wants
-               replacing with a portrait photograph. -->
-          <figure class="cu-legacyfig reveal">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/old-hat-color.png/c7d919830327f80ae4140ff07e7f0a86.webp"
-                 width="1000" height="1000" loading="lazy" decoding="async"
-                 alt="A weathered Peoples Company cowboy hat resting on a wooden fence post" />
-          </figure>
+               a real alt. The column wrapper is what lets the prose set the row
+               height and the picture be cropped to it - see .cu-legacyfigcol. -->
+          <div class="cu-legacyfigcol reveal">
+            <figure class="cu-legacyfig">
+              <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/old-hat-color.png/c7d919830327f80ae4140ff07e7f0a86.webp"
+                   width="1000" height="1000" loading="lazy" decoding="async"
+                   alt="A weathered Peoples Company cowboy hat resting on a wooden fence post" />
+            </figure>
+          </div>
           </div>
         </div>
       </div>
@@ -776,7 +943,7 @@
          name both hang off.
          The kicker above it names the philosophy, not a speaker: there is nobody to
          attribute the phrase to, which is why it is not "- Steve Bruere". -->
-    <section class="cu-band cu-band--navy on-dark" aria-labelledby="cu-brand-h">
+    <section class="cu-band cu-band--wash" aria-labelledby="cu-brand-h">
       <div class="cu-wrap">
         <div class="cu-brandhead reveal">
           <p class="cu-brandkick">The Peoples Company Philosophy</p>
@@ -784,33 +951,25 @@
         </div>
         <div class="cu-prose cu-brandcols reveal">
           <p>At Peoples Company, our team&#039;s commitment to success goes beyond collaboration and collegiality. The experience of working for Peoples Company is just as much about who you work with as it is about the work itself. We believe that a person&#039;s commitment to their team and organization is what defines them. When you join Peoples Company, you don&#039;t just take a job with our firm. We expect our team members to advance and protect what the team stands for because they genuinely want to work alongside people who share these same values. This philosophy, inspired by the legacy of the landowners that we represent, means that everyone who represents the Peoples Company brand is committed to our core values and collective success.</p>
-          <p>Our greatest competitive advantage isn&#039;t our superior technology or a broader offering of services, it&#039;s our people and the ethos we&#039;ve built together. Our greatest challenge, but our deepest commitment, is to continue building relationships nationwide with an organization made up of land professionals that exemplify the &ldquo;Ride for the Brand&rdquo; culture and who want to work alongside others who challenge them to improve every day. While technology, marketing, and sales strategies can be mimicked, matching a nationwide culture of excellence across a comprehensive services platform cannot. That&#039;s what sets us apart.</p>
-          <p>At Peoples Company, high standards are foundational. Being part of our team and our brand requires sustained, organization-wide effort towards excellence, and we&#039;re unapologetic about maintaining that commitment across every aspect of our business. Those who thrive at Peoples Company take the platform and tools we provide and execute at the highest level. This requires unwavering dedication and genuine collaboration. Our team members take the initiative in their personal development, are proactive in seeking opportunities, and are willing to support other teammates in their pursuit of the same goals. Over time, this culture of &ldquo;Ride for the Brand&rdquo; has become self-reinforcing. As we uphold these standards through leadership and example, excellence and commitment to the team and its brand becomes the expectation, and that excellence becomes its own reward.</p>
-          <!-- THE ONE CALL TO ACTION ON THE PAGE, and it belongs here rather than on
-               the closing band: this section is the page's statement of what is
-               expected of the people who represent the brand, so it is the moment a
-               reader decides they want in. It sits INSIDE the column flow so it fills
-               the gap under the second column - see .cu-brandcta.
-               It is the site ghost pill, not .btn-white - see .cu-brandcta. -->
-          <p class="cu-brandcta"><a class="btn" href="./careers.html">Explore Careers at Peoples Company</a></p>
+          <p>Our greatest competitive advantage isn&#039;t our superior technology or a broader offering of services, it&#039;s our people and the ethos we&#039;ve built together. Our greatest challenge, but our deepest commitment, is to continue building relationships nationwide with an organization made up of land professionals that exemplify the &ldquo;Ride for the Brand&rdquo; culture and who want to work alongside others who challenge them to improve every day. While technology, marketing, and sales strategies can be mimicked, matching a nationwide culture of excellence across a comprehensive services platform cannot. Our team members take the initiative in their personal development, are proactive in seeking opportunities, and are willing to support other teammates in their pursuit of the same goals. That&#039;s what sets us apart.</p>
+          <p>At Peoples Company, high standards are foundational. Being part of our team and our brand requires sustained, organization-wide effort towards excellence, and we&#039;re unapologetic about maintaining that commitment across every aspect of our business. Those who thrive at Peoples Company take the platform and tools we provide and execute at the highest level. This requires unwavering dedication and genuine collaboration. Over time, this culture of &ldquo;Ride for the Brand&rdquo; has become self-reinforcing. As we uphold these standards through leadership and example, excellence and commitment to the team and its brand becomes the expectation, and that excellence becomes its own reward.</p>
         </div>
-        <!-- The words on the wall of the office. This is the band's proof, so it sits
-             under the argument rather than over it.
-             The source is cut to the slot (1920 x 614, the same 3.1:1), so nothing is
-             cropped - it is scaled, not framed. The alt reads the lettering out,
-             because the lettering IS the content of the picture. -->
-        <figure class="cu-brandfig reveal">
-          <img src="../assets/pc-ride-for-the-brand.webp" width="1920" height="614"
-               loading="lazy" decoding="async"
-               alt="RIDE FOR THE BRAND spelled out in large dark letters on the wall above the banquette seating in a Peoples Company office" />
-        </figure>
+        <!-- THE ONE CALL TO ACTION ON THE PAGE, and it belongs here rather than on the
+             closing band: this section is the page's statement of what is expected of
+             the people who represent the brand, so it is the moment a reader decides
+             they want in.
+             It is a ROW OF ITS OWN under the three columns now. It used to be the last
+             item in a two-column flow, which dropped it into the gap under the short
+             column - a grid has no such flow to drop into.
+             It is the site ghost pill, not .btn-white - see .cu-brandcta. -->
+        <p class="cu-brandcta reveal"><a class="btn" href="./careers.html">Explore Careers at Peoples Company</a></p>
       </div>
     </section>
 
     <!-- ============ 5 - COWBOY HAT ============
          Heading across the top, then photograph left, copy and the film right. The two
          columns start and finish level - see .cu-hat. -->
-    <section class="cu-band" aria-labelledby="cu-hat-h">
+    <section class="cu-band cu-band--light" aria-labelledby="cu-hat-h">
       <div class="cu-wrap">
         <div class="cu-hathead reveal">
           <h2 class="cu-h2" id="cu-hat-h">The Cowboy Hat</h2>
@@ -821,26 +980,12 @@
                  width="1000" height="1500" loading="lazy" decoding="async"
                  alt="The Peoples Company cowboy hat, photographed upright against a dark ground" />
           </figure>
-          <div class="reveal">
+          <div class="cu-hattext reveal">
             <div class="cu-prose">
               <p>The Peoples Company Cowboy Hat is our ultimate symbol of excellence. Our cowboy hat represents dedication, tenure, contribution, and the highest standards of professional achievement. Those who wear it truly exemplify what Peoples Company stands for.</p>
               <p>Our goal is for our cowboy hat to be an emblem that represents Peoples Company&#039;s culture externally. We want it to serve as a visible reminder of what it means to ride for the brand. When you see someone wearing their hat, you know they have earned the respect of their peers, demonstrated sustained excellence, and committed themselves to something larger than their individual success.</p>
             </div>
             <p class="cu-hatline">That&#039;s what riding for the brand looks like.</p>
-            <!-- The Vimeo embed the live page runs in this section, kept INSIDE the
-                 copy column because the film is entirely about the hat. dnt=1 turns
-                 off Vimeo's tracking cookies, which keeps the embed out of the cookie
-                 banner's consent scope - the same treatment as the anniversary video
-                 on about.html. The title is the iframe's accessible name and is
-                 required. -->
-            <div class="cu-hatvideo">
-              <div class="cu-embed">
-                <iframe src="https://player.vimeo.com/video/1171911130?dnt=1"
-                        title="The Peoples Company Cowboy Hat"
-                        loading="lazy" allow="fullscreen; picture-in-picture"
-                        allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -850,7 +995,16 @@
          Five cards on a 3-up grid; the short second row is deliberate. The h2 is
          required for the heading outline: without it the five h3s below hang off the
          h1 with a level skipped. -->
-    <section class="cu-band cu-band--soft" aria-labelledby="cu-awards-h">
+    <!-- HIDDEN FOR NOW, NOT DELETED. The whole band is parked with the `hidden`
+         attribute: it is out of the layout AND out of the accessibility tree, so it is
+         not read, not tabbable, and its five card buttons cannot be reached.
+         TO BRING IT BACK: delete the hidden attribute on the line below. Nothing else
+         needs touching - the stylesheet, the award window markup and the AWARDS data
+         object are all still in place, and the window's click handler is delegated off
+         the document, so it starts working again the moment the cards are visible.
+         The images inside are loading="lazy" and a hidden element never enters the
+         viewport, so nothing in here is being fetched while it is parked. -->
+    <section class="cu-band cu-band--soft" aria-labelledby="cu-awards-h" hidden>
       <div class="cu-wrap">
         <div class="cu-awardsintro reveal">
           <h2 class="cu-h2" id="cu-awards-h">Awards &amp; Recognitions</h2>
@@ -953,22 +1107,35 @@
          The photograph is a background rather than content, so it carries an empty alt
          - the band's meaning is entirely in the copy over it. -->
     <section class="cu-band cu-band--dark on-dark" aria-labelledby="cu-trip-h">
-      <img class="cu-trippic" src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/trip-25.jpg/8b0c61ee7c1bd07bc6f7eba8b201a2e5.webp"
-           width="2000" height="1333" loading="lazy" decoding="async" alt="" />
+      <img class="cu-trippic" src="../assets/pc-trip-silos.jpg"
+           width="2000" height="1500" loading="lazy" decoding="async" alt="" />
       <div class="cu-wrap">
         <div class="cu-trip reveal">
           <h2 class="cu-h2" id="cu-trip-h">The Annual Company Trip</h2>
           <div class="cu-prose">
             <p>The annual company trip embodies what makes Peoples Company special: it&#039;s where we build genuine relationships with people who happen to love the same work, deepen the trust that makes our collaboration possible, and remember why we chose to be part of something larger than ourselves. Through connecting together each year in a unique location where we learn and celebrate, new team members truly become part of the team and longtime colleagues strengthen the bonds that carry us forward.</p>
           </div>
-          <!-- The YouTube embed the live page runs in this section. youtube-nocookie
-               is the privacy-preserving host: same player, no cookie set until the
-               viewer actually hits play, so this embed also stays out of the consent
-               banner's scope. -->
-          <div class="cu-tripvideo">
+          <!-- TWO FILMS, SIDE BY SIDE. youtube-nocookie is the privacy-preserving host:
+               same player, no cookie is set until the viewer actually hits play, so
+               these embeds stay out of the consent banner's scope. Both are lazy -
+               nothing is requested from YouTube until the row is near the viewport.
+               EACH IFRAME NEEDS ITS OWN title: it is the frame's accessible name, and
+               two frames called the same thing are two identical entries in a screen
+               reader's list of frames.
+               >>> THE SECOND FILM IS A PLACEHOLDER <<< It is the SAME video id as the
+               first, standing in so the two-up row can be seen. Swap the id in the
+               second iframe for the real second trip film, and rewrite its title to
+               match. -->
+          <div class="cu-tripvideos">
             <div class="cu-embed">
               <iframe src="https://www.youtube-nocookie.com/embed/I4gfp2P6qew"
                       title="The Peoples Company annual company trip"
+                      loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <div class="cu-embed">
+              <iframe src="https://www.youtube-nocookie.com/embed/I4gfp2P6qew"
+                      title="The Peoples Company annual company trip, second film (placeholder)"
                       loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
             </div>
