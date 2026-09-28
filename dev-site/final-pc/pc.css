@@ -708,13 +708,19 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
    rather than in the leftover space — their position can't drift as the copyright or
    icon count changes. */
 .pff-bottom-inner{
-  max-width: var(--site); margin: 0 auto; padding: var(--space-5) var(--rail);
+  max-width: var(--site); margin: 0 auto;
+  /* less below than above: .pff-license supplies its own top padding under the hairline */
+  padding: var(--space-5) var(--rail) var(--space-4);
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   gap: var(--space-6);
 }
-/* Copyright shares the brand column's indent so it lines up with the office address. */
+/* Copyright sits ON THE RAIL, not on the brand column's indent. It used to carry
+   --footer-brand-indent to line up with the office address, which put its text 44px inboard
+   at >=1280 while the social icons on the same row ended flush on the right rail — the row
+   read lopsided. The bottom bar now squares to the rail on both sides, and to the licensure
+   line directly above it. (The indent is 0 below 1024 anyway, so only >=1280 changes.) */
 .pff-bottom-inner .copy{
-  justify-self: start; padding-left: var(--footer-brand-indent);
+  justify-self: start; padding-left: 0;
   font-size: 12.5px; color: var(--color-text-subtle);
 }
 .pff-bottom-inner .legal-links{
@@ -727,6 +733,17 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
 .pff-social a{ display: inline-flex; color: var(--color-text-subtle); }
 .pff-social a:hover{ color: var(--color-accent); }
 .pff-social svg{ width: 18px; height: 18px; display: block; }
+
+/* State licensure disclosure: the last line in the footer, under a hairline of its own.
+   11.5px / 1.6 and subtle — present for legal reasons, deliberately not competing with
+   the links above it. No measure cap: it is a list, and a short line length would run it
+   to six or seven rows. It shares the bottom bar's rail so it lines up with the bar. */
+.pff-license{
+  max-width: var(--site); margin: 0 auto;
+  padding: var(--space-4) var(--rail) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  font-size: 11.5px; line-height: 1.6; color: var(--color-text-subtle);
+}
 
 /* ============================================================================
    11. Scroll-reveal (a must-have) — reduced-motion safe
@@ -1288,9 +1305,42 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .pff-contact > span ~ span::before{
     content: "|"; margin: 0 12px; color: var(--color-text-subtle); font-weight: 400;
   }
-  /* "Find an Office" is dropped in this band. Hidden rather than removed from the
+  /* "Connect with our Team" is dropped in this band. Hidden rather than removed from the
      markup, because every other width still shows it — the same <div> serves them all. */
   .pff-cta{ display: none; }
+}
+
+/* ============================================================================
+   768 AND UP — the licensure line sits above the copyright/legal/social row
+   It is last in the markup, and below 768 it renders last too. From 768 up the design
+   puts it between the corporate office block and the bottom row, with the hairline UNDER
+   the list of states so it divides the states from the row below them.
+   .pff-bottom becomes a one-column grid purely so `order` can do the move — the markup
+   keeps the license last, so tab and reading order are unchanged.
+   GRID, NOT FLEX: both children carry `margin: 0 auto` to centre inside --site. In a flex
+   column that reads as "shrink to content and centre", which collapsed the bottom bar to
+   824px at 1536 and pulled the copyright 264px off the rail. A grid track is full width,
+   so the auto margins centre the child inside it and the max-width still holds.
+   At >=1024 .pff-bottom keeps its own border-top, so the states end up fenced by a rule
+   top and bottom; at 768-1023 the top rule is the one already on .pff-brand.
+   ============================================================================ */
+@media (min-width: 768px){
+  .pff-bottom{ display: grid; grid-template-columns: 100%; }
+  /* width:100% is load-bearing. A grid item carrying `margin: 0 auto` does NOT stretch to
+     its track — it sizes to max-content and the auto margins centre THAT, which shrank the
+     bottom bar to 824px at 1536 and pulled the copyright 340px off the rail. Given an
+     explicit 100%, max-width clamps it to --site and the auto margins centre the clamped
+     box, which is the behaviour it had as a plain block. */
+  .pff-bottom-inner, .pff-license{ width: 100%; }
+  .pff-license{
+    order: -1;
+    border-top: 0;
+    border-bottom: 1px solid var(--pc-light-blue);
+    /* 16px above joins the 8px on .pff-main for a 24px gap off the office block — the
+       same 24px that separated the office block from the bottom row before this line
+       existed. Symmetric below so the states sit evenly inside their own band. */
+    padding: var(--space-4) var(--rail);
+  }
 }
 
 /* ============================================================================
