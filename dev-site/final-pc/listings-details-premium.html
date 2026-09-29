@@ -63,7 +63,21 @@
       --lp-navfg: #FFFFFF;
       --lp-navink: #6B4423;
       --lp-jump-h: 53px;
-      --lp-agent-ph: 128px; }
+      --lp-agent-ph: 128px;
+      /* --lp-scrim: THE GROUND BEHIND EVERY OVERLAY ON A PREMIUM PAGE (Kiron,
+         2026-09-29). The photo viewer and the tract window are the two things on this
+         page that cover the page, and they were covering it in different colors: the
+         viewer in neutral gray at .94, the tract window in PC Navy at .72. Opening a
+         tract and then a photograph put the page behind two different rooms. One value
+         now, used by both, so they cannot drift apart again - change it here and every
+         overlay on the page follows.
+         WHY THIS VALUE AND NOT THE NAVY: it is the photo viewer's, and the viewer is
+         the one with the stronger claim. Any hue behind a photograph is a hue the
+         photograph is judged against, so the viewer has to be neutral; the window has
+         no such requirement and simply follows. The reasoning in full is at .xlb.
+         ON :root FOR THE REASON THE BLOCK ABOVE GIVES - the tract window is a dialog
+         outside <main>, and a value scoped to .lp-body would never reach it. */
+      --lp-scrim: rgba(28, 28, 28, .94); }
     .lp-body{ background: var(--pc-white); }
 
     /* ---- HERO: full bleed, fixed height ---- */
@@ -263,25 +277,38 @@
       font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
     .lp-btn:hover{ background: var(--lp-navfg); color: var(--lp-navbg); }
     /* A jump has to clear the sticky header AND the sub nav pinned below it, and then
-       land the HEADING just under them - not the section box. Four terms, in order:
+       land the HEADING'S BAND flush against the sub nav - not the section box, and not
+       24px clear of it. Three terms, in order:
          --navH + --lp-jump-h   the real chrome, measured by syncNavH()
          - var(--space-7)       CANCELS .lp-section's own 48px padding-top, which sits
                                 inside the scroll target and would otherwise be the
                                 floor on how close the heading can get
-         + var(--space-5)       the gap that is actually wanted, 24px
-       Without the canceling term the heading can never come within 48px of the sub
-       nav however the offset is tuned, and a jump leaves the tail of the previous
-       section sitting above the heading you asked for (Kiron, 2026-09-21).
-       TUNE --space-5, NOT THE OTHERS. --navH and --lp-jump-h are measured from the real
-       chrome and are read by other things, the Interactive Map tab included; --space-7
-       has to stay equal to .lp-section's padding-top or the cancellation drifts. */
-       AND .lp-wrap > details WITH IT: Photos is an accordion, so it is a <details>
-       rather than a <section>, and it is a jump target like every other band. Both
-       selectors carry every rule below that names one of them. */
+       Without the canceling term the heading can never come within 48px of the sub nav
+       however the offset is tuned, and a jump leaves the tail of the previous section
+       sitting above the heading you asked for (Kiron, 2026-09-21).
+
+       THE TWO COLORS MEET, WITH NO GAP (Kiron, 2026-09-29). There used to be a third
+       term, + var(--space-5), which set the heading 24px below the sub nav. That was
+       the right number when the heading was black type on white and needed air under
+       the bar. It is the wrong number now that the heading sits on a band of the SAME
+       --lp-navbg the sub nav is painted in: 24px of white between two identical colors
+       read as a seam, not as breathing room. At zero the band's top edge meets the sub
+       nav's bottom edge and a jump lands on one unbroken block of the listing's color,
+       with the section's title in it.
+
+       THAT IS WHY THE TERM IS GONE RATHER THAN SET TO 0 - there is nothing left to
+       tune. If a gap is ever wanted again, add it back as its own term rather than
+       adjusting one of the other two: --navH and --lp-jump-h are measured from the
+       real chrome and are read by other things, the Interactive Map tab included, and
+       --space-7 has to stay equal to .lp-section's padding-top or the cancellation
+       drifts and the heading lands somewhere else entirely.
+
+       .lp-wrap > details IS IN THE SELECTOR TOO: Photos is an accordion, so it is a
+       <details> rather than a <section>, and it is a jump target like every other
+       band. Both selectors carry every rule below that names one of them. */
     .lp-wrap > section,
     .lp-wrap > details{
-      scroll-margin-top: calc(var(--navH) + var(--lp-jump-h)
-                              - var(--space-7) + var(--space-5)); }
+      scroll-margin-top: calc(var(--navH) + var(--lp-jump-h) - var(--space-7)); }
 
     /* THE REVEAL'S TRANSFORM LIES TO THE SCROLL, so jump targets fade without it.
        .reveal starts a section at translateY(16px) and drops it on .in. Jump to a
@@ -315,27 +342,33 @@
        replaced. A production build renders them in the pipeline that publishes the
        PDF, or serves the PDF with CORS and drops this image set for PDF.js.
 
-       IT OPENS LIKE A BOOK, BUT NEVER ON A HALF-EMPTY STAGE (Kiron, 2026-09-29).
-       showCover used to be on: page 1 sat alone as a cover, then 2-3, 4-5 and so on,
-       and page 16 closed alone. A lone leaf on a two-page stage leaves the other half
-       blank, and at 1376px of rail that is a 688px slab of white beside the cover and
-       again beside the back page - the first and last things a visitor sees.
+       IT OPENS LIKE A BOOK. showCover is on, so page 1 sits alone as a cover, then
+       2-3, 4-5 and so on come up as spreads, and page 16 closes alone.
 
-       THE PAIRING IS EXPLICIT NOW - see buildSequence() in the script. The cover opens
-       beside page 2, the first Next moves ONE page to settle into the book's own
-       rhythm, and from there every Next turns a leaf and moves two:
+       THE LONE LEAF IS CENTERED, NOT LEFT IN A CORNER (Kiron, 2026-09-29). A single
+       page on a two-page stage fills one half and leaves the other blank, and at
+       1376px of rail that is a 688px slab of white beside the cover and again beside
+       the back page - the first and last things a visitor sees, both lopsided. So the
+       cover and the back page are slid to the middle of the rail and the stage opens
+       out to its full width only once there are two pages in it:
 
-           cover|2     2|3     4|5     6|7   ...   14|15     15|16
+           cover          ->  one page, centered
+           2|3, 4|5, ...  ->  two pages, full rail
+           16             ->  one page, centered
 
-       Page 2 and the second-to-last page are each shown twice, once on the right and
-       once on the left. That is the whole trick, and it is what buys a full stage at
-       both ends. It is also how a printed brochure actually reads: the cover and the
-       back are single sheets, and everything between them is a spread.
+       That is the book opening and closing, which is the right idea for a brochure,
+       and the reader is never lopsided at either end. See centerLone() in the script
+       for how, and for the one thing it costs.
 
-       THAT IS WHY THE READER IS FULL RAIL WIDTH and not in a column beside the
-       download: a spread of two landscape pages is 2.59:1, and at two thirds of the
-       rail each page would fall to about 450px. Across the whole rail each page is
-       688px.
+       A PAIRED SEQUENCE WAS TRIED FIRST and is in the history at 90a5b87: the cover
+       opened beside page 2, the first Next moved one page, and every Next after that
+       moved two. It filled the stage at both ends without any centering, but the page
+       turn it produced was not right. Worth knowing it exists before inventing it
+       again.
+
+       THE READER IS FULL RAIL WIDTH and not in a column beside the download: a spread
+       of two landscape pages is 2.59:1, and at two thirds of the rail each page would
+       fall to about 450px. Across the whole rail each page is 688px.
 
        THE SPREAD NEEDS 1200px OF RAIL, and the rail only reaches that at a 1280
        viewport (--site 1280, --rail 32). Below it the reader keeps the same images but
@@ -355,10 +388,43 @@
        monitor as much as on a phone. The Previous and Next buttons beside it are real
        buttons for the same reason: they are the keyboard's way through the reader. */
 
+    /* ---- THE STILL COVER, PHONES ONLY -------------------------------------------
+       BELOW 768px THERE IS NO READER, and the section used to be a download pill and a
+       line of type - no sign of what was being downloaded. This puts the brochure's
+       front cover above the pill, so the phone gets the one page that matters most and
+       the pill becomes "download the rest of this" rather than "download something".
+
+       IT IS THE SAME IMAGE THE READER'S FIRST PAGE USES, cloned out of the template,
+       so there is no second asset to render and keep in step - re-render the page set
+       and the still follows. It also inherits that page's real width, height and alt
+       text, which is why this is done in script rather than as an <img> in the markup
+       hidden by a media query: a display:none <img> is still FETCHED by every browser
+       that matters, so the markup version would make every desktop visitor download a
+       cover they never see. A clone that only happens below 768px cannot.
+
+       NO ASPECT RATIO IS SET HERE, deliberately. The image carries its own width and
+       height attributes, so the box is the brochure's real shape and a portrait or
+       square brochure needs no edit - the same reason the reader measures rather than
+       assumes. */
+    .lp-broch-still{ margin-bottom: var(--space-6); }
+    .lp-broch-still[hidden]{ display: none; }
+    .lp-broch-still img{ display: block; width: 100%; height: auto;
+      border-radius: var(--radius-md); border: 1px solid var(--color-border);
+      box-shadow: 0 10px 28px rgba(7, 22, 44, .14); }
+    /* Belt and braces: the script already refuses to fill it above 768px, but if a
+       future change ever puts something in it at desktop width this keeps it out of a
+       layout that has a working reader in it. */
+    @media (min-width: 768px){ .lp-broch-still{ display: none; } }
+
     /* THE TOOLBAR, above the book. The download and its file line sit at one end, the
-       reader's own controls at the other. Above rather than below because on a narrow
-       rail the book is 740px tall, and controls under it would put the download pill
-       off the bottom of the screen. */
+       reader's own controls at the other.
+
+       ABOVE RATHER THAN BELOW, AND IT STAYS THERE. The book stands up to 760px tall,
+       so a bar under it starts below the fold on a short viewport and a visitor has to
+       scroll past the whole brochure to reach either the download pill or the Next
+       button. Below was tried on 2026-09-29 and put back for exactly that reason. It
+       is worth moving only alongside making the bar stick to the bottom of the
+       viewport while the reader is in view, which is not built. */
     .lp-broch-bar{ display: flex; flex-wrap: wrap; align-items: center;
       justify-content: space-between; gap: var(--space-4) var(--space-6);
       margin-bottom: var(--space-6); }
@@ -409,6 +475,45 @@
        is left over. A landscape brochure never reaches the cap and so is never
        narrowed - it still runs the full rail. */
     .lp-broch-stage{ aspect-ratio: 792 / 612; margin-inline: auto; }
+
+    /* ---- THE LONE LEAF, CENTERED ----
+       WHY A TRANSFORM AND NOT A NARROWER BOX. StPageFlip takes the page size from the
+       container it was built in, so narrowing the stage for the cover would resize the
+       book and need it torn down and rebuilt on the first and last turn - a flicker at
+       exactly the two moments the reader is most on show. The stage stays two pages
+       wide at all times and the whole book is SLID half a page sideways instead: the
+       lone leaf lands in the middle of the rail and the empty half hangs off the edge,
+       where there is nothing to see because the stage has no ground of its own.
+
+       -25% AND +25% ARE HALF A PAGE. The stage is two pages wide, so a quarter of it
+       is half a page, which is exactly the distance from a half-filled stage's center
+       to the rail's center. The cover renders on the RIGHT half, so it moves left; the
+       back page renders on the LEFT half, so it moves right.
+
+       WHAT IT COSTS: .lp-broch clips. A transform does not change layout, so the half
+       hanging off the right-hand side would lengthen the page sideways and give the
+       whole document a horizontal scrollbar. overflow:hidden on the wrapper stops
+       that, and the price is that a page shadow at the very edge of the rail is cut
+       off rather than feathering out. Nothing else on the page overflows, so the clip
+       has no other work to do.
+
+       THE SLIDE IS PART OF THE TURN. It is cleared the moment a flip starts and set
+       again when it finishes - see the handlers - so the book opens out as the cover
+       turns rather than jumping at the end. 420ms against the 700ms flip: the stage
+       has finished widening before the page has finished falling, which reads as the
+       book opening rather than as two separate movements. */
+    .lp-broch{ overflow: hidden; }
+    /* THE TRANSITION IS OFF UNTIL THE BOOK HAS LANDED. The cover is centered the
+       moment the reader is built, and with the transition already live that first
+       placement would animate - the book would slide in from the left on load, which
+       reads as a glitch rather than as an entrance. The script adds .is-ready a frame
+       later, by which time the cover is where it belongs and every slide after it is
+       a real turn. */
+    .lp-broch-stage.is-lone-first{ transform: translateX(-25%); }
+    .lp-broch-stage.is-lone-last{ transform: translateX(25%); }
+    .lp-broch-stage.is-ready{ transition: transform .42s ease; }
+    @media (prefers-reduced-motion: reduce){
+      .lp-broch-stage.is-ready{ transition: none; } }
     .lp-broch-stage[hidden]{ display: none; }
     .lp-broch-page{ background: var(--pc-white); }
     .lp-broch-page img{ display: block; width: 100%; height: 100%; object-fit: contain; }
@@ -440,7 +545,7 @@
        THE HOVER NO LONGER FILLS (Kiron, 2026-09-23). It used to flood the row with
        --lp-navbg and flip the label to --lp-navfg, which on a five-column list meant a
        solid dark block appearing under the cursor - far louder than the row deserved,
-       and louder still now that the section sits on its own shaded band. It is a 10%
+       and louder still against the section's plain white. It is a 10%
        tint of the same color instead, and the label darkens from muted text to full
        text rather than inverting.
 
@@ -467,12 +572,120 @@
        This is also why there is no longer a prefers-reduced-motion rule here - there
        is no motion left to reduce. */
 
-    .lp-h2{ margin: 0 0 var(--space-3); }
+    /* ---- THE SECTION HEADING BAR ------------------------------------------------
+       WHAT IT IS FOR. The page is one long white column and the sections were told
+       apart only by the size of their headings - no rule, no ground, nothing to catch
+       the eye on the way down. Every H2 now sits on a band of the LISTING'S OWN color
+       that runs off the left edge of the screen and fades out halfway across it. It
+       gives the page color that changes from listing to listing, and it gives the eye
+       a fixed mark to scan for.
+
+       THE COLOR PAIR IS THE SUB NAV'S, and for the sub nav's reason. --lp-navbg is the
+       one value set per listing; --lp-navfg is NOT set by hand - the script computes
+       the WCAG relative luminance of --lp-navbg and writes back whichever of black or
+       white has the better contrast against it. So the heading is legible on any
+       listing color by construction, the same as the nav, the buttons and the tract
+       window header. Do not put a hand-picked color on these headings.
+
+       THE FADE BEGINS AT THE RAIL, WHERE THE TEXT BEGINS (Kiron, 2026-09-29). It used
+       to begin at the edge of the SCREEN, which meant the full-strength color was all
+       spent in the margin: by the time the band reached the first letter it was
+       already about 14% faded, and every letter after that sat on something weaker
+       still. Now the band holds --lp-navbg solid from the screen edge across the
+       margin, and starts fading only at the point the heading starts. The first letter
+       is on the color at full strength, which is the strength --lp-navfg was checked
+       against. --lp-railx is that point, measured from the band's own left edge.
+
+       THE NINE HEADINGS ARE A FIXED SET (Kiron, 2026-09-29) - Brochure, Tracts, Map,
+       Downloads, Video, 360 Tour, Photos, Contact, Data Room - and they are not going
+       to change, so the band only ever has to be legible under those. All nine are one
+       or two short words and end inside the first quarter of the ramp, well within the
+       full-strength color. If that list is ever added to, the thing to check is that
+       the new heading still ends before the fade bites: --lp-navfg is checked against
+       --lp-navbg at FULL strength, so a heading running into the fade would end in
+       white-on-white. The fix for that is a second solid stop held past the text, not
+       a wider fade, which only spreads the problem out.
+
+       FULL BLEED LEFT, NOT RAIL WIDTH. The band starts at the edge of the screen, not
+       at the content rail, so it reads as something the page is sitting on rather than
+       as a box drawn around the heading. It is a ::before rather than a background on
+       the H2 itself because the H2 has to keep its own box on the rail: the text stays
+       lined up with every paragraph below it while only the paint runs wider.
+
+       THE GRADIENT IS MEASURED ON THE SCREEN, NOT ON THE HEADING. The ::before is
+       exactly --vw wide and starts at the left edge of the viewport, so "50%" is half
+       the screen whatever the rail is doing. Putting the gradient on the H2 would
+       measure it against the rail, and the fade would land in a different place at
+       every width. --vw is the viewport WITHOUT the scrollbar, published by the script
+       that keeps --navH in step. It is not 100vw because 100vw INCLUDES the classic
+       scrollbar Windows browsers draw: a band sized to it is about 15px too wide, and
+       a full-bleed element that overshoots on the right gives the whole page a
+       horizontal scrollbar. The 100vw in the fallback is only what applies for the
+       moment before the script runs.
+
+       --lp-railx IS WHERE THE CONTENT RAIL STARTS, measured from the left edge of the
+       screen, which is the left edge of the band. .lp-wrap is --site wide at most and
+       centered, with --rail of padding inside it, so the first character of every
+       heading sits at (screen - site) / 2 + rail. The max() is for the widths where
+       --site is 100% and the page is already full width: the halving term goes to zero
+       or negative there and the rail padding is the whole offset. It is a variable and
+       not an inline number because the gradient and the heading have to agree at every
+       width on the ladder - they are the same two custom properties, so they cannot
+       drift apart.
+
+       ISOLATION IS LOAD-BEARING. The band paints at z-index -1 so the heading's own
+       text sits on top of it. Without `isolation: isolate` that -1 escapes the heading
+       and is resolved against the nearest stacking context instead, so the band slides
+       behind whatever ground that context is painting - it vanishes under any section
+       given a background of its own. isolate keeps the -1 inside the heading, which
+       means a section can be given a ground later without the heading breaking. */
+    .lp-h2, .lp-acc > summary{
+      --lp-railx: max(var(--rail),
+                      calc((var(--vw, 100vw) - var(--site)) / 2 + var(--rail))); }
+    .lp-h2{ position: relative; isolation: isolate;
+      color: var(--lp-navfg);
+      padding: var(--space-2) 0;
+      margin: 0 0 var(--space-5); }
+    .lp-h2::before,
+    .lp-acc > summary::before{ content: ""; position: absolute; z-index: -1;
+      top: 0; bottom: 0;
+      left: calc(50% - var(--vw, 100vw) / 2);
+      width: var(--vw, 100vw);
+      background: linear-gradient(90deg,
+        var(--lp-navbg) 0, var(--lp-navbg) var(--lp-railx), transparent 50%); }
+    /* IN THE ACCORDION the heading is a flex item beside the chevron, so it would
+       shrink to the width of the word "Photos" and take its 50% - and so its full-bleed
+       offset - from that. flex:1 gives it the whole summary row, which is the rail,
+       which is what every other heading on the page has.
+       IT KEEPS ITS OWN PADDING, because that padding IS the band's height - drop it
+       and the one banded heading on the page is a thinner bar than the other eight.
+       The summary gives up its padding instead, so the row is the band and nothing
+       more.
+
+       THE BAND IS DRAWN BY THE SUMMARY HERE, NOT BY THE HEADING. The heading is a flex
+       item sized to the word "Photos", nothing like the width of the rail - and since
+       the band is positioned from its own box's center, drawing it on the heading would
+       put it and its fade wherever that word happened to end. The summary IS the rail,
+       so anchoring the band to it lines this heading up with the other eight. The
+       heading's own band is switched off rather than left to paint twice.
+
+       THE CHEVRON SITS NEXT TO THE WORD, NOT AT THE FAR END (Kiron, 2026-09-29). It was
+       pushed to the right edge of the rail by justify-content: space-between, which is
+       where an accordion chevron normally goes - and on this page that put it 1100px
+       away from the only thing that explains it, out past the end of the color band on
+       plain white, reading as an unrelated control. Beside the heading it is part of
+       the same object and is seen at the same moment the heading is. flex-start is what
+       does it; the heading gives up flex:1 so it shrinks back to its text and the
+       chevron follows it. */
+    .lp-acc > summary{ position: relative; isolation: isolate;
+      justify-content: flex-start; }
+    .lp-acc > summary .lp-h2{ flex: 0 0 auto; margin: 0; }
+    .lp-acc > summary .lp-h2::before{ content: none; }
     .lp-section{ padding-top: var(--space-7); }
 
     /* ---- THE ACCORDION ------------------------------------------------------------
        ONE BAND ON THIS PAGE USES IT - Photos. Every other section on the premium page
-       is open on the page; the photo sheet is nine large images and the one band a
+       is open on the page; the photo sheet is 27 large images and the one band a
        visitor is most likely to scroll straight past, so it is folded away behind its
        own heading and opens on a click.
 
@@ -483,120 +696,57 @@
        not load the standard pages' - if a second accordion is ever added here, it uses
        these classes.
 
-       RULED TOP AND BOTTOM, unlike .ld-acc, which rules between stacked panels and
-       closes the run with :last-child. This is a single panel between two open
-       sections, so it needs both edges to read as one closed row rather than as a
-       heading with a stray line above it.
+       THE BAND RULES IT, NOT A BORDER. .ld-acc draws a line above and below the
+       summary; this heading sits on the listing-colored band every other heading on
+       the page sits on, and a rule on top of that is one mark too many. The row is
+       the band. The body below it keeps a closing rule, so an OPEN panel still has a
+       bottom edge and does not bleed into Contact.
 
        CLOSED BY DEFAULT, no `open` attribute - same as the standard pages, and it is
        what makes folding it away worth doing. The sub nav's Photos link still lands
        here: openOnJump at the foot of the page opens the panel first - see there.
 
        THE THUMBNAILS COST NOTHING UNTIL IT OPENS. The grid's images are loading="lazy"
-       and a closed <details> does not lay its contents out, so none of the nine files
+       and a closed <details> does not lay its contents out, so none of the 27 tiles
        is fetched until a visitor asks for them. That is the same mockup compromise as
        before (full-size files shown at thumbnail size, see the Photos markup), just no
        longer paid by every visitor. */
     .lp-acc{ padding-top: var(--space-7); }
-    .lp-acc > summary{ display: flex; align-items: center; justify-content: space-between;
-      gap: var(--space-4); cursor: pointer; list-style: none;
-      padding: var(--space-4) 0; border-top: 1px solid var(--color-border);
-      border-bottom: 1px solid var(--color-border); }
-    /* The bottom rule belongs to the CLOSED row only: once the panel is open the sheet
-       below it is the panel's own edge, and a rule between the heading and its own
-       content would read as a divider between two separate things. */
-    .lp-acc[open] > summary{ border-bottom-color: transparent; }
+    .lp-acc > summary{ display: flex; align-items: center;
+      gap: var(--space-4); cursor: pointer; list-style: none; padding: 0; }
     /* list-style:none alone does not remove the disclosure triangle in Safari. */
     .lp-acc > summary::-webkit-details-marker{ display: none; }
-    .lp-acc > summary h2{ margin: 0; }
-    .lp-acc > summary:hover h2{ color: var(--pc-medium-blue); }
-    .lp-acc > summary:focus-visible{ outline: 2px solid var(--pc-medium-blue);
-      outline-offset: 4px; border-radius: var(--radius-sm); }
+    /* NO HOVER COLOR ON THE HEADING any more: it is reversed out of the listing's
+       color now, and --lp-navfg is the only foreground checked against that ground.
+       Swapping it for Medium Blue on hover would put an unchecked pair on a band that
+       is a different color on every listing. The chevron carries the hover instead. */
+    /* The focus ring is INSIDE the band, not offset outside it: the summary is the
+       full-bleed row, so an outset ring would be drawn off the edges of the screen.
+       --lp-navfg again, because that is what is legible on this ground. */
+    .lp-acc > summary:focus-visible{ outline: 2px solid var(--lp-navfg);
+      outline-offset: -4px; border-radius: var(--radius-sm); }
+    /* IT IS ON THE COLOR BAND NOW, so it takes the band's pair. It used to be PC Navy
+       type inside a light gray ring, which was right when it sat out on white past the
+       end of the band; beside the heading it sits ON --lp-navbg, where navy-on-brown is
+       a combination nobody checked and the gray ring is barely visible. --lp-navfg is
+       the one foreground that IS checked against this ground, so the glyph and the ring
+       are both drawn in it - the ring at 45% so it reads as a container round the
+       chevron rather than as a second solid mark beside the heading. */
     .lp-acc-chev{ flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill);
       display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--color-border); color: var(--pc-navy);
+      color: var(--lp-navfg);
+      border: 1px solid color-mix(in srgb, var(--lp-navfg) 45%, transparent);
       transition: transform .2s ease, background-color .15s ease, border-color .15s ease; }
     .lp-acc-chev svg{ width: 16px; height: 16px; }
-    .lp-acc > summary:hover .lp-acc-chev{ background: var(--pc-light-blue);
-      border-color: var(--pc-light-blue); }
+    /* HOVER INVERTS THE PAIR, the same idiom as .lp-btn and for the same reason:
+       contrast is symmetric, so the inverted state scores exactly the ratio the resting
+       one does, on any ground the listing picks. */
+    .lp-acc > summary:hover .lp-acc-chev{ background: var(--lp-navfg);
+      border-color: var(--lp-navfg); color: var(--lp-navbg); }
     .lp-acc[open] > summary .lp-acc-chev{ transform: rotate(180deg); }
     .lp-acc-body{ padding-top: var(--space-5); padding-bottom: var(--space-4);
       border-bottom: 1px solid var(--color-border); }
     @media (prefers-reduced-motion: reduce){ .lp-acc-chev{ transition: none; } }
-
-    /* ---- THE SHADED SECTION ------------------------------------------------------
-       The page is one long white column and the sections are told apart only by their
-       headings; this puts a shaded band behind one of them - Tracts - to break that up.
-
-       4% BLACK (Kiron, 2026-09-23). rgba(0,0,0,.04) over white is about #F5F5F5. It was
-       4% PC Navy first, which tints very slightly blue; plain black is the neutral of
-       the two and does not pick a side against the listing's own color, which changes
-       from page to page.
-
-       FULL BLEED, EDGE TO EDGE (Kiron, 2026-09-23). It was a rounded panel inset to the
-       content rail; it is a band across the whole viewport now. The section still sits
-       inside .lp-wrap, so it gets there by pulling its own edges out to the viewport and
-       then pushing its content back in by the same amount:
-           margin  = 50% - half the viewport   (negative: out to the edges)
-           padding = half the viewport - 50%   (positive: content back onto the rail)
-       Those two are mirror images and MUST stay that way - change one without the other
-       and the section's copy stops lining up with every section above and below it.
-       Here 50% is half the SECTION's width, which is the content rail, because the
-       section is a block child of .lp-wrap's padding box.
-
-       --vw IS THE VIEWPORT WIDTH WITHOUT THE SCROLLBAR, set by script beside --navH.
-       100vw INCLUDES the classic scrollbar Windows browsers draw, so the plain-vw
-       version of this trick makes the band ~15px too wide and gives the whole page a
-       horizontal scrollbar. The 100vw in the fallback below is only what applies before
-       the script runs. */
-    .lp-section--tint{ background: rgba(0, 0, 0, .04);
-      margin-left: calc(50% - 50vw);  margin-right: calc(50% - 50vw);
-      margin-left: calc(50% - var(--vw, 100vw) / 2);
-      margin-right: calc(50% - var(--vw, 100vw) / 2);
-      padding-left: calc(var(--vw, 100vw) / 2 - 50%);
-      padding-right: calc(var(--vw, 100vw) / 2 - 50%);
-      margin-top: var(--space-7);
-      padding-top: var(--space-6); padding-bottom: var(--space-6); }
-    /* The jump link lands on the BAND's top edge, not on the heading inside it: the
-       shared rule above cancels .lp-section's padding so a heading sits just under the
-       bar, and doing that here would slide the band's top edge up underneath it. */
-    .lp-wrap > .lp-section--tint{
-      scroll-margin-top: calc(var(--navH) + var(--lp-jump-h) + var(--space-4)); }
-
-    /* ---- THE RIBBON: a full-bleed sliver of photography -------------------------
-       ONE IMAGE, EDGE TO EDGE, 100px TALL, between Downloads and Video (Kiron,
-       2026-09-29). The page is a long white column of headings and modules; this is a
-       band of the land itself part way down it, to break the column and remind a
-       visitor what they are reading about.
-
-       IT IS THE FIRST PHOTOGRAPH IN THE SET, the same file the contact sheet opens
-       with. On a real page that is whatever the listing's lead image is - one field,
-       no new asset to produce.
-
-       FULL BLEED BY THE SAME TRICK AS .lp-section--tint, but with only half of it:
-       the negative margins pull the edges out to the viewport and nothing pushes the
-       content back in, because the content here IS the image and it is meant to run
-       the whole width. --vw is the viewport without the scrollbar - see the tint band
-       for why 100vw alone gives the page a horizontal scrollbar on Windows.
-
-       100px IS A FIXED HEIGHT, not an aspect ratio: it is a sliver at every width, and
-       object-fit: cover crops a 1200x800 photograph to it. At 1376px of rail that is a
-       13.8:1 slot, so all that survives is a horizontal strip through the middle of the
-       frame - object-position: center is doing real work here, and a photograph whose
-       subject sits high or low in the frame will lose it. Choose the ribbon image for
-       what its middle band looks like, not for what the whole photograph looks like.
-
-       DECORATIVE. alt="" and aria-hidden: it is the ninth appearance of this
-       photograph on the page and carries nothing the Photos sheet does not, so it is
-       a rule made of picture rather than content a screen reader should stop on. */
-    .lp-ribbon{ display: block; height: 100px; overflow: hidden;
-      margin-top: var(--space-7);
-      margin-left: calc(50% - 50vw);  margin-right: calc(50% - 50vw);
-      margin-left: calc(50% - var(--vw, 100vw) / 2);
-      margin-right: calc(50% - var(--vw, 100vw) / 2);
-      background: var(--pc-navy); }
-    .lp-ribbon img{ display: block; width: 100%; height: 100%;
-      object-fit: cover; object-position: center; }
 
     /* ---- MAP ----
        ONE RECTANGULAR MAP, THE FULL WIDTH OF THE RAIL. Same module and the same shape as
@@ -648,8 +798,15 @@
        on the standard pages the tour sits in a column about 950px wide, so 4 / 3 lands
        around 712px tall. Left uncapped on the premium rail the same ratio would be over
        1000px tall and nothing below it would be on screen. The cap holds the embed at the
-       size it has on the auction page rather than changing its shape. */
+       size it has on the auction page rather than changing its shape.
+       CENTERED ON THE RAIL (Kiron, 2026-09-29). Capped at 950px inside a 1376px rail,
+       it sat hard against the left edge with 426px of white beside it - the cap read
+       as the embed having failed to fill its box rather than as a deliberate size.
+       Centered, the white falls either side and the embed reads as placed. The copy
+       above it stays left-aligned with every other paragraph on the page: this centers
+       the BOX, it does not center the section. */
     .lp-embed{ position: relative; aspect-ratio: 4 / 3; max-width: 950px;
+      margin-inline: auto;
       overflow: hidden; border-radius: var(--radius-md); background: var(--pc-black);
       border: 1px solid var(--color-border); }
 
@@ -661,8 +818,8 @@
        and 3:2 the crop is gone - object-fit: cover has nothing left to trim, so each
        tile shows the whole photograph. Fewer, larger, uncropped beats more and cropped
        on a set this small.
-       Nine photographs over four tracks leave one alone on the last row. That is what
-       an uneven set does here; nothing is stretched or dropped to even it up. */
+       27 photographs over four tracks leave three on the last row. An uneven set is
+       left uneven here; nothing is stretched or dropped to fill the gap. */
     .lp-photogrid{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0; list-style: none; margin: 0; padding: 0; }
     /* The tile is a <button>, not a link: it opens the viewer, it does not navigate.
@@ -700,9 +857,16 @@
        LIFTED VERBATIM FROM THE OTHER LISTING DETAIL PAGES, class names included. It is
        the same component, so it keeps the xtw- prefix and the ld- classes its contents
        use rather than being renamed to lp-. Treat any difference between this window and
-       the one on listings-details-auction.html as a defect. */
+       the one on listings-details-auction.html as a defect - WITH ONE EXCEPTION, the
+       scrim.
+       THE SCRIM IS DELIBERATELY NOT THE AUCTION PAGE'S (Kiron, 2026-09-29). There it is
+       PC Navy at .72; here it is --lp-scrim, which is the photo viewer's neutral gray at
+       .94. A premium page has two overlays and the auction page's window is on its own,
+       so the thing that matters here is that the tract window and the photo viewer cover
+       the page identically - a visitor opens both, one after the other, and two different
+       grounds read as two different components. See --lp-scrim at the top of the file. */
     .xtw{ position: fixed; inset: 0; z-index: 210;
-      background: rgba(7, 22, 44, .72);
+      background: var(--lp-scrim);
       display: flex; align-items: center; justify-content: center; padding: var(--space-5); }
     .xtw[hidden]{ display: none; }
     .xtw-box{ width: min(1040px, 100%); max-height: 88vh; display: flex; flex-direction: column;
@@ -940,10 +1104,13 @@
        It also removes a hazard the listing's color carried: a listing that chose a pale
        color would have made this a bright room, with white close and paging controls
        sitting on a 14% white fill. Gray is dark whatever the listing does.
-       .94 IS THE KNOB, not the color. Lower it to let more of the page through. */
+       .94 IS THE KNOB, not the color. Lower it to let more of the page through.
+       THE VALUE ITSELF NOW LIVES AT --lp-scrim, at the top of the file, because the
+       tract window covers the page with it too - the two overlays on a premium page
+       have to be the same room. Edit it there, not here. */
     .xlb[hidden]{ display: none; }
     .xlb{ position: fixed; inset: 0; z-index: 200; display: flex; align-items: center;
-      justify-content: center; background: rgba(28, 28, 28, .94);
+      justify-content: center; background: var(--lp-scrim);
       padding: var(--space-5); }
     .xlb-img{ max-width: min(800px, 88vw); max-height: min(600px, 80vh);
       object-fit: contain; border-radius: var(--radius-sm); margin: 0 auto; }
@@ -1138,6 +1305,10 @@
       <section id="lp-brochure" class="lp-section reveal" aria-labelledby="lp-brochure-h">
         <h2 id="lp-brochure-h" class="lp-h2">Brochure</h2>
         <div class="lp-broch">
+          <!-- Empty and hidden. Below 768px the script clones the brochure's FIRST PAGE
+               out of the template below into it - see .lp-broch-still. Above 768px it
+               stays empty and nothing is fetched for it. -->
+          <div class="lp-broch-still" id="lpBrochStill" hidden></div>
           <div class="lp-broch-bar">
             <div class="lp-broch-get">
               <a class="btn lp-btn" href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/19278_Wallula%20Vineyard%20Brochure.pdf"
@@ -1213,7 +1384,7 @@
       </section>
 
       <!-- The sections below are in sub nav order. -->
-      <section id="lp-tracts" class="lp-section lp-section--tint reveal" aria-labelledby="lp-tracts-h">
+      <section id="lp-tracts" class="lp-section reveal" aria-labelledby="lp-tracts-h">
         <h2 id="lp-tracts-h" class="lp-h2">Tracts</h2>
         <p class="lp-copy">Click a tract below for individual maps and more information.</p>
         <ul class="lp-tlist" id="lpTractList"></ul>
@@ -1259,13 +1430,6 @@
         <p class="ld-dl-note">Refer to the individual tract details for tract-specific
           downloadable files.</p>
       </section>
-
-      <!-- ==== THE RIBBON: full-bleed sliver, Downloads to Video ==== -->
-      <!-- Not a section and not a jump target - it is a rule made of photography. See
-           .lp-ribbon for the full-bleed maths and for why it is aria-hidden. -->
-      <div class="lp-ribbon" aria-hidden="true">
-        <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0696.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="" />
-      </div>
 
       <!-- ==== VIDEO ==== -->
       <!-- THREE ITEMS, ONE ROW. All three embeds are the same representative YouTube
@@ -1334,17 +1498,24 @@
            rather than letterboxing.
 
            THE THUMBNAILS ARE THE 1200px FILES. There is no thumbnail derivative on the
-           listings host to point at, so the grid downloads nine full-size images to show
+           listings host to point at, so the grid downloads 27 full-size images to show
            them at ~180px. That is a MOCKUP COMPROMISE, not a pattern to ship - a real
            page serves a small derivative here. loading="lazy" keeps it off the critical
-           path in the meantime - and now that the sheet is folded away, the nine files
-           are not fetched at all until a visitor opens the panel.
+           path in the meantime - and now that the sheet is folded away, none of them
+           are fetched at all until a visitor opens the panel. At 27 tiles that matters
+           more than it did at nine.
 
-           AN ACCORDION, NOT AN OPEN BAND (Kiron, 2026-09-29). Nine large images is the
+           AN ACCORDION, NOT AN OPEN BAND (Kiron, 2026-09-29). 27 large images is the
            tallest thing on the page and the band most likely to be scrolled past on the
            way to Contact; it is folded behind its own heading now and opens on a click.
            The contact sheet inside it is unchanged, and so is the viewer - see .lp-acc
-           for the pattern and openOnJump for how the sub nav's Photos link opens it. -->
+           for the pattern and openOnJump for how the sub nav's Photos link opens it.
+
+           TWENTY-SEVEN TILES, WHICH IS NINE FILES REPEATED THREE TIMES (Kiron,
+           2026-09-29) - filler, to see the sheet at the size a real premium set runs
+           to. data-i runs 0-26 straight down and indexes into the viewer's PHOTOS
+           array, which is tripled in the same order; the two have to be changed
+           together. See the note over PHOTOS. -->
       <details id="lp-photos" class="lp-acc reveal" aria-labelledby="lp-photos-h">
         <summary>
           <h2 id="lp-photos-h" class="lp-h2">Photos</h2>
@@ -1377,6 +1548,60 @@
             <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0858.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Blocks in various stages of removal" />
           </button></li>
           <li><button type="button" class="lp-thumb" data-i="8">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0923.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The offering from the west, river beyond" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="9">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0696.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The vineyard blocks from the south" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="10">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0741.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Riesling blocks and open ground" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="11">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0745.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Looking north across the plantable acres" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="12">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0749.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Vineyard rows at the center of the offering" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="13">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0750.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Open ground in the north east" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="14">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0843.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The Columbia River frontage" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="15">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0848.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The pumping station on the river" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="16">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0858.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Blocks in various stages of removal" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="17">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0923.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The offering from the west, river beyond" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="18">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0696.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The vineyard blocks from the south" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="19">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0741.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Riesling blocks and open ground" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="20">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0745.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Looking north across the plantable acres" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="21">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0749.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Vineyard rows at the center of the offering" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="22">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0750.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Open ground in the north east" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="23">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0843.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The Columbia River frontage" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="24">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0848.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The pumping station on the river" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="25">
+            <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0858.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Blocks in various stages of removal" />
+          </button></li>
+          <li><button type="button" class="lp-thumb" data-i="26">
             <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0923.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The offering from the west, river beyond" />
           </button></li>
         </ul>
@@ -1878,7 +2103,7 @@
     // Keeps --navH and --lp-jump-h in step with the sticky header and the sub nav, which
     // the sections' scroll-margin is measured against - a jump has to clear both.
     // It also publishes --vw, the viewport width WITHOUT the scrollbar, which the
-    // full-bleed shaded section uses in place of 100vw - see .lp-section--tint. It is
+    // full-bleed section headings use in place of 100vw - see .lp-h2::before. It is
     // set here rather than in a module of its own because this is already the one place
     // that measures the page and re-measures it on resize.
     (function(){
@@ -2159,7 +2384,17 @@
 
       /* This listing's photographs. The SAME nine files the tract window uses as stand-in
          maps - the listing has one image set and both readers draw from it. A real page
-         renders the ordered set on the record. */
+         renders the ordered set on the record.
+
+         TRIPLED TO 27 (Kiron, 2026-09-29), to see the contact sheet at the size a real
+         premium listing's set runs to - nine tiles fill two rows and say nothing about
+         how the grid behaves at seven. The nine files are the only ones that exist, so
+         the set repeats rather than pretending to be 27 different photographs. THE
+         GRID IS TRIPLED THE SAME WAY AND IN THE SAME ORDER: data-i runs 0-26 straight
+         down the sheet and indexes straight into this array, so the two must be
+         tripled together or every tile past the ninth opens the wrong photograph.
+         This is MOCKUP FILLER. A real page has one set and repeats nothing - drop the
+         repeat here and in the sheet together. */
       var PB = "https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_";
       var PHOTOS = [
         { f: "DJI_0696.jpg", cap: "The vineyard blocks from the south" },
@@ -2172,6 +2407,7 @@
         { f: "DJI_0858.jpg", cap: "Blocks in various stages of removal" },
         { f: "DJI_0923.jpg", cap: "The offering from the west, river beyond" }
       ].map(function(p){ return { src: PB + p.f, cap: p.cap }; });
+      PHOTOS = PHOTOS.concat(PHOTOS, PHOTOS);     // 9 -> 27; see the note above
 
       var img = box.querySelector(".xlb-img"),
           cnt = box.querySelector(".xlb-count"),
@@ -2211,7 +2447,7 @@
       box.addEventListener("click", function(e){ if(e.target === box) close(); });
 
       /* EVERY TILE IN THE CONTACT SHEET OPENS THE SET AT ITS OWN PHOTOGRAPH, via one
-         delegated listener on the grid rather than nine - the tiles carry their index in
+         delegated listener on the grid rather than one per tile - they carry their index in
          data-i, which is also the index into PHOTOS above, because both are built from
          the same ordered set. `last` is the tile itself, so closing returns focus to the
          photograph the visitor opened rather than to the top of the sheet. */
@@ -2260,6 +2496,7 @@
        survives both - cloneNode does not consume it. */
     (function(){
       var stage = document.getElementById("lpBrochStage"),
+          still = document.getElementById("lpBrochStill"),
           tpl   = document.getElementById("lpBrochTpl"),
           ctrls = document.getElementById("lpBrochCtrls"),
           prev  = document.getElementById("lpBrochPrev"),
@@ -2274,7 +2511,7 @@
       var pages = tpl.content.querySelectorAll(".lp-broch-page");
       var total = pages.length;
       var mq = window.matchMedia("(min-width: 768px)");
-      var flip = null, io = null, libP = null, builtSpread = null, seqReal = null;
+      var flip = null, io = null, libP = null, builtSpread = null;
 
       /* ---- THE PAGE SHAPE IS MEASURED, NOT ASSUMED ----
          Every image in the template already carries real width and height attributes,
@@ -2302,31 +2539,59 @@
          how TALL the spread then stands, and that is the cap's job, not this one. */
       function wantsSpread(){ return stage.parentNode.clientWidth >= MIN_PAGE * 2; }
 
-      /* ---- THE PAIRING: cover|2, 2|3, 4|5 ... 14|15, 15|16 ----
-         Returns the real page numbers in the order StPageFlip should hold them, with
-         showCover off so it simply pairs them two at a time. The two repeats are what
-         fill the stage at both ends - see the long note in the CSS for why.
+      /* ---- THE STILL COVER, BELOW 768px ----
+         Clones the FIRST page out of the template and drops it above the download
+         pill. Only ever called when the reader is not being built, so a desktop never
+         reaches it and never fetches the file - see .lp-broch-still for why that has
+         to be script and not a hidden <img>.
+         IT CLONES THE <img>, NOT THE PAGE WRAPPER: .lp-broch-page carries the reader's
+         own white ground and is sized by the library, neither of which means anything
+         here. The image brings its width, height and alt with it.
+         loading="lazy" COMES OFF. The still is at the top of the section a phone is
+         being shown, not a thumbnail far down a grid, and lazy would hold the one
+         picture in the section behind a second round trip. */
+      function showStill(){
+        if(!still || still.firstChild) return;      // idempotent: arm() can run twice
+        var src = tpl.content.querySelector(".lp-broch-page img");
+        if(!src) return;
+        var img = src.cloneNode(true);
+        img.removeAttribute("loading");
+        still.appendChild(img);
+        still.hidden = false;
+      }
+      function hideStill(){
+        if(!still) return;
+        still.hidden = true; still.innerHTML = "";
+      }
 
-         The opening is fixed - 1,2 then 2,3 - and the close is fixed - n-1,n. Between
-         them the run steps in twos from page 4. Written out for n = 16:
+      /* ---- CENTER THE LONE LEAF ----
+         The cover and the back page each fill one half of a two-page stage; this
+         slides the stage half a page so that half lands in the middle of the rail.
+         See the CSS for why it is a transform and what the clip costs.
 
-             1,2   2,3   4,5   6,7   8,9   10,11   12,13   14,15   15,16
+         ONLY IN A SPREAD. On a narrow rail the reader is one page at a time and the
+         stage is one page wide, so every page already fills it and there is nothing
+         to center. --landscape is StPageFlip's own class for two-up, read off the
+         wrapper rather than trusted from the build flag, because the library has the
+         last word on which mode it ended up in.
 
-         Every page appears, 2 and 15 appear twice, and the list is even so no spread
-         is left half empty. An odd page count works the same way and stays even here,
-         because the two repeats add two.
+         FIRST AND LAST ARE THE ONLY LONE LEAVES, and only because showCover is on. An
+         even page count closes on a lone back page, an odd one closes on a spread -
+         hence the parity test rather than a flat "last page is alone". */
+      function centerLone(){
+        if(!flip) return;
+        var wrap = stage.querySelector(".stf__wrapper");
+        var landscape = !!wrap && wrap.className.indexOf("--landscape") !== -1;
+        var i = flip.getCurrentPageIndex();
+        stage.classList.toggle("is-lone-first", landscape && i === 0);
+        stage.classList.toggle("is-lone-last",
+          landscape && i === total - 1 && total % 2 === 0);
+      }
 
-         SHORT BROCHURES FALL BACK. Under six pages the opening and the close overlap
-         and the sequence would repeat a whole spread, so those just pair straight
-         through. A six-page brochure is already the smallest thing anyone would put in
-         a flip reader. */
-      function buildSequence(n){
-        var out = [], i;
-        if(n < 6){ for(i = 1; i <= n; i++) out.push(i); return out; }
-        out.push(1, 2, 2, 3);
-        for(i = 4; i <= n - 2; i += 2) out.push(i, i + 1);
-        out.push(n - 1, n);
-        return out;
+      /* Cleared the instant a turn begins so the spread behind the cover is not
+         revealed half off the rail, and set again when the turn lands. */
+      function unslide(){
+        stage.classList.remove("is-lone-first", "is-lone-last");
       }
 
       function loadLib(){
@@ -2344,16 +2609,9 @@
          aria-live. It names the SPREAD, not the leaf - "Pages 4-5 of 16" is what is on
          screen, and saying "Page 4" while page 5 is open beside it is just wrong.
 
-         IT COUNTS REAL PAGES, NOT SLOTS. In a spread the reader holds a sequence with
-         two repeats in it, so slot 4 holds page 3 and the last slot holds page 16;
-         seqReal maps one to the other. Without it the counter would say "of 18" on a
-         sixteen page brochure and drift by one from the cover onwards.
-
-         THE OPENING SPREAD READS "Pages 1-2", not "Page 1". The cover is on screen
-         beside page 2 and the counter says what is on screen - that is the point of
-         the pairing. The two repeated spreads read "Pages 2-3" and "Pages 15-16" for
-         the same reason: the counter reports the view, it does not try to explain the
-         sequence.
+         The cover and the back page are alone, so they stay singular - and they are
+         the two the counter has to get right, because they are the two that are
+         centered rather than filling the stage.
 
          The buttons disable at the ends rather than wrapping: this is a brochure, and
          page 16 does not lead back to page 1. --landscape is StPageFlip's own class
@@ -2362,15 +2620,15 @@
       function sync(){
         if(!flip) return;
         var i = flip.getCurrentPageIndex();
-        var last = seqReal.length - 1;
         var wrap = stage.querySelector(".stf__wrapper");
         var landscape = !!wrap && wrap.className.indexOf("--landscape") !== -1;
-        var lo = seqReal[i], hi = (landscape && i + 1 <= last) ? seqReal[i + 1] : lo;
-        count.textContent = (hi > lo)
-          ? "Pages " + lo + "\u2013" + hi + " of " + total
-          : "Page " + lo + " of " + total;
+        var pair = landscape && i > 0 && i + 1 < total;
+        count.textContent = pair
+          ? "Pages " + (i + 1) + "\u2013" + (i + 2) + " of " + total
+          : "Page " + (i + 1) + " of " + total;
         prev.disabled = i <= 0;
-        next.disabled = i >= last;
+        next.disabled = i >= total - 1;
+        centerLone();
       }
 
       function build(){
@@ -2393,24 +2651,6 @@
         stage.hidden = false;                      // before construction - see above
         stage.appendChild(tpl.content.cloneNode(true));
 
-        /* ---- LAY THE PAGES OUT IN SEQUENCE ----
-           In a spread the reader holds the paired sequence, repeats and all; on one
-           page at a time it holds the pages in plain order, because there is no empty
-           half to fill and a repeat would just look like a stuck button. Either way
-           seqReal is what the counter reads.
-           THE REPEATS COST NOTHING TO FETCH. A duplicated <img> points at a src the
-           browser already has, so page 2 appearing twice is one request, not two. */
-        seqReal = spread ? buildSequence(total) : (function(){
-          var r = [], i; for(i = 1; i <= total; i++) r.push(i); return r;
-        })();
-        var src = stage.querySelectorAll(".lp-broch-page");
-        var frag = document.createDocumentFragment();
-        for(var k = 0; k < seqReal.length; k++){
-          frag.appendChild(src[seqReal[k] - 1].cloneNode(true));
-        }
-        stage.innerHTML = "";
-        stage.appendChild(frag);
-
         loadLib().then(function(){
           if(!mq.matches){ stage.hidden = true; stage.innerHTML = ""; return; }
           var slow = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2423,11 +2663,7 @@
             minWidth: spread ? 400 : 600,          // see the note above - this picks the mode
             maxWidth: 2000, minHeight: 300, maxHeight: 1400,
             usePortrait: true,
-            /* SHOWCOVER IS OFF, AND THE SEQUENCE DOES THE WORK INSTEAD. With it on,
-               StPageFlip puts page 1 alone on the right of a two-page stage and leaves
-               the other half blank; the paired sequence above gives the cover a
-               neighbor and keeps the book's rhythm. See the CSS note. */
-            showCover: false,
+            showCover: true,                       // page 1 alone, then 2-3, 4-5, ...
             drawShadow: true, maxShadowOpacity: .4,
             flippingTime: slow ? 0 : 700,
             useMouseEvents: true,
@@ -2437,8 +2673,19 @@
           });
           flip.loadFromHTML(stage.querySelectorAll(".lp-broch-page"));
           flip.on("flip", sync);
+          /* The slide has to go the moment a turn starts, not when it lands: while the
+             cover is turning the spread behind it is already being drawn across the
+             whole stage, and on a stage still slid left half of page 2 would be off
+             the rail and clipped. StPageFlip reports "user_fold" for a drag and
+             "flipping" for a button, and "read" when it has settled - which sync()
+             then handles, so only the two moving states are wanted here. */
+          flip.on("changeState", function(e){
+            if(e.data === "user_fold" || e.data === "flipping") unslide();
+          });
           ctrls.hidden = false;
           sync();
+          /* One frame after the cover has been placed - see .is-ready in the CSS. */
+          requestAnimationFrame(function(){ stage.classList.add("is-ready"); });
         }).catch(function(){
           /* jsDelivr did not answer. Roll all the way back rather than leaving an
              empty box: the download pill is a complete route to the brochure. */
@@ -2452,14 +2699,19 @@
         builtSpread = null;
         stage.innerHTML = ""; stage.hidden = true; ctrls.hidden = true;
         stage.style.aspectRatio = ""; stage.style.maxWidth = "";
-        seqReal = null;
+        stage.classList.remove("is-ready");
+        unslide();
       }
 
       prev.addEventListener("click", function(){ if(flip) flip.flipPrev(); });
       next.addEventListener("click", function(){ if(flip) flip.flipNext(); });
 
       function arm(){
-        if(!mq.matches){ destroy(); return; }
+        /* The two are mutually exclusive by construction: one function turns the
+           reader off and the still on, the other does the reverse, so a tablet that
+           rotates across 768 can never end up showing both or neither. */
+        if(!mq.matches){ destroy(); showStill(); return; }
+        hideStill();
         if(io || flip) return;
         io = new IntersectionObserver(function(entries){
           for(var i = 0; i < entries.length; i++){
