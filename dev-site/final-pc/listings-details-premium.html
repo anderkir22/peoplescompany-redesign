@@ -275,7 +275,11 @@
        TUNE --space-5, NOT THE OTHERS. --navH and --lp-jump-h are measured from the real
        chrome and are read by other things, the Interactive Map tab included; --space-7
        has to stay equal to .lp-section's padding-top or the cancellation drifts. */
-    .lp-wrap > section{
+       AND .lp-wrap > details WITH IT: Photos is an accordion, so it is a <details>
+       rather than a <section>, and it is a jump target like every other band. Both
+       selectors carry every rule below that names one of them. */
+    .lp-wrap > section,
+    .lp-wrap > details{
       scroll-margin-top: calc(var(--navH) + var(--lp-jump-h)
                               - var(--space-7) + var(--space-5)); }
 
@@ -294,7 +298,8 @@
        a jump that lands in the same place every time. A .reveal added outside
        .lp-wrap > section would keep the rise and would reintroduce the problem if it
        ever became a jump target. */
-    .lp-wrap > section.reveal{ transform: none; }
+    .lp-wrap > section.reveal,
+    .lp-wrap > details.reveal{ transform: none; }
 
     /* ---- BROCHURE: THE PAGE-FLIP READER -----------------------------------------
        StPageFlip (page-flip 2.0.7, from jsDelivr) turning SIXTEEN PRE-RENDERED IMAGES,
@@ -310,11 +315,27 @@
        replaced. A production build renders them in the pipeline that publishes the
        PDF, or serves the PDF with CORS and drops this image set for PDF.js.
 
-       IT OPENS LIKE A BOOK. showCover is on, so page 1 sits alone as a cover, then
-       2-3, 4-5 and so on come up as spreads, and page 16 closes alone. That is why the
-       reader is FULL RAIL WIDTH and not in a column beside the download: a spread of
-       two landscape pages is 2.59:1, and at two thirds of the rail each page would
-       fall to about 450px. Across the whole rail each page is 688px.
+       IT OPENS LIKE A BOOK, BUT NEVER ON A HALF-EMPTY STAGE (Kiron, 2026-09-29).
+       showCover used to be on: page 1 sat alone as a cover, then 2-3, 4-5 and so on,
+       and page 16 closed alone. A lone leaf on a two-page stage leaves the other half
+       blank, and at 1376px of rail that is a 688px slab of white beside the cover and
+       again beside the back page - the first and last things a visitor sees.
+
+       THE PAIRING IS EXPLICIT NOW - see buildSequence() in the script. The cover opens
+       beside page 2, the first Next moves ONE page to settle into the book's own
+       rhythm, and from there every Next turns a leaf and moves two:
+
+           cover|2     2|3     4|5     6|7   ...   14|15     15|16
+
+       Page 2 and the second-to-last page are each shown twice, once on the right and
+       once on the left. That is the whole trick, and it is what buys a full stage at
+       both ends. It is also how a printed brochure actually reads: the cover and the
+       back are single sheets, and everything between them is a spread.
+
+       THAT IS WHY THE READER IS FULL RAIL WIDTH and not in a column beside the
+       download: a spread of two landscape pages is 2.59:1, and at two thirds of the
+       rail each page would fall to about 450px. Across the whole rail each page is
+       688px.
 
        THE SPREAD NEEDS 1200px OF RAIL, and the rail only reaches that at a 1280
        viewport (--site 1280, --rail 32). Below it the reader keeps the same images but
@@ -368,12 +389,26 @@
     /* THE ASPECT RATIO IS LOAD-BEARING, NOT DECORATION, AND THE SCRIPT OWNS IT.
        StPageFlip derives its page height from the container's offsetHeight
        (Render.getBlockHeight) and autoSize sets only the container's width, so without
-       a height from CSS the container measures 0 and every page collapses. The ratio
-       differs by mode - 1584/612 for a spread, 792/612 for a single page - and the
-       script sets it inline from the same measurement that chooses the mode, so the
-       two can never disagree. The value below is only the placeholder that holds the
-       space before the library lands. */
-    .lp-broch-stage{ aspect-ratio: 792 / 612; }
+       a height from CSS the container measures 0 and every page collapses. The script
+       sets the ratio inline from the same measurement that chooses spread or single
+       page, so the two can never disagree. The value below is only the placeholder
+       that holds the space before the library lands.
+
+       NOTHING HERE IS LANDSCAPE ANY MORE (Kiron, 2026-09-29). The ratio used to be
+       hard-coded 1584/612 and 792/612, which is this brochure's trim and no other.
+       Portrait and square brochures exist, and in a landscape box they rendered
+       letterboxed with bars above and below. The script reads the page shape off the
+       first image in the template - the width and height attributes that are already
+       on every one of them - and derives the stage ratio, the library's width/height
+       and the max-width cap below from that. A portrait brochure needs no edit here.
+
+       CENTERED, AND CAPPED IN HEIGHT. A portrait spread across 1376px of rail would
+       stand about 890px tall - taller than most laptop viewports, so a visitor could
+       not see a whole spread at once. max-width, set inline by the script, is the
+       width at which the book reaches its height cap; margin-inline centers whatever
+       is left over. A landscape brochure never reaches the cap and so is never
+       narrowed - it still runs the full rail. */
+    .lp-broch-stage{ aspect-ratio: 792 / 612; margin-inline: auto; }
     .lp-broch-stage[hidden]{ display: none; }
     .lp-broch-page{ background: var(--pc-white); }
     .lp-broch-page img{ display: block; width: 100%; height: 100%; object-fit: contain; }
@@ -435,6 +470,60 @@
     .lp-h2{ margin: 0 0 var(--space-3); }
     .lp-section{ padding-top: var(--space-7); }
 
+    /* ---- THE ACCORDION ------------------------------------------------------------
+       ONE BAND ON THIS PAGE USES IT - Photos. Every other section on the premium page
+       is open on the page; the photo sheet is nine large images and the one band a
+       visitor is most likely to scroll straight past, so it is folded away behind its
+       own heading and opens on a click.
+
+       SAME PATTERN AS .ld-acc ON THE STANDARD LISTING DETAIL PAGES, deliberately: the
+       rule above the row, the pill chevron on the right, the 180deg flip on open. A
+       visitor moving between a standard listing and a premium one meets one accordion,
+       not two. It is lp-prefixed because this page carries its own stylesheet and does
+       not load the standard pages' - if a second accordion is ever added here, it uses
+       these classes.
+
+       RULED TOP AND BOTTOM, unlike .ld-acc, which rules between stacked panels and
+       closes the run with :last-child. This is a single panel between two open
+       sections, so it needs both edges to read as one closed row rather than as a
+       heading with a stray line above it.
+
+       CLOSED BY DEFAULT, no `open` attribute - same as the standard pages, and it is
+       what makes folding it away worth doing. The sub nav's Photos link still lands
+       here: openOnJump at the foot of the page opens the panel first - see there.
+
+       THE THUMBNAILS COST NOTHING UNTIL IT OPENS. The grid's images are loading="lazy"
+       and a closed <details> does not lay its contents out, so none of the nine files
+       is fetched until a visitor asks for them. That is the same mockup compromise as
+       before (full-size files shown at thumbnail size, see the Photos markup), just no
+       longer paid by every visitor. */
+    .lp-acc{ padding-top: var(--space-7); }
+    .lp-acc > summary{ display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4); cursor: pointer; list-style: none;
+      padding: var(--space-4) 0; border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border); }
+    /* The bottom rule belongs to the CLOSED row only: once the panel is open the sheet
+       below it is the panel's own edge, and a rule between the heading and its own
+       content would read as a divider between two separate things. */
+    .lp-acc[open] > summary{ border-bottom-color: transparent; }
+    /* list-style:none alone does not remove the disclosure triangle in Safari. */
+    .lp-acc > summary::-webkit-details-marker{ display: none; }
+    .lp-acc > summary h2{ margin: 0; }
+    .lp-acc > summary:hover h2{ color: var(--pc-medium-blue); }
+    .lp-acc > summary:focus-visible{ outline: 2px solid var(--pc-medium-blue);
+      outline-offset: 4px; border-radius: var(--radius-sm); }
+    .lp-acc-chev{ flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill);
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--color-border); color: var(--pc-navy);
+      transition: transform .2s ease, background-color .15s ease, border-color .15s ease; }
+    .lp-acc-chev svg{ width: 16px; height: 16px; }
+    .lp-acc > summary:hover .lp-acc-chev{ background: var(--pc-light-blue);
+      border-color: var(--pc-light-blue); }
+    .lp-acc[open] > summary .lp-acc-chev{ transform: rotate(180deg); }
+    .lp-acc-body{ padding-top: var(--space-5); padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border); }
+    @media (prefers-reduced-motion: reduce){ .lp-acc-chev{ transition: none; } }
+
     /* ---- THE SHADED SECTION ------------------------------------------------------
        The page is one long white column and the sections are told apart only by their
        headings; this puts a shaded band behind one of them - Tracts - to break that up.
@@ -473,6 +562,41 @@
        bar, and doing that here would slide the band's top edge up underneath it. */
     .lp-wrap > .lp-section--tint{
       scroll-margin-top: calc(var(--navH) + var(--lp-jump-h) + var(--space-4)); }
+
+    /* ---- THE RIBBON: a full-bleed sliver of photography -------------------------
+       ONE IMAGE, EDGE TO EDGE, 100px TALL, between Downloads and Video (Kiron,
+       2026-09-29). The page is a long white column of headings and modules; this is a
+       band of the land itself part way down it, to break the column and remind a
+       visitor what they are reading about.
+
+       IT IS THE FIRST PHOTOGRAPH IN THE SET, the same file the contact sheet opens
+       with. On a real page that is whatever the listing's lead image is - one field,
+       no new asset to produce.
+
+       FULL BLEED BY THE SAME TRICK AS .lp-section--tint, but with only half of it:
+       the negative margins pull the edges out to the viewport and nothing pushes the
+       content back in, because the content here IS the image and it is meant to run
+       the whole width. --vw is the viewport without the scrollbar - see the tint band
+       for why 100vw alone gives the page a horizontal scrollbar on Windows.
+
+       100px IS A FIXED HEIGHT, not an aspect ratio: it is a sliver at every width, and
+       object-fit: cover crops a 1200x800 photograph to it. At 1376px of rail that is a
+       13.8:1 slot, so all that survives is a horizontal strip through the middle of the
+       frame - object-position: center is doing real work here, and a photograph whose
+       subject sits high or low in the frame will lose it. Choose the ribbon image for
+       what its middle band looks like, not for what the whole photograph looks like.
+
+       DECORATIVE. alt="" and aria-hidden: it is the ninth appearance of this
+       photograph on the page and carries nothing the Photos sheet does not, so it is
+       a rule made of picture rather than content a screen reader should stop on. */
+    .lp-ribbon{ display: block; height: 100px; overflow: hidden;
+      margin-top: var(--space-7);
+      margin-left: calc(50% - 50vw);  margin-right: calc(50% - 50vw);
+      margin-left: calc(50% - var(--vw, 100vw) / 2);
+      margin-right: calc(50% - var(--vw, 100vw) / 2);
+      background: var(--pc-navy); }
+    .lp-ribbon img{ display: block; width: 100%; height: 100%;
+      object-fit: cover; object-position: center; }
 
     /* ---- MAP ----
        ONE RECTANGULAR MAP, THE FULL WIDTH OF THE RAIL. Same module and the same shape as
@@ -952,13 +1076,13 @@
             <a href="#lp-brochure">Brochure</a>
             <a href="#lp-tracts">Tracts</a>
             <a href="#lp-map">Map</a>
+            <!-- LINKS NOW, LIKE THE REST (Kiron, 2026-09-23). Photos and Downloads had
+                 been buttons that opened a window over the page; both are sections on the
+                 page now, so neither needs to announce a dialog any more. -->
+            <a href="#lp-downloads">Downloads</a>
             <a href="#lp-video">Video</a>
             <a href="#lp-tour">360 Tour</a>
-            <!-- LINKS NOW, LIKE THE REST (Kiron, 2026-09-23). Both had been buttons that
-                 opened a window over the page; both are sections on the page now, so
-                 neither needs to announce a dialog any more. -->
             <a href="#lp-photos">Photos</a>
-            <a href="#lp-downloads">Downloads</a>
             <a href="#lp-contact">Contact</a>
             <a href="#lp-dataroom">Data Room</a>
           </div>
@@ -1119,6 +1243,30 @@
           target="_blank" rel="noopener">Open the map on FarmWorth</a>.</p></noscript>
       </section>
 
+      <!-- ==== DOWNLOADS ==== -->
+      <!-- ON THE PAGE NOW (Kiron, 2026-09-23), lifted out of the window it used to open
+           in - same list, same italic note, same markup the standard listing detail pages
+           carry under their Downloads accordion. Four short rows never needed a dialog,
+           a scroll lock and a focus trap to show four short rows. -->
+      <section id="lp-downloads" class="lp-section reveal" aria-labelledby="lp-downloads-h">
+        <h2 id="lp-downloads-h" class="lp-h2">Downloads</h2>
+        <ul class="ld-dl ld-dl-odd">
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Soils%20Map.pdf" target="_blank" rel="noopener"><span class="n">Soils Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Slope%20Map.pdf" target="_blank" rel="noopener"><span class="n">Slope Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Aspect%20Map.pdf" target="_blank" rel="noopener"><span class="n">Aspect Map</span><span class="m">PDF</span></a></li>
+          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Elevation%20Map.pdf" target="_blank" rel="noopener"><span class="n">Elevation Map</span><span class="m">PDF</span></a></li>
+        </ul>
+        <p class="ld-dl-note">Refer to the individual tract details for tract-specific
+          downloadable files.</p>
+      </section>
+
+      <!-- ==== THE RIBBON: full-bleed sliver, Downloads to Video ==== -->
+      <!-- Not a section and not a jump target - it is a rule made of photography. See
+           .lp-ribbon for the full-bleed maths and for why it is aria-hidden. -->
+      <div class="lp-ribbon" aria-hidden="true">
+        <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0696.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="" />
+      </div>
+
       <!-- ==== VIDEO ==== -->
       <!-- THREE ITEMS, ONE ROW. All three embeds are the same representative YouTube
            source: this listing has no video of its own in the mock-up data. A real page
@@ -1189,9 +1337,20 @@
            listings host to point at, so the grid downloads nine full-size images to show
            them at ~180px. That is a MOCKUP COMPROMISE, not a pattern to ship - a real
            page serves a small derivative here. loading="lazy" keeps it off the critical
-           path in the meantime. -->
-      <section id="lp-photos" class="lp-section reveal" aria-labelledby="lp-photos-h">
-        <h2 id="lp-photos-h" class="lp-h2">Photos</h2>
+           path in the meantime - and now that the sheet is folded away, the nine files
+           are not fetched at all until a visitor opens the panel.
+
+           AN ACCORDION, NOT AN OPEN BAND (Kiron, 2026-09-29). Nine large images is the
+           tallest thing on the page and the band most likely to be scrolled past on the
+           way to Contact; it is folded behind its own heading now and opens on a click.
+           The contact sheet inside it is unchanged, and so is the viewer - see .lp-acc
+           for the pattern and openOnJump for how the sub nav's Photos link opens it. -->
+      <details id="lp-photos" class="lp-acc reveal" aria-labelledby="lp-photos-h">
+        <summary>
+          <h2 id="lp-photos-h" class="lp-h2">Photos</h2>
+          <span class="lp-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </summary>
+        <div class="lp-acc-body">
         <ul class="lp-photogrid">
           <li><button type="button" class="lp-thumb" data-i="0">
             <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0696.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The vineyard blocks from the south" />
@@ -1221,25 +1380,8 @@
             <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/1200_19278_DJI_0923.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="The offering from the west, river beyond" />
           </button></li>
         </ul>
-      </section>
-
-      <!-- ==== DOWNLOADS ==== -->
-      <!-- ON THE PAGE NOW (Kiron, 2026-09-23), lifted out of the window it used to open
-           in - same list, same italic note, same markup the standard listing detail pages
-           carry under their Downloads accordion. Four short rows never needed a dialog,
-           a scroll lock and a focus trap to show four short rows. -->
-      <section id="lp-downloads" class="lp-section reveal" aria-labelledby="lp-downloads-h">
-        <h2 id="lp-downloads-h" class="lp-h2">Downloads</h2>
-        <ul class="ld-dl ld-dl-odd">
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Soils%20Map.pdf" target="_blank" rel="noopener"><span class="n">Soils Map</span><span class="m">PDF</span></a></li>
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Slope%20Map.pdf" target="_blank" rel="noopener"><span class="n">Slope Map</span><span class="m">PDF</span></a></li>
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Aspect%20Map.pdf" target="_blank" rel="noopener"><span class="n">Aspect Map</span><span class="m">PDF</span></a></li>
-          <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Elevation%20Map.pdf" target="_blank" rel="noopener"><span class="n">Elevation Map</span><span class="m">PDF</span></a></li>
-        </ul>
-        <p class="ld-dl-note">Refer to the individual tract details for tract-specific
-          downloadable files.</p>
-      </section>
-
+        </div>
+      </details>
 
       <!-- ==== CONTACT: THE LISTING'S AGENTS ==== -->
       <!-- THREE CARDS HERE, BUT NOTHING IS BUILT FOR THREE. A premium listing carries two or
@@ -1757,6 +1899,44 @@
       if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
     })();
 
+    /* ---- openOnJump: A SUB-NAV CLICK OPENS WHAT IT LANDS ON ----
+       Photos is a <details> and is closed by default, so its jump link would otherwise
+       scroll to a shut panel. This opens every <details> between the target and <body>
+       before the browser scrolls, which covers a nested accordion too if one is ever
+       added. Ported unchanged from the standard listing detail pages, .ld-jump swapped
+       for .lp-jump - the two pages should behave identically here. */
+    (function(){
+      var jump = document.querySelector(".lp-jump");
+
+      function openTo(hash){
+        if(!hash || hash.charAt(0) !== "#" || hash.length < 2) return null;
+        var el;
+        try{ el = document.querySelector(hash); }catch(e){ return null; }
+        if(!el) return null;
+        for(var node = el; node && node !== document.body; node = node.parentElement){
+          if(node.tagName === "DETAILS" && !node.open) node.open = true;
+        }
+        return el;
+      }
+
+      if(jump){
+        jump.addEventListener("click", function(e){
+          /* closest() from e.target, not a listener per link: e.target is usually the <svg> or
+             a <path> inside the link, and Element.closest walks out of SVG content correctly. */
+          var a = e.target.closest && e.target.closest('a[href^="#"]');
+          if(a && jump.contains(a)) openTo(a.getAttribute("href"));
+        });
+      }
+
+      /* A deep link straight to #lp-photos lands before the scroll has happened, so the
+         panel is opened and the element re-scrolled to on the next frame. */
+      if(location.hash){
+        var landed = openTo(location.hash);
+        if(landed) requestAnimationFrame(function(){ landed.scrollIntoView(); });
+      }
+      window.addEventListener("hashchange", function(){ openTo(location.hash); });
+    })();
+
     // Search: magnifier toggles a text field + submit icon below it
     (function(){
       var toggle = document.getElementById("searchToggle");
@@ -2089,13 +2269,65 @@
       if(!("IntersectionObserver" in window) || !("content" in tpl)) return;
 
       var LIB = "https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js";
-      var SPREAD_AT = 1200;                        // rail px needed for two pages
-      var total = tpl.content.querySelectorAll(".lp-broch-page").length;
+      var MIN_PAGE = 600;                          // px a single leaf needs in a spread
+      var MAX_H    = 760;                          // px the stage may stand, any shape
+      var pages = tpl.content.querySelectorAll(".lp-broch-page");
+      var total = pages.length;
       var mq = window.matchMedia("(min-width: 768px)");
-      var flip = null, io = null, libP = null, builtSpread = null;
+      var flip = null, io = null, libP = null, builtSpread = null, seqReal = null;
 
-      /* The stage's own width is 0 while it is hidden, so measure the box it sits in. */
-      function wantsSpread(){ return stage.parentNode.clientWidth >= SPREAD_AT; }
+      /* ---- THE PAGE SHAPE IS MEASURED, NOT ASSUMED ----
+         Every image in the template already carries real width and height attributes,
+         so the brochure's trim is on the page and nothing has to be configured per
+         listing. naturalWidth is NOT used: the attributes are readable before a byte
+         of image has arrived, and the template's images are never fetched at all until
+         it is cloned. Falls back to this brochure's own 1496x1156 if a page is ever
+         written without them - wrong for a portrait brochure, but it keeps the reader
+         from collapsing to a zero-height box. */
+      var PAGE_W = 1496, PAGE_H = 1156;
+      (function(){
+        var img = pages.length ? pages[0].querySelector("img") : null;
+        var w = img && parseInt(img.getAttribute("width"), 10);
+        var h = img && parseInt(img.getAttribute("height"), 10);
+        if(w > 0 && h > 0){ PAGE_W = w; PAGE_H = h; }
+      })();
+
+      /* The stage's own width is 0 while it is hidden, so measure the box it sits in.
+         THE THRESHOLD IS WRITTEN PER PAGE NOW. It was a flat SPREAD_AT = 1200, which
+         is the same number by a different route; MIN_PAGE says what that 1200 was
+         ever about - how narrow a single leaf may get before one big page beats two
+         small ones - so the one to tune is the leaf, not the rail.
+         IT IS DELIBERATELY NOT SHAPE-DEPENDENT. A 600px leaf is a readable page
+         whether it is portrait, landscape or square; what changes with the shape is
+         how TALL the spread then stands, and that is the cap's job, not this one. */
+      function wantsSpread(){ return stage.parentNode.clientWidth >= MIN_PAGE * 2; }
+
+      /* ---- THE PAIRING: cover|2, 2|3, 4|5 ... 14|15, 15|16 ----
+         Returns the real page numbers in the order StPageFlip should hold them, with
+         showCover off so it simply pairs them two at a time. The two repeats are what
+         fill the stage at both ends - see the long note in the CSS for why.
+
+         The opening is fixed - 1,2 then 2,3 - and the close is fixed - n-1,n. Between
+         them the run steps in twos from page 4. Written out for n = 16:
+
+             1,2   2,3   4,5   6,7   8,9   10,11   12,13   14,15   15,16
+
+         Every page appears, 2 and 15 appear twice, and the list is even so no spread
+         is left half empty. An odd page count works the same way and stays even here,
+         because the two repeats add two.
+
+         SHORT BROCHURES FALL BACK. Under six pages the opening and the close overlap
+         and the sequence would repeat a whole spread, so those just pair straight
+         through. A six-page brochure is already the smallest thing anyone would put in
+         a flip reader. */
+      function buildSequence(n){
+        var out = [], i;
+        if(n < 6){ for(i = 1; i <= n; i++) out.push(i); return out; }
+        out.push(1, 2, 2, 3);
+        for(i = 4; i <= n - 2; i += 2) out.push(i, i + 1);
+        out.push(n - 1, n);
+        return out;
+      }
 
       function loadLib(){
         if(libP) return libP;
@@ -2110,42 +2342,92 @@
 
       /* The counter is the only running commentary a keyboard user gets, so it is
          aria-live. It names the SPREAD, not the leaf - "Pages 4-5 of 16" is what is on
-         screen, and saying "Page 4" while page 5 is open beside it is just wrong. The
-         cover and the back page are alone, so they stay singular.
+         screen, and saying "Page 4" while page 5 is open beside it is just wrong.
+
+         IT COUNTS REAL PAGES, NOT SLOTS. In a spread the reader holds a sequence with
+         two repeats in it, so slot 4 holds page 3 and the last slot holds page 16;
+         seqReal maps one to the other. Without it the counter would say "of 18" on a
+         sixteen page brochure and drift by one from the cover onwards.
+
+         THE OPENING SPREAD READS "Pages 1-2", not "Page 1". The cover is on screen
+         beside page 2 and the counter says what is on screen - that is the point of
+         the pairing. The two repeated spreads read "Pages 2-3" and "Pages 15-16" for
+         the same reason: the counter reports the view, it does not try to explain the
+         sequence.
+
          The buttons disable at the ends rather than wrapping: this is a brochure, and
-         page 16 does not lead back to page 1. */
+         page 16 does not lead back to page 1. --landscape is StPageFlip's own class
+         for two-up, so a narrow rail that fell back to one page at a time still gets a
+         singular count without a second flag to keep in step. */
       function sync(){
         if(!flip) return;
         var i = flip.getCurrentPageIndex();
+        var last = seqReal.length - 1;
         var wrap = stage.querySelector(".stf__wrapper");
         var landscape = !!wrap && wrap.className.indexOf("--landscape") !== -1;
-        var pair = landscape && i > 0 && i + 1 < total;
-        count.textContent = pair
-          ? "Pages " + (i + 1) + "\u2013" + (i + 2) + " of " + total
-          : "Page " + (i + 1) + " of " + total;
+        var lo = seqReal[i], hi = (landscape && i + 1 <= last) ? seqReal[i + 1] : lo;
+        count.textContent = (hi > lo)
+          ? "Pages " + lo + "\u2013" + hi + " of " + total
+          : "Page " + lo + " of " + total;
         prev.disabled = i <= 0;
-        next.disabled = i >= total - 1;
+        next.disabled = i >= last;
       }
 
       function build(){
         if(flip) return;
         var spread = wantsSpread();
         builtSpread = spread;
-        stage.style.aspectRatio = spread ? "1584 / 612" : "792 / 612";
+
+        /* THE STAGE IS SHAPED BEFORE ANYTHING IS PUT IN IT. across is how many pages
+           stand side by side, so the box is that many page-widths wide and one page
+           tall, whatever shape the pages are.
+           THE CAP IS A WIDTH, NOT A HEIGHT, because the ratio has to stay free for the
+           box to be fluid: max-width is simply the width at which a stage of this
+           ratio stands MAX_H tall. A landscape spread reaches MAX_H at about 1966px,
+           well past any rail here, so it is never narrowed; a portrait spread reaches
+           it at about 1175px and is centered in what is left. */
+        var across = spread ? 2 : 1;
+        stage.style.aspectRatio = (PAGE_W * across) + " / " + PAGE_H;
+        stage.style.maxWidth = Math.round(MAX_H * (PAGE_W / PAGE_H) * across) + "px";
+
         stage.hidden = false;                      // before construction - see above
         stage.appendChild(tpl.content.cloneNode(true));
+
+        /* ---- LAY THE PAGES OUT IN SEQUENCE ----
+           In a spread the reader holds the paired sequence, repeats and all; on one
+           page at a time it holds the pages in plain order, because there is no empty
+           half to fill and a repeat would just look like a stuck button. Either way
+           seqReal is what the counter reads.
+           THE REPEATS COST NOTHING TO FETCH. A duplicated <img> points at a src the
+           browser already has, so page 2 appearing twice is one request, not two. */
+        seqReal = spread ? buildSequence(total) : (function(){
+          var r = [], i; for(i = 1; i <= total; i++) r.push(i); return r;
+        })();
+        var src = stage.querySelectorAll(".lp-broch-page");
+        var frag = document.createDocumentFragment();
+        for(var k = 0; k < seqReal.length; k++){
+          frag.appendChild(src[seqReal[k] - 1].cloneNode(true));
+        }
+        stage.innerHTML = "";
+        stage.appendChild(frag);
+
         loadLib().then(function(){
           if(!mq.matches){ stage.hidden = true; stage.innerHTML = ""; return; }
           var slow = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
           flip = new St.PageFlip(stage, {
-            /* width/height are the PDF's trim and set the RATIO of one page, not the
-               rendered size - size:"stretch" takes the real width from the container.
-               They must stay in step with the aspect-ratios above. */
-            width: 792, height: 612, size: "stretch",
+            /* width/height set the RATIO of one page, not the rendered size -
+               size:"stretch" takes the real width from the container. They are the
+               measured page shape, the same two numbers the stage's aspect-ratio is
+               built from, so the two can never disagree. */
+            width: PAGE_W, height: PAGE_H, size: "stretch",
             minWidth: spread ? 400 : 600,          // see the note above - this picks the mode
-            maxWidth: 1000, minHeight: 300, maxHeight: 900,
+            maxWidth: 2000, minHeight: 300, maxHeight: 1400,
             usePortrait: true,
-            showCover: true,                       // page 1 alone, then 2-3, 4-5, ...
+            /* SHOWCOVER IS OFF, AND THE SEQUENCE DOES THE WORK INSTEAD. With it on,
+               StPageFlip puts page 1 alone on the right of a two-page stage and leaves
+               the other half blank; the paired sequence above gives the cover a
+               neighbor and keeps the book's rhythm. See the CSS note. */
+            showCover: false,
             drawShadow: true, maxShadowOpacity: .4,
             flippingTime: slow ? 0 : 700,
             useMouseEvents: true,
@@ -2169,7 +2451,8 @@
         if(flip){ flip.destroy(); flip = null; }
         builtSpread = null;
         stage.innerHTML = ""; stage.hidden = true; ctrls.hidden = true;
-        stage.style.aspectRatio = "";
+        stage.style.aspectRatio = ""; stage.style.maxWidth = "";
+        seqReal = null;
       }
 
       prev.addEventListener("click", function(){ if(flip) flip.flipPrev(); });
