@@ -7,10 +7,10 @@
    fully designed; the data is fake. Thumbnails are Unsplash stand-ins for PC's
    own property photography.
 
-   Status colours are a DELIBERATE, SCOPED exception to the site's no-red /
+   Status colors are a DELIBERATE, SCOPED exception to the site's no-red /
    no-red-green rule — Kiron's explicit call (2026-06-09) for THIS module only,
    to match the existing FarmWorth legend. Every status is ALSO labelled in
-   text, so meaning is never conveyed by colour alone.
+   text, so meaning is never conveyed by color alone.
 
    Pin positions (x/y) are percentages over the map surface.
    ────────────────────────────────────────────────────────────────────────── */
