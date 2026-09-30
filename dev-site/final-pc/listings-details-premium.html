@@ -538,10 +538,10 @@
       font-family: var(--font-sans); font-size: 15px; line-height: 1.35;
       padding: 10px var(--space-3); border: 0; background: transparent;
       border-radius: var(--radius-sm); color: var(--color-text-muted); }
-    /* 900-1279: ONE LINE PER TRACT (Kiron, 2026-09-30). The column is 166px at 1024 and
+    /* 768-1279: ONE LINE PER TRACT (Kiron, 2026-09-30). The column is 166px at 1024 and
        "Tract 10: 68.45 ± Acres" needs 168 at 15px. 13px needs 145.6, so the side
        padding also comes in 12 -> 8 to give it 150. */
-    @media (min-width: 900px) and (max-width: 1279px){
+    @media (min-width: 768px) and (max-width: 1279px){
       .lp-tlink{ font-size: 13px; padding-left: var(--space-2); padding-right: var(--space-2); }
     }
     /* 900-1023: four columns. Five would be 142px at 900, which needs an 11px label.
@@ -549,7 +549,13 @@
        at 1024. */
     @media (min-width: 900px) and (max-width: 1023px){
       .lp-tlist{ columns: 4; }
+    }
+    @media (min-width: 768px) and (max-width: 1023px){
       .lp-tlink{ padding-top: 6px; padding-bottom: 6px; }
+    }
+    /* 768-899: three columns. Four would be 158px at 768, short of the 162 a label needs. */
+    @media (min-width: 768px) and (max-width: 899px){
+      .lp-tlist{ columns: 3; }
     }
     /* THE LISTING'S COLOR, NOT THE SITE'S BLUE (Kiron, 2026-09-21). These four rules
        used PC Navy for the resting label, PC Soft White for the hover ground and PC
@@ -1034,6 +1040,11 @@
     .lp-agents:has(> .ld-agentcard:only-child){
       grid-template-columns: repeat(auto-fill,
         minmax(max(320px, calc((100% - var(--space-5)) / 2)), 1fr)); }
+    /* 899 and down: one column, whatever the count (Kiron, 2026-09-30). */
+    @media (max-width: 899px){
+      .lp-agents,
+      .lp-agents:has(> .ld-agentcard:only-child){ grid-template-columns: minmax(0, 1fr); }
+    }
 
     /* THE CARD WEARS THE LISTING'S COLOR AS A BORDER, NOT AS A GROUND.
        The standard pages' card is a soft-white panel with a 1px hairline; here the panel
@@ -1186,6 +1197,19 @@
         grid-template-rows: 1fr auto auto; row-gap: var(--space-6); }
       .lp-hero-logo{ grid-column: 1; grid-row: 2; justify-self: start; }
       .lp-hero-head{ grid-column: 1; grid-row: 3; }
+    }
+    /* 768-899: the 900 layout carries down - logo in the top right corner, heading
+       across the rail at --lp-h1-top (Kiron, 2026-09-30). */
+    @media (min-width: 768px) and (max-width: 899px){
+      .lp-hero-in{ display: block; padding: 0 var(--rail); }
+      .lp-hero-head{ position: absolute; top: var(--lp-h1-top);
+        left: var(--rail); right: var(--rail); }
+      .lp-hero-logo{ position: absolute; top: var(--space-7); right: var(--rail); }
+      /* THE SUB NAV'S TWO ROWS SIT CLOSER (Kiron, 2026-09-30). The links' 15px top and
+         bottom come in to 8 and the row gap goes, with the bar's own 7px top and bottom
+         holding the outer air: 122 -> 100 tall on two rows, still 57 on one. */
+      .lp-jump-inner{ row-gap: 0; padding: 7px 0; }
+      .lp-jump a, .lp-jump button{ padding-top: 8px; padding-bottom: 8px; }
     }
     @media (max-width: 639px){
       :root{ --lp-hero-h: 520px; }
