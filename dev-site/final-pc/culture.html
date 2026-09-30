@@ -564,6 +564,25 @@
        16:9 frame is about 445px tall - enough to be worth playing without becoming the
        largest thing on the page. */
     .cu-hatvideo{ margin-top: var(--space-6); }
+    /* 1024-1279: THE PHOTOGRAPH MATCHES THE TEXT, THE FILM GOES FULL WIDTH (Kiron).
+       Beside a 376px copy column the film was 376 x 212 - too small to watch. It
+       now takes a row of its own under both columns, 960 x 540.
+       HOW: the copy column's wrapper goes display: contents, so its three children -
+       the prose, the closing line and the film - become grid items in their own
+       right. The photograph spans rows 1-2 (prose + closing line) and so is exactly
+       the text's height; the film spans both columns on row 3. Row gap is 0 because
+       the closing line and the film already carry their own top margins.
+       ONE COST: .reveal is on that wrapper, and a display: contents box has no box
+       to fade, so the copy and the film appear without the fade-in at this rung.
+       They are visible, not stuck hidden - opacity is not inherited. */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .cu-hat{ grid-template-rows: auto auto auto; row-gap: 0; }
+      .cu-hat > div{ display: contents; }
+      .cu-hat .cu-fig{ grid-column: 1; grid-row: 1 / 3; }
+      .cu-hat .cu-prose{ grid-column: 2; grid-row: 1; }
+      .cu-hatline{ grid-column: 2; grid-row: 2; }
+      .cu-hatvideo{ grid-column: 1 / -1; grid-row: 3; }
+    }
 
     /* ---- 6 - AWARDS & RECOGNITIONS ----------------------------------------------
        SIX recognitions on a 3-up grid: two full rows, no gap at the end.
