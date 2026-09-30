@@ -45,12 +45,12 @@
        Scaffolding for this page only. Nothing here is a component; do not port a
        cu- class into pc.css or the build.
 
-       DESKTOP ONLY AT THIS STAGE. There is deliberately no responsive ladder in
-       this file - the design is being settled at 1536 first, and the breakpoints
-       are a separate pass once it is signed off. Every fixed column width below
-       (850px, 620px, 460px) and every 3/4-up grid is therefore a desktop figure
-       with no fallback under it. DO NOT BUILD FROM THIS FILE UNTIL THE LADDER IS
-       ADDED - it will collapse below roughly 1200px.
+       THE RESPONSIVE LADDER IS BEING ADDED ONE RUNG AT A TIME, top down, from the
+       signed-off 1536 layout. Each rung's rules sit beside the band they change,
+       not in one block at the end. Rungs done: 1280-1535 (in progress). Below
+       that, every fixed column width (850px, 520px) and every 3-up grid is still a
+       desktop figure with no fallback under it. DO NOT BUILD FROM THIS FILE UNTIL
+       THE LADDER IS COMPLETE - it will collapse below roughly 1200px.
 
        BAND RHYTHM, top to bottom:
          1 intro        white
@@ -354,6 +354,20 @@
       line-height: 1.3; color: var(--pc-navy); }
     .cu-legacyph span{ font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
       font-weight: 600; color: var(--pc-medium-blue); }
+    /* 1280-1535. THE PICTURE HOLDS ITS 1536 SHAPE AND THE PROSE GIVES (Kiron). The
+       content box drops to 1216, and in the 1536 construction the fixed 850px column
+       would take all of the loss out of the picture (462 -> 302 wide, a tall strip).
+       Here it is the other way round: the figure keeps its 1536 size, 462 x 632, and
+       the prose takes the remainder (690px). The narrower prose runs taller than the
+       picture and carries on past its foot - intended.
+       HOW: the figure stops stretching to the row (align-items: start) and takes its
+       own height from aspect-ratio, so it no longer depends on the copy. The ratio is
+       the 1536 slot's own, 462 / 632 - not 3:4 - so the picture is the same shape at
+       both rungs. */
+    @media (min-width: 1280px) and (max-width: 1535px){
+      .cu-legacybody{ grid-template-columns: 462px minmax(0, 1fr); align-items: start; }
+      .cu-legacyfigcol{ aspect-ratio: 462 / 632; }
+    }
 
     /* ---- 4 - RIDE FOR THE BRAND -------------------------------------------------
        THE PHRASE IS THE SECTION HEADING, not a pull quote. It used to be a 56px <p>
