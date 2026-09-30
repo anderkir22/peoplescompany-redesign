@@ -263,9 +263,10 @@
     .cu-livingtext .cu-prose p{ font-family: var(--font-serif); font-size: 24px;
       font-style: italic; line-height: 1.3; font-weight: 500;
       letter-spacing: -0.005em;
-      /* WHITE, because the panel behind it is PC Black - 18.1:1. This is the ONLY
-         place the statement's color is set; there is no override further down. */
-      color: var(--pc-white);
+      /* COLOR IS SET PER VARIATION while the four are being compared, in the review
+         block further down - white on the two dark fills, PC Black on the two light
+         ones. When one wins, put its color back HERE and delete the overrides, so
+         there is again exactly one place the statement's color is set. */
       text-align: center;
       /* ONE PARAGRAPH. The statement was two paragraphs and is now a single one: the
          two sentences are one thought said in the page's own voice, and any gap at all
@@ -310,9 +311,10 @@
          line wraps and the fit is gone. A two-sentence aside is allowed to sit in a
          wide frame. */
       padding: var(--space-5) var(--space-6);
-      /* THE FILL IS PC BLACK, THE TYPE WHITE, THE HAIRLINE PC LIGHT BLUE (Kiron,
-         2026-09-29). This panel has now been three things: PC Soft White inside a
-         Medium Blue hairline, PC Blue with black type and no border, and this.
+      /* THE FILL IS PC MEDIUM BLUE, THE TYPE WHITE, THE HAIRLINE PC LIGHT BLUE
+         (Kiron, 2026-09-30). This panel has now been four things: PC Soft White
+         inside a Medium Blue hairline, PC Blue with black type and no border, PC
+         Black with white type, and this.
 
          IT IS A DARK PANEL, which the Soft White version's note argued against - a
          fourth dark moment in the opening third of the page, competing with Ride for
@@ -320,26 +322,120 @@
          deliberately: the aside is the one thing in this band, and a dark slab is what
          makes it read as a held breath rather than as a paragraph in a box.
 
-         THE NUMBERS ARE NOT THE PROBLEM HERE, unlike the two versions before it.
-         White on PC Black is 18.1:1 and the Light Blue hairline on it 15.2:1, both
-         far past AAA. The panel against the page's white is 18.1:1 too, so unlike the
-         PC Blue version the FILL draws its own edge with room to spare.
+         THE NUMBERS STILL HOLD, with less headroom than PC Black had. White on PC
+         Medium Blue is 5.4:1 - AA at any size, and past AAA for LARGE text, which
+         this is: 24px roman counts as large. The panel against the page's white is
+         5.4:1, which is what draws the panel's edge now that the hairline is gone.
+         WHAT THAT COSTS: the statement's SIZE is now load-bearing. At 18.1:1 the
+         type size was free; at 5.4:1, dropping below 24px pulls the white off AAA
+         large and leaves it on the AA floor. If the type ever comes down, the fill
+         has to go darker with it.
 
-         WHICH MAKES THE HAIRLINE DECORATION, NOT STRUCTURE. The Soft White panel
-         needed a line because its fill was 0.96:1 against the page and had no edge of
-         its own; nothing like that is true here. The Light Blue line is kept because
-         it was asked for and because it picks up the Legacy band's fill below without
-         previewing it at panel scale - but it is carrying no load, and removing it
-         costs the panel nothing. That is the opposite of the situation the original
-         hairline was solving, and worth knowing before anyone defends it on the old
-         grounds.
+         THE HAIRLINE IS PC BLACK (Kiron, 2026-09-30). It has now been three colors:
+         PC Light Blue, then the fill color itself (no visible line), then this.
+         PC Black on PC Medium Blue is 3.4:1 - a clear line without the glare the
+         Light Blue one had, and it is the darkest value in the palette so the panel
+         reads as sitting ON the page rather than floating in it.
+         IT IS STILL DECORATION, NOT STRUCTURE. The fill is 5.4:1 against the page's
+         white and draws its own edge; the line is there because it was asked for.
+         Contrast minimums do not apply to it either way - WCAG 1.4.11 covers
+         boundaries that CONVEY something, and nothing here depends on seeing it.
 
          THE TYPE REVERSES OUT, and does so in the main paragraph rule below rather
          than in an override here, so there is exactly one place the statement's color
          is set. */
-      background: var(--pc-black);
-      border: 1px solid var(--pc-light-blue);
+      /* FILL AND BORDER ARE ON THE --vN MODIFIERS while the four variations are
+         being compared - see the review block below and the markup. The 1px is
+         declared on every variation, even where it matches the fill, so the panels
+         all keep the same box geometry and can be judged side by side. */
       border-radius: var(--radius-md); }
+
+    /* ================= REVIEW: THE EIGHT STATEMENT VARIATIONS =================
+       TEMPORARY. One of these wins, the other seven and this whole block go, and the
+       winner's declarations fold back into .cu-livingtext above.
+       1-4 are Kiron's specified set; 5-8 are the "Others" group, the first round's
+       treatments kept for comparison.
+       The 1px border is declared on EVERY variation, even where it matches the fill,
+       so all eight keep the same box geometry and are judged on treatment alone.
+       .cu-vtag and .cu-vhead are review chrome, NOT part of the design. */
+    .cu-vblock + .cu-vblock{ margin-top: var(--space-7); }
+    .cu-vtag{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+              letter-spacing: .08em; text-transform: uppercase;
+              color: var(--pc-medium-blue); margin-bottom: var(--space-3); }
+    .cu-vhead{ font-family: var(--font-sans); font-size: 14px; font-weight: 700;
+               letter-spacing: .12em; text-transform: uppercase; color: var(--pc-black);
+               margin: var(--space-8) 0 var(--space-5);
+               padding-top: var(--space-5); border-top: 1px solid var(--pc-medium-blue); }
+
+    /* ---- 1-4: the specified set ---- */
+
+    /* 1 - PC Medium Blue fill, border MATCHES the fill, so there is no visible line.
+         White type on the fill is 5.4:1: AA at any size, AAA for large, and 24px
+         counts as large. The fill is 5.4:1 against the page's white, which is what
+         draws the panel's edge. */
+    .cu-livingtext--v1{ background: var(--pc-medium-blue);
+                        border: 1px solid var(--pc-medium-blue); }
+    .cu-livingtext--v1 .cu-prose p{ color: var(--pc-white); }
+
+    /* 2 - PC Medium Blue fill, PC Black border. The line reads at 3.4:1 on the fill.
+         This is what was live before the comparison. */
+    .cu-livingtext--v2{ background: var(--pc-medium-blue);
+                        border: 1px solid var(--pc-black); }
+    .cu-livingtext--v2 .cu-prose p{ color: var(--pc-white); }
+
+    /* 3 - PC Navy fill, border MATCHES the fill: no visible line. White type on navy
+         is 10.7:1, and navy is 10.7:1 against the page's white. Darker and more
+         saturated than 1 without going to PC Black. */
+    .cu-livingtext--v3{ background: var(--pc-navy);
+                        border: 1px solid var(--pc-navy); }
+    .cu-livingtext--v3 .cu-prose p{ color: var(--pc-white); }
+
+    /* 4 - PC Navy fill, PC Light Blue border. The hairline is 9.2:1 on the fill, the
+         brightest edge of the eight, and it picks up the Legacy band's fill below. */
+    .cu-livingtext--v4{ background: var(--pc-navy);
+                        border: 1px solid var(--pc-light-blue); }
+    .cu-livingtext--v4 .cu-prose p{ color: var(--pc-white); }
+
+    /* ---- 5-8: Others, from the first round ---- */
+
+    /* 5 - PC Soft White fill, PC Medium Blue hairline, PC Black type. The panel's
+         ORIGINAL state, and the only light-neutral one of the eight.
+         PC BLACK IS OFF THE TABLE FOR THIS PANEL (Kiron, 2026-09-30). 5 used to be a
+         PC Black fill, which cannot work here: .md-tab is also PC Black and its
+         .md-tabwrap is sticky at top:var(--navH), z-index 39, so the tab rides over
+         the page and a black panel scrolling under it merges with no edge.
+         HERE THE HAIRLINE IS STRUCTURE, NOT DECORATION - the only one of the eight
+         where that is true. PC Soft White is 1.05:1 against the page's white, so the
+         fill cannot draw its own edge and the line is the whole boundary. Remove it
+         and the panel disappears. PC Black type on the fill is 17.3:1. */
+    .cu-livingtext--v5{ background: var(--pc-soft-white);
+                        border: 1px solid var(--pc-medium-blue); }
+    .cu-livingtext--v5 .cu-prose p{ color: var(--pc-black); }
+
+    /* 6 - No fill, a 3px PC Medium Blue rule down the left edge, PC Black type. The
+         only one of the eight that is not a filled box: it runs on the band's white
+         and is marked rather than boxed. PC Black on white 16.9:1. The 1px
+         transparent border keeps its geometry level with the rest. */
+    .cu-livingtext--v6{ background: transparent;
+                        border: 1px solid transparent;
+                        border-left: 3px solid var(--pc-medium-blue);
+                        border-radius: 0; }
+    .cu-livingtext--v6 .cu-prose p{ color: var(--pc-black); }
+
+    /* 7 - PC Light Blue fill, PC Black type, border matches fill. The lightest of the
+         eight: PC Black on the fill is 14.6:1, but the fill is only 1.3:1 against the
+         page, so the edge is faint by design - a tint, not a slab. */
+    .cu-livingtext--v7{ background: var(--pc-light-blue);
+                        border: 1px solid var(--pc-light-blue); }
+    .cu-livingtext--v7 .cu-prose p{ color: var(--pc-black); }
+
+    /* 8 - PC Blue fill, PC Black type, border matches fill. An earlier state of this
+         panel. PC Black on PC Blue is 7.2:1. The most saturated of the eight, and the
+         only one where the fill is the bright accent rather than a structural blue. */
+    .cu-livingtext--v8{ background: var(--pc-blue);
+                        border: 1px solid var(--pc-blue); }
+    .cu-livingtext--v8 .cu-prose p{ color: var(--pc-black); }
+    /* ======================= END REVIEW BLOCK ============================= */
 
     /* ---- 3 - FORGING A LEGACY ---------------------------------------------------
        The one long read on the page. The heading is parked in a narrow left column and
@@ -1044,10 +1140,84 @@
     <section class="cu-band cu-band--statement" aria-labelledby="cu-living-h">
       <div class="cu-wrap">
         <div class="cu-living">
-          <div class="cu-livingtext reveal">
-            <h2 class="cu-h2 sr-only" id="cu-living-h">Living Our Culture</h2>
-            <div class="cu-prose">
-              <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+          <!-- REVIEW STATE: four numbered variations of the statement panel, stacked
+               for comparison. The copy and the markup are identical in all four; only
+               the .cu-livingtext--vN modifier differs, so nothing but the panel
+               treatment is being compared.
+               TO SHIP: keep the chosen one, delete the other three blocks, drop its
+               --vN class and the .cu-vtag label, and fold the winning declarations
+               back into .cu-livingtext. The numbering is stable - 1 is the version
+               that was live before this comparison. -->
+          <h2 class="cu-h2 sr-only" id="cu-living-h">Living Our Culture</h2>
+
+          <div class="cu-vblock">
+            <p class="cu-vtag">1 &middot; PC Medium Blue fill &middot; PC Medium Blue border</p>
+            <div class="cu-livingtext cu-livingtext--v1 reveal">
+              <div class="cu-prose">
+                <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              </div>
+            </div>
+          </div>
+          <div class="cu-vblock">
+            <p class="cu-vtag">2 &middot; PC Medium Blue fill &middot; PC Black border</p>
+            <div class="cu-livingtext cu-livingtext--v2 reveal">
+              <div class="cu-prose">
+                <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              </div>
+            </div>
+          </div>
+          <div class="cu-vblock">
+            <p class="cu-vtag">3 &middot; PC Navy fill &middot; PC Navy border</p>
+            <div class="cu-livingtext cu-livingtext--v3 reveal">
+              <div class="cu-prose">
+                <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              </div>
+            </div>
+          </div>
+          <div class="cu-vblock">
+            <p class="cu-vtag">4 &middot; PC Navy fill &middot; PC Light Blue border</p>
+            <div class="cu-livingtext cu-livingtext--v4 reveal">
+              <div class="cu-prose">
+                <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- OTHERS: the four treatments built for the first round, kept for
+               comparison. 8 is an earlier state of this panel (PC Blue with black
+               type, no border), used here so no two of the eight are the same box -
+               the obvious fourth, PC Medium Blue with a PC Black border, is 2. -->
+          <p class="cu-vhead">Others</p>
+          <div class="cu-vblock">
+            <p class="cu-vtag">5 &middot; PC Soft White fill &middot; PC Medium Blue border</p>
+            <div class="cu-livingtext cu-livingtext--v5 reveal">
+              <div class="cu-prose">
+                <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              </div>
+            </div>
+          </div>
+          <div class="cu-vblock">
+            <p class="cu-vtag">6 &middot; No fill &middot; PC Medium Blue left rule</p>
+            <div class="cu-livingtext cu-livingtext--v6 reveal">
+              <div class="cu-prose">
+                <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              </div>
+            </div>
+          </div>
+          <div class="cu-vblock">
+            <p class="cu-vtag">7 &middot; PC Light Blue fill &middot; PC Black type</p>
+            <div class="cu-livingtext cu-livingtext--v7 reveal">
+              <div class="cu-prose">
+                <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              </div>
+            </div>
+          </div>
+          <div class="cu-vblock">
+            <p class="cu-vtag">8 &middot; PC Blue fill &middot; PC Black type &middot; no border</p>
+            <div class="cu-livingtext cu-livingtext--v8 reveal">
+              <div class="cu-prose">
+                <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
+              </div>
             </div>
           </div>
         </div>
