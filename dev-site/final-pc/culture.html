@@ -231,21 +231,29 @@
     @media (min-width: 768px) and (max-width: 899px){
       .cu-headsplit .cu-figcol{ width: 227px; }
     }
-    /* 640-767: THE FLOAT GIVES WAY TO A STACK - copy first, then the photograph at
-       the full content width (Kiron). Text-then-picture is the order every band on
-       the page takes once it stacks (the hat, the trip). The figure is first in the
-       markup, so flex `order` puts it second; it is decorative, so reading order is
-       unaffected.
+    /* 640-767: THE PHOTOGRAPH MOVES BELOW THE STATEMENT (Kiron). Order down the top
+       of the page: h1, intro copy, the italic statement, then the photograph at full
+       content width - text first, picture after, as every stacked band on the page
+       takes it.
+       The statement is a DIFFERENT SECTION (band 2), and CSS order cannot move an
+       element out of its section, so the photograph is in the markup TWICE: here in
+       the intro, and again as .cu-livingfig after the statement. This rung hides the
+       intro copy and shows the band 2 one; every other rung does the reverse. Both
+       are decorative (alt="", aria-hidden), so nothing is announced twice, and a
+       display:none lazy image is never fetched, so the page still loads it once.
+       FOR THE BUILD: one CMS image field rendered into both slots.
        3:2 LANDSCAPE: the float's 302 / 356 shape at full width would stand over
-       800px tall. 3:2 keeps it a picture rather than a slab. The source is 500px
-       square, so at 703 wide it is being upscaled about 1.4x - it wants a
-       larger source before launch. */
+       800px tall. The source is 500px square, so at 703 wide it is upscaled about
+       1.4x - it wants a larger source before launch. */
+    .cu-livingfig{ display: none; }
     @media (min-width: 640px) and (max-width: 767px){
-      /* gap, not a margin: the grid's own 64px gap carries into the flex column,
-         so the 32px is set there rather than added on top of it. */
-      .cu-headsplit{ display: flex; flex-direction: column; gap: var(--space-6); }
-      .cu-headsplit .cu-prose{ order: 1; }
-      .cu-headsplit .cu-figcol{ order: 2; width: 100%; aspect-ratio: 3 / 2; }
+      /* One column: without this the grid keeps its fixed 850px copy track. */
+      .cu-headsplit{ display: block; }
+      .cu-headsplit .cu-figcol{ display: none; }
+      .cu-livingfig{ display: block; position: relative; aspect-ratio: 3 / 2;
+        margin-top: var(--space-6); }
+      .cu-livingfig .cu-fig{ position: absolute; inset: 0; }
+      .cu-livingfig .cu-fig img{ object-position: 60% center; }
     }
 
     /* ---- 2 - LIVING OUR CULTURE -------------------------------------------------
@@ -1286,6 +1294,15 @@
             <div class="cu-prose">
               <p>The culture at Peoples Company is something we live every day through our traditions, our celebrations, and the ways we connect as a team. These shared experiences reinforce our values and remind us what it means to ride for the brand.</p>
             </div>
+          </div>
+          <!-- THE INTRO PHOTOGRAPH, SECOND SLOT. Shown only at 640-767, where it sits
+               under the statement; the intro's own copy is hidden there. Same file,
+               decorative, aria-hidden - see .cu-livingfig. -->
+          <div class="cu-livingfig reveal" aria-hidden="true">
+            <figure class="cu-fig">
+              <img src="../assets/office1.jpg" width="500" height="500"
+                   loading="lazy" decoding="async" alt="" />
+            </figure>
           </div>
         </div>
       </div>
