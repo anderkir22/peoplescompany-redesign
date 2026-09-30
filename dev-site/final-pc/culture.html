@@ -231,6 +231,22 @@
     @media (min-width: 768px) and (max-width: 899px){
       .cu-headsplit .cu-figcol{ width: 227px; }
     }
+    /* 640-767: THE FLOAT GIVES WAY TO A STACK - copy first, then the photograph at
+       the full content width (Kiron). Text-then-picture is the order every band on
+       the page takes once it stacks (the hat, the trip). The figure is first in the
+       markup, so flex `order` puts it second; it is decorative, so reading order is
+       unaffected.
+       3:2 LANDSCAPE: the float's 302 / 356 shape at full width would stand over
+       800px tall. 3:2 keeps it a picture rather than a slab. The source is 500px
+       square, so at 703 wide it is being upscaled about 1.4x - it wants a
+       larger source before launch. */
+    @media (min-width: 640px) and (max-width: 767px){
+      /* gap, not a margin: the grid's own 64px gap carries into the flex column,
+         so the 32px is set there rather than added on top of it. */
+      .cu-headsplit{ display: flex; flex-direction: column; gap: var(--space-6); }
+      .cu-headsplit .cu-prose{ order: 1; }
+      .cu-headsplit .cu-figcol{ order: 2; width: 100%; aspect-ratio: 3 / 2; }
+    }
 
     /* ---- 2 - LIVING OUR CULTURE -------------------------------------------------
        A TYPOGRAPHIC BAND, NOT A PICTURE BAND. It used to carry a strip of four
@@ -428,6 +444,17 @@
     @media (min-width: 768px) and (max-width: 899px){
       .cu-legacyfigcol{ width: 195px; }
     }
+    /* 640-767: STACKED, copy first, picture after at the full content width, 3:2
+       landscape - the same treatment as the intro at these widths, for the same
+       reasons. The picture is first in the markup and aria-hidden, so flex `order`
+       moves it without touching reading order.
+       THE ART NEEDS A SECOND CROP: the slot is 3:4 portrait above 768 and 3:2
+       landscape here. */
+    @media (min-width: 640px) and (max-width: 767px){
+      .cu-legacybody{ display: flex; flex-direction: column; gap: var(--space-6); }
+      .cu-legacybody .cu-prose{ order: 1; }
+      .cu-legacyfigcol{ order: 2; width: 100%; aspect-ratio: 3 / 2; }
+    }
 
     /* ---- 4 - RIDE FOR THE BRAND -------------------------------------------------
        THE PHRASE IS THE SECTION HEADING, not a pull quote. It used to be a 56px <p>
@@ -461,11 +488,11 @@
        height, not by what is left over. That is the number to turn if the effect is
        too strong or too weak. */
     .cu-brandcopy{ position: relative; z-index: 1; width: 78%; }
-    /* 900-1279: THE COPY RUNS FULL WIDTH (Kiron, set at 1024; carried down to 900).
+    /* 640-1279: THE COPY RUNS FULL WIDTH (Kiron, set at 1024; carried down to 640).
        The diamond rule is untouched -
        still flush right, still as tall as the copy - so it now sits wholly behind
        the text rather than mostly beside it. */
-    @media (min-width: 768px) and (max-width: 1279px){
+    @media (min-width: 640px) and (max-width: 1279px){
       .cu-brandcopy{ width: 100%; }
     }
     /* One column now, so the paragraphs need their own rhythm back - as three
@@ -516,13 +543,13 @@
       background: url("../assets/PC_Logomark-Navy-Diamond.svg") center right / contain
         no-repeat;
       pointer-events: none; }
-    /* 768-899: THE DIAMOND IS CAPPED AT THE BAND'S WIDTH. The copy runs taller than
+    /* 640-899: THE DIAMOND IS CAPPED AT THE BAND'S WIDTH. The copy runs taller than
        the content box is wide here (about 900 against 704 at 768), so a mark as tall
        as the copy would spill out of the band on the left. max-width: 100% holds the
        box to the content width; the box stays copy-height, and `contain` fits the
        diamond to the width and centers it vertically behind the text. Its tips no
        longer touch the first and last lines at this rung - they cannot, and fit. */
-    @media (min-width: 768px) and (max-width: 899px){
+    @media (min-width: 640px) and (max-width: 899px){
       .cu-brandmark{ max-width: 100%; background-position: center right; }
     }
 
@@ -652,7 +679,8 @@
       .cu-hat{ grid-template-columns: minmax(0, 1fr) 408px; }
       .cu-hat .cu-fig img{ object-position: 50% 69.5%; }
     }
-    /* 768-899: ONE COLUMN - copy, closing line, photograph, film (Kiron). The film
+    /* 640-899: ONE COLUMN - copy, closing line, photograph, film (Kiron, set at 768;
+       carried down to 640). The film
        goes full width, and the photograph sits BETWEEN the text and the film.
        Same display: contents mechanism as 900-1279 (and the same cost: no fade-in on
        the copy and the film), with each child given its own row.
@@ -661,8 +689,8 @@
        the whole hat - the brim spans most of the source's width and about 650px of
        its height, which a 16:9 frame would cut. 70% holds the crown and the brim in
        the window; the extra -30px drops the crop's center a further 30px (Kiron) -
-       exactly 15 at every width, since a px term in the calc is not scaled. */
-    @media (min-width: 768px) and (max-width: 899px){
+       exactly 30 at every width, since a px term in the calc is not scaled. */
+    @media (min-width: 640px) and (max-width: 899px){
       .cu-hat{ grid-template-columns: minmax(0, 1fr); row-gap: 0; }
       .cu-hat > div{ display: contents; }
       .cu-hat .cu-prose{ grid-row: 1; }
@@ -1081,8 +1109,8 @@
     @media (min-width: 900px) and (max-width: 1023px){
       .cu-trip{ max-width: calc(56vw - var(--rail)); }
     }
-    /* 768-899: THE PHOTOGRAPH COMES OUT FROM BEHIND THE TEXT AND GOES TO THE FOOT
-       OF THE BAND (Kiron). Order, top down: h2, paragraph, film, photograph. All of it
+    /* 640-899: THE PHOTOGRAPH COMES OUT FROM BEHIND THE TEXT AND GOES TO THE FOOT
+       OF THE BAND (Kiron, set at 768; carried down to 640). Order, top down: h2, paragraph, film, photograph. All of it
        sits on flat PC Navy, so the scrim goes - white on PC Navy is 10.7:1 at any line
        length. The film and the copy are full content width.
        THE ORDER is flex `order`, not source order: the <img> is first in the markup
@@ -1104,7 +1132,7 @@
        The top margin also carries the 48px gap under the film: calc(48px - 32.45%).
        The band's bottom padding goes to 0 so the photograph sits flush on the band's
        bottom edge. */
-    @media (min-width: 768px) and (max-width: 899px){
+    @media (min-width: 640px) and (max-width: 899px){
       /* align-items: flex-start is load-bearing: the band's base rule centers its
          children (align-items: center), and centering a 110%-wide image stacks on top
          of its -5% margin and throws the zoom off-center. */
@@ -1117,6 +1145,26 @@
         margin-top: calc(var(--space-7) - 32.45%); margin-bottom: -12.5%;
         clip-path: inset(35.13% 0 13.53% 0); }
       .cu-trip{ max-width: none; }
+    }
+    /* ====== 767 AND BELOW: PAGE-WIDE TYPE SCALE ======
+       The same scale about.html takes at the same width, so the two pages read as one
+       site on a phone:
+         h1  52 -> 34      h2  36 -> 26      body  16 -> 15
+       Leading tightens with the sizes - body 1.75 -> 1.6, paragraph gap 24 -> 16 -
+       except the h2, which goes 1.14 -> 1.18: a smaller serif line needs slightly
+       more leading per em, not less.
+       Two sizes about.html does not have take the same step: the band 2 statement
+       and the hat's closing line, both 24 -> 20. The statement is PC Black on white
+       (16.9:1), so its size carries no contrast dependency.
+       This block sits LAST in the stylesheet on purpose: .cu-brandcopy p sets its own
+       margin at the same specificity as .cu-prose p, and source order settles it. */
+    @media (max-width: 767px){
+      .cu-intro h1{ font-size: 34px; line-height: 1.12; margin-bottom: var(--space-6); }
+      .cu-h2{ font-size: 26px; line-height: 1.18; }
+      .cu-prose p{ font-size: 15px; line-height: 1.6; margin-bottom: var(--space-4); }
+      .cu-brandcopy p{ margin-bottom: var(--space-4); }
+      .cu-livingtext .cu-prose p{ font-size: 20px; }
+      .cu-hatline{ font-size: 20px; }
     }
   </style>
 </head>
