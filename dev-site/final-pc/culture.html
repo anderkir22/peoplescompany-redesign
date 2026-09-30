@@ -220,10 +220,16 @@
        302 x 356, and the copy runs on under it at the full width.
        Gutter --space-7 (48px) to its left, --space-5 (24px) under it - the same pair
        the Legacy float uses. */
-    @media (min-width: 900px) and (max-width: 1023px){
+    @media (min-width: 768px) and (max-width: 1023px){
       .cu-headsplit{ display: flow-root; }
       .cu-headsplit .cu-figcol{ float: right; width: 302px; aspect-ratio: 302 / 356;
         margin: 0 0 var(--space-5) var(--space-7); }
+    }
+    /* 768-899: THE FLOAT STAYS, 25% SMALLER - 227 x 267, same shape. At 302 the copy
+       beside it would be 354px at 768. Forging a Legacy takes the same step so the
+       two floats stay the same height (267). */
+    @media (min-width: 768px) and (max-width: 899px){
+      .cu-headsplit .cu-figcol{ width: 227px; }
     }
 
     /* ---- 2 - LIVING OUR CULTURE -------------------------------------------------
@@ -407,7 +413,7 @@
        The gutter is --space-7 (48px) to the right of the picture and --space-5 (24px)
        under it - one paragraph gap, so the line that wraps under the picture sits the
        same distance from it as the paragraphs sit from each other. */
-    @media (min-width: 900px) and (max-width: 1279px){
+    @media (min-width: 768px) and (max-width: 1279px){
       .cu-legacybody{ display: flow-root; }
       .cu-legacyfigcol{ float: left; width: 346px; aspect-ratio: 462 / 632;
         margin: 0 var(--space-7) var(--space-5) 0; }
@@ -417,6 +423,10 @@
        page are the same height. */
     @media (min-width: 900px) and (max-width: 1023px){
       .cu-legacyfigcol{ width: 260px; }
+    }
+    /* 768-899: another 25% - 195 x 267, matching the intro float's height again. */
+    @media (min-width: 768px) and (max-width: 899px){
+      .cu-legacyfigcol{ width: 195px; }
     }
 
     /* ---- 4 - RIDE FOR THE BRAND -------------------------------------------------
@@ -455,7 +465,7 @@
        The diamond rule is untouched -
        still flush right, still as tall as the copy - so it now sits wholly behind
        the text rather than mostly beside it. */
-    @media (min-width: 900px) and (max-width: 1279px){
+    @media (min-width: 768px) and (max-width: 1279px){
       .cu-brandcopy{ width: 100%; }
     }
     /* One column now, so the paragraphs need their own rhythm back - as three
@@ -506,6 +516,15 @@
       background: url("../assets/PC_Logomark-Navy-Diamond.svg") center right / contain
         no-repeat;
       pointer-events: none; }
+    /* 768-899: THE DIAMOND IS CAPPED AT THE BAND'S WIDTH. The copy runs taller than
+       the content box is wide here (about 900 against 704 at 768), so a mark as tall
+       as the copy would spill out of the band on the left. max-width: 100% holds the
+       box to the content width; the box stays copy-height, and `contain` fits the
+       diamond to the width and centers it vertically behind the text. Its tips no
+       longer touch the first and last lines at this rung - they cannot, and fit. */
+    @media (min-width: 768px) and (max-width: 899px){
+      .cu-brandmark{ max-width: 100%; background-position: center right; }
+    }
 
     /* A ROW OF ITS OWN under the split, full width - it sits outside .cu-brandsplit,
        so it runs the whole 1376px box and is not held to the copy's 70%. Left flush
@@ -632,6 +651,25 @@
     @media (min-width: 900px) and (max-width: 1023px){
       .cu-hat{ grid-template-columns: minmax(0, 1fr) 408px; }
       .cu-hat .cu-fig img{ object-position: 50% 69.5%; }
+    }
+    /* 768-899: ONE COLUMN - copy, closing line, photograph, film (Kiron). The film
+       goes full width, and the photograph moves BETWEEN the text and the film.
+       Same display: contents mechanism as 900-1279 (and the same cost: no fade-in on
+       the copy and the film), with each child given its own row.
+       THE PHOTOGRAPH IS CROPPED LANDSCAPE, 4:3. The source is a 1:1.5 portrait; at
+       full width that is a 704 x 1056 slab. 4:3 is the widest frame that still holds
+       the whole hat - the brim spans most of the source's width and about 650px of
+       its height, which a 16:9 frame would cut. 70% holds the crown and the brim in
+       the window, with the top of the sign under it. */
+    @media (min-width: 768px) and (max-width: 899px){
+      .cu-hat{ grid-template-columns: minmax(0, 1fr); row-gap: 0; }
+      .cu-hat > div{ display: contents; }
+      .cu-hat .cu-prose{ grid-row: 1; }
+      .cu-hatline{ grid-row: 2; }
+      .cu-hat .cu-fig{ grid-row: 3; height: auto; aspect-ratio: 4 / 3;
+        margin-top: var(--space-6); }
+      .cu-hat .cu-fig img{ object-position: 50% 70%; }
+      .cu-hatvideo{ grid-row: 4; }
     }
 
     /* ---- 6 - AWARDS & RECOGNITIONS ----------------------------------------------
@@ -1041,6 +1079,23 @@
        capped, so all three follow it. */
     @media (min-width: 900px) and (max-width: 1023px){
       .cu-trip{ max-width: calc(56vw - var(--rail)); }
+    }
+    /* 768-899: THE PHOTOGRAPH COMES OUT FROM BEHIND THE TEXT (Kiron). It stops being
+       the band's background and becomes a full-bleed strip across the TOP of the
+       band; the heading, the paragraph and the film follow on the flat PC Navy
+       ground, all full content width. The scrim goes - with nothing over the
+       photograph there is nothing for it to protect, and white on flat PC Navy is
+       10.7:1 at any line length.
+       The strip is 16:9 and keeps the 72% vertical crop that holds the team with a
+       little grass under them. The band's own top padding goes to 0 so the strip
+       sits flush on the band's top edge; --space-7 (48px) separates it from the
+       heading. */
+    @media (min-width: 768px) and (max-width: 899px){
+      .cu-band--dark{ display: block; min-height: 0; padding-top: 0; }
+      .cu-band--dark::after{ display: none; }
+      .cu-trippic{ position: static; display: block; width: 100%; height: auto;
+        aspect-ratio: 16 / 9; margin-bottom: var(--space-7); }
+      .cu-trip{ max-width: none; }
     }
   </style>
 </head>
