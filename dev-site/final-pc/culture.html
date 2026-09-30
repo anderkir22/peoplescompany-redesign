@@ -660,7 +660,7 @@
        full width that is a 704 x 1056 slab. 4:3 is the widest frame that still holds
        the whole hat - the brim spans most of the source's width and about 650px of
        its height, which a 16:9 frame would cut. 70% holds the crown and the brim in
-       the window; the extra -15px drops the crop's center a further 15px (Kiron) -
+       the window; the extra -30px drops the crop's center a further 30px (Kiron) -
        exactly 15 at every width, since a px term in the calc is not scaled. */
     @media (min-width: 768px) and (max-width: 899px){
       .cu-hat{ grid-template-columns: minmax(0, 1fr); row-gap: 0; }
@@ -670,7 +670,7 @@
       .cu-hatvideo{ grid-row: 3; }
       .cu-hat .cu-fig{ grid-row: 4; height: auto; aspect-ratio: 4 / 3;
         margin-top: var(--space-6); }
-      .cu-hat .cu-fig img{ object-position: 50% calc(70% - 15px); }
+      .cu-hat .cu-fig img{ object-position: 50% calc(70% - 30px); }
     }
 
     /* ---- 6 - AWARDS & RECOGNITIONS ----------------------------------------------
@@ -1081,21 +1081,39 @@
     @media (min-width: 900px) and (max-width: 1023px){
       .cu-trip{ max-width: calc(56vw - var(--rail)); }
     }
-    /* 768-899: THE PHOTOGRAPH COMES OUT FROM BEHIND THE TEXT (Kiron). It stops being
-       the band's background and becomes a full-bleed strip across the TOP of the
-       band; the heading, the paragraph and the film follow on the flat PC Navy
-       ground, all full content width. The scrim goes - with nothing over the
-       photograph there is nothing for it to protect, and white on flat PC Navy is
-       10.7:1 at any line length.
-       The strip is 16:9 and keeps the 72% vertical crop that holds the team with a
-       little grass under them. The band's own top padding goes to 0 so the strip
-       sits flush on the band's top edge; --space-7 (48px) separates it from the
-       heading. */
+    /* 768-899: THE PHOTOGRAPH COMES OUT FROM BEHIND THE TEXT AND GOES TO THE FOOT
+       OF THE BAND (Kiron). Order, top down: h2, paragraph, film, photograph. All of it
+       sits on flat PC Navy, so the scrim goes - white on PC Navy is 10.7:1 at any line
+       length. The film and the copy are full content width.
+       THE ORDER is flex `order`, not source order: the <img> is first in the markup
+       (it is the background at every wider rung), and moving it would reorder every
+       rung. It is decorative (alt=""), so reading order is unaffected.
+       THE CROP (Kiron): zoomed in 10%, the top 20% and the bottom 10% cut away.
+         - ZOOM: the image is 110% of the band's width, pulled left 5%, so 5% of the
+           band's width is trimmed off each side (the band's overflow: hidden).
+         - TOP/BOTTOM: the image is height:auto, so it is 0.825 x band width tall
+           (110% x 3/4). clip-path hides its top 20% and bottom 10%, and negative
+           margins take the same amounts out of the layout: 20% of 0.825 = 16.5% of
+           the band's width off the top, 10% of 0.825 = 8.25% off the bottom.
+           (Vertical margin percentages resolve against WIDTH, which is why the
+           numbers are written in band widths.)
+         - What shows is the middle 70% of the height at 91% of the width - about
+           1.73:1, a touch wider than 16:9.
+       The top margin also carries the 48px gap under the film: calc(48px - 16.5%).
+       The band's bottom padding goes to 0 so the photograph sits flush on the band's
+       bottom edge. */
     @media (min-width: 768px) and (max-width: 899px){
-      .cu-band--dark{ display: block; min-height: 0; padding-top: 0; }
+      /* align-items: flex-start is load-bearing: the band's base rule centers its
+         children (align-items: center), and centering a 110%-wide image stacks on top
+         of its -5% margin and throws the zoom off-center. */
+      .cu-band--dark{ display: flex; flex-direction: column; align-items: flex-start;
+        min-height: 0; padding-bottom: 0; }
       .cu-band--dark::after{ display: none; }
-      .cu-trippic{ position: static; display: block; width: 100%; height: auto;
-        aspect-ratio: 16 / 9; margin-bottom: var(--space-7); }
+      .cu-band--dark > .cu-wrap{ order: 1; }
+      .cu-trippic{ order: 2; position: static; display: block; flex: none;
+        width: 110%; max-width: none; height: auto; margin-left: -5%;
+        margin-top: calc(var(--space-7) - 16.5%); margin-bottom: -8.25%;
+        clip-path: inset(20% 0 10% 0); }
       .cu-trip{ max-width: none; }
     }
   </style>
