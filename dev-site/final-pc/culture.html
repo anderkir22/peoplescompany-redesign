@@ -413,6 +413,8 @@
       line-height: 1.3; color: var(--pc-navy); }
     .cu-legacyph span{ font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
       font-weight: 600; color: var(--pc-medium-blue); }
+    /* Two labels, one per art file; the 640-767 rung swaps them. */
+    .cu-legacyph .cu-ph-landscape{ display: none; }
     /* 1280-1535. THE PICTURE HOLDS ITS 1536 SHAPE AND THE PROSE GIVES (Kiron). The
        content box drops to 1216, and in the 1536 construction the fixed 850px column
        would take all of the loss out of the picture (462 -> 302 wide, a tall strip).
@@ -461,12 +463,19 @@
        landscape - the same treatment as the intro at these widths, for the same
        reasons. The picture is first in the markup and aria-hidden, so flex `order`
        moves it without touching reading order.
-       THE ART NEEDS A SECOND CROP: the slot is 3:4 portrait above 768 and 3:2
-       landscape here. */
+       3:2 IS KIRON'S CALL, AND IT IS LIKELY A DIFFERENT FILE. From 768 up the slot is
+       portrait, 462 / 632; here it is 3:2 landscape. A portrait source cannot be
+       cropped to 3:2 without losing most of its height, so plan on TWO art files -
+       the portrait and a landscape cut - with this rung switching to the landscape
+       one (a <picture> <source media="(max-width: 767px)">, or the CMS's own
+       responsive-image field). The placeholder's label swaps with the rung so the
+       mockup says which file each slot wants. */
     @media (min-width: 640px) and (max-width: 767px){
       .cu-legacybody{ display: flex; flex-direction: column; gap: var(--space-6); }
       .cu-legacybody .cu-prose{ order: 1; }
       .cu-legacyfigcol{ order: 2; width: 100%; aspect-ratio: 3 / 2; }
+      .cu-legacyph .cu-ph-portrait{ display: none; }
+      .cu-legacyph .cu-ph-landscape{ display: inline; }
     }
 
     /* ---- 4 - RIDE FOR THE BRAND -------------------------------------------------
@@ -1357,7 +1366,8 @@
             <figure class="cu-legacyfig" aria-hidden="true">
               <div class="cu-legacyph">
                 <b>Forging a Legacy</b>
-                <span>Image to come &middot; 3:4 portrait</span>
+                <span class="cu-ph-portrait">Image to come &middot; portrait 462 &times; 632</span>
+                <span class="cu-ph-landscape">Image to come &middot; 3:2 landscape &middot; separate file</span>
               </div>
             </figure>
           </div>
