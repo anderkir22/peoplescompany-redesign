@@ -193,6 +193,12 @@
     @media (min-width: 1024px) and (max-width: 1279px){
       .cu-headsplit{ grid-template-columns: minmax(0, 1fr) 302px; }
     }
+    /* The figure comes FIRST in the markup (for the 900-1023 float below), so the
+       grid is told where each goes rather than taking source order. Unconditional on
+       purpose: wherever .cu-headsplit is a grid, copy is column 1 and the figure
+       column 2. A float ignores both properties. */
+    .cu-headsplit .cu-prose{ grid-column: 1; grid-row: 1; }
+    .cu-headsplit .cu-figcol{ grid-column: 2; grid-row: 1; }
     /* THE COPY SETS THE ROW HEIGHT, AND THE PICTURE IS CROPPED TO IT. The image is
        taken OUT OF FLOW (position: absolute inside a relative column) so it
        contributes nothing to the row's height - the row is exactly as tall as the
@@ -207,6 +213,18 @@
        cut to about 1.3:1 LANDSCAPE. object-position holds the crop just right of
        center, which keeps the entrance on frame. */
     .cu-headsplit .cu-fig img{ object-position: 60% center; }
+    /* 900-1023: THE PICTURE FLOATS TOP-RIGHT AND THE COPY WRAPS ROUND IT. The mirror
+       of Forging a Legacy's float (top-left) at the same widths. Holding the 302px
+       grid column here would leave the copy 470px wide at 900 and crop the picture to
+       a 302 x 600 sliver; floated, the picture keeps its 1280 size and shape,
+       302 x 356, and the copy runs on under it at the full width.
+       Gutter --space-7 (48px) to its left, --space-5 (24px) under it - the same pair
+       the Legacy float uses. */
+    @media (min-width: 900px) and (max-width: 1023px){
+      .cu-headsplit{ display: flow-root; }
+      .cu-headsplit .cu-figcol{ float: right; width: 302px; aspect-ratio: 302 / 356;
+        margin: 0 0 var(--space-5) var(--space-7); }
+    }
 
     /* ---- 2 - LIVING OUR CULTURE -------------------------------------------------
        A TYPOGRAPHIC BAND, NOT A PICTURE BAND. It used to carry a strip of four
@@ -379,16 +397,17 @@
       .cu-legacybody{ grid-template-columns: 462px minmax(0, 1fr); align-items: start; }
       .cu-legacyfigcol{ aspect-ratio: 462 / 632; }
     }
-    /* 1024-1279. THE PICTURE DROPS TO 75% AND THE PROSE WRAPS AROUND IT (Kiron).
+    /* 900-1279. THE PICTURE DROPS TO 75% AND THE PROSE WRAPS AROUND IT (Kiron, set
+       at 1024; carried down to 900 unchanged).
        Same shape as at 1280 and 1536 (462 / 632), 25% smaller: 346 x 473. It is a
        FLOAT in the top-left corner, so the paragraphs run beside it and then carry on
-       under it at the full 960px width - no grid.
+       under it at the full width - no grid.
        flow-root on the body contains the float, so the band's bottom padding is
        measured from whichever ends lower, the picture or the prose.
        The gutter is --space-7 (48px) to the right of the picture and --space-5 (24px)
        under it - one paragraph gap, so the line that wraps under the picture sits the
        same distance from it as the paragraphs sit from each other. */
-    @media (min-width: 1024px) and (max-width: 1279px){
+    @media (min-width: 900px) and (max-width: 1279px){
       .cu-legacybody{ display: flow-root; }
       .cu-legacyfigcol{ float: left; width: 346px; aspect-ratio: 462 / 632;
         margin: 0 var(--space-7) var(--space-5) 0; }
@@ -426,10 +445,11 @@
        height, not by what is left over. That is the number to turn if the effect is
        too strong or too weak. */
     .cu-brandcopy{ position: relative; z-index: 1; width: 78%; }
-    /* 1024-1279: THE COPY RUNS FULL WIDTH (Kiron). The diamond rule is untouched -
+    /* 900-1279: THE COPY RUNS FULL WIDTH (Kiron, set at 1024; carried down to 900).
+       The diamond rule is untouched -
        still flush right, still as tall as the copy - so it now sits wholly behind
        the text rather than mostly beside it. */
-    @media (min-width: 1024px) and (max-width: 1279px){
+    @media (min-width: 900px) and (max-width: 1279px){
       .cu-brandcopy{ width: 100%; }
     }
     /* One column now, so the paragraphs need their own rhythm back - as three
@@ -575,7 +595,7 @@
        ONE COST: .reveal is on that wrapper, and a display: contents box has no box
        to fade, so the copy and the film appear without the fade-in at this rung.
        They are visible, not stuck hidden - opacity is not inherited. */
-    @media (min-width: 1024px) and (max-width: 1279px){
+    @media (min-width: 900px) and (max-width: 1279px){
       /* Column gap 64 -> --space-6 (32px) so the closing line sets on ONE line: it
          needs 405.5px and the column is now 408. Only 2.5px of headroom - a longer
          closing line, or a wider font fallback, wraps it again. */
@@ -593,6 +613,19 @@
       .cu-hat .cu-prose{ grid-column: 2; grid-row: 1; }
       .cu-hatline{ grid-column: 2; grid-row: 2; }
       .cu-hatvideo{ grid-column: 1 / -1; grid-row: 3; }
+    }
+    /* 900-1023: THE TEXT COLUMN LOCKS AT 408 AND THE PHOTOGRAPH GIVES. 408 is the
+       column the closing line needs to stay on one line, and the width it has at
+       1024 - so the copy wraps exactly as it does there, the text stays 472px tall,
+       and so does the photograph. Its WIDTH takes the remainder: 519 at 1023, 396
+       at 900.
+       THE CROP GOES PROPORTIONAL here. The 1024 pin is in pixels off a 520px-wide
+       image; as the picture narrows the image gets shorter and a fixed 94px lift
+       would drift the framing. 69.5% is the same window as a fraction - at 520 wide
+       it is exactly the 214-686 crop Kiron set. */
+    @media (min-width: 900px) and (max-width: 1023px){
+      .cu-hat{ grid-template-columns: minmax(0, 1fr) 408px; }
+      .cu-hat .cu-fig img{ object-position: 50% 69.5%; }
     }
 
     /* ---- 6 - AWARDS & RECOGNITIONS ----------------------------------------------
@@ -993,6 +1026,15 @@
       .cu-trip .cu-h2, .cu-trip .cu-prose{ max-width: 560px; }
       .cu-tripvideos{ max-width: 720px; }
     }
+    /* 900-1023: THE COPY COLUMN TRACKS THE WINDOW so its lines keep ending at about
+       56% of the band, where the scrim is still dense - a fixed 560 would run out to
+       66% at 900. 56vw less the rail: 541 at 1023, 472 at 900. The film holds 720,
+       which still fits the content box at 900 (836). */
+    @media (min-width: 900px) and (max-width: 1023px){
+      .cu-trip{ max-width: none; }
+      .cu-trip .cu-h2, .cu-trip .cu-prose{ max-width: calc(56vw - var(--rail)); }
+      .cu-tripvideos{ max-width: 720px; }
+    }
   </style>
 </head>
 <body>
@@ -1069,11 +1111,9 @@
       <div class="cu-wrap">
         <h1>A Culture Built to Last</h1>
         <div class="cu-headsplit">
-          <div class="cu-prose reveal">
-            <p class="cu-lede">At Peoples Company, culture isn&#039;t a talking point, it&#039;s our operating system. It&#039;s the reason talented professionals choose to represent our brand while they build their careers, and it&#039;s the reason they stay. Over more than two decades of growth, from a single-office Iowa firm to a national platform, the culture has deepened as our team members challenge themselves and others to serve clients better, expand their own capabilities, and collaborate more closely across our platform.</p>
-            <p>What we&#039;ve built has emerged from the daily commitment of professionals who cared about the land, about their clients, about the person in the office next to them. It has been tested by hard markets, difficult decisions, and the demands of building something powerful together in an industry that has not evolved as the farmland asset class has matured.</p>
-            <p>This is the Peoples Company culture. Not a summary of it, but an honest account of what it looks like from the inside, and what it asks of the people who carry it forward.</p>
-          </div>
+          <!-- THE FIGURE IS FIRST IN THE DOM so it can float top-right at 900-1023
+               with the copy wrapping round it. At 1024 and up the grid places it in
+               the right-hand column regardless of order - see .cu-headsplit. -->
           <!-- The alt is descriptive rather than empty: on this page the figure is
                content, not chrome. Rewrite it with the image. -->
           <div class="cu-figcol reveal">
@@ -1082,6 +1122,11 @@
                    loading="lazy" decoding="async"
                    alt="Peoples Company colleagues talking together in the office" />
             </figure>
+          </div>
+          <div class="cu-prose reveal">
+            <p class="cu-lede">At Peoples Company, culture isn&#039;t a talking point, it&#039;s our operating system. It&#039;s the reason talented professionals choose to represent our brand while they build their careers, and it&#039;s the reason they stay. Over more than two decades of growth, from a single-office Iowa firm to a national platform, the culture has deepened as our team members challenge themselves and others to serve clients better, expand their own capabilities, and collaborate more closely across our platform.</p>
+            <p>What we&#039;ve built has emerged from the daily commitment of professionals who cared about the land, about their clients, about the person in the office next to them. It has been tested by hard markets, difficult decisions, and the demands of building something powerful together in an industry that has not evolved as the farmland asset class has matured.</p>
+            <p>This is the Peoples Company culture. Not a summary of it, but an honest account of what it looks like from the inside, and what it asks of the people who carry it forward.</p>
           </div>
         </div>
       </div>
