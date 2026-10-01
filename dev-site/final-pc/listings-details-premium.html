@@ -47,6 +47,9 @@
          - a lone video's eyebrow is hidden visually, kept for screen readers
          - video eyebrows are PC Black
          - tract acreage reads "62.40 ± Acres", never M/L
+         - tract labels never wrap, sized for THREE-DIGIT acreage ("Tract 44: 444.44 ±
+           Acres"), not this listing's two; shrink the type before dropping a column
+           (2026-10-01). 1024-1279 went 13 -> 12px for it.
          - no sub nav row ever holds one link: the moment the links wrap, two come
            down (2026-10-01). Script balanceJump + .lp-jump-br. Downloads, Video and
            360 Tour are optional, so a page carries 6-9 links - checked at all four
@@ -607,6 +610,39 @@
     /* 768-899: three columns. Four would be 158px at 768, short of the 162 a label needs. */
     @media (min-width: 768px) and (max-width: 899px){
       .lp-tlist{ columns: 3; }
+    }
+    /* ONE LINE PER TRACT AT EVERY WIDTH, SIZED FOR THREE-DIGIT ACREAGE (Kiron,
+       2026-10-01). This listing's tracts are all under 100 acres, but a premium page can
+       carry "Tract 44: 444.44 ± Acres" - the widest label two-digit tract numbers allow
+       (4 is the widest digit in Inter). Every band below is sized for that label, not
+       for the ones on this page. Smaller type is preferred over fewer columns.
+       Worst-case label: 12.3px of width per px of type (about 160 at 13px).
+         1024-1279  five columns at 12px (13 needed 1008 of the 960)
+         640-767    three columns at 12px (13 needed 592 of the 576)
+         480-639    two columns at 15px - needs 433, has 440 at 480
+         360-479    two columns at 11px, column gap 16, side padding 4 - needs 303 of 320
+         359 down   one column at 14px - two would need type under 10px
+       Rows keep the 6px top and bottom from 768-1023 all the way down. */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .lp-tlink{ font-size: 12px; }
+    }
+    @media (max-width: 767px){
+      .lp-tlink{ padding: 6px var(--space-2); }
+    }
+    @media (min-width: 640px) and (max-width: 767px){
+      .lp-tlist{ columns: 3; }
+      .lp-tlink{ font-size: 12px; }
+    }
+    @media (min-width: 480px) and (max-width: 639px){
+      .lp-tlist{ columns: 2; }
+    }
+    @media (min-width: 360px) and (max-width: 479px){
+      .lp-tlist{ columns: 2; column-gap: var(--space-4); }
+      .lp-tlink{ font-size: 11px; padding-left: var(--space-1); padding-right: var(--space-1); }
+    }
+    @media (max-width: 359px){
+      .lp-tlist{ columns: 1; }
+      .lp-tlink{ font-size: 14px; }
     }
     /* THE LISTING'S COLOR, NOT THE SITE'S BLUE (Kiron, 2026-09-21). These four rules
        used PC Navy for the resting label, PC Soft White for the hover ground and PC
