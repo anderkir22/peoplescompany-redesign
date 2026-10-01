@@ -337,9 +337,10 @@
     /* ---- AUCTION DETAILS: the overview's right-hand column ----
        THE AUCTION PAGE'S CARD, IN THIS PAGE'S PALETTE (Kiron, 2026-10-01). Same fields
        and the same order as #ld-auction on listings-details-auction.html; the PC Black
-       ground and PC Blue accents give way to PC Soft White inside a 3px border in the
+       ground and PC Blue accents give way to white inside a 3px border in the
        listing's color - the agent cards' border - with the type in --lp-navink, which
-       the contrast script resolves against Soft White for exactly this card.
+       the contrast script resolves against white (Kiron, 2026-10-01: white, not the
+       Soft White first tried).
        THE COLUMN IS THE AUCTION PAGE'S RAIL: 380 at 1536, 340 from 1535 down, the
        overview taking the rest. From 1023 down the card drops under the overview,
        the step the auction page moves its rail cards at, held to 480 and left aligned
@@ -354,7 +355,7 @@
       .lp-aucs{ max-width: 480px; }
     }
     .lp-aucs{ display: grid; gap: var(--space-5); }
-    .lp-ac{ background: var(--pc-soft-white); border: 3px solid var(--lp-navbg);
+    .lp-ac{ background: var(--pc-white); border: 3px solid var(--lp-navbg);
       border-radius: var(--radius-lg); overflow: hidden;
       padding: var(--space-5) var(--space-5) var(--space-6); }
     /* THE TITLE IS A BAR (Kiron, 2026-10-01): a solid band of the listing's color across
@@ -2670,16 +2671,12 @@
         var blackRatio = (L + 0.05) / 0.05;
         scope.style.setProperty("--lp-navfg", whiteRatio >= blackRatio ? "#FFFFFF" : "#000000");
 
-        /* --lp-navink: the same color used as TYPE ON A LIGHT GROUND, which is a
-           different test. A listing color that clears AA there can carry the window's
-           accents; one that does not - a cream, a pale tan - falls back to PC Navy
-           rather than being set in a color nobody can read.
-           TESTED AGAINST PC SOFT WHITE, NOT WHITE (2026-10-01). The auction card sits on
-           #F3FBFE, which is about 5% darker, so a color at 4.5:1 on white is 4.29 on
-           the card. Soft white is the stricter of the two grounds, so a color that
-           passes here passes on white too. Its luminance is 0.9524. */
-        var softRatio = (0.9524 + 0.05) / (L + 0.05);
-        scope.style.setProperty("--lp-navink", softRatio >= 4.5 ? bg.trim() : "#12406A");
+        /* --lp-navink: the same color used as TYPE ON WHITE, which is a different test.
+           whiteRatio is exactly its contrast against a white ground, so a listing color
+           that clears AA there can carry the window's accents; one that does not - a
+           cream, a pale tan - falls back to PC Navy rather than being set in a color
+           nobody can read. */
+        scope.style.setProperty("--lp-navink", whiteRatio >= 4.5 ? bg.trim() : "#12406A");
       }
       apply();
     })();
