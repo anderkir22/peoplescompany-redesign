@@ -1200,17 +1200,18 @@
     .lp-agents .ld-agent > .lp-agent-role,
     .lp-agents .ld-agent > div{ grid-column: 2; }
 
-    /* At one card per row the portrait column and a readable text column no longer both
-       fit, so the photograph moves above the type and everything runs in one column. The
-       span has to be undone explicitly - a grid-row span left in place would hold the
-       photograph across rows that are no longer beside it. */
-    @media (max-width: 559px){
-      .lp-agents .ld-agent{ grid-template-columns: minmax(0, 1fr); }
-      .lp-agents .ld-agent > img{ grid-row: auto; }
-      .lp-agents .ld-agent > img,
+    /* 639 AND DOWN: THE NAME AND TITLE TAKE THEIR OWN ROWS, THE PHOTOGRAPH GOES RIGHT
+       (Kiron, 2026-10-01). Name, then title, each across the card; under them the contact
+       block on the left and the portrait on the right, their tops level. Replaces the
+       559 rule that stacked the portrait above the type. The span has to be undone
+       explicitly - a grid-row span left in place would hold the portrait across the
+       name and title rows. */
+    @media (max-width: 639px){
+      .lp-agents .ld-agent{ grid-template-columns: minmax(0, 1fr) var(--lp-agent-ph); }
       .lp-agents .ld-agent > h4,
-      .lp-agents .ld-agent > .lp-agent-role,
-      .lp-agents .ld-agent > div{ grid-column: 1; }
+      .lp-agents .ld-agent > .lp-agent-role{ grid-column: 1 / -1; }
+      .lp-agents .ld-agent > div{ grid-column: 1; grid-row: 3; }
+      .lp-agents .ld-agent > img{ grid-column: 2; grid-row: 3; }
     }
 
     /* THE JOB TITLE. The field the standard listing pages leave out; it is the same
