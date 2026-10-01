@@ -49,6 +49,8 @@
          - a lone video's eyebrow is hidden visually, kept for screen readers
          - video eyebrows are PC Black
          - tract acreage reads "62.40 ± Acres", never M/L
+         - the photo sheet's short last row always centers, at every width and any
+           count (2026-10-01) - flex rows with each tile 1/--lp-ph-cols of the row
          - tract labels never wrap, sized for THREE-DIGIT acreage ("Tract 44: 444.44 ±
            Acres"), not this listing's two; shrink the type before dropping a column
            (2026-10-01). 1024-1279 went 13 -> 12px for it.
@@ -955,17 +957,22 @@
        and 3:2 the crop is gone - object-fit: cover has nothing left to trim, so each
        tile shows the whole photograph. Fewer, larger, uncropped beats more and cropped
        on a set this small.
-       27 photographs over four tracks leave three on the last row. An uneven set is
-       left uneven here; nothing is stretched or dropped to fill the gap. */
-    .lp-photogrid{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0; list-style: none; margin: 0; padding: 0; }
+       A SHORT LAST ROW CENTERS ITSELF, AT EVERY WIDTH (Kiron, 2026-10-01): 27 over four
+       leaves three on the last row, and those three sit in the middle with half a tile
+       of white either side. Nothing is stretched or dropped to fill the gap.
+       WHY FLEX, NOT GRID: a grid cannot center a part-filled last row. Each tile is
+       instead given an exact share of the row - --lp-ph-cols is the count - and the
+       rows wrap and center, so every full row is identical to the grid it replaced. */
+    .lp-photogrid{ --lp-ph-cols: 4; display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 0; list-style: none; margin: 0; padding: 0; }
+    .lp-photogrid > li{ flex: 0 0 calc(100% / var(--lp-ph-cols)); min-width: 0; }
     /* 639 and down: three to a row (Kiron, 2026-10-01). */
     @media (max-width: 639px){
-      .lp-photogrid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lp-photogrid{ --lp-ph-cols: 3; }
     }
     /* 479 and down: two to a row (Kiron, 2026-10-01). */
     @media (max-width: 479px){
-      .lp-photogrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lp-photogrid{ --lp-ph-cols: 2; }
     }
     /* The tile is a <button>, not a link: it opens the viewer, it does not navigate.
        display:block and the reset are needed because a button brings its own border,
