@@ -22,14 +22,13 @@
 
        APPROVED: 900 and up (1536, 1280-1535, 1024-1279, 900-1023).
 
-       IN PROGRESS: 768-899. Built, awaiting Kiron's sign-off. START HERE TOMORROW.
+       IN PROGRESS: 768-899. Built, awaiting Kiron's sign-off. START HERE.
          - hero logo in the top right corner, heading across the rail (as at 900)
          - sub nav: two rows sit closer, bar 122 -> 100 tall (still 57 on one row)
+         - sub nav wraps 7 + 2 from 886 down (was 8 + 1 from 886 to 769) - see the
+           no-lone-link rule below
          - tracts: three columns at 13px, 30px rows, no wrap
          - contact cards stack in one column, 899 and down, for any agent count
-         OPEN QUESTION: the sub nav splits unevenly when it wraps - 8 + 1 around
-         830-835, 7 + 2 at 768, the short row's links stretched wide. A balanced
-         5 + 4 split was offered; no answer yet.
 
        NOT STARTED: 767 and down. Known from the first survey:
          - 320 scrolls sideways 20px (agent cards 320 wide in a 280 rail) - recheck
@@ -47,6 +46,10 @@
          - a lone video's eyebrow is hidden visually, kept for screen readers
          - video eyebrows are PC Black
          - tract acreage reads "62.40 ± Acres", never M/L
+         - no sub nav row ever holds one link: the moment the links wrap, two come
+           down (2026-10-01). Script balanceJump + .lp-jump-br. Downloads, Video and
+           360 Tour are optional, so a page carries 6-9 links - checked at all four
+           counts, 1600 down to 320
 
        BREAKDOWN COPIES - REMOVE BEFORE HANDOFF: Contact and Video each appear
        three times (three, two, one item) so every count can be checked. The sub
@@ -251,7 +254,22 @@
        NOT justify-content: space-between, deliberately: that looks right on one row and
        breaks the moment the links wrap, because the last row's two or three items get
        flung to opposite edges. */
-    .lp-jump-inner{ display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); }
+    /* NO ROW EVER HOLDS ONE LINK (Kiron, 2026-10-01). The moment the links wrap, two come
+       down, never one: where the browser would leave a lone link on the last row, the
+       script puts .lp-jump-br in front of the row above's last link, so 8 + 1 becomes
+       7 + 2 and 4 + 4 + 1 becomes 4 + 3 + 2. Holds for any link count - Downloads, Video
+       and 360 Tour are optional, so a page carries six to nine.
+       THE ROW GAP IS EACH LINK'S margin-top, NOT row-gap. The break is a zero-height flex
+       line, and row-gap would put a gap on both sides of it. As a margin it travels with
+       the links, so the break line adds nothing. The row's own negative margin takes back
+       the first row's, and flow-root on the parent keeps that margin from collapsing out
+       through it and lifting the whole bar. */
+    .lp-subbar-in{ display: flow-root; }
+    .lp-jump-inner{ --lp-jump-rgap: var(--space-2); display: flex; flex-wrap: wrap;
+      column-gap: var(--space-6); margin-top: calc(var(--lp-jump-rgap) * -1); }
+    .lp-jump-inner > *{ margin-top: var(--lp-jump-rgap); }
+    .lp-jump-br{ flex-basis: 100%; height: 0; }
+    .lp-jump-inner > .lp-jump-br{ margin-top: 0; }
 
     /* ALL NINE ARE LINKS NOW (Kiron, 2026-09-23). Photos and Downloads were <button>s,
        because they opened a window over the page rather than scrolling to a section;
@@ -1240,7 +1258,7 @@
       /* THE SUB NAV'S TWO ROWS SIT CLOSER (Kiron, 2026-09-30). The links' 15px top and
          bottom come in to 8 and the row gap goes, with the bar's own 7px top and bottom
          holding the outer air: 122 -> 100 tall on two rows, still 57 on one. */
-      .lp-jump-inner{ row-gap: 0; padding: 7px 0; }
+      .lp-jump-inner{ --lp-jump-rgap: 0px; padding: 7px 0; }
       .lp-jump a, .lp-jump button{ padding-top: 8px; padding-bottom: 8px; }
     }
     @media (max-width: 639px){
@@ -2312,6 +2330,33 @@
     // full-bleed section headings use in place of 100vw - see .lp-h2::before. It is
     // set here rather than in a module of its own because this is already the one place
     // that measures the page and re-measures it on resize.
+    /* ---- balanceJump: NO SUB NAV ROW HOLDS ONE LINK ----
+       Lets the links wrap where they will, then, if the last row came out with a single
+       link, breaks the line before the previous row's last link so two come down
+       together. Registered BEFORE syncNavH below, so on a resize the rows are settled
+       before the bar's height is measured. */
+    (function(){
+      var row = document.querySelector(".lp-jump-inner");
+      if(!row) return;
+      var br = document.createElement("span");
+      br.className = "lp-jump-br";
+      br.setAttribute("aria-hidden", "true");
+      function balance(){
+        if(br.parentNode) br.parentNode.removeChild(br);
+        var links = Array.prototype.slice.call(row.querySelectorAll("a, button"));
+        var n = links.length;
+        if(n < 3) return;
+        var lastTop = links[n - 1].offsetTop;
+        if(links[n - 2].offsetTop === lastTop) return;   // last row already holds two or more
+        if(links[0].offsetTop === lastTop) return;       // one row, nothing wrapped
+        row.insertBefore(br, links[n - 2]);
+      }
+      balance();
+      window.addEventListener("resize", balance);
+      window.addEventListener("load", balance);
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(balance);
+    })();
+
     (function(){
       var header = document.querySelector("header.pcf");
       if(!header) return;
