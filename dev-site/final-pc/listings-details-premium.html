@@ -184,7 +184,7 @@
       --lp-hero-h: 700px;
       --lp-h1-top: 60%;
       --lp-logo-top: 70%;
-      --lp-navbg: #C5C5D1;
+      --lp-navbg: #BC4949;
       --lp-navfg: #000000;
       --lp-navink: #000000;
       --lp-ac-tint: 15%;
@@ -1733,7 +1733,7 @@
 
           <!-- SEALED BID: this listing's own type. Email Agent writes to the FIRST agent
                listed under Contact (Kiron, 2026-10-01). -->
-          <div class="lp-ac" id="lp-auction-sealed" hidden>
+          <div class="lp-ac" id="lp-auction-sealed">
             <h2 class="h3-sans lp-ac-title">Sealed-Bid Auction Details</h2>
             <p class="sr-only">Date</p>
             <p class="lp-ac-date">September&nbsp;15, 2026</p>
@@ -1774,7 +1774,7 @@
             <button type="button" class="lp-ac-terms" aria-haspopup="dialog">Auction Terms</button>
           </div>
 
-          <div class="lp-ac" id="lp-auction-online" hidden>
+          <div class="lp-ac" id="lp-auction-online">
             <h2 class="h3-sans lp-ac-title">Online-Only Auction Details</h2>
             <p class="sr-only">Date</p>
             <p class="lp-ac-date">September&nbsp;15, 2026</p>
@@ -1966,7 +1966,7 @@
            links to the three-video section above only.
            HIDDEN (Kiron, 2026-10-02): both copies carry the hidden attribute; only the
            three-video section shows. Remove the attribute to check the other counts. -->
-      <section id="lp-video-two" class="lp-section reveal" hidden aria-labelledby="lp-video-two-h">
+      <section id="lp-video-two" class="lp-section reveal" aria-labelledby="lp-video-two-h">
         <h2 id="lp-video-two-h" class="lp-h2">Video</h2>
 
         <div class="lp-videos">
@@ -1991,7 +1991,7 @@
         </div>
       </section>
 
-      <section id="lp-video-one" class="lp-section reveal" hidden aria-labelledby="lp-video-one-h">
+      <section id="lp-video-one" class="lp-section reveal" aria-labelledby="lp-video-one-h">
         <h2 id="lp-video-one-h" class="lp-h2">Video</h2>
 
         <div class="lp-videos">
@@ -2151,7 +2151,7 @@
            three agents and the grid renders either without an edit - see .lp-agents in the
            style block. The card itself is the standard listing detail pages' agent card,
            same fields, plus the job title those pages do not show. -->
-      <section id="lp-contact" class="lp-section lp-section--tint reveal" hidden aria-labelledby="lp-contact-h">
+      <section id="lp-contact" class="lp-section lp-section--tint reveal" aria-labelledby="lp-contact-h">
         <h2 id="lp-contact-h" class="lp-h2">Contact</h2>
 
         <div class="lp-agents">
@@ -2245,7 +2245,7 @@
         </div>
       </section>
 
-      <section id="lp-contact-one" class="lp-section lp-section--tint reveal" hidden aria-labelledby="lp-contact-one-h">
+      <section id="lp-contact-one" class="lp-section lp-section--tint reveal" aria-labelledby="lp-contact-one-h">
         <h2 id="lp-contact-one-h" class="lp-h2">Contact</h2>
 
         <div class="lp-agents">
@@ -2753,7 +2753,6 @@
         scope.style.setProperty("--lp-navink", tintRatio >= 4.5 ? bg.trim() : "#000000");
       }
       apply();
-      window.lpApplyColor = apply;   // REVIEW ONLY: the color picker below re-runs this
     })();
 
     // Keeps --navH and --lp-jump-h in step with the sticky header and the sub nav, which
@@ -3454,96 +3453,6 @@
       arm();
     })();
 
-  </script>
-  <!-- ======================================================================
-       REVIEW ONLY - LISTING COLOR PICKER (Kiron, 2026-10-02). Delete this whole block
-       (style, markup and script) before the developer handoff. Sets --lp-navbg only
-       (the tint is locked at 15%), then re-runs the contrast script, so every
-       black-or-white and type-on-white choice follows. Remembered per browser;
-       Reset returns to the values in the page's CSS.
-       ====================================================================== -->
-  <style>
-    .rv-pick{ position: fixed; left: 12px; bottom: 12px; z-index: 300; max-width: calc(100vw - 24px);
-      font: 500 13px/1.3 var(--font-sans); color: #000; background: #fff;
-      border: 1px solid #000; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
-    .rv-pick > summary{ list-style: none; cursor: pointer; padding: 8px 12px;
-      display: flex; align-items: center; gap: 8px; font-weight: 600; }
-    .rv-pick > summary::-webkit-details-marker{ display: none; }
-    .rv-sw{ width: 16px; height: 16px; border-radius: 4px; border: 1px solid #000;
-      background: var(--lp-navbg); }
-    .rv-pick form{ display: grid; grid-template-columns: auto 1fr; gap: 8px 10px;
-      align-items: center; padding: 4px 12px 12px; }
-    .rv-pick label{ font-weight: 600; }
-    .rv-pick input[type=text]{ font: inherit; width: 100%;
-      padding: 5px 7px; border: 1px solid #999; border-radius: 4px; }
-    .rv-pick input[type=color]{ width: 100%; height: 30px; padding: 0; border: 1px solid #999;
-      border-radius: 4px; background: #fff; cursor: pointer; }
-    .rv-row{ grid-column: 1 / -1; display: flex; gap: 8px; }
-    .rv-row button{ flex: 1; font: 600 13px/1 var(--font-sans); padding: 8px 10px;
-      border-radius: 999px; border: 1px solid #000; cursor: pointer; }
-    .rv-go{ background: #000; color: #fff; }
-    .rv-reset{ background: #fff; color: #000; }
-    .rv-msg{ grid-column: 1 / -1; margin: 0; font-size: 12px; min-height: 1.3em; }
-    @media print{ .rv-pick{ display: none; } }
-  </style>
-  <details class="rv-pick" id="rvPick">
-    <summary><span class="rv-sw" aria-hidden="true"></span>Listing color <span id="rvCur"></span></summary>
-    <form id="rvForm" autocomplete="off">
-      <label for="rvHex">Hex</label>
-      <input type="text" id="rvHex" placeholder="#98B849" maxlength="7" spellcheck="false" />
-      <label for="rvWheel">Pick</label>
-      <input type="color" id="rvWheel" />
-      <div class="rv-row">
-        <button type="submit" class="rv-go">Apply</button>
-        <button type="button" class="rv-reset" id="rvReset">Reset</button>
-      </div>
-      <p class="rv-msg" id="rvMsg" role="status"></p>
-    </form>
-  </details>
-  <script>
-    (function(){
-      var root = document.documentElement, KEY = "lp-review-color";
-      var hex = document.getElementById("rvHex"), wheel = document.getElementById("rvWheel"),
-          msg = document.getElementById("rvMsg"), cur = document.getElementById("rvCur");
-      function norm(v){
-        v = String(v || "").trim().replace(/^#/, "");
-        if(/^[0-9a-f]{3}$/i.test(v)) v = v[0]+v[0]+v[1]+v[1]+v[2]+v[2];
-        return /^[0-9a-f]{6}$/i.test(v) ? "#" + v.toUpperCase() : null;
-      }
-      function show(){
-        var cs = getComputedStyle(root), c = norm(cs.getPropertyValue("--lp-navbg"));
-        hex.value = c || ""; wheel.value = (c || "#000000").toLowerCase();
-        cur.textContent = c || "";
-        msg.textContent = "Type on color: " + cs.getPropertyValue("--lp-navfg").trim() +
-          " · type on white: " + cs.getPropertyValue("--lp-navink").trim();
-      }
-      function set(c, save){
-        root.style.setProperty("--lp-navbg", c);
-        if(window.lpApplyColor) window.lpApplyColor();
-        if(save){ try{ localStorage.setItem(KEY, JSON.stringify({ c: c })); }catch(e){} }
-        show();
-      }
-      wheel.addEventListener("input", function(){ hex.value = wheel.value.toUpperCase(); });
-      hex.addEventListener("input", function(){ var c = norm(hex.value); if(c) wheel.value = c.toLowerCase(); });
-      document.getElementById("rvForm").addEventListener("submit", function(e){
-        e.preventDefault();
-        var c = norm(hex.value);
-        if(!c){ msg.textContent = "Enter a 3- or 6-digit hex, e.g. #98B849"; return; }
-        set(c, true);
-      });
-      document.getElementById("rvReset").addEventListener("click", function(){
-        root.style.removeProperty("--lp-navbg");
-        try{ localStorage.removeItem(KEY); localStorage.removeItem("lp-review-mode"); }catch(e){}
-        if(window.lpApplyColor) window.lpApplyColor();
-        show();
-      });
-      try{ localStorage.removeItem("lp-review-mode"); }catch(e){}   // the retired LINES / COLOR switch
-      try{
-        var saved = JSON.parse(localStorage.getItem(KEY) || "null");
-        if(saved && norm(saved.c)){ set(norm(saved.c), false); return; }
-      }catch(e){}
-      show();
-    })();
   </script>
 
 </body>
