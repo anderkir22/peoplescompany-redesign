@@ -110,7 +110,9 @@
            counts, 1600 down to 320
 
        REVIEW-ONLY COLOR PICKER - REMOVE BEFORE HANDOFF: the "Listing color" panel bottom
-       left (block before </body>, plus window.lpApplyColor in the contrast script).
+       left (block before </body>, plus window.lpApplyColor in the contrast script). Its
+       LINES / COLOR switch decides the section style; once one is chosen, move that
+       rule out of the picker's style block into the page CSS before deleting it.
 
        BREAKDOWN COPIES - REMOVE BEFORE HANDOFF: the live and online-only auction
        cards; Contact and Video each appear
@@ -3422,7 +3424,7 @@
        Reset returns to the values in the page's CSS.
        ====================================================================== -->
   <style>
-    .rv-pick{ position: fixed; left: 12px; bottom: 12px; z-index: 300;
+    .rv-pick{ position: fixed; left: 12px; bottom: 12px; z-index: 300; max-width: calc(100vw - 24px);
       font: 500 13px/1.3 var(--font-sans); color: #000; background: #fff;
       border: 1px solid #000; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
     .rv-pick > summary{ list-style: none; cursor: pointer; padding: 8px 12px;
@@ -3444,6 +3446,26 @@
     .rv-reset{ background: #fff; color: #000; }
     .rv-msg{ grid-column: 1 / -1; margin: 0; font-size: 12px; min-height: 1.3em; }
     @media print{ .rv-pick{ display: none; } }
+    .rv-mode{ grid-column: 1 / -1; display: flex; gap: 4px; margin: 0; padding: 3px;
+      border: 1px solid #000; border-radius: 999px; }
+    .rv-mode legend{ position: absolute; width: 1px; height: 1px; overflow: hidden;
+      clip-path: inset(50%); white-space: nowrap; }
+    .rv-mode label{ flex: 1; position: relative; text-align: center; cursor: pointer; }
+    .rv-mode input{ position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .rv-mode span{ display: block; padding: 6px 10px; border-radius: 999px;
+      font-weight: 600; letter-spacing: .06em; }
+    .rv-mode input:checked + span{ background: #000; color: #fff; }
+    .rv-mode input:focus-visible + span{ outline: 2px solid #000; outline-offset: 2px; }
+    /* SECTION STYLE, TWO WAYS (Kiron, 2026-10-02) - set by the switch below.
+       LINES: the rules between sections, no ground on any section.
+       COLOR: no rules; a shaded section (Tracts) takes the auction card's tint - the
+       listing color at --lp-ac-tint in white - instead of the 4% black. The band still
+       fills edge to edge and the next section still drops its margin, so it meets the
+       next section's (now absent) rule line exactly. */
+    html.rv-lines .lp-section--tint{ background: none; }
+    html.rv-color .lp-section::before, html.rv-color .lp-acc::before{ content: none; }
+    html.rv-color .lp-section--tint{
+      background: color-mix(in srgb, var(--lp-navbg) var(--lp-ac-tint), #FFFFFF); }
   </style>
   <details class="rv-pick" id="rvPick">
     <summary><span class="rv-sw" aria-hidden="true"></span>Listing color <span id="rvCur"></span></summary>
@@ -3454,6 +3476,11 @@
       <input type="color" id="rvWheel" />
       <label for="rvTint">Card tint %</label>
       <input type="number" id="rvTint" min="0" max="100" step="1" />
+      <fieldset class="rv-mode">
+        <legend>Sections</legend>
+        <label><input type="radio" name="rvMode" value="lines" /><span>LINES</span></label>
+        <label><input type="radio" name="rvMode" value="color" /><span>COLOR</span></label>
+      </fieldset>
       <div class="rv-row">
         <button type="submit" class="rv-go">Apply</button>
         <button type="button" class="rv-reset" id="rvReset">Reset</button>
@@ -3463,7 +3490,21 @@
   </details>
   <script>
     (function(){
-      var root = document.documentElement, KEY = "lp-review-color";
+      var root = document.documentElement, KEY = "lp-review-color", MKEY = "lp-review-mode";
+      function setMode(m, save){
+        m = m === "color" ? "color" : "lines";
+        root.classList.toggle("rv-lines", m === "lines");
+        root.classList.toggle("rv-color", m === "color");
+        var r = document.querySelector('input[name="rvMode"][value="' + m + '"]');
+        if(r) r.checked = true;
+        if(save){ try{ localStorage.setItem(MKEY, m); }catch(e){} }
+      }
+      document.querySelectorAll('input[name="rvMode"]').forEach(function(r){
+        r.addEventListener("change", function(){ setMode(r.value, true); });
+      });
+      var savedMode = null;
+      try{ savedMode = localStorage.getItem(MKEY); }catch(e){}
+      setMode(savedMode, false);   // LINES unless COLOR was chosen before
       var hex = document.getElementById("rvHex"), wheel = document.getElementById("rvWheel"),
           tint = document.getElementById("rvTint"), msg = document.getElementById("rvMsg"),
           cur = document.getElementById("rvCur");
@@ -3502,7 +3543,8 @@
       });
       document.getElementById("rvReset").addEventListener("click", function(){
         root.style.removeProperty("--lp-navbg"); root.style.removeProperty("--lp-ac-tint");
-        try{ localStorage.removeItem(KEY); }catch(e){}
+        try{ localStorage.removeItem(KEY); localStorage.removeItem(MKEY); }catch(e){}
+        setMode("lines", false);
         if(window.lpApplyColor) window.lpApplyColor();
         show();
       });
