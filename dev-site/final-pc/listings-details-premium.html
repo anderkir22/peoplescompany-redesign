@@ -63,13 +63,14 @@
          7. SECTION HEADINGS OFF THE COLOR BAND (2026-10-02): plain type on white; the
             fading band and its 639-down 70% stop are gone. Photos chevron and focus
             ring back to page colors. Jump lands the heading 24px under the sub nav.
-         8. RULE THICKNESS UNDER REVIEW - a 1px-to-9px sampler, one per section
-            (REVIEW ONLY block). FULL-BLEED RULE (8px first) in the listing color between every section, and the
+         8. 2px RULE ON THE CONTENT RAIL (2026-10-02; was 8px, 4px, a 1-9px sampler,
+            and full bleed) in the listing color between every section, and the
             gap either side of it 64px from 768 up, 48px from 767 down (was 48 above
             the heading, no rule). Every band's vertical rhythm changed.
          9. TRACTS ON A 4% BLACK FULL-BLEED BAND again (as of 2026-09-23). Check the
             band edges for sideways scroll and the tract columns inside it.
             Band fills rule to rule: the section after it drops its top margin.
+            Downloads and Contact shaded too (2026-10-02); Contact's cards stay white.
         16. AUCTION CARD GROUND: 30% of the listing color in white (was white);
             --lp-navink now tested against that tint. 3px border removed, so the
             card's content is 6px wider at every width - re-check its wraps.
@@ -863,12 +864,12 @@
     .lp-h2{ margin: 0 0 var(--space-5); }
 
     /* ---- THE SECTION RULE AND THE GAP (Kiron, 2026-10-02) -------------------------
-       A 4px RULE IN THE LISTING'S COLOR (8px first, 4px 2026-10-02), EDGE TO EDGE, between every two sections:
-       the top edge of every section after the overview, Photos included. It is a
-       ::before so it can run the whole screen while the section keeps its box on the
-       content rail - positioned from the section's center, exactly --vw wide. --vw is
-       the viewport without the scrollbar (100vw includes the Windows scrollbar and
-       would give the page a horizontal scroll).
+       A 2px RULE IN THE LISTING'S COLOR between every two sections - the top edge of
+       every section after the overview, Photos included. (8px first, then 4px, then a
+       1-9px sampler; 2px chosen.)
+       IT RUNS THE CONTENT RAIL, NOT THE SCREEN: it starts and stops where the text does,
+       so it is simply the section box's own width (left 0, right 0). The one exception
+       is a shaded band, whose box is pulled out to the screen edges - see below.
 
        --lp-gap IS THE SPACE EITHER SIDE OF THE RULE - margin above it, padding below
        it, so the rule sits centered between the end of one section and the next
@@ -882,32 +883,26 @@
     .lp-section, .lp-acc{ position: relative;
       margin-top: var(--lp-gap); padding-top: var(--lp-gap); }
     .lp-section::before, .lp-acc::before{ content: ""; position: absolute;
-      top: 0; height: var(--lp-rule-h, 4px);
-      left: calc(50% - var(--vw, 100vw) / 2); width: var(--vw, 100vw);
+      top: 0; height: 2px; left: 0; right: 0;
       background: var(--lp-navbg); }
+    /* ON A SHADED BAND the section box is the full screen, so the rule is inset back to
+       the rail: --lp-railx is where the rail starts from the screen edge (.lp-wrap is
+       --site wide at most, centered, with --rail padding; at widths where --site is
+       the whole screen the rail padding alone is the offset). --vw is the viewport
+       without the scrollbar. */
+    .lp-section--tint::before{
+      --lp-railx: max(var(--rail), calc((var(--vw, 100vw) - var(--site)) / 2 + var(--rail)));
+      left: var(--lp-railx); right: var(--lp-railx); }
 
-    /* REVIEW ONLY - RULE THICKNESS SAMPLER (Kiron, 2026-10-02): each visible rule one
-       px thicker than the one above, 1px over Brochure to 9px over Data Room (was 3-11;
-       11 too thick), so the
-       options can be compared in place. Delete this block once a thickness is chosen and
-       set it as the 4px default above. Hidden breakdown sections are skipped. */
-    #lp-brochure{ --lp-rule-h: 1px; }
-    #lp-tracts{ --lp-rule-h: 2px; }
-    #lp-map{ --lp-rule-h: 3px; }
-    #lp-downloads{ --lp-rule-h: 4px; }
-    #lp-video{ --lp-rule-h: 5px; }
-    #lp-tour{ --lp-rule-h: 6px; }
-    #lp-photos{ --lp-rule-h: 7px; }
-    #lp-contact-two{ --lp-rule-h: 8px; }
-    #lp-dataroom{ --lp-rule-h: 9px; }
-
-    /* ---- THE SHADED SECTION - TRACTS ----------------------------------------------
+    /* ---- THE SHADED SECTIONS - TRACTS, DOWNLOADS, CONTACT ----------------------------------------------
        Restored 2026-10-02 as it was built 2026-09-23 (removed 2026-09-29 when the
        heading bands came in): 4% black, about #F5F5F5 over white - neutral, so it does
        not argue with the listing's color, which changes from page to page.
        FULL BLEED: the margins pull the section out to the viewport edges and the
        padding pushes its content back onto the rail by the same amount. The two are
-       mirror images and must stay so, or the copy leaves the rail. The rule sits on
+       mirror images and must stay so, or the copy leaves the rail.
+       SHADED SECTIONS: Tracts, Downloads and Contact (Kiron, 2026-10-02). Contact's
+       agent cards stay white on the band (.lp-agents .ld-agentcard). The rule sits on
        the band's top edge; the band's bottom padding matches its top.
        A SHADED BAND FILLS RULE TO RULE (Kiron, 2026-10-02). The next section's gap
        above its rule is a margin, which would show as a white strip between the band
@@ -1872,7 +1867,7 @@
            in - same list, same italic note, same markup the standard listing detail pages
            carry under their Downloads accordion. Four short rows never needed a dialog,
            a scroll lock and a focus trap to show four short rows. -->
-      <section id="lp-downloads" class="lp-section reveal" aria-labelledby="lp-downloads-h">
+      <section id="lp-downloads" class="lp-section lp-section--tint reveal" aria-labelledby="lp-downloads-h">
         <h2 id="lp-downloads-h" class="lp-h2">Downloads</h2>
         <ul class="ld-dl ld-dl-odd">
           <li><a href="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/attachments/19278_Soils%20Map.pdf" target="_blank" rel="noopener"><span class="n">Soils Map</span><span class="m">PDF</span></a></li>
@@ -2112,7 +2107,7 @@
            three agents and the grid renders either without an edit - see .lp-agents in the
            style block. The card itself is the standard listing detail pages' agent card,
            same fields, plus the job title those pages do not show. -->
-      <section id="lp-contact" class="lp-section reveal" hidden aria-labelledby="lp-contact-h">
+      <section id="lp-contact" class="lp-section lp-section--tint reveal" hidden aria-labelledby="lp-contact-h">
         <h2 id="lp-contact-h" class="lp-h2">Contact</h2>
 
         <div class="lp-agents">
@@ -2169,7 +2164,7 @@
            HIDDEN (Kiron, 2026-10-02): the three-agent section above and the one-agent
            section below carry the hidden attribute; only this two-agent one shows, and
            the sub nav links here. Remove the attribute to check the other counts. -->
-      <section id="lp-contact-two" class="lp-section reveal" aria-labelledby="lp-contact-two-h">
+      <section id="lp-contact-two" class="lp-section lp-section--tint reveal" aria-labelledby="lp-contact-two-h">
         <h2 id="lp-contact-two-h" class="lp-h2">Contact</h2>
 
         <div class="lp-agents">
@@ -2206,7 +2201,7 @@
         </div>
       </section>
 
-      <section id="lp-contact-one" class="lp-section reveal" hidden aria-labelledby="lp-contact-one-h">
+      <section id="lp-contact-one" class="lp-section lp-section--tint reveal" hidden aria-labelledby="lp-contact-one-h">
         <h2 id="lp-contact-one-h" class="lp-h2">Contact</h2>
 
         <div class="lp-agents">
@@ -3458,7 +3453,7 @@
     .rv-mode input:focus-visible + span{ outline: 2px solid #000; outline-offset: 2px; }
     /* SECTION STYLE, TWO WAYS (Kiron, 2026-10-02) - set by the switch below.
        LINES: the rules between sections, no ground on any section.
-       COLOR: no rules; a shaded section (Tracts) takes the auction card's tint - the
+       COLOR: no rules; the shaded sections (Tracts, Downloads, Contact) take the card's tint - the
        listing color at --lp-ac-tint in white - instead of the 4% black. The band still
        fills edge to edge and the next section still drops its margin, so it meets the
        next section's (now absent) rule line exactly. */
