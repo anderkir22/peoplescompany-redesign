@@ -59,6 +59,14 @@
             changed at every width - re-check the 768-899 rail, 640-767 heading at the
             foot, and 320-479. (a37c72f, 162d82d, eea7833, 8b8a043)
          6. Footer Regions link -> regions.html. No layout effect. (15e564b)
+         7. SECTION HEADINGS OFF THE COLOR BAND (2026-10-02): plain type on white; the
+            fading band and its 639-down 70% stop are gone. Photos chevron and focus
+            ring back to page colors. Jump lands the heading 24px under the sub nav.
+         8. 8px FULL-BLEED RULE in the listing color between every section, and the
+            gap either side of it 64px from 768 up, 48px from 767 down (was 48 above
+            the heading, no rule). Every band's vertical rhythm changed.
+         9. TRACTS ON A 4% BLACK FULL-BLEED BAND again (as of 2026-09-23). Check the
+            band edges for sideways scroll and the tract columns inside it.
 
        RULES SET DURING THE LADDER (all widths unless noted):
          - Photos accordion loads closed; the sub nav link opens it (already so)
@@ -449,39 +457,23 @@
       border-color: var(--lp-navbg);
       font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
     .lp-btn:hover{ background: var(--lp-navfg); color: var(--lp-navbg); }
-    /* A jump has to clear the sticky header AND the sub nav pinned below it, and then
-       land the HEADING'S BAND flush against the sub nav - not the section box, and not
-       24px clear of it. Three terms, in order:
+    /* A jump has to clear the sticky header AND the sub nav pinned below it, and land
+       the HEADING 24px under the sub nav - not the section box. Three terms:
          --navH + --lp-jump-h   the real chrome, measured by syncNavH()
-         - var(--space-7)       CANCELS .lp-section's own 48px padding-top, which sits
-                                inside the scroll target and would otherwise be the
-                                floor on how close the heading can get
-       Without the canceling term the heading can never come within 48px of the sub nav
-       however the offset is tuned, and a jump leaves the tail of the previous section
-       sitting above the heading you asked for (Kiron, 2026-09-21).
-
-       THE TWO COLORS MEET, WITH NO GAP (Kiron, 2026-09-29). There used to be a third
-       term, + var(--space-5), which set the heading 24px below the sub nav. That was
-       the right number when the heading was black type on white and needed air under
-       the bar. It is the wrong number now that the heading sits on a band of the SAME
-       --lp-navbg the sub nav is painted in: 24px of white between two identical colors
-       read as a seam, not as breathing room. At zero the band's top edge meets the sub
-       nav's bottom edge and a jump lands on one unbroken block of the listing's color,
-       with the section's title in it.
-
-       THAT IS WHY THE TERM IS GONE RATHER THAN SET TO 0 - there is nothing left to
-       tune. If a gap is ever wanted again, add it back as its own term rather than
-       adjusting one of the other two: --navH and --lp-jump-h are measured from the
-       real chrome and are read by other things, the Interactive Map tab included, and
-       --space-7 has to stay equal to .lp-section's padding-top or the cancellation
-       drifts and the heading lands somewhere else entirely.
+         - var(--lp-gap)        CANCELS the section's own padding-top (the space under
+                                its rule), which sits inside the scroll target
+         + var(--space-5)       the 24px of white between the sub nav and the heading
+       The section's rule and the gap above it land hidden under the chrome.
+       (2026-10-02: the gap term is back now the headings are type on white again; it
+       was dropped 2026-09-29 while each heading sat on a band of the sub nav's color.)
 
        .lp-wrap > details IS IN THE SELECTOR TOO: Photos is an accordion, so it is a
        <details> rather than a <section>, and it is a jump target like every other
        band. Both selectors carry every rule below that names one of them. */
     .lp-wrap > section,
     .lp-wrap > details{
-      scroll-margin-top: calc(var(--navH) + var(--lp-jump-h) - var(--space-7)); }
+      scroll-margin-top: calc(var(--navH) + var(--lp-jump-h)
+                              - var(--lp-gap) + var(--space-5)); }
 
     /* THE REVEAL'S TRANSFORM LIES TO THE SCROLL, so jump targets fade without it.
        .reveal starts a section at translateY(16px) and drops it on .in. Jump to a
@@ -797,123 +789,60 @@
        This is also why there is no longer a prefers-reduced-motion rule here - there
        is no motion left to reduce. */
 
-    /* ---- THE SECTION HEADING BAR ------------------------------------------------
-       WHAT IT IS FOR. The page is one long white column and the sections were told
-       apart only by the size of their headings - no rule, no ground, nothing to catch
-       the eye on the way down. Every H2 now sits on a band of the LISTING'S OWN color
-       that runs off the left edge of the screen and fades out halfway across it. It
-       gives the page color that changes from listing to listing, and it gives the eye
-       a fixed mark to scan for.
+    /* ---- SECTION HEADINGS ---------------------------------------------------------
+       Plain type on the page ground (Kiron, 2026-10-02). The listing-color band that
+       ran behind every H2 from the screen edge and faded out mid-screen is gone; the
+       sections are now told apart by the full-bleed rule between them (below). */
+    .lp-h2{ margin: 0 0 var(--space-5); }
 
-       THE COLOR PAIR IS THE SUB NAV'S, and for the sub nav's reason. --lp-navbg is the
-       one value set per listing; --lp-navfg is NOT set by hand - the script computes
-       the WCAG relative luminance of --lp-navbg and writes back whichever of black or
-       white has the better contrast against it. So the heading is legible on any
-       listing color by construction, the same as the nav, the buttons and the tract
-       window header. Do not put a hand-picked color on these headings.
+    /* ---- THE SECTION RULE AND THE GAP (Kiron, 2026-10-02) -------------------------
+       AN 8px RULE IN THE LISTING'S COLOR, EDGE TO EDGE, between every two sections:
+       the top edge of every section after the overview, Photos included. It is a
+       ::before so it can run the whole screen while the section keeps its box on the
+       content rail - positioned from the section's center, exactly --vw wide. --vw is
+       the viewport without the scrollbar (100vw includes the Windows scrollbar and
+       would give the page a horizontal scroll).
 
-       THE FADE BEGINS AT THE RAIL, WHERE THE TEXT BEGINS (Kiron, 2026-09-29). It used
-       to begin at the edge of the SCREEN, which meant the full-strength color was all
-       spent in the margin: by the time the band reached the first letter it was
-       already about 14% faded, and every letter after that sat on something weaker
-       still. Now the band holds --lp-navbg solid from the screen edge across the
-       margin, and starts fading only at the point the heading starts. The first letter
-       is on the color at full strength, which is the strength --lp-navfg was checked
-       against. --lp-railx is that point, measured from the band's own left edge.
-
-       THE NINE HEADINGS ARE A FIXED SET (Kiron, 2026-09-29) - Brochure, Tracts, Map,
-       Downloads, Video, 360 Tour, Photos, Contact, Data Room - and they are not going
-       to change, so the band only ever has to be legible under those. All nine are one
-       or two short words and end inside the first quarter of the ramp, well within the
-       full-strength color. If that list is ever added to, the thing to check is that
-       the new heading still ends before the fade bites: --lp-navfg is checked against
-       --lp-navbg at FULL strength, so a heading running into the fade would end in
-       white-on-white. The fix for that is a second solid stop held past the text, not
-       a wider fade, which only spreads the problem out.
-
-       FULL BLEED LEFT, NOT RAIL WIDTH. The band starts at the edge of the screen, not
-       at the content rail, so it reads as something the page is sitting on rather than
-       as a box drawn around the heading. It is a ::before rather than a background on
-       the H2 itself because the H2 has to keep its own box on the rail: the text stays
-       lined up with every paragraph below it while only the paint runs wider.
-
-       THE GRADIENT IS MEASURED ON THE SCREEN, NOT ON THE HEADING. The ::before is
-       exactly --vw wide and starts at the left edge of the viewport, so "50%" is half
-       the screen whatever the rail is doing. Putting the gradient on the H2 would
-       measure it against the rail, and the fade would land in a different place at
-       every width. --vw is the viewport WITHOUT the scrollbar, published by the script
-       that keeps --navH in step. It is not 100vw because 100vw INCLUDES the classic
-       scrollbar Windows browsers draw: a band sized to it is about 15px too wide, and
-       a full-bleed element that overshoots on the right gives the whole page a
-       horizontal scrollbar. The 100vw in the fallback is only what applies for the
-       moment before the script runs.
-
-       --lp-railx IS WHERE THE CONTENT RAIL STARTS, measured from the left edge of the
-       screen, which is the left edge of the band. .lp-wrap is --site wide at most and
-       centered, with --rail of padding inside it, so the first character of every
-       heading sits at (screen - site) / 2 + rail. The max() is for the widths where
-       --site is 100% and the page is already full width: the halving term goes to zero
-       or negative there and the rail padding is the whole offset. It is a variable and
-       not an inline number because the gradient and the heading have to agree at every
-       width on the ladder - they are the same two custom properties, so they cannot
-       drift apart.
-
-       ISOLATION IS LOAD-BEARING. The band paints at z-index -1 so the heading's own
-       text sits on top of it. Without `isolation: isolate` that -1 escapes the heading
-       and is resolved against the nearest stacking context instead, so the band slides
-       behind whatever ground that context is painting - it vanishes under any section
-       given a background of its own. isolate keeps the -1 inside the heading, which
-       means a section can be given a ground later without the heading breaking. */
-    /* --lp-band-end is where the fade reaches transparent, as a share of the screen:
-       50% from 640 up, 70% from 639 down (Kiron, 2026-10-01), where the narrow screen
-       left the band too short behind the heading. */
-    .lp-h2, .lp-acc > summary{
-      --lp-railx: max(var(--rail),
-                      calc((var(--vw, 100vw) - var(--site)) / 2 + var(--rail)));
-      --lp-band-end: 50%; }
-    @media (max-width: 639px){
-      .lp-h2, .lp-acc > summary{ --lp-band-end: 70%; }
+       --lp-gap IS THE SPACE EITHER SIDE OF THE RULE - margin above it, padding below
+       it, so the rule sits centered between the end of one section and the next
+       heading. 64px from 768 up, 48px from 767 down. It is also the term the jump
+       offset cancels (see scroll-margin-top), so the two cannot drift apart. */
+    .lp-wrap{ --lp-gap: var(--space-8); }
+    @media (max-width: 767px){
+      .lp-wrap{ --lp-gap: var(--space-7); }
     }
-    .lp-h2{ position: relative; isolation: isolate;
-      color: var(--lp-navfg);
-      padding: var(--space-2) 0;
-      margin: 0 0 var(--space-5); }
-    .lp-h2::before,
-    .lp-acc > summary::before{ content: ""; position: absolute; z-index: -1;
-      top: 0; bottom: 0;
-      left: calc(50% - var(--vw, 100vw) / 2);
-      width: var(--vw, 100vw);
-      background: linear-gradient(90deg,
-        var(--lp-navbg) 0, var(--lp-navbg) var(--lp-railx), transparent var(--lp-band-end)); }
-    /* IN THE ACCORDION the heading is a flex item beside the chevron, so it would
-       shrink to the width of the word "Photos" and take its 50% - and so its full-bleed
-       offset - from that. flex:1 gives it the whole summary row, which is the rail,
-       which is what every other heading on the page has.
-       IT KEEPS ITS OWN PADDING, because that padding IS the band's height - drop it
-       and the one banded heading on the page is a thinner bar than the other eight.
-       The summary gives up its padding instead, so the row is the band and nothing
-       more.
+    .lp-section, .lp-acc{ position: relative;
+      margin-top: var(--lp-gap); padding-top: var(--lp-gap); }
+    .lp-section::before, .lp-acc::before{ content: ""; position: absolute;
+      top: 0; height: 8px;
+      left: calc(50% - var(--vw, 100vw) / 2); width: var(--vw, 100vw);
+      background: var(--lp-navbg); }
 
-       THE BAND IS DRAWN BY THE SUMMARY HERE, NOT BY THE HEADING. The heading is a flex
-       item sized to the word "Photos", nothing like the width of the rail - and since
-       the band is positioned from its own box's center, drawing it on the heading would
-       put it and its fade wherever that word happened to end. The summary IS the rail,
-       so anchoring the band to it lines this heading up with the other eight. The
-       heading's own band is switched off rather than left to paint twice.
+    /* ---- THE SHADED SECTION - TRACTS ----------------------------------------------
+       Restored 2026-10-02 as it was built 2026-09-23 (removed 2026-09-29 when the
+       heading bands came in): 4% black, about #F5F5F5 over white - neutral, so it does
+       not argue with the listing's color, which changes from page to page.
+       FULL BLEED: the margins pull the section out to the viewport edges and the
+       padding pushes its content back onto the rail by the same amount. The two are
+       mirror images and must stay so, or the copy leaves the rail. The rule sits on
+       the band's top edge; the band's bottom padding matches its top. */
+    .lp-section--tint{ background: rgba(0, 0, 0, .04);
+      margin-left: calc(50% - var(--vw, 100vw) / 2);
+      margin-right: calc(50% - var(--vw, 100vw) / 2);
+      padding-left: calc(var(--vw, 100vw) / 2 - 50%);
+      padding-right: calc(var(--vw, 100vw) / 2 - 50%);
+      padding-bottom: var(--lp-gap); }
 
+    /* IN THE ACCORDION the heading is a flex item beside the chevron.
        THE CHEVRON SITS NEXT TO THE WORD, NOT AT THE FAR END (Kiron, 2026-09-29). It was
        pushed to the right edge of the rail by justify-content: space-between, which is
        where an accordion chevron normally goes - and on this page that put it 1100px
-       away from the only thing that explains it, out past the end of the color band on
-       plain white, reading as an unrelated control. Beside the heading it is part of
+       away from the only thing that explains it, reading as an unrelated control. Beside the heading it is part of
        the same object and is seen at the same moment the heading is. flex-start is what
        does it; the heading gives up flex:1 so it shrinks back to its text and the
        chevron follows it. */
-    .lp-acc > summary{ position: relative; isolation: isolate;
-      justify-content: flex-start; }
+    .lp-acc > summary{ justify-content: flex-start; }
     .lp-acc > summary .lp-h2{ flex: 0 0 auto; margin: 0; }
-    .lp-acc > summary .lp-h2::before{ content: none; }
-    .lp-section{ padding-top: var(--space-7); }
 
     /* ---- THE ACCORDION ------------------------------------------------------------
        ONE BAND ON THIS PAGE USES IT - Photos. Every other section on the premium page
@@ -943,38 +872,22 @@
        is fetched until a visitor asks for them. That is the same mockup compromise as
        before (full-size files shown at thumbnail size, see the Photos markup), just no
        longer paid by every visitor. */
-    .lp-acc{ padding-top: var(--space-7); }
     .lp-acc > summary{ display: flex; align-items: center;
       gap: var(--space-4); cursor: pointer; list-style: none; padding: 0; }
     /* list-style:none alone does not remove the disclosure triangle in Safari. */
     .lp-acc > summary::-webkit-details-marker{ display: none; }
-    /* NO HOVER COLOR ON THE HEADING any more: it is reversed out of the listing's
-       color now, and --lp-navfg is the only foreground checked against that ground.
-       Swapping it for Medium Blue on hover would put an unchecked pair on a band that
-       is a different color on every listing. The chevron carries the hover instead. */
-    /* The focus ring is INSIDE the band, not offset outside it: the summary is the
-       full-bleed row, so an outset ring would be drawn off the edges of the screen.
-       --lp-navfg again, because that is what is legible on this ground. */
-    .lp-acc > summary:focus-visible{ outline: 2px solid var(--lp-navfg);
-      outline-offset: -4px; border-radius: var(--radius-sm); }
-    /* IT IS ON THE COLOR BAND NOW, so it takes the band's pair. It used to be PC Navy
-       type inside a light gray ring, which was right when it sat out on white past the
-       end of the band; beside the heading it sits ON --lp-navbg, where navy-on-brown is
-       a combination nobody checked and the gray ring is barely visible. --lp-navfg is
-       the one foreground that IS checked against this ground, so the glyph and the ring
-       are both drawn in it - the ring at 45% so it reads as a container round the
-       chevron rather than as a second solid mark beside the heading. */
+    /* ON WHITE AGAIN (2026-10-02), so the heading, focus ring and chevron are back in
+       the page's own colors - no band behind them to be checked against. */
+    .lp-acc > summary:hover h2{ color: var(--pc-medium-blue); }
+    .lp-acc > summary:focus-visible{ outline: 2px solid var(--pc-medium-blue);
+      outline-offset: 4px; border-radius: var(--radius-sm); }
     .lp-acc-chev{ flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill);
       display: flex; align-items: center; justify-content: center;
-      color: var(--lp-navfg);
-      border: 1px solid color-mix(in srgb, var(--lp-navfg) 45%, transparent);
+      border: 1px solid var(--color-border); color: var(--pc-navy);
       transition: transform .2s ease, background-color .15s ease, border-color .15s ease; }
     .lp-acc-chev svg{ width: 16px; height: 16px; }
-    /* HOVER INVERTS THE PAIR, the same idiom as .lp-btn and for the same reason:
-       contrast is symmetric, so the inverted state scores exactly the ratio the resting
-       one does, on any ground the listing picks. */
-    .lp-acc > summary:hover .lp-acc-chev{ background: var(--lp-navfg);
-      border-color: var(--lp-navfg); color: var(--lp-navbg); }
+    .lp-acc > summary:hover .lp-acc-chev{ background: var(--pc-light-blue);
+      border-color: var(--pc-light-blue); }
     .lp-acc[open] > summary .lp-acc-chev{ transform: rotate(180deg); }
     .lp-acc-body{ padding-top: var(--space-5); padding-bottom: var(--space-4);
       border-bottom: 1px solid var(--color-border); }
@@ -1830,7 +1743,7 @@
       </section>
 
       <!-- The sections below are in sub nav order. -->
-      <section id="lp-tracts" class="lp-section reveal" aria-labelledby="lp-tracts-h">
+      <section id="lp-tracts" class="lp-section lp-section--tint reveal" aria-labelledby="lp-tracts-h">
         <h2 id="lp-tracts-h" class="lp-h2">Tracts</h2>
         <p class="lp-copy">Click a tract below for individual maps and more information.</p>
         <ul class="lp-tlist" id="lpTractList"></ul>
@@ -2697,7 +2610,7 @@
     // Keeps --navH and --lp-jump-h in step with the sticky header and the sub nav, which
     // the sections' scroll-margin is measured against - a jump has to clear both.
     // It also publishes --vw, the viewport width WITHOUT the scrollbar, which the
-    // full-bleed section headings use in place of 100vw - see .lp-h2::before. It is
+    // full-bleed section rules and the Tracts band use in place of 100vw - see .lp-section::before. It is
     // set here rather than in a module of its own because this is already the one place
     // that measures the page and re-measures it on resize.
     /* ---- balanceJump: NO SUB NAV ROW HOLDS ONE LINK ----
