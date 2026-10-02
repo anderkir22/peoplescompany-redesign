@@ -40,8 +40,8 @@
          340 column, under the overview from 1023 down (held to 480). "Auction Terms"
          on each card opens a terms window in the tract window's shell. Email Agent
          writes to the first agent listed. No sub nav link. The live and online-only
-         cards are BREAKDOWN ONLY copies stacked under the sealed-bid one. Only the
-         LIVE card shows now; sealed-bid and online-only are hidden (2026-10-02).
+         cards are BREAKDOWN ONLY copies stacked under the sealed-bid one. All three
+         show (2026-10-02).
 
        CHANGED SINCE LADDER APPROVAL - RE-CHECK 1536 TO 320 AT FINAL SIGN-OFF
        (baseline: commit cd1bdb6, 2026-10-01 11:04). Add every change here as it lands.
@@ -63,24 +63,27 @@
          7. SECTION HEADINGS OFF THE COLOR BAND (2026-10-02): plain type on white; the
             fading band and its 639-down 70% stop are gone. Photos chevron and focus
             ring back to page colors. Jump lands the heading 24px under the sub nav.
-         8. 2px RULE ON THE CONTENT RAIL (2026-10-02; was 8px, 4px, a 1-9px sampler,
-            and full bleed) in the listing color between every section, and the
-            gap either side of it 64px from 768 up, 48px from 767 down (was 48 above
-            the heading, no rule). Every band's vertical rhythm changed.
-         9. TRACTS ON A 4% BLACK FULL-BLEED BAND again (as of 2026-09-23). Check the
-            band edges for sideways scroll and the tract columns inside it.
-            Band fills rule to rule: the section after it drops its top margin.
-            Downloads and Contact shaded too (2026-10-02); Contact's cards stay white.
-        16. AUCTION CARD GROUND: 30% of the listing color in white (was white);
+         8. NO RULES BETWEEN SECTIONS (2026-10-02; a listing-color rule was tried at
+            8px, 4px, a 1-9px sampler and 2px, full bleed and on the rail). Sections are
+            told apart by the gap and the color bands (item 9). Gap 64px from 768 up,
+            48px from 767 down (was 48 above the heading). Every band's vertical rhythm
+            changed.
+         9. TRACTS, DOWNLOADS AND CONTACT ON FULL-BLEED COLOR BANDS (2026-10-02): the
+            listing color at --lp-ac-tint (15%) in white, the auction card's ground
+            (was 4% black). Check the band edges for sideways scroll and the tract
+            columns inside it. The section after a band drops its top margin.
+            Contact's agent cards stay white.
+        16. AUCTION CARD GROUND: 15% of the listing color in white (was white, then 30%);
             --lp-navink now tested against that tint. 3px border removed, so the
             card's content is 6px wider at every width - re-check its wraps.
         10. CONTACT: only the two-agent section shows (three- and one-agent hidden),
             sub nav Contact jumps to it. Page is shorter; layout of the cards unchanged.
         11. VIDEO: only the three-video section shows (two- and one-video hidden).
             Page is shorter; the video row itself unchanged.
-        12. AUCTION DETAILS: only the Live card shows (sealed-bid and online-only
-            hidden). The overview column beside it is now one card tall - check the
-            1024+ two-column balance and the stacked card from 1023 down.
+        12. AUCTION DETAILS: all three cards show again (sealed-bid, live, online-only;
+            Live alone for a while 2026-10-02). The column beside the overview is three
+            cards tall - check the 1024+ two-column balance and the stacked cards from
+            1023 down.
         13. HERO LINE 2 is now "Live Auction - September 15, 2026" ("$42,500,000 or "
             hidden), much shorter than item 5's line - re-check its wrap and the
             hero's height at every width.
@@ -111,9 +114,8 @@
            counts, 1600 down to 320
 
        REVIEW-ONLY COLOR PICKER - REMOVE BEFORE HANDOFF: the "Listing color" panel bottom
-       left (block before </body>, plus window.lpApplyColor in the contrast script). Its
-       LINES / COLOR switch decides the section style; once one is chosen, move that
-       rule out of the picker's style block into the page CSS before deleting it.
+       left (block before </body>, plus window.lpApplyColor in the contrast script). It
+       sets the listing color only; the tint is locked at 15% in the dials.
 
        BREAKDOWN COPIES - REMOVE BEFORE HANDOFF: the live and online-only auction
        cards; Contact and Video each appear
@@ -139,7 +141,7 @@
        them to px or re-anchor them to the bottom.
 
          --lp-navbg      the listing's color. Set it as a 6-digit hex. Used only as a
-                         GROUND (sub nav, pills, card title bar, rules, tract window
+                         GROUND (sub nav, pills, card title bar, bands, tract window
                          header) or a decorative border - never as type on white.
          --lp-navfg      DO NOT SET. The script overwrites it with black or white,
                          whichever has the better contrast against --lp-navbg.
@@ -164,7 +166,7 @@
       --lp-navbg: #C5C5D1;
       --lp-navfg: #000000;
       --lp-navink: #000000;
-      --lp-ac-tint: 30%;
+      --lp-ac-tint: 15%;
       --lp-jump-h: 53px;
       --lp-agent-ph: 128px;
       /* --lp-scrim: THE GROUND BEHIND EVERY OVERLAY ON A PREMIUM PAGE (Kiron,
@@ -525,9 +527,9 @@
        the HEADING 24px under the sub nav - not the section box. Three terms:
          --navH + --lp-jump-h   the real chrome, measured by syncNavH()
          - var(--lp-gap)        CANCELS the section's own padding-top (the space under
-                                its rule), which sits inside the scroll target
+                                its top edge), which sits inside the scroll target
          + var(--space-5)       the 24px of white between the sub nav and the heading
-       The section's rule and the gap above it land hidden under the chrome.
+       The section's top edge and the gap above it land hidden under the chrome.
        (2026-10-02: the gap term is back now the headings are type on white again; it
        was dropped 2026-09-29 while each heading sat on a band of the sub nav's color.)
 
@@ -863,18 +865,16 @@
        sections are now told apart by the full-bleed rule between them (below). */
     .lp-h2{ margin: 0 0 var(--space-5); }
 
-    /* ---- THE SECTION RULE AND THE GAP (Kiron, 2026-10-02) -------------------------
-       A 2px RULE IN THE LISTING'S COLOR between every two sections - the top edge of
-       every section after the overview, Photos included. (8px first, then 4px, then a
-       1-9px sampler; 2px chosen.)
-       IT RUNS THE CONTENT RAIL, NOT THE SCREEN: it starts and stops where the text does,
-       so it is simply the section box's own width (left 0, right 0). The one exception
-       is a shaded band, whose box is pulled out to the screen edges - see below.
+    /* ---- THE GAP BETWEEN SECTIONS (Kiron, 2026-10-02) -----------------------------
+       NO RULE BETWEEN SECTIONS. A listing-color rule was tried (8px, 4px, a 1-9px
+       sampler, 2px; full bleed, then on the rail) and dropped for the color bands
+       below: sections are told apart by the gap and the bands alone.
 
-       --lp-gap IS THE SPACE EITHER SIDE OF THE RULE - margin above it, padding below
-       it, so the rule sits centered between the end of one section and the next
-       heading. 64px from 768 up, 48px from 767 down. It is also the term the jump
-       offset cancels (see scroll-margin-top), so the two cannot drift apart. */
+       --lp-gap IS THE SPACE BETWEEN TWO SECTIONS, split in two - margin above the
+       section's top edge, padding below it - so a band's edge sits centered between
+       the end of one section and the next heading. 64px from 768 up, 48px from 767
+       down. It is also the term the jump offset cancels (see scroll-margin-top), so
+       the two cannot drift apart. */
     .lp-wrap{ --lp-gap: var(--space-8); }
     @media (max-width: 767px){
       .lp-wrap{ --lp-gap: var(--space-7); }
@@ -882,34 +882,25 @@
     .lp-section[hidden]{ display: none; }
     .lp-section, .lp-acc{ position: relative;
       margin-top: var(--lp-gap); padding-top: var(--lp-gap); }
-    .lp-section::before, .lp-acc::before{ content: ""; position: absolute;
-      top: 0; height: 2px; left: 0; right: 0;
-      background: var(--lp-navbg); }
-    /* ON A SHADED BAND the section box is the full screen, so the rule is inset back to
-       the rail: --lp-railx is where the rail starts from the screen edge (.lp-wrap is
-       --site wide at most, centered, with --rail padding; at widths where --site is
-       the whole screen the rail padding alone is the offset). --vw is the viewport
-       without the scrollbar. */
-    .lp-section--tint::before{
-      --lp-railx: max(var(--rail), calc((var(--vw, 100vw) - var(--site)) / 2 + var(--rail)));
-      left: var(--lp-railx); right: var(--lp-railx); }
 
-    /* ---- THE SHADED SECTIONS - TRACTS, DOWNLOADS, CONTACT ----------------------------------------------
-       Restored 2026-10-02 as it was built 2026-09-23 (removed 2026-09-29 when the
-       heading bands came in): 4% black, about #F5F5F5 over white - neutral, so it does
-       not argue with the listing's color, which changes from page to page.
+    /* ---- THE COLOR BANDS - TRACTS, DOWNLOADS, CONTACT -------------------------------
+       THE AUCTION CARD'S GROUND (Kiron, 2026-10-02; 4% black before): --lp-ac-tint of
+       the listing color mixed into white, opaque. One dial sets both, so a band and
+       the card always match, and the contrast script tests --lp-navink against this
+       tint - type in the listing color on a band holds 4.5:1 too.
        FULL BLEED: the margins pull the section out to the viewport edges and the
        padding pushes its content back onto the rail by the same amount. The two are
-       mirror images and must stay so, or the copy leaves the rail.
-       SHADED SECTIONS: Tracts, Downloads and Contact (Kiron, 2026-10-02). Contact's
-       agent cards stay white on the band (.lp-agents .ld-agentcard). The rule sits on
-       the band's top edge; the band's bottom padding matches its top.
-       A SHADED BAND FILLS RULE TO RULE (Kiron, 2026-10-02). The next section's gap
-       above its rule is a margin, which would show as a white strip between the band
-       and that rule. So the section after a band drops its margin and the band's own
-       bottom padding is the whole space: the same 64 / 48 from the last line to the
-       rule as every other section. Any section given --tint later behaves the same. */
+       mirror images and must stay so, or the copy leaves the rail. --vw is the
+       viewport without the scrollbar.
+       Contact's agent cards stay white on the band (.lp-agents .ld-agentcard). The
+       band's bottom padding matches its top.
+       A BAND FILLS EDGE TO EDGE (Kiron, 2026-10-02). The next section's gap above it
+       is a margin, which would show as a white strip under the band. So the section
+       after a band drops its margin and the band's own bottom padding is the whole
+       space: the same 64 / 48 from the last line to the next section's edge as every
+       other section. Any section given --tint later behaves the same. */
     .lp-section--tint{ background: rgba(0, 0, 0, .04);
+      background: color-mix(in srgb, var(--lp-navbg) var(--lp-ac-tint), #FFFFFF);
       margin-left: calc(50% - var(--vw, 100vw) / 2);
       margin-right: calc(50% - var(--vw, 100vw) / 2);
       padding-left: calc(var(--vw, 100vw) / 2 - 50%);
@@ -1686,7 +1677,7 @@
 
           <!-- SEALED BID: this listing's own type. Email Agent writes to the FIRST agent
                listed under Contact (Kiron, 2026-10-01). -->
-          <div class="lp-ac" id="lp-auction-sealed" hidden>
+          <div class="lp-ac" id="lp-auction-sealed">
             <h2 class="h3-sans lp-ac-title">Sealed-Bid Auction Details</h2>
             <p class="sr-only">Date</p>
             <p class="lp-ac-date">September&nbsp;15, 2026</p>
@@ -1708,8 +1699,7 @@
                one so all three types can be judged in place (Kiron, 2026-10-01). A real
                page carries one. Their venue, times and note are the auction page's, as
                layout content.
-               HIDDEN (Kiron, 2026-10-02): the sealed-bid and online-only cards carry the
-               hidden attribute; only Live shows. Remove it to judge the other two. -->
+               ALL THREE SHOW (Kiron, 2026-10-02; Live alone for a while). -->
           <div class="lp-ac" id="lp-auction-live">
             <h2 class="h3-sans lp-ac-title">Live Auction Details</h2>
             <p class="sr-only">Date</p>
@@ -1732,7 +1722,7 @@
             <button type="button" class="lp-ac-terms" aria-haspopup="dialog">Auction Terms</button>
           </div>
 
-          <div class="lp-ac" id="lp-auction-online" hidden>
+          <div class="lp-ac" id="lp-auction-online">
             <h2 class="h3-sans lp-ac-title">Online-Only Auction Details</h2>
             <p class="sr-only">Date</p>
             <p class="lp-ac-date">September&nbsp;15, 2026</p>
@@ -2722,7 +2712,7 @@
     // Keeps --navH and --lp-jump-h in step with the sticky header and the sub nav, which
     // the sections' scroll-margin is measured against - a jump has to clear both.
     // It also publishes --vw, the viewport width WITHOUT the scrollbar, which the
-    // full-bleed section rules and the Tracts band use in place of 100vw - see .lp-section::before. It is
+    // full-bleed color bands use in place of 100vw - see .lp-section--tint. It is
     // set here rather than in a module of its own because this is already the one place
     // that measures the page and re-measures it on resize.
     /* ---- balanceJump: NO SUB NAV ROW HOLDS ONE LINK ----
@@ -3420,8 +3410,8 @@
   </script>
   <!-- ======================================================================
        REVIEW ONLY - LISTING COLOR PICKER (Kiron, 2026-10-02). Delete this whole block
-       (style, markup and script) before the developer handoff. Sets --lp-navbg and,
-       optionally, the auction card tint, then re-runs the contrast script, so every
+       (style, markup and script) before the developer handoff. Sets --lp-navbg only
+       (the tint is locked at 15%), then re-runs the contrast script, so every
        black-or-white and type-on-white choice follows. Remembered per browser;
        Reset returns to the values in the page's CSS.
        ====================================================================== -->
@@ -3437,7 +3427,7 @@
     .rv-pick form{ display: grid; grid-template-columns: auto 1fr; gap: 8px 10px;
       align-items: center; padding: 4px 12px 12px; }
     .rv-pick label{ font-weight: 600; }
-    .rv-pick input[type=text], .rv-pick input[type=number]{ font: inherit; width: 100%;
+    .rv-pick input[type=text]{ font: inherit; width: 100%;
       padding: 5px 7px; border: 1px solid #999; border-radius: 4px; }
     .rv-pick input[type=color]{ width: 100%; height: 30px; padding: 0; border: 1px solid #999;
       border-radius: 4px; background: #fff; cursor: pointer; }
@@ -3448,26 +3438,6 @@
     .rv-reset{ background: #fff; color: #000; }
     .rv-msg{ grid-column: 1 / -1; margin: 0; font-size: 12px; min-height: 1.3em; }
     @media print{ .rv-pick{ display: none; } }
-    .rv-mode{ grid-column: 1 / -1; display: flex; gap: 4px; margin: 0; padding: 3px;
-      border: 1px solid #000; border-radius: 999px; }
-    .rv-mode legend{ position: absolute; width: 1px; height: 1px; overflow: hidden;
-      clip-path: inset(50%); white-space: nowrap; }
-    .rv-mode label{ flex: 1; position: relative; text-align: center; cursor: pointer; }
-    .rv-mode input{ position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-    .rv-mode span{ display: block; padding: 6px 10px; border-radius: 999px;
-      font-weight: 600; letter-spacing: .06em; }
-    .rv-mode input:checked + span{ background: #000; color: #fff; }
-    .rv-mode input:focus-visible + span{ outline: 2px solid #000; outline-offset: 2px; }
-    /* SECTION STYLE, TWO WAYS (Kiron, 2026-10-02) - set by the switch below.
-       LINES: the rules between sections, no ground on any section.
-       COLOR: no rules; the shaded sections (Tracts, Downloads, Contact) take the card's tint - the
-       listing color at --lp-ac-tint in white - instead of the 4% black. The band still
-       fills edge to edge and the next section still drops its margin, so it meets the
-       next section's (now absent) rule line exactly. */
-    html.rv-lines .lp-section--tint{ background: none; }
-    html.rv-color .lp-section::before, html.rv-color .lp-acc::before{ content: none; }
-    html.rv-color .lp-section--tint{
-      background: color-mix(in srgb, var(--lp-navbg) var(--lp-ac-tint), #FFFFFF); }
   </style>
   <details class="rv-pick" id="rvPick">
     <summary><span class="rv-sw" aria-hidden="true"></span>Listing color <span id="rvCur"></span></summary>
@@ -3476,13 +3446,6 @@
       <input type="text" id="rvHex" placeholder="#98B849" maxlength="7" spellcheck="false" />
       <label for="rvWheel">Pick</label>
       <input type="color" id="rvWheel" />
-      <label for="rvTint">Tint %</label>
-      <input type="number" id="rvTint" min="0" max="100" step="1" />
-      <fieldset class="rv-mode">
-        <legend>Sections</legend>
-        <label><input type="radio" name="rvMode" value="lines" /><span>LINES</span></label>
-        <label><input type="radio" name="rvMode" value="color" /><span>COLOR</span></label>
-      </fieldset>
       <div class="rv-row">
         <button type="submit" class="rv-go">Apply</button>
         <button type="button" class="rv-reset" id="rvReset">Reset</button>
@@ -3492,47 +3455,25 @@
   </details>
   <script>
     (function(){
-      var root = document.documentElement, KEY = "lp-review-color", MKEY = "lp-review-mode";
-      function setMode(m, save){
-        m = m === "color" ? "color" : "lines";
-        root.classList.toggle("rv-lines", m === "lines");
-        root.classList.toggle("rv-color", m === "color");
-        var r = document.querySelector('input[name="rvMode"][value="' + m + '"]');
-        if(r) r.checked = true;
-        if(save){ try{ localStorage.setItem(MKEY, m); }catch(e){} }
-      }
-      document.querySelectorAll('input[name="rvMode"]').forEach(function(r){
-        r.addEventListener("change", function(){ setMode(r.value, true); });
-      });
-      var savedMode = null;
-      try{ savedMode = localStorage.getItem(MKEY); }catch(e){}
-      setMode(savedMode, false);   // LINES unless COLOR was chosen before
+      var root = document.documentElement, KEY = "lp-review-color";
       var hex = document.getElementById("rvHex"), wheel = document.getElementById("rvWheel"),
-          tint = document.getElementById("rvTint"), msg = document.getElementById("rvMsg"),
-          cur = document.getElementById("rvCur");
+          msg = document.getElementById("rvMsg"), cur = document.getElementById("rvCur");
       function norm(v){
         v = String(v || "").trim().replace(/^#/, "");
         if(/^[0-9a-f]{3}$/i.test(v)) v = v[0]+v[0]+v[1]+v[1]+v[2]+v[2];
         return /^[0-9a-f]{6}$/i.test(v) ? "#" + v.toUpperCase() : null;
       }
-      function current(){
-        var cs = getComputedStyle(root);
-        return { c: norm(cs.getPropertyValue("--lp-navbg")),
-                 t: parseFloat(cs.getPropertyValue("--lp-ac-tint")) };
-      }
       function show(){
-        var v = current();
-        hex.value = v.c || ""; wheel.value = (v.c || "#000000").toLowerCase();
-        tint.value = isNaN(v.t) ? "" : v.t; cur.textContent = v.c || "";
-        var cs = getComputedStyle(root);
+        var cs = getComputedStyle(root), c = norm(cs.getPropertyValue("--lp-navbg"));
+        hex.value = c || ""; wheel.value = (c || "#000000").toLowerCase();
+        cur.textContent = c || "";
         msg.textContent = "Type on color: " + cs.getPropertyValue("--lp-navfg").trim() +
           " · type on white: " + cs.getPropertyValue("--lp-navink").trim();
       }
-      function set(c, t, save){
+      function set(c, save){
         root.style.setProperty("--lp-navbg", c);
-        if(t !== "" && !isNaN(t)) root.style.setProperty("--lp-ac-tint", Math.max(0, Math.min(100, +t)) + "%");
         if(window.lpApplyColor) window.lpApplyColor();
-        if(save){ try{ localStorage.setItem(KEY, JSON.stringify({ c: c, t: t })); }catch(e){} }
+        if(save){ try{ localStorage.setItem(KEY, JSON.stringify({ c: c })); }catch(e){} }
         show();
       }
       wheel.addEventListener("input", function(){ hex.value = wheel.value.toUpperCase(); });
@@ -3541,18 +3482,18 @@
         e.preventDefault();
         var c = norm(hex.value);
         if(!c){ msg.textContent = "Enter a 3- or 6-digit hex, e.g. #98B849"; return; }
-        set(c, tint.value, true);
+        set(c, true);
       });
       document.getElementById("rvReset").addEventListener("click", function(){
-        root.style.removeProperty("--lp-navbg"); root.style.removeProperty("--lp-ac-tint");
-        try{ localStorage.removeItem(KEY); localStorage.removeItem(MKEY); }catch(e){}
-        setMode("lines", false);
+        root.style.removeProperty("--lp-navbg");
+        try{ localStorage.removeItem(KEY); localStorage.removeItem("lp-review-mode"); }catch(e){}
         if(window.lpApplyColor) window.lpApplyColor();
         show();
       });
+      try{ localStorage.removeItem("lp-review-mode"); }catch(e){}   // the retired LINES / COLOR switch
       try{
         var saved = JSON.parse(localStorage.getItem(KEY) || "null");
-        if(saved && norm(saved.c)){ set(norm(saved.c), saved.t, false); return; }
+        if(saved && norm(saved.c)){ set(norm(saved.c), false); return; }
       }catch(e){}
       show();
     })();
