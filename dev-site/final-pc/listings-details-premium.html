@@ -78,6 +78,10 @@
         13. HERO LINE 2 is now "Live Auction - September 15, 2026" ("$42,500,000 or "
             hidden), much shorter than item 5's line - re-check its wrap and the
             hero's height at every width.
+        14. LISTING COLOR #6B4423 -> #98B849 (2026-10-02), a light ground: sub nav,
+            pills, card title bar and tract window type flip to black by script. The
+            brochure controls, tract numbers and tract focus ring moved from
+            --lp-navbg to --lp-navink (PC Navy here). Color only, no layout.
 
        RULES SET DURING THE LADDER (all widths unless noted):
          - Photos accordion loads closed; the sub nav link opens it (already so)
@@ -119,8 +123,9 @@
        changing --lp-hero-h moves both in step and keeps the arrangement. Do not convert
        them to px or re-anchor them to the bottom.
 
-         --lp-navbg      the listing's color. Set it as a 6-digit hex. The sub nav's
-                         ground and the brochure pill both read it.
+         --lp-navbg      the listing's color. Set it as a 6-digit hex. Used only as a
+                         GROUND (sub nav, pills, card title bar, rules, tract window
+                         header) or a decorative border - never as type on white.
          --lp-navfg      DO NOT SET. The script overwrites it with black or white,
                          whichever has the better contrast against --lp-navbg.
          --lp-navink     DO NOT SET. The script overwrites it too: the listing's color
@@ -141,9 +146,9 @@
       --lp-hero-h: 700px;
       --lp-h1-top: 60%;
       --lp-logo-top: 70%;
-      --lp-navbg: #6B4423;
-      --lp-navfg: #FFFFFF;
-      --lp-navink: #6B4423;
+      --lp-navbg: #98B849;
+      --lp-navfg: #000000;
+      --lp-navink: #12406A;
       --lp-jump-h: 53px;
       --lp-agent-ph: 128px;
       /* --lp-scrim: THE GROUND BEHIND EVERY OVERLAY ON A PREMIUM PAGE (Kiron,
@@ -619,13 +624,16 @@
     .lp-broch-ctrls[hidden]{ display: none; }
     /* THE SUB NAV'S COLOR PAIR, like .lp-btn above and for the same reason: it is the
        one combination on this page whose contrast the listing's own script has checked.
-       Outlined rather than filled so they read as secondary to the download pill. */
+       Outlined rather than filled so they read as secondary to the download pill.
+       AT REST THEY ARE TYPE ON WHITE, so they take --lp-navink, not --lp-navbg
+       (2026-10-02): a light listing color - #98B849 is 2.3:1 on white - would set the
+       label in a color nobody can read. Hover fills with the checked pair. */
     .lp-broch-ctrls button{ font-family: var(--font-sans); font-size: 13px;
       font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
-      padding: 8px 16px; border: 1px solid var(--lp-navbg); border-radius: 999px;
-      background: transparent; color: var(--lp-navbg); cursor: pointer; }
+      padding: 8px 16px; border: 1px solid var(--lp-navink); border-radius: 999px;
+      background: transparent; color: var(--lp-navink); cursor: pointer; }
     .lp-broch-ctrls button:hover:not(:disabled){ background: var(--lp-navbg);
-      color: var(--lp-navfg); }
+      border-color: var(--lp-navbg); color: var(--lp-navfg); }
     .lp-broch-ctrls button:disabled{ opacity: .35; cursor: default; }
     .lp-broch-count{ font-family: var(--font-sans); font-size: 13px;
       color: var(--color-text-muted); min-width: 11ch; }
@@ -785,14 +793,15 @@
        value. And the tint itself cannot go dark whatever --lp-navbg is - 10% of any
        color over a light ground stays light - so dark text on it holds contrast by
        construction, the same way the filled pair did.
-       The bold tract number keeps --lp-navbg, exactly as it does at rest on white. That
-       is not a new risk: it is the same pairing the row already ships. */
-    .lp-tlink b{ font-weight: 700; color: var(--lp-navbg); }
+       THE BOLD TRACT NUMBER AND THE FOCUS RING TAKE --lp-navink (2026-10-02). They are
+       type and a ring on a light ground, so a light listing color would fail there;
+       --lp-navink is the listing color when it clears 4.5:1 on white, PC Navy when not. */
+    .lp-tlink b{ font-weight: 700; color: var(--lp-navink); }
     /* The flat rgba first, then the mix: a browser without color-mix() keeps a neutral
        5% gray hover rather than no hover at all. */
     .lp-tlink:hover{ background: rgba(0, 0, 0, .05); color: var(--color-text); }
     .lp-tlink:hover{ background: color-mix(in srgb, var(--lp-navbg) 10%, transparent); }
-    .lp-tlink:focus-visible{ outline: 2px solid var(--lp-navbg); outline-offset: 2px; }
+    .lp-tlink:focus-visible{ outline: 2px solid var(--lp-navink); outline-offset: 2px; }
     /* NO TRANSITION, DELIBERATELY. It used to fade background-color and color together
        over .12s, which was fine when hover only tinted the ground. It is not fine now
        that hover FILLS and inverts the label: for the length of the fade the text is
