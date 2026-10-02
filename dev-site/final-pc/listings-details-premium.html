@@ -73,6 +73,10 @@
             (was 4% black). Check the band edges for sideways scroll and the tract
             columns inside it. The section after a band drops its top margin.
             Contact's agent cards stay white.
+            GAPS MEASURED TO THE TYPE (2026-10-02): the space above each H2 is 8px less
+            (6px at 767 down) and the space under each section's last line 5px less,
+            so cap top and last baseline both sit 64 / 48 from a band's edge. Every
+            section moves up a little - re-check the rhythm 1536 to 320.
         16. AUCTION CARD GROUND: 15% of the listing color in white (was white, then 30%);
             --lp-navink now tested against that tint. 3px border removed, so the
             card's content is 6px wider at every width - re-check its wraps.
@@ -531,8 +535,9 @@
     /* A jump has to clear the sticky header AND the sub nav pinned below it, and land
        the HEADING 24px under the sub nav - not the section box. Three terms:
          --navH + --lp-jump-h   the real chrome, measured by syncNavH()
-         - var(--lp-gap)        CANCELS the section's own padding-top (the space under
-                                its top edge), which sits inside the scroll target
+         - var(--lp-gap)        CANCEL the section's own padding-top (--lp-gap less
+           + var(--lp-cap)      --lp-cap, the space under its top edge), which sits
+                                inside the scroll target
          + var(--space-5)       the 24px of white between the sub nav and the heading
        The section's top edge and the gap above it land hidden under the chrome.
        (2026-10-02: the gap term is back now the headings are type on white again; it
@@ -544,7 +549,7 @@
     .lp-wrap > section,
     .lp-wrap > details{
       scroll-margin-top: calc(var(--navH) + var(--lp-jump-h)
-                              - var(--lp-gap) + var(--space-5)); }
+                              - var(--lp-gap) + var(--lp-cap) + var(--space-5)); }
 
     /* THE REVEAL'S TRANSFORM LIES TO THE SCROLL, so jump targets fade without it.
        .reveal starts a section at translateY(16px) and drops it on .in. Jump to a
@@ -879,14 +884,28 @@
        section's top edge, padding below it - so a band's edge sits centered between
        the end of one section and the next heading. 64px from 768 up, 48px from 767
        down. It is also the term the jump offset cancels (see scroll-margin-top), so
-       the two cannot drift apart. */
-    .lp-wrap{ --lp-gap: var(--space-8); }
+       the two cannot drift apart.
+
+       THE GAP IS MEASURED TO THE TYPE, NOT THE LINE BOXES (Kiron, 2026-10-02), so the
+       space above a heading and below a section's last line look the same:
+         --lp-cap   the empty space inside the H2's line box above its capitals -
+                    8px at 32px (768 up), 6px at 26 and 24px (767 down). Taken off the
+                    padding, so the CAP TOP sits --lp-gap below the section's edge.
+         --lp-tail  the space inside a 14-16px Inter line box below its baseline,
+                    about 5px. Taken off the space under the last line (a band's bottom
+                    padding, the next white section's margin), so the BASELINE sits
+                    --lp-gap above the edge.
+       On a band: 64 / 48 from the edge to the cap top, and from the last baseline to
+       the edge. Between two white sections: twice that, ink to ink. Measured in
+       Chrome against EB Garamond and Inter; re-measure if either font changes. */
+    .lp-wrap{ --lp-gap: var(--space-8); --lp-cap: 8px; --lp-tail: 5px; }
     @media (max-width: 767px){
-      .lp-wrap{ --lp-gap: var(--space-7); }
+      .lp-wrap{ --lp-gap: var(--space-7); --lp-cap: 6px; }
     }
     .lp-section[hidden]{ display: none; }
     .lp-section, .lp-acc{ position: relative;
-      margin-top: var(--lp-gap); padding-top: var(--lp-gap); }
+      margin-top: calc(var(--lp-gap) - var(--lp-tail));
+      padding-top: calc(var(--lp-gap) - var(--lp-cap)); }
 
     /* ---- THE COLOR BANDS - TRACTS, DOWNLOADS, CONTACT -------------------------------
        THE AUCTION CARD'S GROUND (Kiron, 2026-10-02; 4% black before): --lp-ac-tint of
@@ -910,7 +929,7 @@
       margin-right: calc(50% - var(--vw, 100vw) / 2);
       padding-left: calc(var(--vw, 100vw) / 2 - 50%);
       padding-right: calc(var(--vw, 100vw) / 2 - 50%);
-      padding-bottom: var(--lp-gap); }
+      padding-bottom: calc(var(--lp-gap) - var(--lp-tail)); }
     /* HIDDEN SECTIONS DO NOT COUNT (the BREAKDOWN ONLY Contact copies). A hidden shaded
        section has no band to meet, so the section after it keeps its gap; and a band
        with a hidden section after it still closes the gap to the next VISIBLE one -
