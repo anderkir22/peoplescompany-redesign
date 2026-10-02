@@ -915,7 +915,14 @@
       padding-left: calc(var(--vw, 100vw) / 2 - 50%);
       padding-right: calc(var(--vw, 100vw) / 2 - 50%);
       padding-bottom: var(--lp-gap); }
-    .lp-section--tint + .lp-section, .lp-section--tint + .lp-acc{ margin-top: 0; }
+    /* HIDDEN SECTIONS DO NOT COUNT (the BREAKDOWN ONLY Contact copies). A hidden shaded
+       section has no band to meet, so the section after it keeps its gap; and a band
+       with a hidden section after it still closes the gap to the next VISIBLE one -
+       the second pair of selectors steps over one hidden sibling. */
+    .lp-section--tint:not([hidden]) + .lp-section,
+    .lp-section--tint:not([hidden]) + .lp-acc,
+    .lp-section--tint:not([hidden]) + [hidden] + .lp-section,
+    .lp-section--tint:not([hidden]) + [hidden] + .lp-acc{ margin-top: 0; }
 
     /* IN THE ACCORDION the heading is a flex item beside the chevron.
        THE CHEVRON SITS NEXT TO THE WORD, NOT AT THE FAR END (Kiron, 2026-09-29). It was
