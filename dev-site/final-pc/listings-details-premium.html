@@ -69,6 +69,8 @@
          9. TRACTS ON A 4% BLACK FULL-BLEED BAND again (as of 2026-09-23). Check the
             band edges for sideways scroll and the tract columns inside it.
             Band fills rule to rule: the section after it drops its top margin.
+        16. AUCTION CARD GROUND: 12% of the listing color in white (was white);
+            --lp-navink now tested against that tint. Color only, no layout.
         10. CONTACT: only the two-agent section shows (three- and one-agent hidden),
             sub nav Contact jumps to it. Page is shorter; layout of the cards unchanged.
         11. VIDEO: only the three-video section shows (two- and one-video hidden).
@@ -154,6 +156,7 @@
       --lp-navbg: #98B849;
       --lp-navfg: #000000;
       --lp-navink: #000000;
+      --lp-ac-tint: 12%;
       --lp-jump-h: 53px;
       --lp-agent-ph: 128px;
       /* --lp-scrim: THE GROUND BEHIND EVERY OVERLAY ON A PREMIUM PAGE (Kiron,
@@ -424,7 +427,13 @@
     }
     .lp-aucs{ display: grid; gap: var(--space-5); }
     .lp-ac[hidden]{ display: none; }
-    .lp-ac{ background: var(--pc-white); border: 3px solid var(--lp-navbg);
+    /* THE CARD'S GROUND IS A TINT OF THE LISTING'S COLOR (Kiron, 2026-10-02): --lp-ac-tint
+       of --lp-navbg mixed into white - opaque, so it reads the same over any section
+       ground. One number to tune. The script tests --lp-navink against THIS ground,
+       not plain white, so type on the card stays at 4.5:1 whatever the color. */
+    .lp-ac{ background: var(--pc-white);
+      background: color-mix(in srgb, var(--lp-navbg) var(--lp-ac-tint), #FFFFFF);
+      border: 3px solid var(--lp-navbg);
       border-radius: var(--radius-lg); overflow: hidden;
       padding: var(--space-5) var(--space-5) var(--space-6); }
     /* THE TITLE IS A BAR (Kiron, 2026-10-01): a solid band of the listing's color across
@@ -2668,7 +2677,18 @@
            that clears AA there can carry the window's accents; one that does not - a
            cream, a pale tan, this green - falls back to pure black (#000000; no blue
            on a premium page) rather than being set in a color nobody can read. */
-        scope.style.setProperty("--lp-navink", whiteRatio >= 4.5 ? bg.trim() : "#000000");
+        /* Tested against the AUCTION CARD'S TINT, the darkest light ground --lp-navink is
+           set on: the listing color mixed into white at --lp-ac-tint (2026-10-02). A
+           color that clears 4.5:1 there clears it on white too. */
+        var pct = parseFloat(getComputedStyle(scope).getPropertyValue("--lp-ac-tint")) / 100 || 0;
+        var hx = bg.trim().replace(/^#/, "");
+        var tint = "#" + [0, 2, 4].map(function(i){
+          var v = Math.round(parseInt(hx.substr(i, 2), 16) * pct + 255 * (1 - pct));
+          return ("0" + v.toString(16)).slice(-2);
+        }).join("");
+        var Lt = luminance(tint);
+        var tintRatio = (Math.max(L, Lt) + 0.05) / (Math.min(L, Lt) + 0.05);
+        scope.style.setProperty("--lp-navink", tintRatio >= 4.5 ? bg.trim() : "#000000");
       }
       apply();
     })();
