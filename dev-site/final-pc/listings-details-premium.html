@@ -81,7 +81,11 @@
         14. LISTING COLOR #6B4423 -> #98B849 (2026-10-02), a light ground: sub nav,
             pills, card title bar and tract window type flip to black by script. The
             brochure controls, tract numbers and tract focus ring moved from
-            --lp-navbg to --lp-navink (PC Navy here). Color only, no layout.
+            --lp-navbg to --lp-navink (pure black here). Color only, no layout.
+        15. NO BLUE IN THE CONTENT (2026-10-02): black is #000000 on premium pages;
+            PC blue tokens re-pointed inside .lp-body and the three dialogs (light
+            blue -> #E5E5E5, soft white -> #F5F5F5, navy shadows -> black). Color
+            only, no layout. Header, footer, map tab stay PC.
 
        RULES SET DURING THE LADDER (all widths unless noted):
          - Photos accordion loads closed; the sub nav link opens it (already so)
@@ -129,7 +133,7 @@
          --lp-navfg      DO NOT SET. The script overwrites it with black or white,
                          whichever has the better contrast against --lp-navbg.
          --lp-navink     DO NOT SET. The script overwrites it too: the listing's color
-                         where that color is legible as type on white, PC Navy where it
+                         where that color is legible as type on white, #000000 where it
                          is not. Accents inside the tract window use it.
 
          --lp-agent-ph   the agent portrait's diameter on the Contact cards. One number;
@@ -148,7 +152,7 @@
       --lp-logo-top: 70%;
       --lp-navbg: #98B849;
       --lp-navfg: #000000;
-      --lp-navink: #12406A;
+      --lp-navink: #000000;
       --lp-jump-h: 53px;
       --lp-agent-ph: 128px;
       /* --lp-scrim: THE GROUND BEHIND EVERY OVERLAY ON A PREMIUM PAGE (Kiron,
@@ -166,6 +170,29 @@
          outside <main>, and a value scoped to .lp-body would never reach it. */
       --lp-scrim: rgba(28, 28, 28, .94); }
     .lp-body{ background: var(--pc-white); }
+
+    /* ---- NO BLUE IN THE CONTENT (Kiron, 2026-10-02) -------------------------------
+       A premium page is the listing's color, black and white - no PC blue tone
+       anywhere in the content. BLACK ON A PREMIUM PAGE IS PURE #000000, not PC Black.
+       Done by re-pointing the build's color tokens inside the content and the three
+       dialogs (all outside <main>), so pc.css components used here (copy, links,
+       buttons, fields) follow without page-local copies of their rules:
+         PC Black, PC Navy, PC Medium Blue, PC Blue   -> #000000
+         PC Light Blue (hairlines, hover fills)       -> #E5E5E5, neutral gray
+         PC Soft White (panels, frames)               -> #F5F5F5, neutral near-white
+       The derived tokens (--color-*, --text-on-*, --accent-on-*) are declared again
+       here because a custom property built from another resolves where it is
+       declared - on :root - and would keep the blue. The site header, footer and the
+       Interactive Map tab are site chrome, outside this scope, and stay PC. */
+    .lp-body, .xtw, .xlb{
+      --pc-black: #000000; --pc-navy: #000000; --pc-medium-blue: #000000;
+      --pc-blue: #000000; --pc-light-blue: #E5E5E5; --pc-soft-white: #F5F5F5;
+      --color-text: #000000; --color-text-muted: #000000; --color-text-subtle: #000000;
+      --color-border: #E5E5E5; --color-accent: #000000;
+      --text-on-light: #000000; --text-on-light-muted: #000000;
+      --accent-on-light: #000000;
+      --text-on-dark-muted: #E5E5E5; --accent-on-dark: #FFFFFF;
+      color: #000000; }
 
     /* ---- HERO: full bleed, fixed height ---- */
     /* FULL BLEED, NOT THE CONTENT RAIL. The image spans the viewport edge to edge
@@ -263,15 +290,15 @@
        without either competing with the listing name above them. All three carry their own shadow - the hero has no
        overlay, so the type has to hold itself against the photograph. */
     .lp-hero-head h1{ margin: 0; color: var(--text-on-dark);
-      text-shadow: 0 2px 18px rgba(7,22,44,.55); }
+      text-shadow: 0 2px 18px rgba(0, 0, 0, .55); }
     .lp-hero-head h2{ margin: var(--space-4) 0 0;
       font-family: var(--font-sans); font-size: var(--h3-size); font-weight: 600;
       line-height: 1.3; color: var(--text-on-dark);
-      text-shadow: 0 2px 14px rgba(7,22,44,.6); }
+      text-shadow: 0 2px 14px rgba(0, 0, 0, .6); }
     .lp-hero-head h3{ margin: var(--space-2) 0 0;
       font-family: var(--font-sans); font-size: var(--body-lg); font-weight: 400;
       line-height: 1.45; color: var(--text-on-dark);
-      text-shadow: 0 2px 14px rgba(7,22,44,.6); }
+      text-shadow: 0 2px 14px rgba(0, 0, 0, .6); }
 
     /* 927 x 363 source. Capped in px and in a share of the hero so it cannot out-shout
        the heading above it at either end of the ladder. */
@@ -593,7 +620,7 @@
     .lp-broch-still[hidden]{ display: none; }
     .lp-broch-still img{ display: block; width: 100%; height: auto;
       border-radius: var(--radius-md); border: 1px solid var(--color-border);
-      box-shadow: 0 10px 28px rgba(7, 22, 44, .14); }
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .14); }
     /* Belt and braces: the script already refuses to fill it above 768px, but if a
        future change ever puts something in it at desktop width this keeps it out of a
        layout that has a working reader in it. */
@@ -795,7 +822,7 @@
        construction, the same way the filled pair did.
        THE BOLD TRACT NUMBER AND THE FOCUS RING TAKE --lp-navink (2026-10-02). They are
        type and a ring on a light ground, so a light listing color would fail there;
-       --lp-navink is the listing color when it clears 4.5:1 on white, PC Navy when not. */
+       --lp-navink is the listing color when it clears 4.5:1 on white, #000000 when not. */
     .lp-tlink b{ font-weight: 700; color: var(--lp-navink); }
     /* The flat rgba first, then the mix: a browser without color-mix() keeps a neutral
        5% gray hover rather than no hover at all. */
@@ -1087,7 +1114,7 @@
     .xtw[hidden]{ display: none; }
     .xtw-box{ width: min(1040px, 100%); max-height: 88vh; display: flex; flex-direction: column;
       background: var(--pc-white); border-radius: var(--radius-md); overflow: hidden;
-      box-shadow: 0 24px 60px rgba(7, 22, 44, .35); }
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
     /* THE WINDOW WEARS THE LISTING'S COLORS, not the build's. The bar takes the ground
        the listing chose and the type on it is the pair the contrast script resolved, so
        the header is legible on any color a listing picks. */
@@ -2632,9 +2659,9 @@
         /* --lp-navink: the same color used as TYPE ON WHITE, which is a different test.
            whiteRatio is exactly its contrast against a white ground, so a listing color
            that clears AA there can carry the window's accents; one that does not - a
-           cream, a pale tan - falls back to PC Navy rather than being set in a color
-           nobody can read. */
-        scope.style.setProperty("--lp-navink", whiteRatio >= 4.5 ? bg.trim() : "#12406A");
+           cream, a pale tan, this green - falls back to pure black (#000000; no blue
+           on a premium page) rather than being set in a color nobody can read. */
+        scope.style.setProperty("--lp-navink", whiteRatio >= 4.5 ? bg.trim() : "#000000");
       }
       apply();
     })();
