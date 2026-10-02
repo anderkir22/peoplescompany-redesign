@@ -47,6 +47,9 @@
        (baseline: commit cd1bdb6, 2026-10-01 11:04). Add every change here as it lands.
        RE-CHECK LADDER (2026-10-02), top down, against every item below:
          1280 and up APPROVED (1920, 1600, 1536, 1440, 1366, 1280).
+         Since then: HERO LOGO TO THE TOP RIGHT CORNER 1024-1535 (the 900-1023 rule
+         carried up), heading across the rail - re-check 1280-1535. AUCTION CARD
+         STICKY 1024-1279, within the overview.
          1. NEW Auction Details card + .lp-intro-grid around the overview: 380 column at
             1536+, 340 at 1024-1535, single column with the card under the overview
             from 1023 down, card held to 480 wide. Never through the ladder. (f1243cd)
@@ -301,9 +304,11 @@
         left: var(--rail); max-width: 55%; }
       .lp-hero-logo{ position: absolute; top: var(--lp-logo-top); right: var(--rail); }
     }
-    /* 900-1023: THE LOGO GOES TO THE TOP RIGHT CORNER AND THE HEADING TAKES THE RAIL
-       (Kiron, 2026-09-30). Side by side, the two left the H1 on two lines. */
-    @media (min-width: 900px) and (max-width: 1023px){
+    /* 900-1535: THE LOGO GOES TO THE TOP RIGHT CORNER AND THE HEADING TAKES THE RAIL
+       (Kiron, 2026-09-30 for 900-1023; carried up to 1535 on 2026-10-02). Side by
+       side, the two left the H1 on two lines from 1279 down. 1536 and up keeps the
+       logo beside the heading. */
+    @media (min-width: 900px) and (max-width: 1535px){
       .lp-hero-logo{ top: var(--space-7); }
       .lp-hero-head{ max-width: none; right: var(--rail); }
     }
@@ -445,6 +450,17 @@
       .lp-aucs{ max-width: 480px; }
     }
     .lp-aucs{ display: grid; gap: var(--space-5); }
+    /* 1024-1279: THE CARD IS STICKY, THROUGH THE OVERVIEW ONLY (Kiron, 2026-10-02).
+       At 572 wide the overview runs about 785 tall to the card's 479, which left some
+       300px of white under the card. Pinned the sub nav's 24px under the chrome - the
+       same landing as a jump - it rides down beside the copy and stops where the
+       overview ends: sticky holds inside the grid, so it never crosses into Brochure.
+       align-items: start on the grid keeps the aside its own height, which sticky
+       needs. Not above 1279, where the gap is under 100px. */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .lp-aucs{ position: sticky;
+        top: calc(var(--navH) + var(--lp-jump-h) + var(--space-5)); }
+    }
     .lp-ac[hidden]{ display: none; }
     /* THE CARD'S GROUND IS A TINT OF THE LISTING'S COLOR (Kiron, 2026-10-02): --lp-ac-tint
        of --lp-navbg mixed into white - opaque, so it reads the same over any section
