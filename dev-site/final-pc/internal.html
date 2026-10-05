@@ -70,6 +70,10 @@
 
     .ca-rule{ height: 1px; border: 0; background: var(--color-border); margin: var(--space-5) 0; }
     .ca-hint{ margin: var(--space-3) 0 0; font-size: 13px; line-height: 1.5; color: var(--color-text-muted); }
+    .ca-forgot{ margin: var(--space-3) 0 0; text-align: right; font-size: 13px; }
+    .ca-forgot a{ color: var(--pc-medium-blue); font-weight: 600; text-decoration: underline;
+      text-underline-offset: 3px; }
+    .ca-forgot a:hover{ color: var(--pc-navy); }
     .ca-submit{ display: flex; width: 100%; margin-top: var(--space-5); }
     .ca-or{ display: flex; align-items: center; gap: var(--space-4); margin: var(--space-5) 0 var(--space-4);
       font-size: 12px; font-weight: 600; letter-spacing: .12em; color: var(--color-text-subtle); }
@@ -84,6 +88,7 @@
       .ca-grid{ grid-template-columns: 1fr; }
       .ca-logo{ height: 52.8px; }
       .ca-title{ font-size: 28px; }
+      .ca-br{ display: none; }
     }
   </style>
 </head>
@@ -107,9 +112,9 @@
         <div class="pcf-stack">
           <div class="pcf-util">
             <span class="sp"></span>
-            <a href="#create-account" data-open-account aria-haspopup="dialog">Create An Account</a>
+            <a href="#create-account" data-open-dialog="createAccount" aria-haspopup="dialog">Create An Account</a>
             <span class="sep">|</span>
-            <a href="./internal.html">Login</a>
+            <a href="#sign-in" data-open-dialog="signIn" aria-haspopup="dialog">Login</a>
           </div>
           <nav class="pcf-row" aria-label="Primary">
             <ul class="pcf-menus" id="pcfMenus"></ul>
@@ -169,7 +174,7 @@
   <!-- ================= CREATE ACCOUNT MODAL ================= -->
   <dialog class="ca-dialog" id="createAccount" aria-labelledby="ca-title">
     <div class="ca-inner">
-      <button class="ca-close" type="button" aria-label="Close" data-close-account>
+      <button class="ca-close" type="button" aria-label="Close" data-close-dialog>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
 
@@ -218,19 +223,59 @@
       </form>
 
       <p class="ca-or" aria-hidden="true">OR</p>
-      <p class="ca-switch">Already have an account? <a href="#sign-in">Sign In</a></p>
+      <p class="ca-switch">Already have an account? <a href="#sign-in" data-open-dialog="signIn">Sign In</a></p>
+    </div>
+  </dialog>
+
+  <!-- ================= SIGN IN MODAL ================= -->
+  <dialog class="ca-dialog" id="signIn" aria-labelledby="si-title">
+    <div class="ca-inner">
+      <button class="ca-close" type="button" aria-label="Close" data-close-dialog>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+
+      <h2 class="ca-title" id="si-title">Sign in to your account to<br class="ca-br" />access farm insights</h2>
+
+      <form action="#" onsubmit="return false;" novalidate>
+        <div class="ca-field">
+          <label class="ca-label" for="si-email">Email<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input"><input id="si-email" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
+        </div>
+        <div class="ca-field" style="margin-top: var(--space-4);">
+          <label class="ca-label" for="si-pass">Password<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input has-eye">
+            <input id="si-pass" type="password" autocomplete="current-password" required />
+            <button class="ca-eye" type="button" aria-label="Show password" aria-pressed="false" aria-controls="si-pass"><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.6 3.4M6.6 6.6A17 17 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+        </div>
+        <p class="ca-forgot"><a href="#forgot-password">Forgot Password?</a></p>
+
+        <button class="btn btn-primary ca-submit" type="submit">Sign In</button>
+      </form>
+
+      <p class="ca-or" aria-hidden="true">OR</p>
+      <p class="ca-switch">Don&rsquo;t have an account? <a href="#create-account" data-open-dialog="createAccount">Sign Up</a></p>
     </div>
   </dialog>
   <script>
     (function(){
-      var dlg = document.getElementById("createAccount");
-      if(!dlg || !dlg.showModal) return;
-      function open(e){ if(e) e.preventDefault(); dlg.showModal(); }
-      document.querySelectorAll("[data-open-account]").forEach(function(a){ a.addEventListener("click", open); });
-      dlg.querySelector("[data-close-account]").addEventListener("click", function(){ dlg.close(); });
-      /* a click on the backdrop (outside the card) closes */
-      dlg.addEventListener("click", function(e){ if(e.target === dlg) dlg.close(); });
-      dlg.querySelectorAll(".ca-eye").forEach(function(b){
+      var dlgs = document.querySelectorAll(".ca-dialog");
+      if(!dlgs.length || !dlgs[0].showModal) return;
+      function open(id){
+        dlgs.forEach(function(d){ if(d.open) d.close(); });
+        document.getElementById(id).showModal();
+      }
+      document.querySelectorAll("[data-open-dialog]").forEach(function(a){
+        a.addEventListener("click", function(e){ e.preventDefault(); open(a.getAttribute("data-open-dialog")); });
+      });
+      dlgs.forEach(function(dlg){
+        dlg.querySelector("[data-close-dialog]").addEventListener("click", function(){ dlg.close(); });
+        /* a click on the backdrop (outside the card) closes */
+        dlg.addEventListener("click", function(e){ if(e.target === dlg) dlg.close(); });
+      });
+      document.querySelectorAll(".ca-eye").forEach(function(b){
         b.addEventListener("click", function(){
           var inp = document.getElementById(b.getAttribute("aria-controls")),
               show = inp.type === "password";
@@ -239,7 +284,8 @@
           b.setAttribute("aria-label", show ? "Hide password" : "Show password");
         });
       });
-      if(location.hash === "#create-account") open();
+      if(location.hash === "#create-account") open("createAccount");
+      if(location.hash === "#sign-in") open("signIn");
     })();
   </script>
 
