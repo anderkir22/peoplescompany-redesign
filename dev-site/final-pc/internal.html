@@ -29,16 +29,20 @@
        Esc-to-close and the inert page behind it. Visual mockup only, no submit. */
     .ca-dialog{ width: min(640px, calc(100% - 32px)); max-height: calc(100dvh - 32px);
       padding: 0; border: 0; border-radius: var(--radius-lg); background: #fff;
-      color: var(--color-text); box-shadow: 0 24px 64px rgba(7,22,44,.28); overflow: auto; }
+      color: var(--color-text); box-shadow: 0 24px 64px rgba(7,22,44,.28); overflow: hidden; }
+    /* The card itself never scrolls: .ca-inner does, so the close X (positioned on the
+       dialog, not the inner) stays pinned in the corner when a tall form scrolls on a
+       phone or a short laptop screen */
+    .ca-dialog[open]{ display: flex; flex-direction: column; }
     .ca-dialog::backdrop{ background: rgba(7,22,44,.62); backdrop-filter: blur(3px); }
     /* Sign In and Recover hold one or two fields, so their cards are narrower than
        Create Account (640) */
     #signIn, #forgotPass{ width: min(480px, calc(100% - 32px)); }
     /* Recover: the intro sits UNDER the heading, so it takes the heading's bottom gap */
     .ca-title + .ca-intro{ margin: 0 0 var(--space-5); }
-    .ca-inner{ position: relative; padding: var(--space-7) 56px var(--space-6); }
-    .ca-close{ position: absolute; top: 16px; right: 16px; width: 40px; height: 40px;
-      display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent;
+    .ca-inner{ min-height: 0; overflow-y: auto; padding: var(--space-7) 56px var(--space-6); }
+    .ca-close{ position: absolute; z-index: 1; top: 16px; right: 16px; width: 40px; height: 40px;
+      display: grid; place-items: center; border: 0; border-radius: 50%; background: #fff;
       color: var(--pc-black); cursor: pointer; }
     .ca-close:hover{ background: var(--pc-light-blue); }
     .ca-close:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
@@ -88,11 +92,32 @@
       text-underline-offset: 3px; }
     .ca-switch a:hover{ color: var(--pc-navy); }
 
+    /* Short screens (1280x720 and 1366x768 laptops, 375x667 phones, any landscape
+       phone): a tighter vertical rhythm so Create Account (746 tall) fits a 720 screen
+       without scrolling. Sign In and Recover already fit; they tighten with it. */
+    @media (max-height: 800px){
+      .ca-inner{ padding-top: var(--space-6); padding-bottom: var(--space-5); }
+      .ca-logo{ height: 52.8px; }
+      .ca-intro{ margin-top: var(--space-4); }
+      .ca-title{ margin: var(--space-4) 0; }
+      .ca-title + .ca-intro{ margin: 0 0 var(--space-4); }
+      .ca-rule{ margin: var(--space-4) 0; }
+      .ca-submit{ margin-top: var(--space-4); }
+      .ca-or{ margin: var(--space-4) 0 var(--space-3); }
+    }
     @media (max-width: 639px){
       .ca-inner{ padding: 56px var(--space-5) var(--space-5); }
       .ca-grid{ grid-template-columns: 1fr; }
       .ca-logo{ height: 52.8px; }
-      .ca-title{ font-size: 28px; }
+    }
+    /* Site-wide small-width type scale, last so it wins: the modal heading is an H2 */
+    @media (max-width: 767px){
+      .ca-title{ font-size: 26px; line-height: 1.18; }
+    }
+    @media (max-width: 359px){
+      .ca-inner{ padding-left: var(--space-4); padding-right: var(--space-4); }
+      .ca-title{ font-size: 24px; }
+      .ca-intro, .ca-switch{ font-size: 14px; }
     }
   </style>
 </head>
