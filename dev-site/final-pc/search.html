@@ -31,6 +31,43 @@
       font-family: var(--font-sans); font-size: var(--body); color: var(--pc-black); }
     .sr-field input:focus{ outline: none; }
     .sr-form .btn{ flex: none; }
+    /* Results: Listings left, Content right, equal columns. */
+    .sr-results{ display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+      gap: var(--space-8); margin-top: var(--space-8); align-items: start; }
+    .sr-colhead{ font-family: var(--font-sans); font-size: 13px; font-weight: 600; line-height: 1.4;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--pc-navy);
+      margin: 0 0 var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
+    .sr-list{ list-style: none; margin: 0; padding: 0; }
+    /* Listing result: the site's .lc card laid out horizontally, photo left. */
+    .sr-list-listings{ display: flex; flex-direction: column; gap: var(--space-4); }
+    .sr-lc{ display: grid; grid-template-columns: 240px minmax(0,1fr); height: auto; }
+    .sr-lc .lc-media{ aspect-ratio: auto; min-height: 168px; }
+    .sr-lc .lc-body{ display: flex; flex-direction: column; justify-content: center; }
+    .sr-lc .lc-status{ margin: 0 0 var(--space-2); }
+    /* Content result: thumbnail, then title and description below it. Two per row. */
+    .sr-list-content{ display: grid; grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: var(--space-6) var(--space-5); }
+    .sr-cc{ display: flex; flex-direction: column; gap: var(--space-2); color: inherit; text-decoration: none; }
+    .sr-cc-ph{ display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-md);
+      background: var(--pc-light-blue); margin-bottom: var(--space-2); }
+    .sr-cc-ph img{ display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
+    .sr-cc:hover .sr-cc-ph img{ transform: scale(1.03); }
+    .sr-cc-title{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; line-height: 1.2;
+      color: var(--pc-black); }
+    .sr-cc:hover .sr-cc-title{ color: var(--pc-medium-blue); }
+    .sr-cc-desc{ font-size: 14px; line-height: 1.5; color: var(--color-text-muted); }
+    .sr-cc:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 4px; border-radius: var(--radius-md); }
+    /* View More: a text link under each column. */
+    .sr-more{ display: block; margin: var(--space-6) auto 0; padding: 12px 16px; min-height: 44px;
+      background: none; border: 0; cursor: pointer; font-family: var(--font-sans); font-size: 13px;
+      font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--pc-medium-blue);
+      text-decoration: underline; text-underline-offset: 4px; }
+    .sr-more:hover{ color: var(--pc-navy); }
+    .sr-more:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; border-radius: 2px; }
+    @media (prefers-reduced-motion: reduce){
+      .sr-cc-ph img{ transition: none; }
+      .sr-cc:hover .sr-cc-ph img{ transform: none; }
+    }
     /* Small-width type scale (site-wide): H1 34 at 767, 30 at 359. */
     @media (max-width: 767px){ .sr-wrap h1{ font-size: 34px; line-height: 1.12; } }
     @media (max-width: 359px){ .sr-wrap h1{ font-size: 30px; } }
@@ -112,6 +149,263 @@
         </div>
         <button class="btn btn-primary" type="submit">Search</button>
       </form>
+
+      <!-- Results: two columns, top 10 of each. View More loads the next 10 into that column only. -->
+      <div class="sr-results">
+        <section class="sr-col" aria-labelledby="sr-h-listings">
+          <h2 class="sr-colhead" id="sr-h-listings">Listings</h2>
+          <ul class="sr-list sr-list-listings" id="srListings">
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero8.jpg" alt="Farm field under open sky" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Sedgwick County, CO</a></p>
+                  <p class="lc-headline">$308,000</p>
+                  <p class="lc-meta"><span>162&plusmn; Acres</span><span>161&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-trip-silos.jpg" alt="Grain bins and farm buildings" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Adams County, IA</a></p>
+                  <p class="lc-headline">November 21, 2026</p>
+                  <p class="lc-meta"><span>8&plusmn; Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Kossuth County, IA</a></p>
+                  <p class="lc-headline">$2,450,000</p>
+                  <p class="lc-meta"><span>240&plusmn; Acres</span><span>236&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero6.jpg" alt="Corn rows at sunrise" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Wayne County, IA</a></p>
+                  <p class="lc-headline">September 24, 2026</p>
+                  <p class="lc-meta"><span>136.57&plusmn; Acres</span><span>80.31&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero9.jpg" alt="Open farmland at sunset" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Moody County, SD</a></p>
+                  <p class="lc-headline">$3,120,000</p>
+                  <p class="lc-meta"><span>320&plusmn; Acres</span><span>311&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status is-pending"><span class="lc-dot" aria-hidden="true"></span>Pending</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Hamilton County, IA</a></p>
+                  <p class="lc-headline">$4,680,000</p>
+                  <p class="lc-meta"><span>400&plusmn; Acres</span><span>396&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero8.jpg" alt="Farm field under open sky" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Juneau County, WI</a></p>
+                  <p class="lc-headline">October 8, 2026</p>
+                  <p class="lc-meta"><span>804&plusmn; Acres</span><span>612&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero6.jpg" alt="Corn rows at sunrise" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Cass County, ND</a></p>
+                  <p class="lc-headline">October 22, 2026</p>
+                  <p class="lc-meta"><span>640&plusmn; Acres</span><span>618&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero9.jpg" alt="Open farmland at sunset" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Brookings County, SD</a></p>
+                  <p class="lc-headline">$2,980,000</p>
+                  <p class="lc-meta"><span>280&plusmn; Acres</span><span>274&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="lc sr-lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" />
+                  <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
+                  <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
+                  </button>
+                </div>
+                <div class="lc-body">
+                  <p class="lc-status is-sold"><span class="lc-dot" aria-hidden="true"></span>Sold</p>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details.html">Champaign County, IL</a></p>
+                  <p class="lc-headline">August 22, 2026</p>
+                  <p class="lc-meta"><span>160&plusmn; Acres</span><span>158&plusmn; Tillable Acres</span></p>
+                </div>
+              </article>
+            </li>
+          </ul>
+          <button class="sr-more" type="button" data-more="srListings">View More</button>
+        </section>
+
+        <section class="sr-col" aria-labelledby="sr-h-content">
+          <h2 class="sr-colhead" id="sr-h-content">Content</h2>
+          <ul class="sr-list sr-list-content" id="srContent">
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Harvest season safety" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Harvest Season on Leased Ground: A Checklist for Landowners</span>
+                <span class="sr-cc-desc">What to confirm with your tenant before the combines roll, from crop insurance to field access.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Land auction bidding" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Online, Live, or Hybrid: Choosing the Right Auction Format for Your Farm</span>
+                <span class="sr-cc-desc">How each format reaches buyers, and which one fits your land, timeline and market.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Pasture and grazing land" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Pasture and Grazing Land: What Drives Value Outside the Row-Crop Belt</span>
+                <span class="sr-cc-desc">Water, fencing and carrying capacity matter more than tillable acres on grass.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---investing-in-transitional-farmland-(instagram,-linktree).jpg/a142173d69595f9908da2d0f4ad210f0.webp" alt="Recreational land" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Recreational Land Buyers Are Back: What They Want and What They Pay</span>
+                <span class="sr-cc-desc">Timber, water and access are pulling buyers back into the recreational market.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-(website).jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="Farm records and files" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Better Records, Better Decisions</span>
+                <span class="sr-cc-desc">Clean yield, lease and input records make every land decision easier to make.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="../assets/farmland_fundamentals.png" alt="Farmland Fundamentals cover" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Farmland Fundamentals</span>
+                <span class="sr-cc-desc">A plain-language guide to how farmland is valued, bought, sold and managed.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---growing-together,-george-baird-(fb,-twitter,-linkedin).jpg/0d7e71bda28e459a9e2868183f76cf40.webp" alt="Expo speaker stage" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Land Investment Expo Speakers Announced for the Coming Year</span>
+                <span class="sr-cc-desc">The lineup for the 20th annual Land Investment Expo in Des Moines.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-acquires-murray-wise-llc-(website).jpg/c1ab3da45682f95b10aa025961534ec0.webp" alt="Irrigation pivot" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Irrigated Acres: Weighing the Cost of a Pivot Against the Yield Bump</span>
+                <span class="sr-cc-desc">Running the numbers on irrigation before you commit to the install.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-(website).jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="Prevented planting" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">Prevented Planting Claims: How the Decision Actually Gets Made</span>
+                <span class="sr-cc-desc">How adjusters, dates and acreage reports decide a prevented planting claim.</span>
+              </a>
+            </li>
+            <li>
+              <a class="sr-cc" href="./blog-story.html">
+                <span class="sr-cc-ph"><img src="../assets/pc-legacy-field.webp" alt="Farmland at golden hour" loading="lazy" decoding="async" /></span>
+                <span class="sr-cc-title">National Land Values Report</span>
+                <span class="sr-cc-desc">Our annual look at farmland values across every region we serve.</span>
+              </a>
+            </li>
+          </ul>
+          <button class="sr-more" type="button" data-more="srContent">View More</button>
+        </section>
+      </div>
     </div>
   </main>
 
@@ -630,6 +924,28 @@
         entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
       }, { threshold: 0.12 });
       els.forEach(function(el){ io.observe(el); });
+    })();
+    // Listing card save/favorite star. Visual only; persisting it is the CMS's job.
+    // Delegated, so the cards View More appends get it too.
+    document.addEventListener("click", function(e){
+      var b = e.target.closest && e.target.closest(".lc-fav");
+      if(b){ b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); }
+    });
+
+    // Search results: View More appends the next 10 to that column. Mockup only, so it
+    // re-appends copies of the first 10; the CMS supplies the real next page. Focus moves
+    // to the first new result so keyboard and screen reader users land on what loaded.
+    (function(){
+      document.querySelectorAll(".sr-more").forEach(function(btn){
+        var list = document.getElementById(btn.getAttribute("data-more"));
+        if(!list) return;
+        var first = Array.prototype.slice.call(list.children, 0, 10);
+        btn.addEventListener("click", function(){
+          var added = first.map(function(li){ var c = li.cloneNode(true); list.appendChild(c); return c; });
+          var target = added[0] && added[0].querySelector("a");
+          if(target){ target.focus(); }
+        });
+      });
     })();
   </script>
 </body>
