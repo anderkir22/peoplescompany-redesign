@@ -44,11 +44,11 @@
     .ir-feature-copy .ir-lede{ margin-top: var(--space-4); }
     .ir-actions{ display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-6); }
     .ir-note{ font-size: 13px; color: var(--pc-black); }
-    /* Archive grid head */
+    /* Papers grid head */
     .ir-gridhead{ display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4);
       margin: 0 0 var(--space-6); }
     .ir-count{ font-size: 13px; color: var(--pc-black); margin: 0; }
-    /* Research cards: the shared .io-card with a horizontal 16:9 image, same as the homepage. */
+    /* Research cards: the shared .io-card with a 16:9 image. */
     .ir-grid .io-card{ height: 100%; }
     .ir-grid .io-ph.r169{ border-bottom: 1px solid var(--color-border); }
     .ir-grid .io-ph img{ transition: transform .25s ease; }
@@ -89,9 +89,8 @@
       .ir-feature-copy .ir-actions{ margin-top: var(--space-5); }
     }
     /* Featured stacks: image on top, full width, copy below. */
-    /* The FEATURED eyebrow moves above the image: the copy box dissolves (display: contents)
-       so its children join the panel's flex column and the eyebrow can take order -1.
-       Visual order only; DOM and reading order are unchanged (the image link is aria-hidden). */
+    /* Eyebrow above the image: the copy box dissolves (display: contents) so the eyebrow
+       can take order -1. Visual order only; reading order is unchanged. */
     @media (max-width: 899px){
       .ir-feature{ display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
       .ir-feature-copy{ display: contents; }
@@ -107,10 +106,8 @@
       .ir-feature{ padding: var(--space-5); }
       .ir-grid, .ir-blog{ grid-template-columns: minmax(0, 1fr); }
     }
-    /* Papers and blog become lists below 640: image left, title right with the author under
-       it, rows split by a hairline. Paper teaser and Read More are visually hidden, kept for
-       screen readers (the link still announces "opens in a new tab"). Blog rows keep the
-       date, under the author. */
+    /* Below 640 both grids become lists: image left, then title, author (and blog date).
+       Paper teaser and Read More are visually hidden, kept for screen readers. */
     @media (max-width: 639px){
       .ir-grid, .ir-blog{ gap: 0; border-bottom: 1px solid var(--color-border); }
       .ir-grid > li, .ir-blog > .io-card{ border-top: 1px solid var(--color-border); }
@@ -884,95 +881,6 @@
       });
     })();
 
-    // Insights & Research — tabbed, varied-tile grid. Content model: Blog = 16:9
-    // photo + headline + teaser + date; Insights = digital documents, cover
-    // art 850x1100 portrait, often no date. Themed via the .io-scope vars.
-    (function(){
-      function hrow(title, date){
-        return '<a class="io-hrow" href="./internal.html"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
-      }
-
-      var INSIGHTS = {
-        featured: [
-          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"../assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
-          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"../assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
-          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
-        ],
-        more: [
-          "The Inflation Hedge: Farmland vs. Traditional Assets",
-          "Water Rights and the Value of Irrigated Ground",
-          "Row Crop vs. Permanent Crop: A Risk Framework",
-          "Carbon, Conservation, and Land Returns",
-          "Timber & Transition Land: An Allocation Primer",
-          "The 2025 National Land Values Report"
-        ]
-      };
-      var BLOG = {
-        featured: [
-          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
-          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
-          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
-        ],
-        more: [
-          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
-          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
-          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
-          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
-          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
-          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
-          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
-          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
-        ]
-      };
-
-      // Tabbed block: Industry Research (default open) + Peoples Perspective Blog.
-      function tabbedBlock(rootId, h2, researchInner, blogInner){
-        var root = document.getElementById(rootId);
-        if(!root) return;
-        root.innerHTML =
-          '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 id="hp-ins-h" class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="./internal.html">View more &rarr;</a></div>'+
-          '<div class="ioF-tabs" role="tablist">'+
-            '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
-            '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
-          '</div>'+
-          '<div class="ioF-panels">'+
-            '<div class="ioF-panel" data-panel="0">'+researchInner+'</div>'+
-            '<div class="ioF-panel" data-panel="1" hidden>'+blogInner+'</div>'+
-          '</div>';
-        root.querySelectorAll('.ioF-tab').forEach(function(t){
-          t.addEventListener('click', function(){
-            root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
-            root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
-          });
-        });
-      }
-
-      // Industry Research — horizontal 16:9 cards (no portrait cover, no
-      // "Report · PDF" tag), then a "More research" headline stack.
-      function researchCard(x){
-        return '<a class="io-card" href="./internal.html">'+
-          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
-          '<span class="io-body"><h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
-      }
-      // Peoples Perspective Blog — 16:9 photo + category chip + date + title +
-      // teaser + "Read more", then a "More from the blog" stack.
-      function blogCard(x){
-        return '<a class="io-card" href="./internal.html">'+
-          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
-          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span>'+
-          '<h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
-      }
-
-      var rc = INSIGHTS.featured.map(researchCard).join("");
-      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
-      var bc = BLOG.featured.map(blogCard).join("");
-      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
-
-      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
-        '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
-        '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
-    })();
-
     // Scroll-reveal (must-have) — reduced-motion safe
     (function(){
       var els = document.querySelectorAll(".reveal");
@@ -983,8 +891,8 @@
       }
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
-      // threshold 0 + a bottom inset, not a ratio: a ratio can never be reached by a block
-      // taller than ~8x the viewport (the one-across papers grid is ~8,700px below 640).
+      // threshold 0 + a bottom inset, not a ratio: a ratio can never be reached by a
+      // block taller than ~8x the viewport.
       }, { threshold: 0, rootMargin: "0px 0px -12% 0px" });
       els.forEach(function(el){ io.observe(el); });
     })();
