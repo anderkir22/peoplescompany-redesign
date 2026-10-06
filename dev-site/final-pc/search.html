@@ -208,29 +208,6 @@
     </div>
   </footer>
 
-  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
-       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
-       The open card carries the same alert icon as the handle. -->
-  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
-    <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
-    <div class="pc-toast-body">
-      <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
-        <a href="./internal.html">136.57 Acres M/L in Wayne County IA</a><br>
-        <a href="./internal.html"><em>WATCH</em></a><br>
-        <a href="./internal.html">804 Acres M/L in Juneau County WI</a><br>
-        <a href="./internal.html"><em>WATCH</em></a>
-      </p>
-    </div>
-    <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
-  </aside>
-
-  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
-       open; at <=1279px the JS starts minimized and this handle shows instead. -->
-  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
-    <span>Auction Alerts</span>
-  </button>
-
   <script>
     // Mega-menu nav built from the real IA. "The Company" panel carries three
     // affiliation badges on the right (this tab only).
@@ -625,41 +602,6 @@
         entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
       }, { threshold: 0.12 });
       els.forEach(function(el){ io.observe(el); });
-    })();
-
-    // Announcement toast: bottom-right floating card that MINIMIZES to a
-    // right-edge handle (instead of vanishing) so it can be reopened.
-    (function(){
-      var t = document.getElementById("pcToast");
-      if(!t) return;
-      var reopen = document.getElementById("pcToastReopen");
-      var x = t.querySelector(".pc-toast-x");
-      // moveFocus is false for the automatic narrow-viewport minimize below — focusing
-      // the handle on page load would steal focus and jump the page to the right edge.
-      function setMinimized(min, moveFocus){
-        t.hidden = min;
-        if(reopen){ reopen.hidden = !min; }
-        if(moveFocus){
-          var target = min ? reopen : x;
-          if(target){ target.focus(); }
-        }
-      }
-      function minimize(){ setMinimized(true, true); }
-      function restore(){ userChose = true; setMinimized(false, true); }
-      if(x){ x.addEventListener("click", minimize); }
-      if(reopen){ reopen.addEventListener("click", restore); }
-
-      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
-         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
-         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
-         never auto-restores, so once the visitor opens the handle it stays open, and a
-         toast never pops itself back open mid-resize. */
-      var TOAST_NARROW = 1279, userChose = false;
-      function narrowCheck(){
-        if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
-      }
-      narrowCheck();
-      window.addEventListener("resize", narrowCheck);
     })();
   </script>
 </body>
