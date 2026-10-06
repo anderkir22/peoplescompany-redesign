@@ -19,15 +19,10 @@
     .nl-body{ background: var(--pc-white); }
     .nl-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
     .nl-band{ padding: var(--space-8) 0; }
-    .nl-band--soft{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border); }
     .nl-intro{ padding: var(--space-8) 0 var(--space-7); }
     .nl-lede{ font-size: var(--body-lg); line-height: 1.7; color: var(--pc-black); margin: var(--space-4) 0 0; }
     .nl-h2{ font-family: var(--font-serif); font-weight: 500; font-size: 36px; line-height: 1.14;
       color: var(--pc-black); margin: 0; }
-    .nl-prose p{ margin: 0 0 var(--space-5); font-size: 16px; line-height: 1.75; color: var(--pc-black); }
-    .nl-prose p:last-child{ margin-bottom: 0; }
-    .nl-prose a{ color: var(--pc-navy); text-decoration: underline; text-underline-offset: 2px; }
-    .nl-prose a:hover{ color: var(--color-accent); text-decoration-thickness: 2px; }
     .nl-body .io-eyebrow{ margin-bottom: var(--space-3); }
     /* Latest two editions: two soft panels side by side, portrait cover left, copy right. */
     .nl-features{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
@@ -38,21 +33,17 @@
       border-radius: var(--radius-sm); box-shadow: 0 10px 28px rgba(7,22,44,.18); background: var(--pc-light-blue); }
     .nl-feature-cover img{ display: block; width: 100%; height: 100%; object-fit: cover; }
     .nl-feature .nl-h2{ font-size: 36px; }
-    .nl-by{ font-size: 14px; font-weight: 600; color: var(--pc-navy); margin: var(--space-3) 0 0; }
-    .nl-feature-copy .nl-lede{ margin-top: var(--space-4); }
     .nl-actions{ display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-6); }
-    .nl-note{ font-size: 13px; color: var(--pc-black); }
-    /* Archive grid head */
+    /* Past editions grid head */
     .nl-gridhead{ display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4);
       margin: 0 0 var(--space-6); }
     .nl-count{ font-size: 13px; color: var(--pc-black); margin: 0; }
     /* Cover cards: the shared .io-card with a portrait cover. */
     .nl-grid .io-card{ height: 100%; }
-    /* Light Blue behind the cover, not the shared dark gradient: the zoom re-rasterises the
-       image on a fractional pixel and a dark sliver would show at its bottom edge. */
+    /* Light Blue behind the cover, not the shared dark gradient: the hover zoom can expose a sliver at the image edge. */
     .io-scope .nl-grid .io-ph.rcover{ border-bottom: 1px solid var(--color-border); background: var(--pc-light-blue); }
     .nl-grid .io-link{ margin-top: auto; padding-top: var(--space-2); }
-    /* Hover: the card stays put. The fill turns PC Light Blue, the cover zooms slightly, the Read arrow nudges right in the accent. */
+    /* Hover: no lift. Fill turns PC Light Blue, cover zooms 1.03, Read arrow nudges right. */
     .io-scope .nl-grid .io-card{ transition: background-color .18s ease; }
     .io-scope .nl-grid .io-card:hover{ box-shadow: none; transform: none; background: var(--pc-light-blue); }
     .nl-grid .io-ph img{ transition: transform .25s ease; }
@@ -96,7 +87,7 @@
       .nl-features{ grid-template-columns: minmax(0, 1fr); }
       .nl-feature{ grid-template-columns: 200px minmax(0, 1fr); }
     }
-    /* 768-1023: five across holds; titles step down so they stay on one line. */
+    /* 768-1023: smaller titles and card padding so titles stay on one line. */
     @media (min-width: 768px) and (max-width: 1023px){
       .nl-grid{ gap: var(--space-5) var(--space-4); }
       .nl-grid .io-title{ font-size: 17px; }
@@ -120,9 +111,8 @@
       .nl-feature-copy .nl-h2{ grid-column: 2; grid-row: 2; }
       .nl-feature-copy .nl-actions{ grid-column: 1 / -1; grid-row: 3; margin-top: var(--space-5); }
     }
-    /* 767 and below: past editions become a list. Small cover left, title and Read right.
-       Two columns of rows to 640, one column below. Hover keeps the zoom and the Read accent,
-       not the fill (the rows run edge to edge on the rail). */
+    /* 767 and below: past editions become a list, small cover left. Two columns to 640, one below.
+       No fill on hover (rows run edge to edge); the zoom and Read accent stay. */
     @media (max-width: 767px){
       .nl-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-6); }
       .nl-grid > li{ border-top: 1px solid var(--color-border); }
@@ -779,95 +769,6 @@
       toggle.addEventListener("click", function(){
         if(panel.classList.contains("open")){ close(true); } else { open(); }
       });
-    })();
-
-    // Insights & Research — tabbed, varied-tile grid. Content model: Blog = 16:9
-    // photo + headline + teaser + date; Insights = digital documents, cover
-    // art 850x1100 portrait, often no date. Themed via the .io-scope vars.
-    (function(){
-      function hrow(title, date){
-        return '<a class="io-hrow" href="./internal.html"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
-      }
-
-      var INSIGHTS = {
-        featured: [
-          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"../assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
-          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"../assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
-          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
-        ],
-        more: [
-          "The Inflation Hedge: Farmland vs. Traditional Assets",
-          "Water Rights and the Value of Irrigated Ground",
-          "Row Crop vs. Permanent Crop: A Risk Framework",
-          "Carbon, Conservation, and Land Returns",
-          "Timber & Transition Land: An Allocation Primer",
-          "The 2025 National Land Values Report"
-        ]
-      };
-      var BLOG = {
-        featured: [
-          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
-          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
-          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
-        ],
-        more: [
-          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
-          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
-          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
-          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
-          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
-          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
-          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
-          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
-        ]
-      };
-
-      // Tabbed block: Industry Research (default open) + Peoples Perspective Blog.
-      function tabbedBlock(rootId, h2, researchInner, blogInner){
-        var root = document.getElementById(rootId);
-        if(!root) return;
-        root.innerHTML =
-          '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 id="hp-ins-h" class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="./internal.html">View more &rarr;</a></div>'+
-          '<div class="ioF-tabs" role="tablist">'+
-            '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
-            '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
-          '</div>'+
-          '<div class="ioF-panels">'+
-            '<div class="ioF-panel" data-panel="0">'+researchInner+'</div>'+
-            '<div class="ioF-panel" data-panel="1" hidden>'+blogInner+'</div>'+
-          '</div>';
-        root.querySelectorAll('.ioF-tab').forEach(function(t){
-          t.addEventListener('click', function(){
-            root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
-            root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
-          });
-        });
-      }
-
-      // Industry Research — horizontal 16:9 cards (no portrait cover, no
-      // "Report · PDF" tag), then a "More research" headline stack.
-      function researchCard(x){
-        return '<a class="io-card" href="./internal.html">'+
-          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
-          '<span class="io-body"><h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
-      }
-      // Peoples Perspective Blog — 16:9 photo + category chip + date + title +
-      // teaser + "Read more", then a "More from the blog" stack.
-      function blogCard(x){
-        return '<a class="io-card" href="./internal.html">'+
-          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
-          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span>'+
-          '<h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
-      }
-
-      var rc = INSIGHTS.featured.map(researchCard).join("");
-      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
-      var bc = BLOG.featured.map(blogCard).join("");
-      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
-
-      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
-        '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
-        '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe
