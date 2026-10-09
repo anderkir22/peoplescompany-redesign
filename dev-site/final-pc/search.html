@@ -207,7 +207,7 @@
 
       <p class="sr-summary" role="status"><b>42</b> results for &ldquo;Matt Adams&rdquo;</p>
 
-      <!-- Results: two columns, top 10 of each. View More reveals the next 10 in that column only. -->
+      <!-- Results: two columns. Listings shows 6 and Content 8; View More reveals the next 6 / 8 in that column only. -->
       <div class="sr-results">
         <section class="sr-col" aria-labelledby="sr-h-listings">
           <h2 class="sr-colhead" id="sr-h-listings">Listings <span class="sr-count">(10)</span></h2>
@@ -290,7 +290,7 @@
                 </div>
               </article>
             </li>
-            <li>
+            <li hidden>
               <article class="lc sr-lc">
                 <div class="lc-media">
                   <img src="../assets/pc-hero8.jpg" alt="Farm field under open sky" />
@@ -303,7 +303,7 @@
                 </div>
               </article>
             </li>
-            <li>
+            <li hidden>
               <article class="lc sr-lc">
                 <div class="lc-media">
                   <img src="../assets/pc-hero6.jpg" alt="Corn rows at sunrise" />
@@ -316,7 +316,7 @@
                 </div>
               </article>
             </li>
-            <li>
+            <li hidden>
               <article class="lc sr-lc">
                 <div class="lc-media">
                   <img src="../assets/pc-hero9.jpg" alt="Open farmland at sunset" />
@@ -329,7 +329,7 @@
                 </div>
               </article>
             </li>
-            <li>
+            <li hidden>
               <article class="lc sr-lc">
                 <div class="lc-media">
                   <img src="../assets/pc-hero2.jpg" alt="Aerial view of cropland" />
@@ -343,6 +343,7 @@
               </article>
             </li>
           </ul>
+          <button class="sr-more" type="button" data-more="srListings" data-step="6">View More</button>
         </section>
 
         <section class="sr-col" aria-labelledby="sr-h-content">
@@ -404,14 +405,14 @@
                 <span class="sr-cc-desc">There were 11 tracts of land offered at public auction in Iowa April 9-15. During these auctions, there was a…</span>
               </a>
             </li>
-            <li>
+            <li hidden>
               <a class="sr-cc" href="./blog-story.html">
                 <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/http/blogs/peoples-company-receives-top-land-auction-honors-at-realtors-land-institute-apex-awards-program-2021-03-24-201850.jpg/a7b88c4f6513cb28b16c324711223bc9.jpg" alt="" loading="lazy" decoding="async" /></span>
                 <span class="sr-cc-title">Peoples Company Receives Top Land Auction Honors at REALTORS® Land Institute APEX Awards Program</span>
                 <span class="sr-cc-desc">(CLIVE, Iowa) – Peoples Company, a national leader in land brokerage, land management, land investment, and…</span>
               </a>
             </li>
-            <li>
+            <li hidden>
               <a class="sr-cc" href="./blog-story.html">
                 <span class="sr-cc-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/peoples-company-receives-top-land-auction-honors-at-2022-realtors-land-institute-apex-awards-program-APEX%20Awards%202022%20Winners%20%28Website%29%202.jpg/acb677ac0efe448b32b727b954839724.jpg" alt="" loading="lazy" decoding="async" /></span>
                 <span class="sr-cc-title">Peoples Company Receives Top Land Auction Honors at 2022 REALTORS® Land Institute APEX Awards Program</span>
@@ -573,7 +574,7 @@
               </a>
             </li>
           </ul>
-          <button class="sr-more" type="button" data-more="srContent">View More</button>
+          <button class="sr-more" type="button" data-more="srContent" data-step="8">View More</button>
         </section>
       </div>
     </div>
@@ -1095,15 +1096,16 @@
       }, { threshold: 0.12 });
       els.forEach(function(el){ io.observe(el); });
     })();
-    // Search results: View More reveals the next 10 in that column and is removed once
+    // Search results: View More reveals the next batch (data-step) in that column and is removed once
     // nothing is left. Focus moves to the first new result so keyboard and screen reader
     // users land on what loaded.
     (function(){
       document.querySelectorAll(".sr-more").forEach(function(btn){
         var list = document.getElementById(btn.getAttribute("data-more"));
         if(!list) return;
+        var step = parseInt(btn.getAttribute("data-step"), 10) || 10;
         btn.addEventListener("click", function(){
-          var next = Array.prototype.slice.call(list.querySelectorAll(":scope > li[hidden]"), 0, 10);
+          var next = Array.prototype.slice.call(list.querySelectorAll(":scope > li[hidden]"), 0, step);
           next.forEach(function(li){ li.hidden = false; });
           if(!list.querySelector(":scope > li[hidden]")){ btn.hidden = true; }
           var target = next[0] && next[0].querySelector("a");
