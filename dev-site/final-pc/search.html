@@ -14,12 +14,11 @@
   <!-- Single source of truth for the final PC direction -->
   <link href="pc.css?v=20260827a" rel="stylesheet" />
 
-  <!-- Page-local: white body between the shared header and footer, same as internal.html. -->
+  <!-- Page-local styles, prefixed sr-. -->
   <style>
     .internal-body{ background:#fff; min-height:60vh; }
     .sr-wrap{ max-width: var(--site); margin: 0 auto; padding: var(--space-8) var(--rail); }
-    /* Search row: pill text field (same look as the blog / careers search) + primary button.
-       Both stretch to one height so the field and the button share a baseline. */
+    /* Search row: pill field + primary button, stretched to one height. */
     .sr-form{ display: flex; align-items: stretch; gap: var(--space-3);
       margin-top: var(--space-6); }
     .sr-field{ display: flex; align-items: center; gap: var(--space-2); flex: 1 1 auto; min-width: 0;
@@ -60,8 +59,8 @@
     .sr-cc-title{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; line-height: 1.2;
       color: var(--pc-black); }
     .sr-cc:hover .sr-cc-title{ color: var(--pc-medium-blue); }
-    /* Description is cut to 110 characters at a word boundary plus an ellipsis, which lands on
-       exactly three rows at 1280-1536. The clamp only catches widths outside that range. */
+    /* Description: the opening text cut to 110 characters fills three rows at 1280-1536;
+       the clamp is a backstop. */
     .sr-cc-desc{ font-size: 14px; line-height: 1.5; color: var(--color-text-muted);
       display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
     .sr-cc:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 4px; border-radius: var(--radius-md); }
@@ -100,8 +99,7 @@
       .sr-lc{ display: block; height: 100%; }
       .sr-lc .lc-media{ aspect-ratio: 4 / 3; min-height: 0; }
     }
-    /* 767 and below: compact rows, 84px tall (half the 168 card). Listing: 150 photo, status and
-       place stacked with the price on the right. Content: one per row, same height, 150 x 84
+    /* 767 and below: compact 84px rows. Listing: 150 photo, price on the right. Content: 150 x 84
        thumbnail, title up to three lines. */
     @media (max-width: 767px){
       .sr-lc{ grid-template-columns: 150px minmax(0,1fr); height: 84px; }
@@ -128,8 +126,7 @@
       .sr-cc-title{ -webkit-line-clamp: 2; line-clamp: 2; }
       .sr-form .btn{ padding-left: var(--space-4); padding-right: var(--space-4); }
     }
-    /* 559 and below: same 84px rows. Photo and thumbnail 112 (4:3); the price moves under the
-       place so the place keeps the full text width. */
+    /* 559 and below: 112 photo and thumbnail; the price moves under the place. */
     @media (max-width: 559px){
       .sr-lc, .sr-cc{ grid-template-columns: 112px minmax(0,1fr); }
       .sr-lc .lc-body{ grid-template-columns: minmax(0,1fr); padding: var(--space-2) var(--space-3); }
@@ -1023,111 +1020,8 @@
       });
     })();
 
-    // Insights & Research — tabbed, varied-tile grid. Content model: Blog = 16:9
-    // photo + headline + teaser + date; Insights = digital documents, cover
-    // art 850x1100 portrait, often no date. Themed via the .io-scope vars.
-    (function(){
-      function hrow(title, date){
-        return '<a class="io-hrow" href="./internal.html"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
-      }
-
-      var INSIGHTS = {
-        featured: [
-          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"../assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
-          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"../assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
-          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
-        ],
-        more: [
-          "The Inflation Hedge: Farmland vs. Traditional Assets",
-          "Water Rights and the Value of Irrigated Ground",
-          "Row Crop vs. Permanent Crop: A Risk Framework",
-          "Carbon, Conservation, and Land Returns",
-          "Timber & Transition Land: An Allocation Primer",
-          "The 2025 National Land Values Report"
-        ]
-      };
-      var BLOG = {
-        featured: [
-          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
-          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
-          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
-        ],
-        more: [
-          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
-          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
-          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
-          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
-          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
-          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
-          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
-          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
-        ]
-      };
-
-      // Tabbed block: Industry Research (default open) + Peoples Perspective Blog.
-      function tabbedBlock(rootId, h2, researchInner, blogInner){
-        var root = document.getElementById(rootId);
-        if(!root) return;
-        root.innerHTML =
-          '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 id="hp-ins-h" class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="./internal.html">View more &rarr;</a></div>'+
-          '<div class="ioF-tabs" role="tablist">'+
-            '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
-            '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
-          '</div>'+
-          '<div class="ioF-panels">'+
-            '<div class="ioF-panel" data-panel="0">'+researchInner+'</div>'+
-            '<div class="ioF-panel" data-panel="1" hidden>'+blogInner+'</div>'+
-          '</div>';
-        root.querySelectorAll('.ioF-tab').forEach(function(t){
-          t.addEventListener('click', function(){
-            root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
-            root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
-          });
-        });
-      }
-
-      // Industry Research — horizontal 16:9 cards (no portrait cover, no
-      // "Report · PDF" tag), then a "More research" headline stack.
-      function researchCard(x){
-        return '<a class="io-card" href="./internal.html">'+
-          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
-          '<span class="io-body"><h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
-      }
-      // Peoples Perspective Blog — 16:9 photo + category chip + date + title +
-      // teaser + "Read more", then a "More from the blog" stack.
-      function blogCard(x){
-        return '<a class="io-card" href="./internal.html">'+
-          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
-          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span>'+
-          '<h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
-      }
-
-      var rc = INSIGHTS.featured.map(researchCard).join("");
-      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
-      var bc = BLOG.featured.map(blogCard).join("");
-      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
-
-      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
-        '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
-        '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
-    })();
-
-    // Scroll-reveal (must-have) — reduced-motion safe
-    (function(){
-      var els = document.querySelectorAll(".reveal");
-      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if(reduce || !("IntersectionObserver" in window)){
-        els.forEach(function(el){ el.classList.add("in"); });
-        return;
-      }
-      var io = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
-      }, { threshold: 0.12 });
-      els.forEach(function(el){ io.observe(el); });
-    })();
-    // Search results: View More reveals the next batch (data-step) in that column and is removed once
-    // nothing is left. Focus moves to the first new result so keyboard and screen reader
-    // users land on what loaded.
+    // View More: reveals the next data-step results in its column and hides itself when none are
+    // left. Focus moves to the first new result.
     (function(){
       document.querySelectorAll(".sr-more").forEach(function(btn){
         var list = document.getElementById(btn.getAttribute("data-more"));
