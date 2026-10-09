@@ -31,31 +31,53 @@
       font-family: var(--font-sans); font-size: var(--body); color: var(--pc-black); }
     .sr-field input:focus{ outline: none; }
     .sr-form .btn{ flex: none; }
-    /* Results: Listings left, Content right, equal columns. */
-    .sr-results{ display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-      gap: var(--space-8); margin-top: var(--space-8); align-items: start; }
+    /* Results: three equal columns, Listings · Team · Content. */
+    .sr-results{ display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: var(--space-7); margin-top: var(--space-8); align-items: start; }
     .sr-colhead{ font-family: var(--font-sans); font-size: 13px; font-weight: 600; line-height: 1.4;
       letter-spacing: .12em; text-transform: uppercase; color: var(--pc-navy);
       margin: 0 0 var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
     .sr-list{ list-style: none; margin: 0; padding: 0; }
     /* Listing result: the site's .lc card laid out horizontally, photo left. */
     .sr-list-listings{ display: flex; flex-direction: column; gap: var(--space-4); }
-    .sr-lc{ display: grid; grid-template-columns: 240px minmax(0,1fr); height: auto; }
-    .sr-lc .lc-media{ aspect-ratio: auto; min-height: 168px; }
+    .sr-lc{ display: grid; grid-template-columns: 160px minmax(0,1fr); height: auto; }
+    .sr-lc .lc-media{ aspect-ratio: auto; min-height: 140px; }
     .sr-lc .lc-body{ display: flex; flex-direction: column; justify-content: center; }
     .sr-lc .lc-status{ margin: 0 0 var(--space-2); }
-    /* Content result: thumbnail, then title and description below it. Two per row. */
-    .sr-list-content{ display: grid; grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: var(--space-6) var(--space-5); }
-    .sr-cc{ display: flex; flex-direction: column; gap: var(--space-2); color: inherit; text-decoration: none; }
-    .sr-cc-ph{ display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-md);
-      background: var(--pc-light-blue); margin-bottom: var(--space-2); }
+    .sr-lc .lc-place{ font-size: 20px; }
+    /* Team result: square headshot left, name / designations / role right. Whole row is the link. */
+    .sr-list-team{ display: flex; flex-direction: column; gap: var(--space-4); }
+    .sr-tc{ position: relative; display: grid; grid-template-columns: 96px minmax(0,1fr);
+      align-items: center; gap: var(--space-4); padding: var(--space-3);
+      border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--pc-white);
+      transition: box-shadow .18s ease, transform .18s ease; }
+    .sr-tc:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
+    .sr-tc-ph{ aspect-ratio: 1 / 1; overflow: hidden; border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--pc-black), var(--pc-navy)); }
+    .sr-tc-ph img{ display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+    .sr-tc-name{ font-family: var(--font-serif); font-weight: 500; font-size: 20px; line-height: 1.2; margin: 0; }
+    .sr-tc-name a{ color: var(--pc-black); text-decoration: none; }
+    .sr-tc-name a::after{ content: ""; position: absolute; inset: 0; }
+    .sr-tc:hover .sr-tc-name a{ color: var(--pc-medium-blue); }
+    .sr-tc-desig{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      letter-spacing: .02em; color: var(--color-text-muted); white-space: nowrap; }
+    .sr-tc-role{ font-family: var(--font-sans); font-size: 14px; line-height: 1.4; color: var(--pc-black);
+      margin: var(--space-1) 0 0; }
+    .sr-tc:has(a:focus-visible){ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .sr-tc-name a:focus-visible{ outline: none; }
+    /* Content result: 16:9 thumbnail left, title and description right. */
+    .sr-list-content{ display: flex; flex-direction: column; gap: var(--space-5); }
+    .sr-cc{ display: grid; grid-template-columns: 160px minmax(0,1fr); align-items: start;
+      gap: var(--space-1) var(--space-4); color: inherit; text-decoration: none; }
+    .sr-cc-ph{ grid-row: 1 / span 2; display: block; aspect-ratio: 16 / 9; overflow: hidden;
+      border-radius: var(--radius-md); background: var(--pc-light-blue); }
     .sr-cc-ph img{ display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
     .sr-cc:hover .sr-cc-ph img{ transform: scale(1.03); }
-    .sr-cc-title{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; line-height: 1.2;
+    .sr-cc-title{ font-family: var(--font-serif); font-weight: 500; font-size: 20px; line-height: 1.2;
       color: var(--pc-black); }
     .sr-cc:hover .sr-cc-title{ color: var(--pc-medium-blue); }
-    .sr-cc-desc{ font-size: 14px; line-height: 1.5; color: var(--color-text-muted); }
+    .sr-cc-desc{ font-size: 14px; line-height: 1.5; color: var(--color-text-muted);
+      display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
     .sr-cc:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 4px; border-radius: var(--radius-md); }
     /* View More: a text link under each column. */
     .sr-more{ display: block; margin: var(--space-6) auto 0; padding: 12px 16px; min-height: 44px;
@@ -65,8 +87,8 @@
     .sr-more:hover{ color: var(--pc-navy); }
     .sr-more:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; border-radius: 2px; }
     @media (prefers-reduced-motion: reduce){
-      .sr-cc-ph img{ transition: none; }
-      .sr-cc:hover .sr-cc-ph img{ transform: none; }
+      .sr-cc-ph img, .sr-tc{ transition: none; }
+      .sr-cc:hover .sr-cc-ph img, .sr-tc:hover{ transform: none; }
     }
     /* Small-width type scale (site-wide): H1 34 at 767, 30 at 359. */
     @media (max-width: 767px){ .sr-wrap h1{ font-size: 34px; line-height: 1.12; } }
@@ -150,7 +172,7 @@
         <button class="btn btn-primary" type="submit">Search</button>
       </form>
 
-      <!-- Results: two columns, top 10 of each. View More loads the next 10 into that column only. -->
+      <!-- Results: three columns, top 10 of each. View More loads the next 10 into that column only. -->
       <div class="sr-results">
         <section class="sr-col" aria-labelledby="sr-h-listings">
           <h2 class="sr-colhead" id="sr-h-listings">Listings</h2>
@@ -287,6 +309,113 @@
             </li>
           </ul>
           <button class="sr-more" type="button" data-more="srListings">View More</button>
+        </section>
+
+        <section class="sr-col" aria-labelledby="sr-h-team">
+          <h2 class="sr-colhead" id="sr-h-team">Team</h2>
+          <ul class="sr-list sr-list-team" id="srTeam">
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/Vzf01O2AiiJz7BNRchzWrZGCuRI7wfyrGjw7vQfq.jpg" alt="Paul Anderson" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Paul Anderson</a><span class="sr-tc-desig">, AFM</span></h3>
+                  <p class="sr-tc-role">Land Manager</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/Ltt80HzVf5honcUFheENJZH95qBBoivvodta4i6U.jpg" alt="Mollie Aronowitz" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Mollie Aronowitz</a><span class="sr-tc-desig">, AFM</span></h3>
+                  <p class="sr-tc-role">Associate Director of Land Management</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/muQGkVfanKBteWsWy0AZRZRlCO4uIWbJlLA3xu05.jpg" alt="George Baird" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">George Baird</a><span class="sr-tc-desig">, AFM, AAC</span></h3>
+                  <p class="sr-tc-role">Owner, Landmark Ag &amp; Senior Land Manager</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/CtEE7Y5GfVMTKbpjjtLnXMozluKVc45bNUoVT2eG.jpg" alt="Dean Batie" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Dean Batie</a><span class="sr-tc-desig">, ARA</span></h3>
+                  <p class="sr-tc-role">Certified General Appraiser</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/joCZqioGkHI2T6Hl08kRd66jXagbnZz1TXjALJed.jpg" alt="Eric Bohnenkamp" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Eric Bohnenkamp</a></h3>
+                  <p class="sr-tc-role">Land Development Advisor</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/wQYQxAysx8OXdvfSQLThgnbRiTlstL65YRqB0YTy.jpg" alt="Ray Brownfield" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Ray Brownfield</a><span class="sr-tc-desig">, ALC, AFM</span></h3>
+                  <p class="sr-tc-role">Designated Managing Broker</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/iwGX3X9aGpGJf3cvayrFjLbV0IWEoyqngqAnd39o.jpg" alt="Jared Chambers" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Jared Chambers</a><span class="sr-tc-desig">, CAI</span></h3>
+                  <p class="sr-tc-role">Land Agent &amp; Auctioneer</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/iHdGcOsbWvE5n2ih3TJxLyu4SjlEAni0PGP5UJcR.jpg" alt="Jake Costanzo" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Jake Costanzo</a></h3>
+                  <p class="sr-tc-role">Energy Analyst</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/CfFEsu9RzL0bZ8oBpo51VZ4HXTBB09N4kTJguVGR.jpg" alt="Maddie Coury" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Maddie Coury</a></h3>
+                  <p class="sr-tc-role">Operations Manager</p>
+                </div>
+              </article>
+            </li>
+            <li>
+              <article class="sr-tc">
+                <div class="sr-tc-ph"><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/05CWlx2ooGqoY0jayUQgiU9ojvh9XwY4hfHAzKiJ.jpg" alt="Wendy Forthun" loading="lazy" decoding="async"
+                     onerror="this.style.display='none';this.onerror=null;" /></div>
+                <div>
+                  <h3 class="sr-tc-name"><a href="./team-member.html">Wendy Forthun</a><span class="sr-tc-desig">, ALC</span></h3>
+                  <p class="sr-tc-role">Land Broker</p>
+                </div>
+              </article>
+            </li>
+          </ul>
+          <button class="sr-more" type="button" data-more="srTeam">View More</button>
         </section>
 
         <section class="sr-col" aria-labelledby="sr-h-content">
