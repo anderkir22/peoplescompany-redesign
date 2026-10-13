@@ -34,9 +34,6 @@
       font-size: 15px; line-height: 1.4; }
     .vo-toc a:hover{ color: var(--pc-medium-blue); }
     .vo-toc a b{ font-weight: 700; color: var(--pc-medium-blue); min-width: 1.6em; }
-    .vo-rec{ display: inline-block; font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: .08em;
-      text-transform: uppercase; color: var(--pc-navy); background: var(--pc-light-blue); border-radius: var(--radius-pill);
-      padding: 3px 9px; vertical-align: middle; margin-left: var(--space-2); white-space: nowrap; }
 
     /* ---- each option: a white label row, then the real PC Black band ---- */
     .vo-opt{ border-top: 1px solid var(--color-border); scroll-margin-top: 0; }
@@ -191,6 +188,62 @@
     .vo-slot.is-empty .vo-slot-ph{ display: grid; }
 
 
+    /* ---- PC control bar: shared by every option ----
+       Vimeo plays with controls=0 and this bar drives it through the Player API. The
+       playhead is the PC Diamond (assets/PC_Logomark-Navy-Diamond.svg, drawn in white);
+       the small diamonds on the track mark the chapters. It fades out after 2.5s of
+       stillness while playing and comes back on any pointer move or focus. */
+    .vo-media{ position: absolute; inset: 0; z-index: 1; }
+    .vo-media.is-idle{ cursor: none; }
+    .vo-hit{ position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
+    .vo-hit:focus-visible{ outline: none; }
+    .vo-ctl{ position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; container-type: inline-size;
+      padding: var(--space-8) var(--space-5) var(--space-3); color: var(--pc-white);
+      background: linear-gradient(to top, rgba(7,22,44,.88) 0%, rgba(7,22,44,.5) 55%, rgba(7,22,44,0) 100%);
+      transition: opacity .3s ease; }
+    .vo-media.is-idle .vo-ctl{ opacity: 0; pointer-events: none; }
+    .vo-track{ position: relative; height: 28px; display: flex; align-items: center; cursor: pointer; touch-action: none; margin: 0 6px; }
+    .vo-track:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 4px; border-radius: 4px; }
+    .vo-rail{ position: relative; width: 100%; height: 4px; border-radius: 2px; background: rgba(255,255,255,.26); transition: height .15s ease; }
+    .vo-track:hover .vo-rail, .is-drag .vo-rail{ height: 6px; }
+    .vo-buf, .vo-fill{ position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: inherit; }
+    .vo-buf{ background: rgba(255,255,255,.3); }
+    .vo-fill{ background: var(--pc-blue); }
+    .vo-tick{ position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; transform: rotate(45deg);
+      background: var(--pc-white); box-shadow: 0 0 0 2px rgba(7,22,44,.7); pointer-events: none; }
+    .vo-ph{ position: absolute; top: 50%; left: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; color: var(--pc-white);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.55)); transition: transform .15s ease; pointer-events: none; }
+    .vo-ph svg{ display: block; width: 100%; height: 100%; fill: currentColor; }
+    .vo-track:hover .vo-ph, .is-drag .vo-ph{ transform: scale(1.2); }
+    .vo-tip{ position: absolute; bottom: 32px; left: 0; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+      background: var(--pc-white); color: var(--pc-navy); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.3); opacity: 0; transition: opacity .15s ease; }
+    .vo-tip b{ font-variant-numeric: tabular-nums; color: var(--pc-medium-blue); margin-right: 6px; }
+    .vo-track:hover .vo-tip, .is-drag .vo-tip{ opacity: 1; }
+    .vo-row{ display: flex; align-items: center; gap: var(--space-2); margin-top: 2px; }
+    .vo-row button{ flex: none; width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 50%;
+      background: transparent; color: var(--pc-white); cursor: pointer; }
+    .vo-row button:hover{ background: rgba(255,255,255,.14); }
+    .vo-row button:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 0; }
+    .vo-row button svg{ width: 20px; height: 20px; fill: currentColor; }
+    .vo-row [data-s="off"], .vo-row [data-s="pause"], .vo-row [data-s="shrink"]{ display: none; }
+    .is-playing .vo-row [data-s="play"]{ display: none; }
+    .is-playing .vo-row [data-s="pause"]{ display: block; }
+    .is-muted .vo-row [data-s="on"]{ display: none; }
+    .is-muted .vo-row [data-s="off"]{ display: block; }
+    .vo-player:fullscreen [data-s="grow"]{ display: none; }
+    .vo-player:fullscreen [data-s="shrink"]{ display: block; }
+    .vo-player:fullscreen{ border-radius: 0; }
+    .vo-time{ flex: none; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; margin-left: var(--space-1); }
+    .vo-chn{ flex: 1; min-width: 0; font-size: 13px; color: var(--pc-light-blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vo-chn::before{ content: "\00B7"; margin: 0 var(--space-2); color: rgba(255,255,255,.5); }
+    @container (max-width: 520px){
+      .vo-chn{ visibility: hidden; }
+      .vo-ctl{ padding: var(--space-6) var(--space-2) var(--space-1); }
+      .vo-row button{ width: 32px; height: 32px; }
+      .vo-row button svg{ width: 17px; height: 17px; }
+      .vo-ph{ width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+    }
 
     /* ---- page switch: text beside the video is optional ---- */
     .vo-switch{ position: fixed; left: var(--space-5); bottom: var(--space-5); z-index: 70; display: flex; align-items: center; gap: var(--space-3);
@@ -218,6 +271,7 @@
       .vo-poster img, .vo-play, .vo-grid--expand, .vo-grid--expand > .vo-copy, .vo-end{ transition: none; }
       .vo-poster:hover img{ transform: none; }
       .vo-lb[open], .is-docked{ animation: none; }
+      .vo-ctl, .vo-rail, .vo-ph, .vo-tip{ transition: none; }
     }
     @media (max-width: 1023px){
       .vo-grid, .vo-head{ grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
@@ -228,25 +282,34 @@
   </style>
 </head>
 <body>
+  <!-- PC Diamond: PC_Logomark-Navy-Diamond.svg, paths unchanged, fill set by currentColor -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="pc-diamond" viewBox="36 36 216 216">
+      <path d="M182,160.5c-4.6-2.5-6.3-6.9-6.3-15.9s1.9-15.1,6.9-17.5c2.5-1.2,6.1-1.7,13.6-1.7h12s25.3,0,25.3,0l-89.4-89.4-108,108,108,108,89.5-89.5h-36c-9.8,0-12.4-.4-15.5-2.1ZM166.7,160.9c-2.5,1.3-6.1,1.7-13.6,1.7h-24v12.1h-14.9v-49.2h37.6c9.8,0,12.4.4,15.5,2.1,4.6,2.5,6.3,6.9,6.3,15.9s-1.9,15.1-6.9,17.5Z"/>
+      <path d="M150.8,137.4h-21.8v13.2h21.8c6.1,0,7.9-1.3,7.9-6s-1.4-7.2-7.9-7.2Z"/>
+      <path d="M220.2,137.4h0s-21.8,0-21.8,0c-6.1,0-7.9,1.3-7.9,6s1.4,7.2,7.9,7.2h4.7s31.9,0,31.9,0v10.3l16.9-16.9-16.9-16.9v10.3h-14.9Z"/>
+    </symbol>
+  </svg>
   <main>
     <div class="vo-wrap vo-intro">
       <p class="vo-num">Service pages · Review</p>
       <h1>Video Experience Options</h1>
       <p>Every service page will carry a video, so the treatment we pick here becomes the pattern for all seven. Each option below is live and plays the same Energy Management video. Each one starts from what is on the page today: the Vimeo thumbnail with the pulsing play button. Starting one option stops any other that is playing.</p>
+      <p>Every option plays with the PC control bar in place of Vimeo's: the PC Diamond is the playhead, small diamonds on the track mark the chapters, and hovering the track shows the time and chapter name. The bar fades out while the video plays and returns when you move the pointer.</p>
       <p>The text beside the video is optional on every service page. Use the switch in the lower left corner to see every option with the text or with the video on its own.</p>
-      <p>Options can be combined. One way to open the video (1 to 3) can pair with the hover preview (4) and any of the extras (5 to 7). Options marked <span class="vo-rec">Recommended</span> are the combination I would start with.</p>
+      <p>Options can be combined. One way to open the video (1 to 3) can pair with the hover preview (4) and any of the extras (5 to 7).</p>
       <nav class="vo-toc" aria-label="Options">
         <div><h2>How it opens</h2><ol>
-          <li><a href="#opt-1"><b>1</b>Theater Mode <span class="vo-rec">Rec.</span></a></li>
+          <li><a href="#opt-1"><b>1</b>Theater Mode</a></li>
           <li><a href="#opt-2"><b>2</b>Expand in Place</a></li>
           <li><a href="#opt-3"><b>3</b>Lightbox with Context</a></li>
         </ol></div>
         <div><h2>Poster that pulls you in</h2><ol>
-          <li><a href="#opt-4"><b>4</b>Silent Preview on Hover <span class="vo-rec">Rec.</span></a></li>
+          <li><a href="#opt-4"><b>4</b>Silent Preview on Hover</a></li>
         </ol></div>
         <div><h2>More than a video</h2><ol>
-          <li><a href="#opt-5"><b>5</b>Chapter List <span class="vo-rec">Rec.</span></a></li>
-          <li><a href="#opt-6"><b>6</b>Ending Card <span class="vo-rec">Rec.</span></a></li>
+          <li><a href="#opt-5"><b>5</b>Chapter List</a></li>
+          <li><a href="#opt-6"><b>6</b>Ending Card</a></li>
           <li><a href="#opt-7"><b>7</b>Sticky Mini-Player</a></li>
         </ol></div>
       </nav>
@@ -256,7 +319,7 @@
     <section class="vo-opt" id="opt-1" aria-labelledby="h-1">
       <div class="vo-wrap vo-head">
         <div>
-          <p class="vo-num">Option 1 · How it opens <span class="vo-rec">Recommended</span></p>
+          <p class="vo-num">Option 1 · How it opens</p>
           <h2 id="h-1">Theater Mode</h2>
           <p>Play grows the poster out of its frame into a large stage while the page dims to PC Black. Esc, the close button or a click outside returns you to the page exactly where you were.</p>
         </div>
@@ -363,7 +426,7 @@
     <section class="vo-opt" id="opt-4" aria-labelledby="h-4">
       <div class="vo-wrap vo-head">
         <div>
-          <p class="vo-num">Option 4 · Poster <span class="vo-rec">Recommended</span></p>
+          <p class="vo-num">Option 4 · Poster</p>
           <h2 id="h-4">Silent Preview on Hover</h2>
           <p>Hover the poster and the video quietly plays a muted eight-second loop under the play button. On a phone the loop starts when the poster scrolls into view. A click plays the full video, with sound, from the start.</p>
         </div>
@@ -393,7 +456,7 @@
     <section class="vo-opt" id="opt-5" aria-labelledby="h-5">
       <div class="vo-wrap vo-head">
         <div>
-          <p class="vo-num">Option 5 · More than a video <span class="vo-rec">Recommended</span></p>
+          <p class="vo-num">Option 5 · More than a video</p>
           <h2 id="h-5">Chapter List</h2>
           <p>The copy column gives way to a list of chapters. A click on any chapter starts the video at that point, and the chapter playing now is highlighted with a thin progress line as it plays.</p>
         </div>
@@ -422,7 +485,7 @@
     <section class="vo-opt" id="opt-6" aria-labelledby="h-6">
       <div class="vo-wrap vo-head">
         <div>
-          <p class="vo-num">Option 6 · More than a video <span class="vo-rec">Recommended</span></p>
+          <p class="vo-num">Option 6 · More than a video</p>
           <h2 id="h-6">Ending Card</h2>
           <p>When the video finishes, a PC Black panel replaces Vimeo's end screen with the next step: start the conversation, watch again, or move on to the next service.</p>
           <div class="vo-try">
@@ -499,6 +562,7 @@
 
     <div class="vo-wrap vo-foot">
       <p><strong>Shared across every option:</strong> nothing from Vimeo loads until someone shows interest (a click, or a hover for option 4), so the page stays light. Each option plays Vimeo 1221509605 with do-not-track on.</p>
+      <p><strong>Developer note on the control bar:</strong> it relies on Vimeo's controls=0 setting, which hides Vimeo's own controls only on a paid Vimeo plan (Plus or higher). On a free account both control bars would show. The bar is driven by the Vimeo Player API: play, pause, seek, mute, full screen, buffered progress and chapter marks.</p>
       <p><strong>Samples on this page:</strong> chapter times are placeholders that show the shape of the data. The real times come from the video once an option is picked.</p>
     </div>
   </main>
@@ -535,19 +599,133 @@
     }
     function release(id){ if(active && active.id === id) active = null; }
 
-    // Build a Vimeo iframe in box. Returns { frame, api }.
+    // Build a Vimeo iframe in box. Every full player gets the PC control bar (Vimeo's own
+    // controls off); the muted preview loop in option 4 does not. Returns { frame, api, focusEl }:
+    // frame is whatever was appended, so removing it removes the bar too.
     function mount(box, opts){
       opts = opts || {};
-      var q = "autoplay=1&dnt=1" + (opts.bg ? "&background=1" : "") + (opts.muted ? "&muted=1" : "");
+      var brand = !opts.bg && !!(window.Vimeo && window.Vimeo.Player);
+      var q = "autoplay=1&dnt=1" + (opts.bg ? "&background=1" : "") + (opts.muted ? "&muted=1" : "") +
+        (brand ? "&controls=0&title=0&byline=0&portrait=0" : "");
       var f = document.createElement("iframe");
       f.src = "https://player.vimeo.com/video/" + VID + "?" + q + (opts.start ? "#t=" + opts.start + "s" : "");
       f.title = TITLE;
       f.allow = "autoplay; fullscreen; picture-in-picture";
       f.setAttribute("allowfullscreen", "");
       f.referrerPolicy = "strict-origin-when-cross-origin";
-      box.appendChild(f);
+      var holder = f;
+      if(brand){ holder = document.createElement("div"); holder.className = "vo-media"; holder.appendChild(f); }
+      box.appendChild(holder);
       var api = window.Vimeo && window.Vimeo.Player ? new window.Vimeo.Player(f) : null;
-      return { frame: f, api: api };
+      var focusEl = brand ? pcBar(holder, api, box, opts.start || 0) : null;
+      return { frame: holder, api: api, focusEl: focusEl };
+    }
+
+    // ---- PC control bar ----
+    var ICON = {
+      play:   '<svg data-s="play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>',
+      pause:  '<svg data-s="pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
+      on:     '<svg data-s="on" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>',
+      off:    '<svg data-s="off" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4z"/></svg>',
+      grow:   '<svg data-s="grow" viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zM4 14h2v4h4v2H4zm14 0h2v6h-6v-2h4z"/></svg>',
+      shrink: '<svg data-s="shrink" viewBox="0 0 24 24"><path d="M8 4h2v6H4V8h4zm6 0h2v4h4v2h-6zM4 14h6v6H8v-4H4zm10 0h6v2h-4v4h-2z"/></svg>'
+    };
+    function chapterAt(t){ for(var i = CHAPTERS.length - 1; i >= 0; i--){ if(t >= CHAPTERS[i].t) return CHAPTERS[i]; } return CHAPTERS[0]; }
+    function pcBar(media, api, box, t0){
+      var hit = document.createElement("button");
+      hit.type = "button"; hit.className = "vo-hit"; hit.tabIndex = -1; hit.setAttribute("aria-hidden", "true");
+      var bar = document.createElement("div");
+      bar.className = "vo-ctl";
+      bar.innerHTML =
+        '<div class="vo-track" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0">' +
+          '<div class="vo-rail"><span class="vo-buf"></span><span class="vo-fill"></span></div>' +
+          '<span class="vo-ph" aria-hidden="true"><svg><use href="#pc-diamond"/></svg></span>' +
+          '<span class="vo-tip" aria-hidden="true"></span>' +
+        '</div>' +
+        '<div class="vo-row">' +
+          '<button type="button" data-k="play" aria-label="Play">' + ICON.play + ICON.pause + '</button>' +
+          '<button type="button" data-k="mute" aria-label="Mute">' + ICON.on + ICON.off + '</button>' +
+          '<span class="vo-time"></span><span class="vo-chn"></span>' +
+          '<button type="button" data-k="fs" aria-label="Full screen">' + ICON.grow + ICON.shrink + '</button>' +
+        '</div>';
+      media.appendChild(hit);
+      media.appendChild(bar);
+      var track = bar.querySelector(".vo-track"), rail = bar.querySelector(".vo-rail"),
+          fill = bar.querySelector(".vo-fill"), buf = bar.querySelector(".vo-buf"),
+          ph = bar.querySelector(".vo-ph"), tip = bar.querySelector(".vo-tip"),
+          time = bar.querySelector(".vo-time"), chn = bar.querySelector(".vo-chn"),
+          bPlay = bar.querySelector('[data-k="play"]'), bMute = bar.querySelector('[data-k="mute"]'),
+          bFs = bar.querySelector('[data-k="fs"]');
+      var dur = LEN, cur = t0, playing = false, drag = false, idle = 0;
+      CHAPTERS.slice(1).forEach(function(c){
+        var k = document.createElement("span"); k.className = "vo-tick"; k.setAttribute("data-t", c.t); rail.appendChild(k);
+      });
+      function ticks(){ rail.querySelectorAll(".vo-tick").forEach(function(k){ k.style.left = (k.getAttribute("data-t") / dur * 100) + "%"; }); }
+      function render(t){
+        var f = Math.max(0, Math.min(1, t / dur)) * 100;
+        fill.style.width = f + "%";
+        ph.style.left = f + "%";
+        time.textContent = fmt(t) + " / " + fmt(dur);
+        var c = chapterAt(t);
+        chn.textContent = c.l;
+        track.setAttribute("aria-valuemax", Math.round(dur));
+        track.setAttribute("aria-valuenow", Math.round(t));
+        track.setAttribute("aria-valuetext", fmt(t) + " of " + fmt(dur) + ", " + c.l);
+      }
+      function at(e){ var r = track.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * dur; }
+      function seek(t){ cur = Math.max(0, Math.min(dur - 0.5, t)); render(cur); api.setCurrentTime(cur); }
+      function muted(m){ media.classList.toggle("is-muted", m); bMute.setAttribute("aria-label", m ? "Unmute" : "Mute"); }
+      function state(on){ playing = on; media.classList.toggle("is-playing", on); bPlay.setAttribute("aria-label", on ? "Pause" : "Play"); wake(); }
+      function wake(){
+        media.classList.remove("is-idle");
+        clearTimeout(idle);
+        if(playing && !drag && !bar.contains(document.activeElement)) idle = setTimeout(function(){ media.classList.add("is-idle"); }, 2500);
+      }
+      function toggle(){ playing ? api.pause() : api.play(); }
+      ticks(); render(cur);
+      api.getDuration().then(function(d){ if(d){ dur = d; ticks(); render(cur); } });
+      api.getMuted().then(muted);
+      api.on("timeupdate", function(d){ if(drag) return; cur = d.seconds; if(d.duration) dur = d.duration; render(cur); });
+      api.on("progress", function(d){ buf.style.width = (d.percent * 100) + "%"; });
+      api.on("play", function(){ state(true); });
+      api.on("pause", function(){ state(false); });
+      api.on("ended", function(){ state(false); });
+      api.on("volumechange", function(){ api.getMuted().then(muted); });
+      hit.addEventListener("click", toggle);
+      bPlay.addEventListener("click", toggle);
+      bMute.addEventListener("click", function(){ api.getMuted().then(function(m){ api.setMuted(!m); if(m) api.setVolume(1); }); });
+      bFs.addEventListener("click", function(){
+        if(document.fullscreenElement) document.exitFullscreen();
+        else if(box.requestFullscreen) box.requestFullscreen();
+      });
+      track.addEventListener("pointerdown", function(e){
+        drag = true; track.setPointerCapture(e.pointerId); bar.classList.add("is-drag"); render(cur = at(e));
+      });
+      track.addEventListener("pointermove", function(e){
+        var t = at(e), r = track.getBoundingClientRect();
+        tip.style.left = Math.max(80, Math.min(r.width - 80, e.clientX - r.left)) + "px";
+        tip.innerHTML = "<b>" + fmt(t) + "</b>" + chapterAt(t).l;
+        if(drag) render(cur = t);
+      });
+      function end(){ if(!drag) return; drag = false; bar.classList.remove("is-drag"); seek(cur); wake(); }
+      track.addEventListener("pointerup", end);
+      track.addEventListener("pointercancel", end);
+      track.addEventListener("keydown", function(e){
+        var k = e.key, t = null;
+        if(k === "ArrowRight" || k === "ArrowUp") t = cur + 5;
+        else if(k === "ArrowLeft" || k === "ArrowDown") t = cur - 5;
+        else if(k === "PageUp") t = cur + 30;
+        else if(k === "PageDown") t = cur - 30;
+        else if(k === "Home") t = 0;
+        else if(k === "End") t = dur - 1;
+        else if(k === " " || k === "Enter"){ e.preventDefault(); toggle(); return; }
+        if(t === null) return;
+        e.preventDefault(); seek(t);
+      });
+      media.addEventListener("pointermove", wake);
+      media.addEventListener("focusin", wake);
+      media.addEventListener("focusout", function(){ setTimeout(wake, 0); });
+      return bPlay;
     }
 
     // ---- generic inline player: posters, chapters, ending card, sticky ----
@@ -568,7 +746,7 @@
       killPreview(box);
       var m = mount(box, { start: start });
       st = inline[id] = { box: box, poster: poster, frame: m.frame, api: m.api };
-      m.frame.focus();
+      (m.focusEl || m.frame).focus();
       if(m.api){
         m.api.on("timeupdate", function(d){ tick(id, d.seconds); });
         m.api.on("ended", function(){ if(box.hasAttribute("data-endcard")) showEnd(box); });
