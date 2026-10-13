@@ -57,6 +57,15 @@
     .sv-card{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-lg); padding: var(--space-6); }
     .sv-band--soft .sv-card{ background: var(--pc-white); }
+    /* Partner logo: floated bottom-right of the section copy, the text wrapping around
+       it. A float sits where it is placed, not at the bottom, so .sv-logo-push (a
+       zero-width float above it) is sized by script to the copy's height less the
+       logo's, which drops the logo onto the last lines. Without script the logo sits
+       top-right and the text still wraps. */
+    .sv-prose--logo{ display: flow-root; }
+    .sv-logo-push{ float: right; width: 0; height: 0; }
+    .sv-card-logo{ float: right; clear: right; display: block; height: auto;
+      margin: var(--space-4) 0 var(--space-2) var(--space-6); }
     .sv-card--navy{ background: var(--pc-navy); border-color: var(--pc-navy); }
     .sv-card--navy h3, .sv-card--navy .sv-prose p{ color: var(--pc-white); }
     .sv-card h3, .sv-col h3{ font-family: var(--font-serif); font-weight: 500; font-size: 24px;
@@ -438,7 +447,9 @@
     <section class="sv-band sv-band--soft" id="partnership" aria-labelledby="sv-sfm-h">
       <div class="sv-wrap reveal">
         <h2 class="sv-h2" id="sv-sfm-h">Partnership with Strategic Farm Marketing</h2>
-        <div class="sv-prose sv-cta">
+        <div class="sv-prose sv-prose--logo sv-cta">
+          <span class="sv-logo-push" aria-hidden="true"></span>
+          <img class="sv-card-logo" src="../shared/logos/partners/strategic-farm-marketing.png" alt="Strategic Farm Marketing &amp; Crop Insurance" width="300" height="60" decoding="async" />
           <p>Through our partnership with Strategic Farm Marketing, Peoples Company clients gain access to best in class crop insurance analysis and market-leading product access. Strategic Farm Marketing&rsquo;s uses its proprietary decision-support tools and relationships with nine insurance providers to analyze thousands of policy combinations that can be distilled into clear, operation-specific recommendations. This partnership ensures our clients receive both broad product access and the strategic analysis needed to optimize coverage and manage risk effectively, all coordinated seamlessly through their Peoples Company relationship.</p>
           <p>Combined with Peoples Company&rsquo;s services, clients will be armed with the strategic insights needed to leverage crop insurance as a true financial management tool. This partnership delivers the specialized expertise required for complex crop insurance strategies while preserving the integrated, single-point-of-contact service model that defines the Peoples Company client experience.</p>
         </div>
@@ -1305,6 +1316,40 @@
       window.addEventListener("resize", function(){ syncH(); moveInd(current); onScroll(); });
       window.addEventListener("load", function(){ syncH(); moveInd(current); spy(); });
       if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ syncH(); moveInd(current); });
+    })();
+
+    // Partner logos: size each .sv-logo-push so the floated logo after it lands on the
+    // last lines of the copy. Wrapping changes the copy's height, so it settles over a
+    // few passes.
+    (function(){
+      var pushes = document.querySelectorAll(".sv-logo-push");
+      if(!pushes.length) return;
+      function place(){
+        pushes.forEach(function(push){
+          var prose = push.parentNode, logo = push.nextElementSibling, last = prose.lastElementChild;
+          if(!logo || !last) return;
+          var mb = parseFloat(getComputedStyle(logo).marginBottom);
+          // gap = how far the logo's bottom sits above the copy's last line. Step the push
+          // down by the gap and keep the lowest push that leaves the logo no more than one
+          // line below the copy: when the last line would reflow under the logo, letting it
+          // hang a line low keeps it in the corner instead of a line up.
+          var line = parseFloat(getComputedStyle(last).lineHeight) || 27;
+          var h = 0, best = 0;
+          for(var i = 0; i < 10; i++){
+            push.style.height = h + "px";
+            var gap = last.getBoundingClientRect().bottom - (logo.getBoundingClientRect().bottom + mb);
+            if(gap >= -line && h > best) best = h;
+            if(Math.abs(gap) < 1) break;
+            h = Math.max(0, Math.round(h + gap));
+          }
+          push.style.height = best + "px";
+        });
+      }
+      place();
+      window.addEventListener("resize", place);
+      window.addEventListener("load", place);
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+      document.querySelectorAll(".sv-card-logo").forEach(function(img){ if(!img.complete) img.addEventListener("load", place); });
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe
