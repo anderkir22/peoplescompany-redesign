@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Final (PC) — Video Options</title>
+  <meta name="description" content="Eleven ways to present the service-page video, each working live on the Energy Management video." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="pc.css?v=20260827a" rel="stylesheet" />
+
+  <!-- STANDALONE REVIEW PAGE, like rail-options.html. No header, no footer, no map tab:
+       the video treatment is the whole subject. Page-local prefix vo-.
+
+       Every option plays the same Energy Management video (Vimeo 1221509605) and starts
+       from the poster + pulsing play button already on energy-management.html. The Vimeo
+       Player API drives chapters, the ending card, the preview loop and the mini-player.
+       Only one option plays at a time: starting one stops the rest. -->
+  <style>
+    body{ background: var(--pc-white); }
+    .vo-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+
+    /* ---- intro ---- */
+    .vo-intro{ padding: var(--space-8) 0 var(--space-7); }
+    .vo-intro h1{ margin: 0 0 var(--space-4); }
+    .vo-intro p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted); margin: 0 0 var(--space-4); max-width: 80ch; }
+    .vo-toc{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); margin-top: var(--space-6); }
+    .vo-toc h2{ font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--pc-medium-blue); margin: 0 0 var(--space-3); }
+    .vo-toc ol{ list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+    .vo-toc a{ display: flex; gap: var(--space-3); align-items: baseline; color: var(--pc-black); text-decoration: none;
+      font-size: 15px; line-height: 1.4; }
+    .vo-toc a:hover{ color: var(--pc-medium-blue); }
+    .vo-toc a b{ font-weight: 700; color: var(--pc-medium-blue); min-width: 1.6em; }
+
+    /* ---- each option: a white label row, then the real PC Black band ---- */
+    .vo-opt{ border-top: 1px solid var(--color-border); scroll-margin-top: 0; }
+    .vo-head{ display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8);
+      padding: var(--space-7) 0 var(--space-6); align-items: start; }
+    .vo-num{ font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--pc-medium-blue); margin: 0 0 var(--space-2); }
+    .vo-head h2{ margin: 0 0 var(--space-3); }
+    .vo-head p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted); margin: 0; }
+    .vo-facts{ list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+    .vo-facts li{ font-size: 15px; line-height: 1.6; color: var(--pc-black); }
+    .vo-facts b{ display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
+    .vo-try{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-4); }
+    .vo-try .btn{ padding: 10px 18px; font-size: 14px; }
+
+    /* ---- the band, copied from energy-management.html (.sv-film) ---- */
+    .vo-band{ background: var(--pc-black); padding: var(--space-8) 0; }
+    .vo-grid{ display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-8); align-items: center; }
+    .vo-h{ font-family: var(--font-serif); font-weight: 500; font-size: 36px; line-height: 1.15; letter-spacing: -0.01em;
+      color: var(--pc-white); margin: 0 0 var(--space-5); }
+    .vo-prose p{ margin: 0 0 var(--space-4); font-size: var(--body); line-height: 1.7; color: var(--pc-white); }
+    .vo-prose p:last-child{ margin-bottom: 0; }
+    .vo-actions{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+    .vo-band .btn-ghost{ color: var(--pc-white); border-color: rgba(255,255,255,.6); }
+    .vo-band .btn-ghost:hover{ border-color: var(--pc-white); background: transparent; }
+    .vo-band .btn-ghost:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px; }
+    .btn svg{ width: 14px; height: 14px; fill: currentColor; }
+    .vo-len{ opacity: .75; }
+
+    .vo-player{ position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden;
+      background: #000; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+    .vo-player iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .vo-poster{ position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
+      background: #000; cursor: pointer; z-index: 2; }
+    .vo-poster img{ display: block; width: 100%; height: 100%; object-fit: cover;
+      transition: transform .9s cubic-bezier(.2,.7,.2,1), filter .4s ease; }
+    .vo-poster:hover img{ transform: scale(1.04); filter: brightness(.88); }
+    .vo-poster:focus-visible{ outline: 3px solid var(--pc-white); outline-offset: -6px; }
+    .vo-play{ position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px;
+      display: grid; place-items: center; border-radius: 50%; background: var(--pc-white);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35); transition: transform .25s ease; }
+    .vo-play::before{ content: ""; position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid var(--pc-white); animation: vo-pulse 2.4s ease-out infinite; }
+    .vo-play svg{ width: 32px; height: 32px; margin-left: 5px; fill: var(--pc-navy); }
+    .vo-poster:hover .vo-play{ transform: scale(1.08); }
+    @keyframes vo-pulse{ from{ transform: scale(1); opacity: .8; } to{ transform: scale(1.7); opacity: 0; } }
+
+    /* ---- 1. Theater mode ---- */
+    .vo-theater{ position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0;
+      padding: var(--space-7); border: 0; background: transparent; color: var(--pc-white); }
+    .vo-theater[open]{ display: grid; place-items: center; }
+    .vo-theater::backdrop{ background: rgba(7,22,44,0); transition: background .45s ease; }
+    .vo-theater.is-on::backdrop{ background: rgba(7,22,44,.96); }
+    .vo-stage{ width: min(1280px, calc((100vh - 200px) * 16 / 9), 100%); transform-origin: 0 0; }
+    .vo-stage .vo-player{ box-shadow: 0 40px 120px rgba(0,0,0,.6); }
+    .vo-stage-cap{ display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-5);
+      margin-top: var(--space-5); opacity: 0; transition: opacity .3s ease .35s; }
+    .vo-theater.is-on .vo-stage-cap{ opacity: 1; }
+    .vo-stage-cap p{ margin: 0; font-family: var(--font-serif); font-size: 26px; color: var(--pc-white); }
+    .vo-stage-cap span{ font-size: 14px; color: var(--pc-light-blue); }
+    .vo-x{ position: absolute; top: var(--space-5); right: var(--space-5); width: 48px; height: 48px; display: grid;
+      place-items: center; border-radius: 50%; border: 1px solid rgba(255,255,255,.4); background: transparent;
+      color: var(--pc-white); cursor: pointer; font-size: 22px; line-height: 1; }
+    .vo-x:hover{ background: rgba(255,255,255,.12); border-color: var(--pc-white); }
+    .vo-x:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px; }
+
+    /* ---- 2. Expand in place ---- */
+    .vo-grid--expand{ transition: grid-template-columns .6s cubic-bezier(.2,.7,.2,1) .15s, gap .6s ease .15s; }
+    .vo-grid--expand > .vo-copy{ transition: opacity .2s ease; overflow: hidden; }
+    .vo-grid--expand.is-wide{ grid-template-columns: minmax(0, 0fr) minmax(0, 12fr); gap: 0; }
+    /* The faded copy also drops to zero height: at zero width its words stack one per line
+       and, with the grid centered, would push the video far below the fold. */
+    .vo-grid--expand.is-wide > .vo-copy{ opacity: 0; visibility: hidden; max-height: 0;
+      transition: opacity .2s ease, visibility 0s .2s, max-height 0s .2s; }
+    /* Widened, the video stops at the height of the window (less room for the bar under it). */
+    .vo-grid--expand > :last-child{ max-width: calc((100vh - 160px) * 16 / 9); margin-left: auto; margin-right: auto; width: 100%; }
+    .vo-under{ display: flex; justify-content: space-between; align-items: center; gap: var(--space-5);
+      margin-top: var(--space-4); color: var(--pc-white); opacity: 0; transition: opacity .3s ease; }
+    .is-wide .vo-under{ opacity: 1; }
+    .vo-under p{ margin: 0; font-family: var(--font-serif); font-size: 22px; }
+    .vo-under .btn{ padding: 10px 18px; font-size: 14px; }
+    .vo-under[hidden]{ display: none; }
+
+    /* ---- 3. Lightbox with context ---- */
+    .vo-lb{ width: min(1360px, calc(100% - 64px)); max-width: none; padding: 0; border: 0; border-radius: var(--radius-lg);
+      overflow: hidden; background: var(--pc-white); box-shadow: 0 40px 120px rgba(0,0,0,.5); }
+    .vo-lb::backdrop{ background: rgba(7,22,44,.85); }
+    .vo-lb[open]{ display: grid; grid-template-columns: minmax(0, 8.5fr) minmax(0, 3.5fr); animation: vo-pop .35s cubic-bezier(.2,.7,.2,1); }
+    @keyframes vo-pop{ from{ opacity: 0; transform: translateY(16px) scale(.98); } to{ opacity: 1; transform: none; } }
+    .vo-lb-media{ background: #000; display: grid; align-content: center; }
+    .vo-lb-media .vo-player{ border-radius: 0; box-shadow: none; }
+    .vo-lb-rail{ position: relative; padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
+    .vo-lb-rail h3{ font-family: var(--font-serif); font-weight: 500; font-size: 26px; line-height: 1.2; margin: 0; padding-right: 48px; }
+    .vo-lb-rail .vo-meta{ font-size: 14px; color: var(--pc-navy); margin: 0; }
+    .vo-lb-rail .vo-x{ color: var(--pc-navy); border-color: var(--color-border); top: var(--space-4); right: var(--space-4); width: 40px; height: 40px; }
+    .vo-lb-rail .vo-x:hover{ background: var(--pc-light-blue); }
+    .vo-lb-rail .vo-x:focus-visible{ outline-color: var(--pc-navy); }
+    .vo-lb-cta{ margin-top: auto; display: grid; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+    .vo-lb-cta .btn{ width: 100%; }
+    .vo-lb-cta p{ margin: 0; font-size: 14px; line-height: 1.5; }
+
+    /* ---- chapter list (3 and 5) ---- */
+    .vo-ch{ list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+    .vo-ch button{ position: relative; overflow: hidden; display: grid; grid-template-columns: 52px 1fr; align-items: baseline;
+      width: 100%; text-align: left; padding: 10px 12px; border: 0; border-radius: var(--radius-md, 8px); background: transparent;
+      font: inherit; font-size: 15px; line-height: 1.4; color: inherit; cursor: pointer; }
+    .vo-ch button i{ font-style: normal; font-variant-numeric: tabular-nums; font-size: 13px; opacity: .75; }
+    .vo-ch .vo-bar{ position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: var(--pc-blue); }
+    .vo-lb .vo-ch button:hover{ background: var(--pc-soft-white); }
+    .vo-lb .vo-ch button.is-on{ background: var(--pc-light-blue); color: var(--pc-navy); font-weight: 600; }
+    .vo-band .vo-ch{ margin-top: var(--space-5); border-top: 1px solid rgba(255,255,255,.18); padding-top: var(--space-4); }
+    .vo-band .vo-ch button{ color: var(--pc-white); }
+    .vo-band .vo-ch button:hover{ background: rgba(255,255,255,.08); }
+    .vo-band .vo-ch button.is-on{ background: rgba(255,255,255,.12); font-weight: 600; }
+    .vo-ch button:focus-visible{ outline: 2px solid currentColor; outline-offset: -2px; }
+    .vo-ch-k{ font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pc-light-blue); margin: var(--space-6) 0 0; }
+
+    /* ---- 4. Silent preview ---- */
+    .vo-prev{ position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; transition: opacity .5s ease; }
+    .vo-prev.is-on{ opacity: 1; }
+    .vo-prev iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .vo-chip-tl{ position: absolute; top: var(--space-4); left: var(--space-4); z-index: 4; display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--pc-white); background: rgba(7,22,44,.72);
+      padding: 6px 10px; border-radius: var(--radius-pill); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+    .vo-chip-tl svg{ width: 14px; height: 14px; fill: currentColor; }
+    .is-previewing .vo-chip-tl{ opacity: 1; }
+    .vo-player--prev .vo-play{ z-index: 5; }
+    .vo-player--prev .vo-poster{ z-index: auto; }
+    .vo-player--prev .vo-poster img{ position: relative; z-index: 1; }
+    .vo-player--prev .vo-play{ position: absolute; }
+
+    /* ---- 6. Ending card ---- */
+    .vo-end{ position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; text-align: center; padding: var(--space-6);
+      background: rgba(7,22,44,.94); color: var(--pc-white); opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility 0s .4s; }
+    .vo-end.is-on{ opacity: 1; visibility: visible; transition: opacity .4s ease; }
+    .vo-end-k{ font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--pc-light-blue); margin: 0 0 var(--space-3); }
+    .vo-end h3{ font-family: var(--font-serif); font-weight: 500; font-size: 36px; line-height: 1.15; margin: 0 0 var(--space-3); color: var(--pc-white); }
+    .vo-end p{ margin: 0 auto; max-width: 46ch; font-size: var(--body); line-height: 1.6; }
+    .vo-end .vo-actions{ justify-content: center; margin-top: var(--space-5); }
+    .vo-end-next{ margin-top: var(--space-5); font-size: 14px; color: var(--pc-light-blue); }
+    .vo-end-next a{ color: var(--pc-white); }
+
+    /* ---- 7. Sticky mini-player ---- */
+    .vo-slot{ position: relative; aspect-ratio: 16 / 9; }
+    .vo-slot > .vo-player{ position: absolute; inset: 0; }
+    .vo-slot > .vo-player.is-docked{ position: fixed; inset: auto var(--space-5) var(--space-5) auto; width: 420px; height: auto; aspect-ratio: 16 / 9;
+      z-index: 60; border-radius: var(--radius-md, 8px); box-shadow: 0 20px 60px rgba(0,0,0,.45); animation: vo-dock .35s cubic-bezier(.2,.7,.2,1); }
+    @keyframes vo-dock{ from{ opacity: 0; transform: translateY(24px); } to{ opacity: 1; transform: none; } }
+    .vo-dockbar{ display: none; position: absolute; top: 8px; right: 8px; z-index: 5; gap: 6px; }
+    .is-docked .vo-dockbar{ display: flex; }
+    .vo-dockbar button{ width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; border: 0;
+      background: rgba(7,22,44,.8); color: var(--pc-white); cursor: pointer; font-size: 16px; line-height: 1; }
+    .vo-dockbar button:hover{ background: var(--pc-medium-blue); }
+    .vo-dockbar svg{ width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+    .vo-slot-ph{ position: absolute; inset: 0; border-radius: var(--radius-lg); border: 1px dashed rgba(255,255,255,.3);
+      display: none; place-items: center; color: var(--pc-light-blue); font-size: 15px; }
+    .vo-slot.is-empty .vo-slot-ph{ display: grid; }
+
+
+    /* ---- PC control bar: shared by every option ----
+       Vimeo plays with controls=0 and this bar drives it through the Player API. The
+       playhead is the PC Diamond (assets/PC_Logomark-Navy-Diamond.svg, drawn in white);
+       the small diamonds on the track mark the chapters. It fades out after 2.5s of
+       stillness while playing and comes back on any pointer move or focus. */
+    .vo-media{ position: absolute; inset: 0; z-index: 1; }
+    .vo-media.is-idle{ cursor: none; }
+    .vo-hit{ position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
+    .vo-hit:focus-visible{ outline: none; }
+    .vo-ctl{ position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; container-type: inline-size;
+      padding: var(--space-8) var(--space-5) var(--space-3); color: var(--pc-white);
+      background: linear-gradient(to top, rgba(7,22,44,.88) 0%, rgba(7,22,44,.5) 55%, rgba(7,22,44,0) 100%);
+      transition: opacity .3s ease; }
+    .vo-media.is-idle .vo-ctl{ opacity: 0; pointer-events: none; }
+    .vo-track{ position: relative; height: 28px; display: flex; align-items: center; cursor: pointer; touch-action: none; margin: 0 6px; }
+    .vo-track:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 4px; border-radius: 4px; }
+    .vo-rail{ position: relative; width: 100%; height: 4px; border-radius: 2px; background: rgba(255,255,255,.26); transition: height .15s ease; }
+    .vo-track:hover .vo-rail, .is-drag .vo-rail{ height: 6px; }
+    .vo-buf, .vo-fill{ position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: inherit; }
+    .vo-buf{ background: rgba(255,255,255,.3); }
+    .vo-fill{ background: var(--pc-blue); }
+    .vo-tick{ position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; transform: rotate(45deg);
+      background: var(--pc-white); box-shadow: 0 0 0 2px rgba(7,22,44,.7); pointer-events: none; }
+    .vo-ph{ position: absolute; top: 50%; left: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; color: var(--pc-white);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.55)); transition: transform .15s ease; pointer-events: none; }
+    .vo-ph svg{ display: block; width: 100%; height: 100%; fill: currentColor; }
+    .vo-track:hover .vo-ph, .is-drag .vo-ph{ transform: scale(1.2); }
+    .vo-tip{ position: absolute; bottom: 32px; left: 0; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+      background: var(--pc-white); color: var(--pc-navy); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.3); opacity: 0; transition: opacity .15s ease; }
+    .vo-tip b{ font-variant-numeric: tabular-nums; color: var(--pc-medium-blue); margin-right: 6px; }
+    .vo-track:hover .vo-tip, .is-drag .vo-tip{ opacity: 1; }
+    .vo-row{ display: flex; align-items: center; gap: var(--space-2); margin-top: 2px; }
+    .vo-row button{ flex: none; width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 50%;
+      background: transparent; color: var(--pc-white); cursor: pointer; }
+    .vo-row button:hover{ background: rgba(255,255,255,.14); }
+    .vo-row button:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 0; }
+    .vo-row button svg{ width: 20px; height: 20px; fill: currentColor; }
+    .vo-row [data-s="off"], .vo-row [data-s="pause"], .vo-row [data-s="shrink"]{ display: none; }
+    .is-playing .vo-row [data-s="play"]{ display: none; }
+    .is-playing .vo-row [data-s="pause"]{ display: block; }
+    .is-muted .vo-row [data-s="on"]{ display: none; }
+    .is-muted .vo-row [data-s="off"]{ display: block; }
+    .vo-player:fullscreen [data-s="grow"]{ display: none; }
+    .vo-player:fullscreen [data-s="shrink"]{ display: block; }
+    .vo-player:fullscreen{ border-radius: 0; }
+    .vo-time{ flex: none; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; margin-left: var(--space-1); }
+    .vo-chn{ flex: 1; min-width: 0; font-size: 13px; color: var(--pc-light-blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vo-chn::before{ content: "\00B7"; margin: 0 var(--space-2); color: rgba(255,255,255,.5); }
+    @container (max-width: 520px){
+      .vo-chn{ visibility: hidden; }
+      .vo-ctl{ padding: var(--space-6) var(--space-2) var(--space-1); }
+      .vo-row button{ width: 32px; height: 32px; }
+      .vo-row button svg{ width: 17px; height: 17px; }
+      .vo-ph{ width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+    }
+
+    /* ---- page switch: text beside the video is optional ---- */
+    .vo-switch{ position: fixed; left: var(--space-5); bottom: var(--space-5); z-index: 70; display: flex; align-items: center; gap: var(--space-3);
+      background: var(--pc-white); border: 1px solid var(--color-border); border-radius: var(--radius-pill); padding: 6px 6px 6px 18px;
+      box-shadow: 0 10px 30px rgba(7,22,44,.18); font-size: 14px; font-weight: 600; color: var(--pc-black); }
+    .vo-switch div{ display: flex; background: var(--pc-soft-white); border-radius: var(--radius-pill); padding: 3px; }
+    .vo-switch button{ border: 0; background: transparent; font: inherit; font-size: 13px; font-weight: 600; color: var(--pc-navy);
+      padding: 7px 14px; border-radius: var(--radius-pill); cursor: pointer; }
+    .vo-switch button[aria-pressed="true"]{ background: var(--pc-navy); color: var(--pc-white); }
+    .vo-switch button:focus-visible{ outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; }
+    .no-copy .vo-copy > .vo-h, .no-copy .vo-copy > .vo-prose, .no-copy .vo-copy > .vo-actions{ display: none; }
+    .no-copy .vo-copy > .vo-ch-k{ margin-top: 0; }
+    .no-copy .vo-grid:not(.vo-grid--keep){ grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .no-copy .vo-grid:not(.vo-grid--keep) > .vo-copy{ display: none; }
+    .no-copy .vo-grid:not(.vo-grid--keep) > :last-child{ width: min(100%, 1100px); margin: 0 auto; }
+    .no-copy .vo-grid--expand > :last-child{ transition: width .6s cubic-bezier(.2,.7,.2,1); }
+    .no-copy .vo-grid--expand:not(.is-wide) > :last-child{ width: min(100%, 900px); }
+    .no-copy .vo-grid--expand.is-wide > :last-child{ width: 100%; }
+
+    .vo-foot{ padding: var(--space-7) 0 var(--space-9); border-top: 1px solid var(--color-border); }
+    .vo-foot p{ font-size: 15px; line-height: 1.7; margin: 0 0 var(--space-3); max-width: 90ch; }
+
+    @media (prefers-reduced-motion: reduce){
+      .vo-play::before{ animation: none; opacity: 0; }
+      .vo-poster img, .vo-play, .vo-grid--expand, .vo-grid--expand > .vo-copy, .vo-end{ transition: none; }
+      .vo-poster:hover img{ transform: none; }
+      .vo-lb[open], .is-docked{ animation: none; }
+      .vo-ctl, .vo-rail, .vo-ph, .vo-tip{ transition: none; }
+    }
+    @media (max-width: 1023px){
+      .vo-grid, .vo-head{ grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+      .vo-toc{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .vo-lb[open]{ grid-template-columns: minmax(0, 1fr); max-height: 92vh; overflow-y: auto; }
+      .vo-slot > .vo-player.is-docked{ width: 280px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- PC Diamond: PC_Logomark-Navy-Diamond.svg, paths unchanged, fill set by currentColor -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="pc-diamond" viewBox="36 36 216 216">
+      <path d="M182,160.5c-4.6-2.5-6.3-6.9-6.3-15.9s1.9-15.1,6.9-17.5c2.5-1.2,6.1-1.7,13.6-1.7h12s25.3,0,25.3,0l-89.4-89.4-108,108,108,108,89.5-89.5h-36c-9.8,0-12.4-.4-15.5-2.1ZM166.7,160.9c-2.5,1.3-6.1,1.7-13.6,1.7h-24v12.1h-14.9v-49.2h37.6c9.8,0,12.4.4,15.5,2.1,4.6,2.5,6.3,6.9,6.3,15.9s-1.9,15.1-6.9,17.5Z"/>
+      <path d="M150.8,137.4h-21.8v13.2h21.8c6.1,0,7.9-1.3,7.9-6s-1.4-7.2-7.9-7.2Z"/>
+      <path d="M220.2,137.4h0s-21.8,0-21.8,0c-6.1,0-7.9,1.3-7.9,6s1.4,7.2,7.9,7.2h4.7s31.9,0,31.9,0v10.3l16.9-16.9-16.9-16.9v10.3h-14.9Z"/>
+    </symbol>
+  </svg>
+  <main>
+    <div class="vo-wrap vo-intro">
+      <p class="vo-num">Service pages · Review</p>
+      <h1>Video Experience Options</h1>
+      <p>Every service page will carry a video, so the treatment we pick here becomes the pattern for all seven. Each option below is live and plays the same Energy Management video. Each one starts from what is on the page today: the Vimeo thumbnail with the pulsing play button. Starting one option stops any other that is playing.</p>
+      <p>Every option plays with the PC control bar in place of Vimeo's: the PC Diamond is the playhead, small diamonds on the track mark the chapters, and hovering the track shows the time and chapter name. The bar fades out while the video plays and returns when you move the pointer. <strong>Requires Vimeo Paid Plan.</strong></p>
+      <p>The text beside the video is optional on every service page. Use the switch in the lower left corner to see every option with the text or with the video on its own.</p>
+      <p>Options can be combined. One way to open the video (1 to 3) can pair with the hover preview (4) and any of the extras (5 to 7).</p>
+      <nav class="vo-toc" aria-label="Options">
+        <div><h2>How it opens</h2><ol>
+          <li><a href="#opt-1"><b>1</b>Theater Mode</a></li>
+          <li><a href="#opt-2"><b>2</b>Expand in Place</a></li>
+          <li><a href="#opt-3"><b>3</b>Lightbox with Context</a></li>
+        </ol></div>
+        <div><h2>Poster that pulls you in</h2><ol>
+          <li><a href="#opt-4"><b>4</b>Silent Preview on Hover</a></li>
+        </ol></div>
+        <div><h2>More than a video</h2><ol>
+          <li><a href="#opt-5"><b>5</b>Chapter List</a></li>
+          <li><a href="#opt-6"><b>6</b>Ending Card</a></li>
+          <li><a href="#opt-7"><b>7</b>Sticky Mini-Player</a></li>
+        </ol></div>
+      </nav>
+    </div>
+
+    <!-- ===================================================== 1 THEATER -->
+    <section class="vo-opt" id="opt-1" aria-labelledby="h-1">
+      <div class="vo-wrap vo-head">
+        <div>
+          <p class="vo-num">Option 1 · How it opens</p>
+          <h2 id="h-1">Theater Mode</h2>
+          <p>Play grows the poster out of its frame into a large stage while the page dims to PC Black. Esc, the close button or a click outside returns you to the page exactly where you were.</p>
+        </div>
+        <ul class="vo-facts">
+          <li><b>Why</b>The video gets the whole screen without leaving the page. It feels like an event, not a widget.</li>
+          <li><b>Trade-off</b>The page is hidden while it plays, so the copy and form beside it are out of sight until the viewer closes it.</li>
+        </ul>
+      </div>
+      <div class="vo-band"><div class="vo-wrap"><div class="vo-grid">
+        <div class="vo-copy">
+          <h3 class="vo-h">One Partner for Every Energy Asset on Your Land</h3>
+          <div class="vo-prose"><p>Oil and gas royalties, solar and wind leases, pipeline easements: energy income rarely comes from a single source, and each one brings its own contracts, operators, and paperwork. Peoples Company brings them together under one relationship, pairing our land expertise with specialist partners so every interest is tracked, protected, and positioned to perform.</p></div>
+          <div class="vo-actions"><button class="btn btn-ghost" type="button" data-theater="t1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="vo-len">3:17</span></button></div>
+        </div>
+        <div class="vo-player" id="t1-src">
+          <button class="vo-poster" type="button" data-theater="t1" aria-label="Play video: Energy Management at Peoples Company, 3 minutes 17 seconds">
+            <img data-thumb alt="" />
+            <span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+          </button>
+        </div>
+      </div></div></div>
+      <dialog class="vo-theater" id="t1" aria-label="Energy Management at Peoples Company">
+        <button class="vo-x" type="button" data-close aria-label="Close video">&times;</button>
+        <div class="vo-stage">
+          <div class="vo-player" data-slot></div>
+          <div class="vo-stage-cap"><p>Energy Management at Peoples Company</p><span>3:17 · Press Esc to close</span></div>
+        </div>
+      </dialog>
+    </section>
+
+    <!-- ===================================================== 2 EXPAND -->
+    <section class="vo-opt" id="opt-2" aria-labelledby="h-2">
+      <div class="vo-wrap vo-head">
+        <div>
+          <p class="vo-num">Option 2 · How it opens</p>
+          <h2 id="h-2">Expand in Place</h2>
+          <p>The copy column fades away and the video widens to fill the full band. A slim bar under the player names the video and offers Collapse, which stops the video and brings the copy back.</p>
+        </div>
+        <ul class="vo-facts">
+          <li><b>Why</b>A bigger picture without a modal. The viewer never feels they have left the page, and the rest of the page stays scrollable.</li>
+          <li><b>Trade-off</b>Smaller than theater mode, and the band grows taller as it widens, which shifts the content below.</li>
+        </ul>
+      </div>
+      <div class="vo-band"><div class="vo-wrap"><div class="vo-grid vo-grid--expand" id="x2">
+        <div class="vo-copy">
+          <h3 class="vo-h">One Partner for Every Energy Asset on Your Land</h3>
+          <div class="vo-prose"><p>Oil and gas royalties, solar and wind leases, pipeline easements: energy income rarely comes from a single source, and each one brings its own contracts, operators, and paperwork. Peoples Company brings them together under one relationship, pairing our land expertise with specialist partners so every interest is tracked, protected, and positioned to perform.</p></div>
+          <div class="vo-actions"><button class="btn btn-ghost" type="button" data-expand><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="vo-len">3:17</span></button></div>
+        </div>
+        <div>
+          <div class="vo-player" data-slot>
+            <button class="vo-poster" type="button" data-expand aria-label="Play video: Energy Management at Peoples Company, 3 minutes 17 seconds">
+              <img data-thumb alt="" />
+              <span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+            </button>
+          </div>
+          <div class="vo-under" hidden><p>Energy Management at Peoples Company</p><button class="btn btn-ghost" type="button" data-collapse>Collapse</button></div>
+        </div>
+      </div></div></div>
+    </section>
+
+    <!-- ===================================================== 3 LIGHTBOX -->
+    <section class="vo-opt" id="opt-3" aria-labelledby="h-3">
+      <div class="vo-wrap vo-head">
+        <div>
+          <p class="vo-num">Option 3 · How it opens</p>
+          <h2 id="h-3">Lightbox with Context</h2>
+          <p>Play opens a dialog with the player on the left and a rail on the right: title, runtime, clickable chapters, and a way to start the conversation without closing the video first.</p>
+        </div>
+        <ul class="vo-facts">
+          <li><b>Why</b>The call to action is beside the video the whole time. Chapters let owners jump straight to the part about their asset.</li>
+          <li><b>Trade-off</b>The video plays smaller than in theater mode, and the rail needs chapter data for every video.</li>
+        </ul>
+      </div>
+      <div class="vo-band"><div class="vo-wrap"><div class="vo-grid">
+        <div class="vo-copy">
+          <h3 class="vo-h">One Partner for Every Energy Asset on Your Land</h3>
+          <div class="vo-prose"><p>Oil and gas royalties, solar and wind leases, pipeline easements: energy income rarely comes from a single source, and each one brings its own contracts, operators, and paperwork. Peoples Company brings them together under one relationship, pairing our land expertise with specialist partners so every interest is tracked, protected, and positioned to perform.</p></div>
+          <div class="vo-actions"><button class="btn btn-ghost" type="button" data-lb><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="vo-len">3:17</span></button></div>
+        </div>
+        <div class="vo-player">
+          <button class="vo-poster" type="button" data-lb aria-label="Play video: Energy Management at Peoples Company, 3 minutes 17 seconds">
+            <img data-thumb alt="" />
+            <span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+          </button>
+        </div>
+      </div></div></div>
+      <dialog class="vo-lb" id="lb3" aria-labelledby="lb3-h">
+        <div class="vo-lb-media"><div class="vo-player" data-slot></div></div>
+        <div class="vo-lb-rail">
+          <button class="vo-x" type="button" data-close aria-label="Close video">&times;</button>
+          <h3 id="lb3-h">Energy Management at Peoples Company</h3>
+          <p class="vo-meta">3:17 · Five chapters</p>
+          <ol class="vo-ch" data-chapters></ol>
+          <div class="vo-lb-cta">
+            <p>Have royalties, a lease offer or an easement to review?</p>
+            <a class="btn btn-primary" href="energy-management.html#connect">Talk to an Energy Specialist</a>
+          </div>
+        </div>
+      </dialog>
+    </section>
+
+    <!-- ===================================================== 4 PREVIEW -->
+    <section class="vo-opt" id="opt-4" aria-labelledby="h-4">
+      <div class="vo-wrap vo-head">
+        <div>
+          <p class="vo-num">Option 4 · Poster</p>
+          <h2 id="h-4">Silent Preview on Hover</h2>
+          <p>Hover the poster and the video quietly plays a muted eight-second loop under the play button. On a phone the loop starts when the poster scrolls into view. A click plays the full video, with sound, from the start.</p>
+        </div>
+        <ul class="vo-facts">
+          <li><b>Why</b>Motion catches the eye without autoplay sound or a heavy video in the hero. Nothing loads until the viewer shows interest.</li>
+          <li><b>Developer note</b>Here the loop is a segment of the real video (0:20 to 0:28) in Vimeo background mode (<strong>Requires Vimeo Paid Plan</strong>). In production, an exported 6 to 8 second muted MP4 loads faster. Turned off for reduced motion.</li>
+        </ul>
+      </div>
+      <div class="vo-band"><div class="vo-wrap"><div class="vo-grid">
+        <div class="vo-copy">
+          <h3 class="vo-h">One Partner for Every Energy Asset on Your Land</h3>
+          <div class="vo-prose"><p>Oil and gas royalties, solar and wind leases, pipeline easements: energy income rarely comes from a single source, and each one brings its own contracts, operators, and paperwork. Peoples Company brings them together under one relationship, pairing our land expertise with specialist partners so every interest is tracked, protected, and positioned to perform.</p></div>
+          <div class="vo-actions"><button class="btn btn-ghost" type="button" data-play="p4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="vo-len">3:17</span></button></div>
+        </div>
+        <div class="vo-player vo-player--prev" id="p4" data-preview>
+          <button class="vo-poster" type="button" data-play="p4" aria-label="Play video: Energy Management at Peoples Company, 3 minutes 17 seconds">
+            <img data-thumb alt="" />
+            <span class="vo-prev" aria-hidden="true"></span>
+            <span class="vo-chip-tl" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4z"/></svg>Preview · muted</span>
+            <span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+          </button>
+        </div>
+      </div></div></div>
+    </section>
+
+    <!-- ===================================================== 5 CHAPTERS -->
+    <section class="vo-opt" id="opt-5" aria-labelledby="h-5">
+      <div class="vo-wrap vo-head">
+        <div>
+          <p class="vo-num">Option 5 · More than a video</p>
+          <h2 id="h-5">Chapter List</h2>
+          <p>The copy column gives way to a list of chapters. A click on any chapter starts the video at that point, and the chapter playing now is highlighted with a thin progress line as it plays.</p>
+        </div>
+        <ul class="vo-facts">
+          <li><b>Why</b>A royalty owner can skip to royalties. It also shows at a glance how much the video covers.</li>
+          <li><b>Placeholder</b>Chapter times are samples. In the CMS each chapter is a time and a label, about five per video.</li>
+        </ul>
+      </div>
+      <div class="vo-band"><div class="vo-wrap"><div class="vo-grid vo-grid--keep">
+        <div class="vo-copy">
+          <h3 class="vo-h">One Partner for Every Energy Asset on Your Land</h3>
+          <div class="vo-prose"><p>Royalties, leases and easements, each with its own contracts and operators, managed under one relationship.</p></div>
+          <p class="vo-ch-k">In this video · 3:17</p>
+          <ol class="vo-ch" data-chapters data-for="p7"></ol>
+        </div>
+        <div class="vo-player" id="p7">
+          <button class="vo-poster" type="button" data-play="p7" aria-label="Play video: Energy Management at Peoples Company, 3 minutes 17 seconds">
+            <img data-thumb alt="" />
+            <span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+          </button>
+        </div>
+      </div></div></div>
+    </section>
+
+    <!-- ===================================================== 6 ENDING CARD -->
+    <section class="vo-opt" id="opt-6" aria-labelledby="h-6">
+      <div class="vo-wrap vo-head">
+        <div>
+          <p class="vo-num">Option 6 · More than a video</p>
+          <h2 id="h-6">Ending Card</h2>
+          <p>When the video finishes, a PC Black panel replaces Vimeo's end screen with the next step: start the conversation, watch again, or move on to the next service.</p>
+          <div class="vo-try">
+            <button class="btn btn-ghost" type="button" data-endpreview="p9">Show the ending card</button>
+            <button class="btn btn-ghost" type="button" data-skipend="p9">Play the last 6 seconds</button>
+          </div>
+        </div>
+        <ul class="vo-facts">
+          <li><b>Why</b>The end of the video is the moment the viewer is most interested. Without this they get related videos from other Vimeo accounts.</li>
+          <li><b>CMS</b>Nothing new: the button points at the page's own form, and "up next" is the next service in the menu.</li>
+        </ul>
+      </div>
+      <div class="vo-band"><div class="vo-wrap"><div class="vo-grid">
+        <div class="vo-copy">
+          <h3 class="vo-h">One Partner for Every Energy Asset on Your Land</h3>
+          <div class="vo-prose"><p>Oil and gas royalties, solar and wind leases, pipeline easements: energy income rarely comes from a single source, and each one brings its own contracts, operators, and paperwork. Peoples Company brings them together under one relationship, pairing our land expertise with specialist partners so every interest is tracked, protected, and positioned to perform.</p></div>
+          <div class="vo-actions"><button class="btn btn-ghost" type="button" data-play="p9"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="vo-len">3:17</span></button></div>
+        </div>
+        <div class="vo-player" id="p9" data-endcard>
+          <button class="vo-poster" type="button" data-play="p9" aria-label="Play video: Energy Management at Peoples Company, 3 minutes 17 seconds">
+            <img data-thumb alt="" />
+            <span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+          </button>
+          <div class="vo-end" role="region" aria-label="Video ended">
+            <div>
+              <p class="vo-end-k">Thanks for watching</p>
+              <h3>Ready to Talk About Your Energy Assets?</h3>
+              <p>Tell us what you own and a specialist will reach out to review your royalties, leases or easements.</p>
+              <div class="vo-actions">
+                <a class="btn btn-primary" href="energy-management.html#connect">Start the Conversation</a>
+                <button class="btn btn-ghost" type="button" data-replay="p9"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>Watch Again</button>
+              </div>
+              <p class="vo-end-next">Up next: <a href="crop-insurance.html">Crop Insurance</a></p>
+            </div>
+          </div>
+        </div>
+      </div></div></div>
+    </section>
+
+    <!-- ===================================================== 7 MINI PLAYER -->
+    <section class="vo-opt" id="opt-7" aria-labelledby="h-7">
+      <div class="vo-wrap vo-head">
+        <div>
+          <p class="vo-num">Option 7 · More than a video</p>
+          <h2 id="h-7">Sticky Mini-Player</h2>
+          <p>Start the video, then scroll on. When the player leaves the screen it shrinks into the lower right corner and keeps playing. Scroll back up and it settles into place, or close it from the corner.</p>
+        </div>
+        <ul class="vo-facts">
+          <li><b>Why</b>The viewer can keep listening while they read the services and partners below, so the video works with the page instead of against it.</li>
+          <li><b>Trade-off</b>On a phone the corner player covers content. I would turn it off below 768.</li>
+        </ul>
+      </div>
+      <div class="vo-band"><div class="vo-wrap"><div class="vo-grid">
+        <div class="vo-copy">
+          <h3 class="vo-h">One Partner for Every Energy Asset on Your Land</h3>
+          <div class="vo-prose"><p>Oil and gas royalties, solar and wind leases, pipeline easements: energy income rarely comes from a single source, and each one brings its own contracts, operators, and paperwork. Peoples Company brings them together under one relationship, pairing our land expertise with specialist partners so every interest is tracked, protected, and positioned to perform.</p></div>
+          <div class="vo-actions"><button class="btn btn-ghost" type="button" data-play="p10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="vo-len">3:17</span></button></div>
+        </div>
+        <div class="vo-slot" id="slot10">
+          <div class="vo-slot-ph">Playing in the corner</div>
+          <div class="vo-player" id="p10" data-sticky>
+            <button class="vo-poster" type="button" data-play="p10" aria-label="Play video: Energy Management at Peoples Company, 3 minutes 17 seconds">
+              <img data-thumb alt="" />
+              <span class="vo-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+            </button>
+            <div class="vo-dockbar">
+              <button type="button" data-undock aria-label="Back to the video"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>
+              <button type="button" data-stop="p10" aria-label="Close video">&times;</button>
+            </div>
+          </div>
+        </div>
+      </div></div></div>
+    </section>
+
+    <div class="vo-wrap vo-foot">
+      <p><strong>Shared across every option:</strong> nothing from Vimeo loads until someone shows interest (a click, or a hover for option 4), so the page stays light. Each option plays Vimeo 1221509605 with do-not-track on.</p>
+      <p><strong>Developer note on the control bar:</strong> Requires Vimeo Paid Plan. The bar is driven by the Vimeo Player API: play, pause, seek, mute, full screen, buffered progress and chapter marks.</p>
+      <p><strong>Samples on this page:</strong> chapter times are placeholders that show the shape of the data. The real times come from the video once an option is picked.</p>
+    </div>
+  </main>
+
+  <div class="vo-switch" role="group" aria-label="Text beside the video">Text beside video
+    <div><button type="button" data-copy="on" aria-pressed="true">Show</button><button type="button" data-copy="off" aria-pressed="false">Hide</button></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@vimeo/player@2.20.1/dist/player.min.js"></script>
+  <script>
+  (function(){
+    var VID = "1221509605";
+    var THUMB = "https://i.vimeocdn.com/video/2194241801-740c714a1142b0446e42c15c4422106ac47b290183f1d26c405fb2d7a7ec9100-d_1920?region=us";
+    var TITLE = "Energy Management at Peoples Company";
+    var LEN = 197;
+    // Sample chapter times: the real ones come from the video.
+    var CHAPTERS = [
+      { t: 0,   l: "Introduction" },
+      { t: 38,  l: "Mineral and Royalty Management" },
+      { t: 92,  l: "Energy Asset Disposition" },
+      { t: 146, l: "Renewable Energy Assets" },
+      { t: 178, l: "Getting Started" }
+    ];
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function fmt(s){ s = Math.round(s); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+    document.querySelectorAll("img[data-thumb]").forEach(function(i){ i.src = THUMB; i.loading = "lazy"; i.decoding = "async"; });
+
+    // ---- one-at-a-time registry ----
+    var active = null;   // { id, stop() }
+    function claim(id, stop){
+      if(active && active.id !== id) active.stop();
+      active = { id: id, stop: stop };
+    }
+    function release(id){ if(active && active.id === id) active = null; }
+
+    // Build a Vimeo iframe in box. Every full player gets the PC control bar (Vimeo's own
+    // controls off); the muted preview loop in option 4 does not. Returns { frame, api, focusEl }:
+    // frame is whatever was appended, so removing it removes the bar too.
+    function mount(box, opts){
+      opts = opts || {};
+      var brand = !opts.bg && !!(window.Vimeo && window.Vimeo.Player);
+      var q = "autoplay=1&dnt=1" + (opts.bg ? "&background=1" : "") + (opts.muted ? "&muted=1" : "") +
+        (brand ? "&controls=0&title=0&byline=0&portrait=0" : "");
+      var f = document.createElement("iframe");
+      f.src = "https://player.vimeo.com/video/" + VID + "?" + q + (opts.start ? "#t=" + opts.start + "s" : "");
+      f.title = TITLE;
+      f.allow = "autoplay; fullscreen; picture-in-picture";
+      f.setAttribute("allowfullscreen", "");
+      f.referrerPolicy = "strict-origin-when-cross-origin";
+      var holder = f;
+      if(brand){ holder = document.createElement("div"); holder.className = "vo-media"; holder.appendChild(f); }
+      box.appendChild(holder);
+      var api = window.Vimeo && window.Vimeo.Player ? new window.Vimeo.Player(f) : null;
+      var focusEl = brand ? pcBar(holder, api, box, opts.start || 0) : null;
+      return { frame: holder, api: api, focusEl: focusEl };
+    }
+
+    // ---- PC control bar ----
+    var ICON = {
+      play:   '<svg data-s="play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>',
+      pause:  '<svg data-s="pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
+      on:     '<svg data-s="on" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>',
+      off:    '<svg data-s="off" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4z"/></svg>',
+      grow:   '<svg data-s="grow" viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zM4 14h2v4h4v2H4zm14 0h2v6h-6v-2h4z"/></svg>',
+      shrink: '<svg data-s="shrink" viewBox="0 0 24 24"><path d="M8 4h2v6H4V8h4zm6 0h2v4h4v2h-6zM4 14h6v6H8v-4H4zm10 0h6v2h-4v4h-2z"/></svg>'
+    };
+    function chapterAt(t){ for(var i = CHAPTERS.length - 1; i >= 0; i--){ if(t >= CHAPTERS[i].t) return CHAPTERS[i]; } return CHAPTERS[0]; }
+    function pcBar(media, api, box, t0){
+      var hit = document.createElement("button");
+      hit.type = "button"; hit.className = "vo-hit"; hit.tabIndex = -1; hit.setAttribute("aria-hidden", "true");
+      var bar = document.createElement("div");
+      bar.className = "vo-ctl";
+      bar.innerHTML =
+        '<div class="vo-track" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0">' +
+          '<div class="vo-rail"><span class="vo-buf"></span><span class="vo-fill"></span></div>' +
+          '<span class="vo-ph" aria-hidden="true"><svg><use href="#pc-diamond"/></svg></span>' +
+          '<span class="vo-tip" aria-hidden="true"></span>' +
+        '</div>' +
+        '<div class="vo-row">' +
+          '<button type="button" data-k="play" aria-label="Play">' + ICON.play + ICON.pause + '</button>' +
+          '<button type="button" data-k="mute" aria-label="Mute">' + ICON.on + ICON.off + '</button>' +
+          '<span class="vo-time"></span><span class="vo-chn"></span>' +
+          '<button type="button" data-k="fs" aria-label="Full screen">' + ICON.grow + ICON.shrink + '</button>' +
+        '</div>';
+      media.appendChild(hit);
+      media.appendChild(bar);
+      var track = bar.querySelector(".vo-track"), rail = bar.querySelector(".vo-rail"),
+          fill = bar.querySelector(".vo-fill"), buf = bar.querySelector(".vo-buf"),
+          ph = bar.querySelector(".vo-ph"), tip = bar.querySelector(".vo-tip"),
+          time = bar.querySelector(".vo-time"), chn = bar.querySelector(".vo-chn"),
+          bPlay = bar.querySelector('[data-k="play"]'), bMute = bar.querySelector('[data-k="mute"]'),
+          bFs = bar.querySelector('[data-k="fs"]');
+      var dur = LEN, cur = t0, playing = false, drag = false, idle = 0;
+      CHAPTERS.slice(1).forEach(function(c){
+        var k = document.createElement("span"); k.className = "vo-tick"; k.setAttribute("data-t", c.t); rail.appendChild(k);
+      });
+      function ticks(){ rail.querySelectorAll(".vo-tick").forEach(function(k){ k.style.left = (k.getAttribute("data-t") / dur * 100) + "%"; }); }
+      function render(t){
+        var f = Math.max(0, Math.min(1, t / dur)) * 100;
+        fill.style.width = f + "%";
+        ph.style.left = f + "%";
+        time.textContent = fmt(t) + " / " + fmt(dur);
+        var c = chapterAt(t);
+        chn.textContent = c.l;
+        track.setAttribute("aria-valuemax", Math.round(dur));
+        track.setAttribute("aria-valuenow", Math.round(t));
+        track.setAttribute("aria-valuetext", fmt(t) + " of " + fmt(dur) + ", " + c.l);
+      }
+      function at(e){ var r = track.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * dur; }
+      function seek(t){ cur = Math.max(0, Math.min(dur - 0.5, t)); render(cur); api.setCurrentTime(cur); }
+      function muted(m){ media.classList.toggle("is-muted", m); bMute.setAttribute("aria-label", m ? "Unmute" : "Mute"); }
+      function state(on){ playing = on; media.classList.toggle("is-playing", on); bPlay.setAttribute("aria-label", on ? "Pause" : "Play"); wake(); }
+      function wake(){
+        media.classList.remove("is-idle");
+        clearTimeout(idle);
+        if(playing && !drag && !bar.contains(document.activeElement)) idle = setTimeout(function(){ media.classList.add("is-idle"); }, 2500);
+      }
+      function toggle(){ playing ? api.pause() : api.play(); }
+      ticks(); render(cur);
+      api.getDuration().then(function(d){ if(d){ dur = d; ticks(); render(cur); } });
+      api.getMuted().then(muted);
+      api.on("timeupdate", function(d){ if(drag) return; cur = d.seconds; if(d.duration) dur = d.duration; render(cur); });
+      api.on("progress", function(d){ buf.style.width = (d.percent * 100) + "%"; });
+      api.on("play", function(){ state(true); });
+      api.on("pause", function(){ state(false); });
+      api.on("ended", function(){ state(false); });
+      api.on("volumechange", function(){ api.getMuted().then(muted); });
+      hit.addEventListener("click", toggle);
+      bPlay.addEventListener("click", toggle);
+      bMute.addEventListener("click", function(){ api.getMuted().then(function(m){ api.setMuted(!m); if(m) api.setVolume(1); }); });
+      bFs.addEventListener("click", function(){
+        if(document.fullscreenElement) document.exitFullscreen();
+        else if(box.requestFullscreen) box.requestFullscreen();
+      });
+      track.addEventListener("pointerdown", function(e){
+        drag = true; track.setPointerCapture(e.pointerId); bar.classList.add("is-drag"); render(cur = at(e));
+      });
+      track.addEventListener("pointermove", function(e){
+        var t = at(e), r = track.getBoundingClientRect();
+        tip.style.left = Math.max(80, Math.min(r.width - 80, e.clientX - r.left)) + "px";
+        tip.innerHTML = "<b>" + fmt(t) + "</b>" + chapterAt(t).l;
+        if(drag) render(cur = t);
+      });
+      function end(){ if(!drag) return; drag = false; bar.classList.remove("is-drag"); seek(cur); wake(); }
+      track.addEventListener("pointerup", end);
+      track.addEventListener("pointercancel", end);
+      track.addEventListener("keydown", function(e){
+        var k = e.key, t = null;
+        if(k === "ArrowRight" || k === "ArrowUp") t = cur + 5;
+        else if(k === "ArrowLeft" || k === "ArrowDown") t = cur - 5;
+        else if(k === "PageUp") t = cur + 30;
+        else if(k === "PageDown") t = cur - 30;
+        else if(k === "Home") t = 0;
+        else if(k === "End") t = dur - 1;
+        else if(k === " " || k === "Enter"){ e.preventDefault(); toggle(); return; }
+        if(t === null) return;
+        e.preventDefault(); seek(t);
+      });
+      media.addEventListener("pointermove", wake);
+      media.addEventListener("focusin", wake);
+      media.addEventListener("focusout", function(){ setTimeout(wake, 0); });
+      return bPlay;
+    }
+
+    // ---- generic inline player: posters, chapters, ending card, sticky ----
+    var inline = {};   // id -> { box, poster, frame, api }
+    function startInline(id, start){
+      var box = document.getElementById(id);
+      var st = inline[id];
+      if(st && st.api){
+        claim(id, function(){ stopInline(id); });
+        st.api.setCurrentTime(start || 0).then(function(){ st.api.play(); });
+        hideEnd(box);
+        return;
+      }
+      if(st){ stopInline(id); }
+      claim(id, function(){ stopInline(id); });
+      var poster = box.querySelector(".vo-poster");
+      if(poster) poster.hidden = true;
+      killPreview(box);
+      var m = mount(box, { start: start });
+      st = inline[id] = { box: box, poster: poster, frame: m.frame, api: m.api };
+      (m.focusEl || m.frame).focus();
+      if(m.api){
+        m.api.on("timeupdate", function(d){ tick(id, d.seconds); });
+        m.api.on("ended", function(){ if(box.hasAttribute("data-endcard")) showEnd(box); });
+        m.api.on("play", function(){ claim(id, function(){ stopInline(id); }); hideEnd(box); });
+      }
+      if(box.hasAttribute("data-sticky")) watchSticky(box);
+    }
+    function stopInline(id){
+      var st = inline[id];
+      if(!st) return;
+      if(st.frame) st.frame.remove();
+      if(st.poster) st.poster.hidden = false;
+      st.box.classList.remove("is-docked");
+      var slot = st.box.closest(".vo-slot"); if(slot) slot.classList.remove("is-empty");
+      hideEnd(st.box);
+      tick(id, -1);
+      delete inline[id];
+      release(id);
+    }
+
+    // chapter highlighting
+    function tick(id, sec){
+      document.querySelectorAll('[data-chapters][data-for="' + id + '"] button').forEach(function(b, i){
+        var a = CHAPTERS[i].t, z = CHAPTERS[i + 1] ? CHAPTERS[i + 1].t : LEN;
+        var on = sec >= a && sec < z;
+        b.classList.toggle("is-on", on);
+        b.setAttribute("aria-current", on ? "true" : "false");
+        b.querySelector(".vo-bar").style.width = on ? ((sec - a) / (z - a) * 100) + "%" : "0";
+      });
+    }
+
+    // build chapter lists
+    document.querySelectorAll("[data-chapters]").forEach(function(ol){
+      ol.innerHTML = CHAPTERS.map(function(c){
+        return '<li><button type="button" data-t="' + c.t + '"><i>' + fmt(c.t) + '</i><span>' + c.l + '</span><span class="vo-bar" aria-hidden="true"></span></button></li>';
+      }).join("");
+    });
+    // chapters in the band (option 5)
+    document.querySelectorAll("[data-chapters][data-for]").forEach(function(ol){
+      var id = ol.getAttribute("data-for");
+      ol.addEventListener("click", function(e){
+        var b = e.target.closest("button[data-t]"); if(!b) return;
+        startInline(id, +b.getAttribute("data-t"));
+      });
+    });
+    document.querySelectorAll("[data-play]").forEach(function(b){
+      b.addEventListener("click", function(){ startInline(b.getAttribute("data-play"), 0); });
+    });
+    document.querySelectorAll("[data-stop]").forEach(function(b){
+      b.addEventListener("click", function(){ stopInline(b.getAttribute("data-stop")); });
+    });
+
+    // ---- 6. ending card ----
+    function showEnd(box){ var e = box.querySelector(".vo-end"); if(e){ e.classList.add("is-on"); var a = e.querySelector("a,button"); if(a) a.focus(); } }
+    function hideEnd(box){ var e = box.querySelector(".vo-end"); if(e) e.classList.remove("is-on"); }
+    document.querySelectorAll("[data-endpreview]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var box = document.getElementById(b.getAttribute("data-endpreview"));
+        box.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+        showEnd(box);
+      });
+    });
+    document.querySelectorAll("[data-skipend]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-skipend");
+        document.getElementById(id).scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+        startInline(id, LEN - 6);
+      });
+    });
+    document.querySelectorAll("[data-replay]").forEach(function(b){
+      b.addEventListener("click", function(){ startInline(b.getAttribute("data-replay"), 0); });
+    });
+
+    // ---- 7. sticky mini-player ----
+    function watchSticky(box){
+      var slot = box.closest(".vo-slot");
+      if(!slot || slot._io) return;
+      slot._io = new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          var st = inline[box.id];
+          if(!st){ return; }
+          var dock = !e.isIntersecting && window.innerWidth >= 768;
+          box.classList.toggle("is-docked", dock);
+          slot.classList.toggle("is-empty", dock);
+        });
+      }, { threshold: 0.25 });
+      slot._io.observe(slot);
+    }
+    document.querySelectorAll("[data-undock]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var slot = b.closest(".vo-slot");
+        slot.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+      });
+    });
+
+    // ---- 4. silent preview ----
+    function killPreview(box){
+      var p = box.querySelector(".vo-prev"); if(!p) return;
+      if(p._api){ try{ p._api.destroy(); }catch(e){} p._api = null; }
+      p.innerHTML = ""; p.classList.remove("is-on");
+      box.classList.remove("is-previewing");
+    }
+    function startPreview(box){
+      if(reduce || inline[box.id]) return;
+      var p = box.querySelector(".vo-prev");
+      if(!p || p.firstChild) return;
+      var m = mount(p, { bg: true, muted: true, start: 20 });
+      m.frame.tabIndex = -1;
+      m.frame.setAttribute("aria-hidden", "true");
+      p._api = m.api;
+      if(m.api){
+        m.api.on("play", function(){ p.classList.add("is-on"); box.classList.add("is-previewing"); });
+        m.api.on("timeupdate", function(d){ if(d.seconds > 28 || d.seconds < 19) m.api.setCurrentTime(20); });
+      }else{
+        setTimeout(function(){ p.classList.add("is-on"); box.classList.add("is-previewing"); }, 600);
+      }
+    }
+    document.querySelectorAll("[data-preview]").forEach(function(box){
+      if(window.matchMedia("(hover: hover)").matches){
+        box.addEventListener("mouseenter", function(){ startPreview(box); });
+        box.addEventListener("mouseleave", function(){ killPreview(box); });
+        box.addEventListener("focusin", function(){ startPreview(box); });
+        box.addEventListener("focusout", function(){ killPreview(box); });
+      }else{
+        new IntersectionObserver(function(es){
+          es.forEach(function(e){ if(e.isIntersecting) startPreview(box); else killPreview(box); });
+        }, { threshold: 0.6 }).observe(box);
+      }
+    });
+
+    // ---- 1. theater mode ----
+    document.querySelectorAll("[data-theater]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-theater");
+        var dlg = document.getElementById(id);
+        var src = document.getElementById(id + "-src");
+        var stage = dlg.querySelector(".vo-stage");
+        var slot = dlg.querySelector("[data-slot]");
+        var from = src.getBoundingClientRect();
+        dlg.showModal();
+        claim(id, function(){ dlg.close(); });
+        var to = stage.getBoundingClientRect();
+        if(!reduce){
+          stage.style.transition = "none";
+          stage.style.transform = "translate(" + (from.left - to.left) + "px," + (from.top - to.top) + "px) scale(" + (from.width / to.width) + ")";
+          stage.offsetWidth;
+          stage.style.transition = "transform .55s cubic-bezier(.2,.7,.2,1)";
+          stage.style.transform = "none";
+        }
+        requestAnimationFrame(function(){ dlg.classList.add("is-on"); });
+        var m = mount(slot);
+        dlg._m = m;
+        setTimeout(function(){ dlg.querySelector("[data-close]").focus(); }, 50);
+      });
+    });
+    // ---- 3. lightbox ----
+    var lb = document.getElementById("lb3");
+    document.querySelectorAll("[data-lb]").forEach(function(b){
+      b.addEventListener("click", function(){
+        lb.showModal();
+        claim("lb3", function(){ lb.close(); });
+        var m = mount(lb.querySelector("[data-slot]"));
+        lb._m = m;
+        if(m.api) m.api.on("timeupdate", function(d){ lbTick(d.seconds); });
+      });
+    });
+    function lbTick(sec){
+      lb.querySelectorAll("[data-chapters] button").forEach(function(b, i){
+        var a = CHAPTERS[i].t, z = CHAPTERS[i + 1] ? CHAPTERS[i + 1].t : LEN;
+        var on = sec >= a && sec < z;
+        b.classList.toggle("is-on", on);
+        b.querySelector(".vo-bar").style.width = on ? ((sec - a) / (z - a) * 100) + "%" : "0";
+      });
+    }
+    lb.querySelector("[data-chapters]").addEventListener("click", function(e){
+      var b = e.target.closest("button[data-t]"); if(!b || !lb._m) return;
+      var t = +b.getAttribute("data-t");
+      if(lb._m.api){ lb._m.api.setCurrentTime(t).then(function(){ lb._m.api.play(); }); }
+      else{ lb._m.frame.remove(); lb._m = mount(lb.querySelector("[data-slot]"), { start: t }); }
+    });
+    // shared dialog close: button, Esc, click on the backdrop
+    [document.getElementById("t1"), lb].forEach(function(dlg){
+      dlg.querySelector("[data-close]").addEventListener("click", function(){ dlg.close(); });
+      dlg.addEventListener("click", function(e){ if(e.target === dlg) dlg.close(); });
+      dlg.addEventListener("close", function(){
+        dlg.classList.remove("is-on");
+        if(dlg._m){ dlg._m.frame.remove(); dlg._m = null; }
+        if(dlg === lb) lbTick(-1);
+        release(dlg.id);
+      });
+    });
+
+    // ---- page switch: text beside the video on / off ----
+    document.querySelectorAll("[data-copy]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var off = b.getAttribute("data-copy") === "off";
+        document.body.classList.toggle("no-copy", off);
+        document.querySelectorAll("[data-copy]").forEach(function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      });
+    });
+
+    // ---- 2. expand in place ----
+    var x2 = document.getElementById("x2");
+    var x2box = x2.querySelector("[data-slot]");
+    var x2under = x2.querySelector(".vo-under");
+    function collapse2(){
+      if(x2._m){ x2._m.frame.remove(); x2._m = null; }
+      x2box.querySelector(".vo-poster").hidden = false;
+      x2.classList.remove("is-wide");
+      x2under.hidden = true;
+      release("x2");
+    }
+    x2.querySelectorAll("[data-expand]").forEach(function(b){
+      b.addEventListener("click", function(){
+        if(x2._m) return;
+        claim("x2", collapse2);
+        x2under.hidden = false;
+        x2.classList.add("is-wide");
+        x2box.querySelector(".vo-poster").hidden = true;
+        x2._m = mount(x2box);
+        // Once it has finished growing, bring the whole video into view.
+        setTimeout(function(){
+          var r = x2box.getBoundingClientRect();
+          if(r.top < 0 || r.bottom + 70 > window.innerHeight){
+            window.scrollBy({ top: r.top - Math.max(16, (window.innerHeight - r.height - 70) / 2), behavior: reduce ? "auto" : "smooth" });
+          }
+        }, reduce ? 0 : 800);
+      });
+    });
+    x2.querySelector("[data-collapse]").addEventListener("click", collapse2);
+  })();
+  </script>
+</body>
+</html>
