@@ -104,7 +104,12 @@
     .vo-grid--expand{ transition: grid-template-columns .6s cubic-bezier(.2,.7,.2,1) .15s, gap .6s ease .15s; }
     .vo-grid--expand > .vo-copy{ transition: opacity .2s ease; overflow: hidden; }
     .vo-grid--expand.is-wide{ grid-template-columns: minmax(0, 0fr) minmax(0, 12fr); gap: 0; }
-    .vo-grid--expand.is-wide > .vo-copy{ opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility 0s .2s; }
+    /* The faded copy also drops to zero height: at zero width its words stack one per line
+       and, with the grid centered, would push the video far below the fold. */
+    .vo-grid--expand.is-wide > .vo-copy{ opacity: 0; visibility: hidden; max-height: 0;
+      transition: opacity .2s ease, visibility 0s .2s, max-height 0s .2s; }
+    /* Widened, the video stops at the height of the window (less room for the bar under it). */
+    .vo-grid--expand > :last-child{ max-width: calc((100vh - 160px) * 16 / 9); margin-left: auto; margin-right: auto; width: 100%; }
     .vo-under{ display: flex; justify-content: space-between; align-items: center; gap: var(--space-5);
       margin-top: var(--space-4); color: var(--pc-white); opacity: 0; transition: opacity .3s ease; }
     .is-wide .vo-under{ opacity: 1; }
@@ -967,6 +972,13 @@
         x2.classList.add("is-wide");
         x2box.querySelector(".vo-poster").hidden = true;
         x2._m = mount(x2box);
+        // Once it has finished growing, bring the whole video into view.
+        setTimeout(function(){
+          var r = x2box.getBoundingClientRect();
+          if(r.top < 0 || r.bottom + 70 > window.innerHeight){
+            window.scrollBy({ top: r.top - Math.max(16, (window.innerHeight - r.height - 70) / 2), behavior: reduce ? "auto" : "smooth" });
+          }
+        }, reduce ? 0 : 800);
       });
     });
     x2.querySelector("[data-collapse]").addEventListener("click", collapse2);
