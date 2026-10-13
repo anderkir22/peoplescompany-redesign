@@ -113,7 +113,7 @@
     .sv-tile img{ display: block; width: 100%; aspect-ratio: 700 / 250; object-fit: cover; }
     .sv-tile-body{ padding: var(--space-5); }
 
-    /* -- WHY IT MATTERS: seven review options, stacked ----------------------------------
+    /* -- WHY IT MATTERS: five review options, stacked ----------------------------------
        Review only: each band carries an Option tag; the chosen one stays, the rest go.
        The photo sits in .sv-tile-ph so a zoom stays inside its frame. Grayscale is only
        applied where the device can hover, so touch screens always get color. */
@@ -123,17 +123,12 @@
     .sv-tile-ph{ display: block; overflow: hidden; }
     .sv-tile-ph img{ transition: transform .9s cubic-bezier(.2,.7,.2,1), filter .6s ease; }
     .sv-tile-body{ display: block; }
-    /* 1 + 2: linked tiles - lift, shadow, photo zoom, title to PC Medium Blue, Learn more. */
+    /* 1 + 2: linked tiles - shadow and lift only; no zoom, no color change on the title. */
     a.sv-tile{ color: inherit; text-decoration: none; transition: box-shadow .18s ease, transform .18s ease; }
     .sv-tile--link.reveal{ transition: box-shadow .18s ease, transform .18s ease; }
     .sv-tile--link.reveal.in{ animation: sv-rise .6s ease var(--rd, 0s) backwards; }
     .sv-tile--link:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
-    .sv-tile--link:hover img{ transform: scale(1.05); }
-    .sv-tile--link:hover h3{ color: var(--pc-medium-blue); }
     .sv-tile--link:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-    .sv-tile-more{ display: block; margin-top: var(--space-3); font-size: 13px; font-weight: 700; color: var(--pc-medium-blue);
-      opacity: 0; transform: translateX(-6px); transition: opacity .25s ease, transform .25s ease; }
-    .sv-tile--link:hover .sv-tile-more, .sv-tile--link:focus-visible .sv-tile-more{ opacity: 1; transform: none; }
     /* 2 + 3: grayscale until hovered. */
     @media (hover: hover){
       .why--gray .sv-tile img{ filter: grayscale(1); }
@@ -141,22 +136,16 @@
     }
     /* 3 also keeps a gentle zoom so color is not the only change. */
     .why--gray .sv-tile:not(.sv-tile--link):hover img{ transform: scale(1.04); }
-    /* 4: grayscale, then each photo colors in as its card arrives (after the card's fade). */
-    .why--grayscroll .sv-tile img{ filter: grayscale(1); transition: filter 1.4s ease calc(var(--rd, 0s) + .5s); }
-    .why--grayscroll .sv-tile.in img{ filter: none; }
-    /* 5: each photo uncovers top to bottom as its card arrives. */
+    /* 4: each photo uncovers top to bottom as its card arrives. */
     .why--wipe .sv-tile img{ clip-path: inset(0 0 100% 0); transition: clip-path 1s cubic-bezier(.2,.7,.2,1) calc(var(--rd, 0s) + .2s); }
     .why--wipe .sv-tile.in img{ clip-path: inset(0); }
-    /* 6: photos drift larger as the band moves up the screen (--drift 0 -> 1, set by script). */
-    .why--drift .sv-tile img{ transform: scale(calc(1 + var(--drift, 0) * .12)); transition: none; }
-    /* 7: photo zoom on hover only - no lift, no shadow. */
+    /* 5: photo zoom on hover only - no lift, no shadow. */
     .why--zoom .sv-tile:hover img{ transform: scale(1.06); }
     @media (prefers-reduced-motion: reduce){
-      .sv-tile-ph img, .sv-tile-more, a.sv-tile, .sv-tile--link.reveal{ transition: none; }
+      .sv-tile-ph img, a.sv-tile, .sv-tile--link.reveal{ transition: none; }
       .sv-tile--link.reveal.in{ animation: none; }
-      .sv-tile--link:hover, .sv-tile--link:hover img, .why--gray .sv-tile:hover img, .why--zoom .sv-tile:hover img{ transform: none; }
+      .sv-tile--link:hover, .why--gray .sv-tile:hover img, .why--zoom .sv-tile:hover img{ transform: none; }
       .why--wipe .sv-tile img{ clip-path: none; }
-      .why--drift .sv-tile img{ transform: none; }
     }
     .sv-tile h3, .sv-pillar h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
       line-height: 1.2; margin: 0 0 var(--space-2); color: var(--color-text); }
@@ -544,7 +533,7 @@
     </section>
     <section class="sv-band sv-opt why--lift" id="why" aria-labelledby="sv-why-h">
       <div class="sv-wrap reveal">
-        <span class="sv-optag">Option 1 &middot; Linked: lift, photo zoom, Learn more</span>
+        <span class="sv-optag">Option 1 &middot; Linked: shadow and lift</span>
         <h2 class="sv-h2" id="sv-why-h">Why Crop Insurance Matters to Peoples Company</h2>
         <div class="sv-grid sv-grid--4">
           <a class="sv-tile sv-tile--link reveal" style="--rd:.1s" href="https://peoplescompany.com/land-brokerage-and-auctions">
@@ -552,7 +541,6 @@
             <span class="sv-tile-body">
               <h3>Land Brokerage &amp; Acquisition</h3>
               <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
-              <span class="sv-tile-more" aria-hidden="true">Learn more &rarr;</span>
             </span>
           </a>
           <a class="sv-tile sv-tile--link reveal" style="--rd:.2s" href="https://peoplescompany.com/land-management">
@@ -560,7 +548,6 @@
             <span class="sv-tile-body">
               <h3>Land Management</h3>
               <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
-              <span class="sv-tile-more" aria-hidden="true">Learn more &rarr;</span>
             </span>
           </a>
           <a class="sv-tile sv-tile--link reveal" style="--rd:.3s" href="https://peoplescompany.com/agricultural-appraisal">
@@ -568,7 +555,6 @@
             <span class="sv-tile-body">
               <h3>Appraisal &amp; Valuation</h3>
               <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
-              <span class="sv-tile-more" aria-hidden="true">Learn more &rarr;</span>
             </span>
           </a>
           <a class="sv-tile sv-tile--link reveal" style="--rd:.4s" href="./capital-markets.html">
@@ -576,7 +562,6 @@
             <span class="sv-tile-body">
               <h3>Capital Markets</h3>
               <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
-              <span class="sv-tile-more" aria-hidden="true">Learn more &rarr;</span>
             </span>
           </a>
         </div>
@@ -584,7 +569,7 @@
     </section>
     <section class="sv-band sv-band--soft sv-opt why--lift why--gray" aria-labelledby="sv-why2-h">
       <div class="sv-wrap reveal">
-        <span class="sv-optag">Option 2 &middot; Linked + grayscale to color on hover</span>
+        <span class="sv-optag">Option 2 &middot; Linked: shadow and lift, grayscale to color</span>
         <h2 class="sv-h2" id="sv-why2-h">Why Crop Insurance Matters to Peoples Company</h2>
         <div class="sv-grid sv-grid--4">
           <a class="sv-tile sv-tile--link reveal" style="--rd:.1s" href="https://peoplescompany.com/land-brokerage-and-auctions">
@@ -592,7 +577,6 @@
             <span class="sv-tile-body">
               <h3>Land Brokerage &amp; Acquisition</h3>
               <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
-              <span class="sv-tile-more" aria-hidden="true">Learn more &rarr;</span>
             </span>
           </a>
           <a class="sv-tile sv-tile--link reveal" style="--rd:.2s" href="https://peoplescompany.com/land-management">
@@ -600,7 +584,6 @@
             <span class="sv-tile-body">
               <h3>Land Management</h3>
               <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
-              <span class="sv-tile-more" aria-hidden="true">Learn more &rarr;</span>
             </span>
           </a>
           <a class="sv-tile sv-tile--link reveal" style="--rd:.3s" href="https://peoplescompany.com/agricultural-appraisal">
@@ -608,7 +591,6 @@
             <span class="sv-tile-body">
               <h3>Appraisal &amp; Valuation</h3>
               <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
-              <span class="sv-tile-more" aria-hidden="true">Learn more &rarr;</span>
             </span>
           </a>
           <a class="sv-tile sv-tile--link reveal" style="--rd:.4s" href="./capital-markets.html">
@@ -616,7 +598,6 @@
             <span class="sv-tile-body">
               <h3>Capital Markets</h3>
               <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
-              <span class="sv-tile-more" aria-hidden="true">Learn more &rarr;</span>
             </span>
           </a>
         </div>
@@ -658,82 +639,10 @@
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft sv-opt why--grayscroll" aria-labelledby="sv-why4-h">
+    <section class="sv-band sv-band--soft sv-opt why--wipe" aria-labelledby="sv-why5-h">
       <div class="sv-wrap reveal">
-        <span class="sv-optag">Option 4 &middot; Grayscale to color as it scrolls in</span>
-        <h2 class="sv-h2" id="sv-why4-h">Why Crop Insurance Matters to Peoples Company</h2>
-        <div class="sv-grid sv-grid--4">
-          <div class="sv-tile reveal" style="--rd:.1s">
-            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <div class="sv-tile-body">
-              <h3>Land Brokerage &amp; Acquisition</h3>
-              <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
-            </div>
-          </div>
-          <div class="sv-tile reveal" style="--rd:.2s">
-            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <div class="sv-tile-body">
-              <h3>Land Management</h3>
-              <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
-            </div>
-          </div>
-          <div class="sv-tile reveal" style="--rd:.3s">
-            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <div class="sv-tile-body">
-              <h3>Appraisal &amp; Valuation</h3>
-              <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
-            </div>
-          </div>
-          <div class="sv-tile reveal" style="--rd:.4s">
-            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <div class="sv-tile-body">
-              <h3>Capital Markets</h3>
-              <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="sv-band sv-opt why--wipe" aria-labelledby="sv-why5-h">
-      <div class="sv-wrap reveal">
-        <span class="sv-optag">Option 5 &middot; Photo wipe-in on scroll</span>
+        <span class="sv-optag">Option 4 &middot; Photo wipe-in on scroll</span>
         <h2 class="sv-h2" id="sv-why5-h">Why Crop Insurance Matters to Peoples Company</h2>
-        <div class="sv-grid sv-grid--4">
-          <div class="sv-tile reveal" style="--rd:.1s">
-            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <div class="sv-tile-body">
-              <h3>Land Brokerage &amp; Acquisition</h3>
-              <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
-            </div>
-          </div>
-          <div class="sv-tile reveal" style="--rd:.2s">
-            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <div class="sv-tile-body">
-              <h3>Land Management</h3>
-              <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
-            </div>
-          </div>
-          <div class="sv-tile reveal" style="--rd:.3s">
-            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <div class="sv-tile-body">
-              <h3>Appraisal &amp; Valuation</h3>
-              <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
-            </div>
-          </div>
-          <div class="sv-tile reveal" style="--rd:.4s">
-            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <div class="sv-tile-body">
-              <h3>Capital Markets</h3>
-              <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="sv-band sv-band--soft sv-opt why--drift" aria-labelledby="sv-why6-h">
-      <div class="sv-wrap reveal">
-        <span class="sv-optag">Option 6 &middot; Slow zoom while scrolling</span>
-        <h2 class="sv-h2" id="sv-why6-h">Why Crop Insurance Matters to Peoples Company</h2>
         <div class="sv-grid sv-grid--4">
           <div class="sv-tile reveal" style="--rd:.1s">
             <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
@@ -768,7 +677,7 @@
     </section>
     <section class="sv-band sv-opt why--zoom" aria-labelledby="sv-why7-h">
       <div class="sv-wrap reveal">
-        <span class="sv-optag">Option 7 &middot; Photo zoom on hover only</span>
+        <span class="sv-optag">Option 5 &middot; Photo zoom on hover only</span>
         <h2 class="sv-h2" id="sv-why7-h">Why Crop Insurance Matters to Peoples Company</h2>
         <div class="sv-grid sv-grid--4">
           <div class="sv-tile reveal" style="--rd:.1s">
@@ -1653,23 +1562,6 @@
       window.addEventListener("load", place);
       if(document.fonts && document.fonts.ready) document.fonts.ready.then(place);
       document.querySelectorAll(".sv-card-logo").forEach(function(img){ if(!img.complete) img.addEventListener("load", place); });
-    })();
-
-    // Why It Matters, option 6: --drift runs 0 -> 1 as the band travels from the bottom of
-    // the screen to the top; the photos scale from it.
-    (function(){
-      var band = document.querySelector(".why--drift");
-      if(!band || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
-      var ticking = false;
-      function set(){
-        ticking = false;
-        var r = band.getBoundingClientRect(), vh = window.innerHeight;
-        var p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
-        band.style.setProperty("--drift", p.toFixed(3));
-      }
-      window.addEventListener("scroll", function(){ if(!ticking){ ticking = true; requestAnimationFrame(set); } }, { passive: true });
-      window.addEventListener("resize", set);
-      set();
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe
