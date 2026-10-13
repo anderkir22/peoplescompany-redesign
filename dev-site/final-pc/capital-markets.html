@@ -33,7 +33,9 @@
     .sv-intro h1{ margin: 0 0 var(--space-5); }
     .internal-wrap .sv-intro p{ margin: 0 0 var(--space-4); color: var(--color-text); }
     .sv-actions{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
-    .sv-band{ padding: var(--space-7) 0; scroll-margin-top: var(--navH); }
+    .sv-band{ padding: var(--space-7) 0; }
+    /* A jump lands the section's top edge under the sub nav (header + sub nav). */
+    .sv-band, #overview{ scroll-margin-top: calc(var(--navH) + var(--sv-jump-h)); }
     .sv-band--soft{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border); }
     .sv-band--navy{ background: var(--pc-navy); }
@@ -137,32 +139,76 @@
     .sv-embed{ position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden;
       background: var(--pc-black); }
     .sv-embed iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .sv-stack{ display: grid; gap: var(--space-5); align-content: start; }
-    .sv-formcard{ background: var(--pc-white); border-radius: var(--radius-lg); padding: var(--space-6); }
-    .sv-formcard h3{ font-family: var(--font-serif); font-weight: 500; font-size: 26px; line-height: 1.2;
-      margin: 0 0 var(--space-2); color: var(--color-text); }
-    .sv-formcard .sv-h2{ margin-bottom: var(--space-3); }
-    .sv-formcard > p{ margin: 0 0 var(--space-3); font-size: var(--body); line-height: 1.7; color: var(--color-text); }
-    .sv-formcard > p:last-of-type{ margin-bottom: var(--space-5); }
-    .sv-formcard--navy{ background: none; border-radius: 0; padding: 0; }
-    .sv-formcard--navy .sv-h2, .sv-formcard--navy > p{ color: var(--pc-white); }
-    .sv-formcard--navy .sv-field label{ color: var(--pc-light-blue); }
-    .sv-formcard--navy .sv-field input:focus, .sv-formcard--navy .sv-field select:focus,
-    .sv-formcard--navy .sv-field textarea:focus{ outline-color: var(--pc-blue); border-color: var(--pc-blue); }
-    .sv-form{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4) var(--space-5); }
-    .sv-field--half{ grid-column: span 2; }
-    .sv-field{ display: grid; gap: var(--space-2); align-content: start; }
+    /* Staggered reveal: a card's --rd delays its fade so a row arrives one card at a time. */
+    .reveal{ transition-delay: var(--rd, 0s); }
+    /* Blog cards keep their own hover transition, so their reveal is a keyframe instead. */
+    .sv-post.reveal{ transition: box-shadow .18s ease, transform .18s ease; }
+    .sv-post.reveal.in{ animation: sv-rise .6s ease var(--rd, 0s) backwards; }
+    @keyframes sv-rise{ from{ opacity: 0; transform: translateY(16px); } to{ opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce){ .sv-post.reveal.in{ animation: none; } }
+
+    /* -- SUB NAV -------------------------------------------------------------------
+       Hidden at the top of the page, where the Interactive Map tab hangs from the
+       header. Once the H1 scrolls under the header the tab slides up behind it and the
+       sub nav slides down from under it, full width: jump links spread across the rail,
+       Request a Proposal right. Scrolling back up reverses it. The script toggles
+       html.sv-sub-on. The underline (.sv-jump-ind) slides to the section in view.
+       --sv-jump-h is the bar's height, JS-synced; this value is the fallback. z-index 29
+       keeps it under the header (45) and the map layer's backdrop (30). */
+    :root{ --sv-jump-h: 57px; }
+    .sv-subbar{ position: fixed; top: var(--navH); left: 0; right: 0; z-index: 29;
+      background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+      backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--color-border);
+      box-shadow: 0 8px 24px rgba(7,22,44,.08);
+      transform: translateY(-100%); visibility: hidden;
+      transition: transform .35s cubic-bezier(.2,.7,.2,1), visibility 0s linear .35s; }
+    .sv-sub-on .sv-subbar{ transform: none; visibility: visible;
+      transition: transform .35s cubic-bezier(.2,.7,.2,1) .12s, visibility 0s; }
+    .sv-subbar-in{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail);
+      display: flex; align-items: center; gap: var(--space-8); }
+    .sv-jump{ position: relative; flex: 1; display: flex; justify-content: space-between; }
+    .sv-jump a{ padding: 18px 0; font-size: 15px; font-weight: 500; line-height: 1.3; white-space: nowrap;
+      color: var(--color-text-muted); text-decoration: none; transition: color .2s ease; }
+    .sv-jump a:hover, .sv-jump a[aria-current="location"]{ color: var(--pc-navy); }
+    .sv-jump a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: -2px; }
+    .sv-jump-ind{ position: absolute; left: 0; bottom: 0; width: 0; height: 3px; opacity: 0;
+      border-radius: 3px 3px 0 0; background: var(--pc-medium-blue); pointer-events: none;
+      transition: transform .4s cubic-bezier(.2,.7,.2,1), width .4s cubic-bezier(.2,.7,.2,1), opacity .2s ease; }
+    .sv-subbar .btn{ padding: 10px 18px; font-size: 14px; }
+    /* The map tab floats up behind the header as the sub nav comes in, and back down
+       when it leaves. The transform is on the wrap: the tab's own height animates. */
+    .md-tabwrap{ transition: transform .3s ease, opacity .3s ease, visibility 0s linear 0s; }
+    .sv-sub-on .md-tabwrap{ transform: translateY(-100px); opacity: 0; visibility: hidden;
+      transition: transform .3s ease, opacity .3s ease, visibility 0s linear .3s; }
+    @media (prefers-reduced-motion: reduce){
+      .sv-subbar, .sv-sub-on .sv-subbar, .md-tabwrap, .sv-sub-on .md-tabwrap{ transition: none; }
+    }
+
+    /* -- GETTING STARTED (slim form) ---------------------------------------------------
+       Copy left (5 of 12), form right (7 of 12), on navy. A six-column grid, three fields a
+       row, then Comments (five columns) with Submit beside it. */
+    .sv-connect{ display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8);
+      align-items: start; }
+    .sv-connect .sv-h2, .sv-connect .sv-prose p{ color: var(--pc-white); }
+    .sv-form{ display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-4); }
+    .sv-req{ margin-left: 2px; color: var(--pc-white); }
+    .sv-c2{ grid-column: span 2; }
+    .sv-c3{ grid-column: span 3; }
+    .sv-c5{ grid-column: span 5; }
+    .sv-field{ display: grid; gap: 6px; align-content: start; min-width: 0; }
     .sv-field--full{ grid-column: 1 / -1; }
-    .sv-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
-      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
-    .sv-field input, .sv-field select, .sv-field textarea{ font-family: var(--font-sans); font-size: var(--body);
-      line-height: 1.5; color: var(--color-text); background: var(--pc-white);
-      border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px 14px; width: 100%;
+    .sv-field label{ padding: 0; font-family: var(--font-sans); font-size: var(--label);
+      font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--pc-light-blue); }
+    .sv-field input, .sv-field select, .sv-field textarea{ font-family: var(--font-sans); font-size: 15px;
+      line-height: 1.4; color: var(--color-text); background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 10px 12px; width: 100%;
       box-sizing: border-box; }
-    .sv-field textarea{ min-height: 100px; resize: vertical; }
+    .sv-field textarea{ min-height: 88px; resize: vertical; }
     .sv-field input:focus, .sv-field select:focus, .sv-field textarea:focus{
-      outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
-    .sv-form .btn{ justify-self: start; grid-column: 1 / -1; }
+      outline: 2px solid var(--pc-blue); outline-offset: 1px; border-color: var(--pc-blue); }
+    /* Submit takes the sixth column of the Comments row: full column width so its right
+       edge lines up with State above, bottom-aligned with the text box. */
+    .sv-form .btn{ grid-column: 6; justify-self: stretch; align-self: end; padding-left: 0; padding-right: 0; }
     /* -- SIGN-IN MODALS (Create Account, Sign In, Recover) ---------------------
        Native <dialog> opened with showModal(): the browser supplies the focus trap,
        Esc-to-close and the inert page behind it. Visual mockup only, no submit. */
@@ -325,9 +371,27 @@
     </div>
   </div>
 
+  <!-- ================= SUB NAV: jump links, contact ================= -->
+  <div class="sv-subbar">
+    <div class="sv-subbar-in">
+      <nav class="sv-jump" aria-label="On this page">
+        <a href="#overview">Overview</a>
+        <a href="#asset-class">Asset Class</a>
+        <a href="#video">Video</a>
+        <a href="#service">Our Service</a>
+        <a href="#process">Process</a>
+        <a href="#structures">Structures</a>
+        <a href="#operators">Farm Operators</a>
+        <a href="#insights">Insights</a>
+        <span class="sv-jump-ind" aria-hidden="true"></span>
+      </nav>
+      <a class="btn btn-primary" href="#connect">Connect With An Expert</a>
+    </div>
+  </div>
+
   <!-- ================= PAGE CONTENT — Capital Markets ================= -->
   <main class="internal-body" aria-label="Page content">
-    <div class="internal-wrap reveal">
+    <div class="internal-wrap reveal" id="overview">
       <div class="sv-intro">
         <div>
           <h1>Capital Markets</h1>
@@ -341,7 +405,7 @@
         </figure>
       </div>
     </div>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-asset-h">
+    <section class="sv-band sv-band--soft" id="asset-class" aria-labelledby="sv-asset-h">
       <div class="sv-wrap reveal">
         <h2 class="sv-h2" id="sv-asset-h">Farmland as an Asset Class</h2>
         <div class="sv-prose sv-cta">
@@ -351,7 +415,7 @@
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--navy" aria-labelledby="sv-tail-h">
+    <section class="sv-band sv-band--navy" id="video" aria-labelledby="sv-tail-h">
       <div class="sv-wrap reveal">
         <div class="sv-split" style="align-items:center">
           <div>
@@ -366,28 +430,28 @@
         </div>
       </div>
     </section>
-    <section class="sv-band" aria-labelledby="sv-inv-h">
+    <section class="sv-band" id="service" aria-labelledby="sv-inv-h">
       <div class="sv-wrap reveal">
         <h2 class="sv-h2" id="sv-inv-h">Farmland Investing &ndash; Our Service</h2>
         <div class="sv-prose sv-cta">
           <p>Our approach to farmland investment is grounded in acquiring high-quality assets in strong agricultural production regions where professional operators, productive soils, and long-term appreciation create distinct opportunities. By adhering to disciplined acquisition criteria and a focus on long-term performance, our team builds portfolios designed to deliver consistent income and durable appreciation across market cycles.</p>
         </div>
         <div class="sv-grid sv-grid--3">
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.1s">
             <img class="sv-icon" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/blue/checklist.svg" alt="" />
             <h3>Portfolio Creation</h3>
             <div class="sv-prose">
               <p>When building a portfolio, we focus on acquiring high-quality assets in thriving agricultural markets with professional farm operators. We prioritize establishing a strong foundation of high-quality row crop assets with straightforward operating structures before expanding into value-add and permanent crop opportunities. Our team works closely with clients to develop and refine acquisition mandates that reflect their objectives, acquisition mandates, and target markets.</p>
             </div>
           </div>
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.2s">
             <img class="sv-icon" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/blue/handshakeangle.svg" alt="" />
             <h3>Deal Sourcing, Due Diligence, and Acquisition</h3>
             <div class="sv-prose">
               <p>We identify and evaluate farmland opportunities aligned with client mandates, presenting assets that meet acquisition guidelines. Once client interest is confirmed, we manage the acquisition process from letter of intent and purchase negotiations to closing while conducting rigorous due diligence, including historical performance review, comparable sales analysis, third-party reports, and financial modeling.</p>
             </div>
           </div>
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.3s">
             <img class="sv-icon" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/newiconsets/blue/sustainability_light_blue.svg" alt="" />
             <h3>Asset Management and Portfolio Reporting</h3>
             <div class="sv-prose">
@@ -397,7 +461,7 @@
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-proc-h">
+    <section class="sv-band sv-band--soft" id="process" aria-labelledby="sv-proc-h">
       <div class="sv-wrap reveal">
         <h2 class="sv-h2" id="sv-proc-h">Our Process To Support Your Portfolio</h2>
         <div class="sv-prose sv-cta">
@@ -482,14 +546,14 @@
         </div>
       </div>
     </section>
-    <section class="sv-band" aria-labelledby="sv-struct-h">
+    <section class="sv-band" id="structures" aria-labelledby="sv-struct-h">
       <div class="sv-wrap reveal">
         <h2 class="sv-h2" id="sv-struct-h">Capital Management Structures</h2>
         <div class="sv-prose sv-cta">
           <p>Peoples Company Capital Markets provides tailored management structures that align with your objectives.</p>
         </div>
         <div class="sv-grid sv-grid--2">
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.1s">
             <h3>Separate Account</h3>
             <div class="sv-prose">
               <p>Peoples Company Capital Markets provides separate account asset acquisition and management for investors seeking to deploy capital of $20 million or more into U.S. farmland. Our team implements investment strategies by sourcing, acquiring, and managing investable farmland assets on behalf of the client. The separate account structure provides investors with direct ownership, where they control which assets to acquire, how they are managed, and when to divest them with the expert advice and assistance of the Capital Markets team throughout the life of the investment.</p>
@@ -499,7 +563,7 @@
               <ul><li>Family Offices</li><li>High-Net-Worth Individuals</li></ul>
             </div>
           </div>
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.25s">
             <h3>Joint Venture Partnership</h3>
             <div class="sv-prose">
               <p>Peoples Company Capital Markets structures joint venture partnerships with institutions with $100 million or more of capital to deploy in the farmland asset class. Our team provides market analysis, sourcing, diligence and management on behalf of the client as well as co-invests in all acquisitions.</p>
@@ -509,7 +573,7 @@
               <ul><li>Institutional Investors</li></ul>
             </div>
           </div>
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.1s">
             <h3>Sub Advisor Relationships</h3>
             <div class="sv-prose">
               <p>Capital Markets creates and manages private structured offerings for wealth managers, trust departments, RIAs, and other asset aggregators with $10 million of client capital to deploy. Traditional wealth managers can leverage the benefits of farmland investing on behalf of their clients by partnering with Capital Markets to structure, diligence, acquire, and manage farmland assets on their behalf.</p>
@@ -519,7 +583,7 @@
               <ul><li>Wealth Managers</li><li>Trust Departments</li><li>RIAs</li></ul>
             </div>
           </div>
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.25s">
             <h3>Portfolio Advisory</h3>
             <div class="sv-prose">
               <p>Capital Markets provides advisory-based transaction services on behalf of institutions. These services include evaluating a portfolio as well as creating and implementing a disposition plan while marketing the property to a vast buyer pool consisting of large farm operators, individuals utilizing 1031 exchanges, institutional investors, family offices, and high-net-worth individuals.</p>
@@ -532,7 +596,7 @@
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-op-h">
+    <section class="sv-band sv-band--soft" id="operators" aria-labelledby="sv-op-h">
       <div class="sv-wrap reveal">
         <h2 class="sv-h2" id="sv-op-h">Farm Operators</h2>
         <div class="sv-prose sv-cta">
@@ -545,67 +609,72 @@
     </section>
     <section class="sv-band sv-band--navy" id="connect" aria-labelledby="sv-go-h">
       <div class="sv-wrap reveal">
-        <div class="sv-formcard sv-formcard--navy">
+        <div class="sv-connect">
+          <div>
             <h2 class="sv-h2" id="sv-go-h">Connect With A Capital Markets Expert</h2>
-            <p>Complete the form to request a meeting with our team to learn about our platform and how we approach farmland investing.</p>
-            <form class="sv-form" action="#" onsubmit="return false;" aria-labelledby="sv-go-h">
-              <div class="sv-field">
-                <label for="cm-first">First Name</label>
-                <input type="text" id="cm-first" name="cm-first" autocomplete="given-name" />
-              </div>
-              <div class="sv-field">
-                <label for="cm-last">Last Name</label>
-                <input type="text" id="cm-last" name="cm-last" autocomplete="family-name" />
-              </div>
-              <div class="sv-field">
-                <label for="cm-email">Email</label>
-                <input type="email" id="cm-email" name="cm-email" autocomplete="email" />
-              </div>
-              <div class="sv-field">
-                <label for="cm-mobile">Mobile</label>
-                <input type="tel" id="cm-mobile" name="cm-mobile" autocomplete="tel" />
-              </div>
-              <div class="sv-field">
-                <label for="cm-company">Company Name</label>
-                <input type="text" id="cm-company" name="cm-company" autocomplete="organization" />
-              </div>
-              <div class="sv-field">
-                <label for="cm-customer">Customer Type</label>
-                <select id="cm-customer" name="cm-customer"><option value="">Select&hellip;</option><option>Asset Manager</option><option>Family Office</option><option>Foreign Investor</option><option>High Net Worth</option><option>Institutional</option><option>Wealth Manager</option></select>
-              </div>
-              <div class="sv-field">
-                <label for="cm-purpose">Capital Purpose</label>
-                <select id="cm-purpose" name="cm-purpose"><option value="">Select&hellip;</option><option>Sale / Leaseback</option><option>New Acquisition</option><option>Active Buyer</option></select>
-              </div>
-              <div class="sv-field">
-                <label for="cm-crop">Crop Type</label>
-                <select id="cm-crop" name="cm-crop"><option value="">Select&hellip;</option><option>Row</option><option>Permanent</option><option>Organic</option><option>Specialty</option></select>
-              </div>
-              <div class="sv-field sv-field--half">
-                <label for="cm-allocation">Allocation</label>
-                <select id="cm-allocation" name="cm-allocation"><option value="">Select&hellip;</option><option>Under $5 million</option><option>$5 million to $20 million</option><option>$20 million to $50 million</option><option>$50 million plus</option></select>
-              </div>
-              <div class="sv-field sv-field--half">
-                <label for="cm-heard">How Did You Hear About Us?</label>
-                <input type="text" id="cm-heard" name="cm-heard" />
-              </div>
-              <div class="sv-field sv-field--full">
-                <label for="cm-comments">Comments or Questions</label>
-                <textarea id="cm-comments" name="cm-comments"></textarea>
-              </div>
-              <button class="btn btn-white" type="submit">Submit</button>
-            </form>
+            <div class="sv-prose">
+              <p>Complete the form to request a meeting with our team to learn about our platform and how we approach farmland investing.</p>
+            </div>
           </div>
+          <form class="sv-form" action="#" onsubmit="return false;" aria-labelledby="sv-go-h">
+            <!-- Six columns: three fields a row. -->
+            <div class="sv-field sv-c2">
+              <label for="cm-first">First Name<span class="sv-req" aria-hidden="true">*</span></label>
+              <input type="text" id="cm-first" name="cm-first" required autocomplete="given-name" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="cm-last">Last Name<span class="sv-req" aria-hidden="true">*</span></label>
+              <input type="text" id="cm-last" name="cm-last" required autocomplete="family-name" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="cm-email">Email<span class="sv-req" aria-hidden="true">*</span></label>
+              <input type="email" id="cm-email" name="cm-email" required autocomplete="email" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="cm-mobile">Mobile</label>
+              <input type="tel" id="cm-mobile" name="cm-mobile" autocomplete="tel" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="cm-company">Company Name</label>
+              <input type="text" id="cm-company" name="cm-company" autocomplete="organization" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="cm-customer">Customer Type</label>
+              <select id="cm-customer" name="cm-customer"><option value="">Select&hellip;</option><option>Asset Manager</option><option>Family Office</option><option>Foreign Investor</option><option>High Net Worth</option><option>Institutional</option><option>Wealth Manager</option></select>
+            </div>
+            <div class="sv-field sv-c3">
+              <label for="cm-purpose">Capital Purpose</label>
+              <select id="cm-purpose" name="cm-purpose"><option value="">Select&hellip;</option><option>Sale / Leaseback</option><option>New Acquisition</option><option>Active Buyer</option></select>
+            </div>
+            <div class="sv-field sv-c3">
+              <label for="cm-crop">Crop Type</label>
+              <select id="cm-crop" name="cm-crop"><option value="">Select&hellip;</option><option>Row</option><option>Permanent</option><option>Organic</option><option>Specialty</option></select>
+            </div>
+            <div class="sv-field sv-c3">
+              <label for="cm-allocation">Allocation</label>
+              <select id="cm-allocation" name="cm-allocation"><option value="">Select&hellip;</option><option>Under $5 million</option><option>$5 million to $20 million</option><option>$20 million to $50 million</option><option>$50 million plus</option></select>
+            </div>
+            <div class="sv-field sv-c3">
+              <label for="cm-heard">How Did You Hear About Us?</label>
+              <input type="text" id="cm-heard" name="cm-heard" />
+            </div>
+            <div class="sv-field sv-c5">
+              <label for="cm-comments">Comments or Questions</label>
+              <textarea id="cm-comments" name="cm-comments" rows="3"></textarea>
+            </div>
+            <button class="btn btn-white" type="submit">Submit</button>
+          </form>
+        </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-blog-h">
+    <section class="sv-band sv-band--soft" id="insights" aria-labelledby="sv-blog-h">
       <div class="sv-wrap reveal">
         <div class="sv-head">
           <h2 class="sv-h2" id="sv-blog-h">Capital Markets Blog Articles</h2>
           <a class="sv-viewall" href="./blog.html">View all articles &rarr;</a>
         </div>
         <div class="sv-grid sv-grid--3">
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.1s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---2026-bankruptcies-%28website%29.jpg/ed228128c518efd0ea64f61a031587ff.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Land Values</span><span class="sv-chip">Industry Insights</span><span>June 12, 2026</span></span>
@@ -614,7 +683,7 @@
               <span class="sv-post-more" aria-hidden="true">Read More</span>
             </span>
           </a>
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.2s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-%28website%29.jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Land Management</span><span class="sv-chip">Industry Insights</span><span>April 13, 2026</span></span>
@@ -623,7 +692,7 @@
               <span class="sv-post-more" aria-hidden="true">Read More</span>
             </span>
           </a>
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.3s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-%28website%29.jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Industry Insights</span><span>April 13, 2026</span></span>
@@ -1231,7 +1300,7 @@
         featured: [
           { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"../assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
           { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"../assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
-          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
+          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have, and have not, meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
         ],
         more: [
           "The Inflation Hedge: Farmland vs. Traditional Assets",
@@ -1306,6 +1375,63 @@
       tabbedBlock('hpInsights', 'Land intelligence, made readable.',
         '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
         '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
+    })();
+
+    // Sub nav: keeps --sv-jump-h current, marks the section in view (aria-current) and
+    // slides the underline to it, and smooth-scrolls a jump (instant under reduced motion).
+    (function(){
+      var bar = document.querySelector(".sv-subbar"),
+          nav = bar && bar.querySelector(".sv-jump"),
+          ind = nav && nav.querySelector(".sv-jump-ind");
+      if(!nav) return;
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var root = document.documentElement;
+      var h1 = document.querySelector("main h1"), header = document.querySelector("header.pcf");
+      var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
+      var targets = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); });
+      var current = null, ticking = false;
+      function syncH(){ root.style.setProperty("--sv-jump-h", bar.offsetHeight + "px"); }
+      function moveInd(a){
+        if(!ind) return;
+        if(!a){ ind.style.opacity = 0; return; }
+        ind.style.width = a.offsetWidth + "px";
+        ind.style.transform = "translateX(" + a.offsetLeft + "px)";
+        ind.style.opacity = 1;
+      }
+      function spy(){
+        ticking = false;
+        // The section whose top has passed a line 80px under the sub nav is current;
+        // at the very bottom of the page the last one is.
+        var line = bar.getBoundingClientRect().bottom + 80, pick = null;
+        targets.forEach(function(t, i){ if(t && t.getBoundingClientRect().top <= line) pick = links[i]; });
+        if(window.innerHeight + window.scrollY >= root.scrollHeight - 2) pick = links[links.length - 1];
+        if(pick === null) pick = links[0];
+        // Sub nav in, map tab out, once the H1 has scrolled under the header.
+        root.classList.toggle("sv-sub-on", !!(h1 && header && h1.getBoundingClientRect().bottom < header.getBoundingClientRect().bottom));
+        if(pick === current) return;
+        if(current) current.removeAttribute("aria-current");
+        pick.setAttribute("aria-current", "location");
+        current = pick;
+        moveInd(pick);
+      }
+      function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(spy); } }
+      nav.addEventListener("click", function(e){
+        var a = e.target.closest && e.target.closest('a[href^="#"]');
+        if(!a) return;
+        var t = document.getElementById(a.getAttribute("href").slice(1));
+        if(!t) return;
+        e.preventDefault();
+        t.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        if(history.replaceState) history.replaceState(null, "", a.getAttribute("href"));
+        // Focus follows the jump for keyboard and screen reader users.
+        if(!t.hasAttribute("tabindex")) t.setAttribute("tabindex", "-1");
+        t.focus({ preventScroll: true });
+      });
+      syncH(); spy();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", function(){ syncH(); moveInd(current); onScroll(); });
+      window.addEventListener("load", function(){ syncH(); moveInd(current); spy(); });
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ syncH(); moveInd(current); });
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe
