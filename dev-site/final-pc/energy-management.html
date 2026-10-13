@@ -57,12 +57,16 @@
     .sv-card{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-lg); padding: var(--space-6); }
     .sv-band--soft .sv-card{ background: var(--pc-white); }
-    /* Partner logo: bottom-right of its card. The card is a column so margin-top:auto
-       drops the logo to the bottom when the card is stretched by its row. --logo-h is
-       set per logo so marks of different shapes read at a similar weight. */
-    .sv-card{ display: flex; flex-direction: column; }
-    .sv-card-logo{ display: block; box-sizing: content-box; align-self: flex-end; height: var(--logo-h, 40px); width: auto;
-      margin-top: auto; padding-top: var(--space-5); }
+    /* Partner logo: floated bottom-right of its card's copy, the text wrapping around
+       it. A float sits where it is placed, not at the bottom, so .sv-logo-push (a
+       zero-width float above it) is sized by script to the copy's height less the
+       logo's, which drops the logo onto the last lines. Without script the logo sits
+       top-right and the text still wraps. Width is set per logo (width attribute) so
+       marks of different shapes read at a similar weight. */
+    .sv-card .sv-prose{ display: flow-root; }
+    .sv-logo-push{ float: right; width: 0; height: 0; }
+    .sv-card-logo{ float: right; clear: right; display: block; height: auto;
+      margin: var(--space-4) 0 var(--space-2) var(--space-6); }
     .sv-card--navy{ background: var(--pc-navy); border-color: var(--pc-navy); }
     .sv-card--navy h3, .sv-card--navy .sv-prose p{ color: var(--pc-white); }
     .sv-card h3, .sv-col h3{ font-family: var(--font-serif); font-weight: 500; font-size: 24px;
@@ -487,10 +491,11 @@
           <div class="sv-card reveal" style="--rd:.15s">
             <h3>Partnership with Valor</h3>
             <div class="sv-prose">
+              <span class="sv-logo-push" aria-hidden="true"></span>
+              <img class="sv-card-logo" src="../shared/logos/partners/valor.png" alt="Valor" width="220" height="64" decoding="async" />
               <p>Peoples Company structures energy management services through an established partnership with Valor, a Fort Worth-based firm that delivers enterprise-grade management infrastructure accessible to individual owners. Valor&rsquo;s team utilizes the mineral.tech&reg; software system that was purpose-built for energy management administration, integrating accounting, analytics, and reporting into one platform. Valor&rsquo;s mineral.tech&reg; system provides detailed production tracking, automated revenue reconciliation, digital document management, and customized reporting that gives you complete visibility into asset performance.</p>
               <p>This collaboration with Valor allows us to provide sophisticated mineral administration without requiring clients to pay for two separate service providers. Valor&rsquo;s accounting and administration team supports Peoples Company as the back-office support for energy management services, handling all mineral accounting operations and administrative functions.</p>
             </div>
-            <img class="sv-card-logo" src="../shared/logos/partners/valor.png" alt="Valor" style="--logo-h:40px" loading="lazy" decoding="async" />
           </div>
         </div>
       </div>
@@ -508,10 +513,11 @@
           <div class="sv-card reveal" style="--rd:.15s">
             <h3>Structured Auctions with Mid-Continent Energy Exchange</h3>
             <div class="sv-prose">
+              <span class="sv-logo-push" aria-hidden="true"></span>
+              <img class="sv-card-logo" src="../shared/logos/partners/mid-continent-energy-exchange.png" alt="Mid-Continent Energy Exchange" width="230" height="58" decoding="async" />
               <p>For clients monetizing oil and gas interests, we partner with Mid-Continent Energy Exchange to execute structured auction sales that create competitive bidding environments. This Wichita-based firm specializes in energy asset auctions and provides the platform infrastructure to reach qualified buyers across institutional, private equity, and individual operator segments.</p>
               <p>The auction format exposes your assets to the entire buyer universe simultaneously rather than sequential negotiations, creating competitive tension that consistently produces superior pricing. Our team handles complete pre-sale preparation (production analysis, title review, lease documentation, and financial modeling), ensuring buyers receive the information required for rapid underwriting. Our marketing team then develops targeted campaigns distributed through industry platforms and curated buyer networks, emphasizing data-driven asset presentation that attracts serious purchasers with committed capital.</p>
             </div>
-            <img class="sv-card-logo" src="../shared/logos/partners/mid-continent-energy-exchange.png" alt="Mid-Continent Energy Exchange" style="--logo-h:40px" loading="lazy" decoding="async" />
           </div>
         </div>
       </div>
@@ -526,10 +532,11 @@
           <div class="sv-card reveal" style="--rd:.1s">
             <h3>Partnership with Farm First Energy</h3>
             <div class="sv-prose">
+              <span class="sv-logo-push" aria-hidden="true"></span>
+              <img class="sv-card-logo" src="../shared/logos/partners/farm-first-energy.png" alt="Farm First Energy" width="180" height="95" decoding="async" />
               <p>We collaborate with Farm First Energy to evaluate renewable opportunities and negotiate lease terms that protect landowner interests while facilitating economically viable projects. Their platform connects landowners with vetted developers who have demonstrated track records of project completion, appropriate capitalization, and responsible site management.</p>
               <p>This partnership provides Peoples Company land management clients with access to market intelligence on current lease rates, developer reputations, and regional project activity that individual landowners cannot efficiently gather. When renewable opportunities emerge in the area of your land assets, we ensure you understand true market value, realistic project timelines, and the contractual provisions that matter: decommissioning bonds, CPI escalation clauses, early termination rights, and restrictions on future land use.</p>
             </div>
-            <img class="sv-card-logo" src="../shared/logos/partners/farm-first-energy.png" alt="Farm First Energy" style="--logo-h:64px" loading="lazy" decoding="async" />
           </div>
           <div class="sv-card reveal" style="--rd:.25s">
             <h3>Valuation &amp; Appraisals Through Lease Gen</h3>
@@ -1396,6 +1403,40 @@
       window.addEventListener("resize", function(){ syncH(); moveInd(current); onScroll(); });
       window.addEventListener("load", function(){ syncH(); moveInd(current); spy(); });
       if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ syncH(); moveInd(current); });
+    })();
+
+    // Partner logos: size each .sv-logo-push so the floated logo after it lands on the
+    // last lines of the copy. Wrapping changes the copy's height, so it settles over a
+    // few passes.
+    (function(){
+      var pushes = document.querySelectorAll(".sv-logo-push");
+      if(!pushes.length) return;
+      function place(){
+        pushes.forEach(function(push){
+          var prose = push.parentNode, logo = push.nextElementSibling, last = prose.lastElementChild;
+          if(!logo || !last) return;
+          var mb = parseFloat(getComputedStyle(logo).marginBottom);
+          // gap = how far the logo's bottom sits above the copy's last line. Step the push
+          // down by the gap and keep the lowest push that leaves the logo no more than one
+          // line below the copy: when the last line would reflow under the logo, letting it
+          // hang a line low keeps it in the corner instead of a line up.
+          var line = parseFloat(getComputedStyle(last).lineHeight) || 27;
+          var h = 0, best = 0;
+          for(var i = 0; i < 10; i++){
+            push.style.height = h + "px";
+            var gap = last.getBoundingClientRect().bottom - (logo.getBoundingClientRect().bottom + mb);
+            if(gap >= -line && h > best) best = h;
+            if(Math.abs(gap) < 1) break;
+            h = Math.max(0, Math.round(h + gap));
+          }
+          push.style.height = best + "px";
+        });
+      }
+      place();
+      window.addEventListener("resize", place);
+      window.addEventListener("load", place);
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+      document.querySelectorAll(".sv-card-logo").forEach(function(img){ if(!img.complete) img.addEventListener("load", place); });
     })();
 
     // Video feature: either play control swaps the poster for the Vimeo player, autoplaying.
