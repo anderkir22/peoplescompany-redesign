@@ -229,14 +229,15 @@
     }
 
     /* -- GETTING STARTED (slim form) ---------------------------------------------------
-       Copy left (5 of 12), form right (7 of 12), on navy. Two columns of compact fields;
-       Energy Type and Purpose are pill choices (radios) instead of drop-downs; County,
-       Entity Name and How Did You Hear sit behind "Add more detail". Field names are
-       unchanged from the long form. */
+       Copy left (5 of 12), form right (7 of 12), on navy. A six-column grid, three fields a row;
+       Energy Type and Purpose are pill choices (radios) instead of drop-downs. Four rows
+       plus Comments. Field names are unchanged from the long form; Entity Name is gone. */
     .sv-connect{ display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8);
       align-items: start; }
     .sv-connect .sv-h2, .sv-connect .sv-prose p{ color: var(--pc-white); }
-    .sv-form{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+    .sv-form{ display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-4); }
+    .sv-c2{ grid-column: span 2; }
+    .sv-c4{ grid-column: span 4; }
     .sv-field{ display: grid; gap: 6px; align-content: start; min-width: 0; margin: 0; padding: 0; border: 0; }
     .sv-field--full{ grid-column: 1 / -1; }
     .sv-field label, .sv-field legend{ padding: 0; font-family: var(--font-sans); font-size: var(--label);
@@ -257,17 +258,6 @@
     .sv-chips label:hover{ border-color: var(--pc-white); }
     .sv-chips input:checked + label{ background: var(--pc-white); border-color: var(--pc-white); color: var(--pc-navy); }
     .sv-chips input:focus-visible + label{ outline: 2px solid var(--pc-blue); outline-offset: 2px; }
-    .sv-more{ grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,.2); padding-top: var(--space-3); }
-    .sv-more summary{ display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer;
-      font-size: 14px; font-weight: 600; color: var(--pc-light-blue); list-style: none; }
-    .sv-more summary::-webkit-details-marker{ display: none; }
-    .sv-more summary::before{ content: "+"; display: grid; place-items: center; width: 20px; height: 20px;
-      border: 1px solid currentColor; border-radius: 50%; font-size: 15px; line-height: 1; }
-    .sv-more[open] summary::before{ content: "\2212"; }
-    .sv-more summary:hover{ color: var(--pc-white); }
-    .sv-more summary:focus-visible{ outline: 2px solid var(--pc-blue); outline-offset: 2px; }
-    .sv-more-grid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4);
-      margin-top: var(--space-4); }
     .sv-form .btn{ justify-self: start; grid-column: 1 / -1; }
     /* -- SIGN-IN MODALS (Create Account, Sign In, Recover) ---------------------
        Native <dialog> opened with showModal(): the browser supplies the focus trap,
@@ -587,34 +577,39 @@
             </div>
           </div>
           <form class="sv-form" action="#" onsubmit="return false;" aria-labelledby="sv-go-h">
-            <div class="sv-field">
+            <!-- Six columns: three fields a row; Purpose takes four for its four pills. -->
+            <div class="sv-field sv-c2">
               <label for="em-first">First Name</label>
               <input type="text" id="em-first" name="em-first" autocomplete="given-name" />
             </div>
-            <div class="sv-field">
+            <div class="sv-field sv-c2">
               <label for="em-last">Last Name</label>
               <input type="text" id="em-last" name="em-last" autocomplete="family-name" />
             </div>
-            <div class="sv-field">
+            <div class="sv-field sv-c2">
               <label for="em-email">Email</label>
               <input type="email" id="em-email" name="em-email" autocomplete="email" />
             </div>
-            <div class="sv-field">
+            <div class="sv-field sv-c2">
               <label for="em-mobile">Mobile</label>
               <input type="tel" id="em-mobile" name="em-mobile" autocomplete="tel" />
             </div>
-            <div class="sv-field">
+            <div class="sv-field sv-c2">
               <label for="em-state">State</label>
               <select id="em-state" name="em-state"><option value="">Select&hellip;</option><option>AK</option><option>AL</option><option>AR</option><option>AZ</option><option>CA</option><option>CO</option><option>CT</option><option>DC</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>IA</option><option>ID</option><option>IL</option><option>IN</option><option>KS</option><option>KY</option><option>LA</option><option>MA</option><option>MD</option><option>ME</option><option>MI</option><option>MN</option><option>MO</option><option>MS</option><option>MT</option><option>NC</option><option>ND</option><option>NE</option><option>NH</option><option>NJ</option><option>NM</option><option>NV</option><option>NY</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VA</option><option>VT</option><option>WA</option><option>WI</option><option>WV</option><option>WY</option></select>
             </div>
-            <fieldset class="sv-field">
+            <div class="sv-field sv-c2">
+              <label for="em-county">County or Parish</label>
+              <input type="text" id="em-county" name="em-county" />
+            </div>
+            <fieldset class="sv-field sv-c2">
               <legend>Energy Type</legend>
               <div class="sv-chips">
                 <input type="radio" id="em-type-min" name="em-type" value="Mineral" /><label for="em-type-min">Mineral</label>
                 <input type="radio" id="em-type-ren" name="em-type" value="Renewable" /><label for="em-type-ren">Renewable</label>
               </div>
             </fieldset>
-            <fieldset class="sv-field sv-field--full">
+            <fieldset class="sv-field sv-c4">
               <legend>Purpose</legend>
               <div class="sv-chips">
                 <input type="radio" id="em-purpose-man" name="em-purpose" value="Management" /><label for="em-purpose-man">Management</label>
@@ -624,26 +619,13 @@
               </div>
             </fieldset>
             <div class="sv-field sv-field--full">
+              <label for="em-heard">How Did You Hear About Us?</label>
+              <input type="text" id="em-heard" name="em-heard" />
+            </div>
+            <div class="sv-field sv-field--full">
               <label for="em-comments">Comments or Questions</label>
               <textarea id="em-comments" name="em-comments" rows="3"></textarea>
             </div>
-            <details class="sv-more">
-              <summary>Add more detail (optional)</summary>
-              <div class="sv-more-grid">
-                <div class="sv-field">
-                  <label for="em-county">County or Parish</label>
-                  <input type="text" id="em-county" name="em-county" />
-                </div>
-                <div class="sv-field">
-                  <label for="em-entity">Entity Name</label>
-                  <input type="text" id="em-entity" name="em-entity" autocomplete="organization" />
-                </div>
-                <div class="sv-field sv-field--full">
-                  <label for="em-heard">How Did You Hear About Us?</label>
-                  <input type="text" id="em-heard" name="em-heard" />
-                </div>
-              </div>
-            </details>
             <button class="btn btn-white" type="submit">Submit</button>
           </form>
         </div>
