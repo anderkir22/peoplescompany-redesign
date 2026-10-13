@@ -33,7 +33,9 @@
     .sv-intro h1{ margin: 0 0 var(--space-5); }
     .internal-wrap .sv-intro p{ margin: 0 0 var(--space-4); color: var(--color-text); }
     .sv-actions{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
-    .sv-band{ padding: var(--space-7) 0; scroll-margin-top: var(--navH); }
+    .sv-band{ padding: var(--space-7) 0; }
+    /* A jump lands the section's top edge under the sub nav (header + sub nav). */
+    .sv-band, #overview{ scroll-margin-top: calc(var(--navH) + var(--sv-jump-h)); }
     .sv-band--soft{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border); }
     .sv-band--navy{ background: var(--pc-navy); }
@@ -55,6 +57,48 @@
     .sv-card{ background: var(--pc-soft-white); border: 1px solid var(--color-border);
       border-radius: var(--radius-lg); padding: var(--space-6); }
     .sv-band--soft .sv-card{ background: var(--pc-white); }
+    /* Partner logo: floated bottom-right of the section copy, the text wrapping around
+       it. A float sits where it is placed, not at the bottom, so .sv-logo-push (a
+       zero-width float above it) is sized by script to the copy's height less the
+       logo's, which drops the logo onto the last lines. Without script the logo sits
+       top-right and the text still wraps. */
+    .sv-prose--logo{ display: flow-root; }
+    /* Statement: the culture page's Living Our Culture treatment. EB Garamond italic 500,
+       centered, with a 3px PC Medium Blue rule down the left edge; no fill, no radius.
+       The section's h2 is .sr-only and names the band through aria-labelledby. */
+    /* Statement band: white, straight under the intro with no top padding, so the
+       intro's own bottom padding (64) is the whole gap above, as on the culture page;
+       64 below to match. */
+    .sv-band--statement{ padding: 0 0 var(--space-8); }
+    .sv-statement{ padding: var(--space-5) var(--space-6); border-left: 3px solid var(--pc-medium-blue); }
+    .sv-statement p{ margin: 0 0 var(--space-4); font-family: var(--font-serif); font-size: 24px;
+      font-style: italic; font-weight: 500; line-height: 1.3; letter-spacing: -0.005em;
+      color: var(--pc-black); text-align: center; text-wrap: pretty; }
+    .sv-statement p:last-child{ margin-bottom: 0; }
+
+    /* -- INTEGRATED PROTECTION: revenue floor diagram ------------------------------------
+       Copy left, an illustrative chart right: the revenue line, the dashed guaranteed
+       minimum, and the shortfall shaded as covered by crop insurance. */
+    .rf-grid{ display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8); align-items: center; }
+    .rf-fig{ margin: 0; padding: var(--space-5) var(--space-5) var(--space-4); background: var(--pc-soft-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+    .rf-svg{ display: block; width: 100%; height: auto; overflow: visible; }
+    .rf-base{ stroke: var(--color-border); stroke-width: 1; }
+    .rf-line{ fill: none; stroke: var(--pc-navy); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+    .rf-floor{ stroke: var(--pc-medium-blue); stroke-width: 2; stroke-dasharray: 7 6; }
+    .rf-gap{ fill: var(--pc-blue); fill-opacity: .28; }
+    .rf-dot{ fill: var(--pc-navy); stroke: var(--pc-soft-white); stroke-width: 2; transition: r .15s ease; }
+    .rf-hit{ fill: transparent; }
+    .rf-pt:hover .rf-dot{ r: 7; }
+    .rf-tick{ font: 500 12px var(--font-sans); fill: var(--color-text-muted); }
+    .rf-lab{ font: 600 13px var(--font-sans); fill: var(--pc-black); }
+    .rf-lab--floor{ fill: var(--pc-medium-blue); }
+    .rf-call{ font: 600 12px var(--font-sans); fill: var(--pc-black); }
+    .rf-cap{ margin: var(--space-3) 0 0; font-size: 12px; color: var(--color-text-muted); }
+    @media (prefers-reduced-motion: reduce){ .rf-dot{ transition: none; } }
+    .sv-logo-push{ float: right; width: 0; height: 0; }
+    .sv-card-logo{ float: right; clear: right; display: block; height: auto;
+      margin: var(--space-4) 0 var(--space-2) var(--space-6); }
     .sv-card--navy{ background: var(--pc-navy); border-color: var(--pc-navy); }
     .sv-card--navy h3, .sv-card--navy .sv-prose p{ color: var(--pc-white); }
     .sv-card h3, .sv-col h3{ font-family: var(--font-serif); font-weight: 500; font-size: 24px;
@@ -68,6 +112,40 @@
       border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; }
     .sv-tile img{ display: block; width: 100%; aspect-ratio: 700 / 250; object-fit: cover; }
     .sv-tile-body{ padding: var(--space-5); }
+
+    /* -- WHY IT MATTERS: five review options, stacked ----------------------------------
+       Review only: each band carries an Option tag; the chosen one stays, the rest go.
+       The photo sits in .sv-tile-ph so a zoom stays inside its frame. Grayscale is only
+       applied where the device can hover, so touch screens always get color. */
+    .sv-opt .sv-optag{ display: inline-block; margin: 0 0 var(--space-4); padding: 4px 12px; border-radius: var(--radius-pill);
+      background: var(--pc-black); color: var(--pc-white); font-family: var(--font-sans); font-size: 12px;
+      font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .sv-tile-ph{ display: block; overflow: hidden; }
+    .sv-tile-ph img{ transition: transform .9s cubic-bezier(.2,.7,.2,1), filter .6s ease; }
+    .sv-tile-body{ display: block; }
+    /* 1 + 2: shadow and lift on hover; no zoom, no color change on the title, not linked.
+       The tile keeps its own hover transition, so its reveal is a keyframe instead. */
+    .sv-tile--lift.reveal{ transition: box-shadow .18s ease, transform .18s ease; }
+    .sv-tile--lift.reveal.in{ animation: sv-rise .6s ease var(--rd, 0s) backwards; }
+    .sv-tile--lift:hover{ box-shadow: 0 12px 30px rgba(7,22,44,.10); transform: translateY(-3px); }
+    /* 2 + 3: grayscale until hovered. */
+    @media (hover: hover){
+      .why--gray .sv-tile img{ filter: grayscale(1); }
+      .why--gray .sv-tile:hover img{ filter: none; }
+    }
+    /* 3 also keeps a gentle zoom so color is not the only change. */
+    .why--gray .sv-tile:not(.sv-tile--lift):hover img{ transform: scale(1.04); }
+    /* 4: each photo uncovers top to bottom as its card arrives. */
+    .why--wipe .sv-tile img{ clip-path: inset(0 0 100% 0); transition: clip-path 1s cubic-bezier(.2,.7,.2,1) calc(var(--rd, 0s) + .2s); }
+    .why--wipe .sv-tile.in img{ clip-path: inset(0); }
+    /* 5: photo zoom on hover only - no lift, no shadow. */
+    .why--zoom .sv-tile:hover img{ transform: scale(1.06); }
+    @media (prefers-reduced-motion: reduce){
+      .sv-tile-ph img, .sv-tile--lift.reveal{ transition: none; }
+      .sv-tile--lift.reveal.in{ animation: none; }
+      .sv-tile--lift:hover, .why--gray .sv-tile:hover img, .why--zoom .sv-tile:hover img{ transform: none; }
+      .why--wipe .sv-tile img{ clip-path: none; }
+    }
     .sv-tile h3, .sv-pillar h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
       line-height: 1.2; margin: 0 0 var(--space-2); color: var(--color-text); }
     .sv-tile p, .sv-pillar p{ margin: 0; font-size: 15px; line-height: 1.6; color: var(--color-text); }
@@ -137,45 +215,76 @@
     .sv-embed{ position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden;
       background: var(--pc-black); }
     .sv-embed iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .sv-stack{ display: grid; gap: var(--space-5); align-content: start; }
-    .sv-quotes{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5);
-      margin-top: var(--space-6); }
-    .sv-quote{ display: flex; flex-direction: column; margin: 0; padding: var(--space-6);
-      background: var(--pc-soft-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
-    .sv-quote::before{ content: "\201C"; font-family: var(--font-serif); font-size: 64px; line-height: .8;
-      color: var(--pc-medium-blue); }
-    .sv-quote blockquote{ margin: var(--space-2) 0 var(--space-5); }
-    .sv-quote blockquote p{ margin: 0; font-family: var(--font-serif); font-size: 20px; line-height: 1.45;
-      color: var(--color-text); }
-    .sv-quote figcaption{ margin-top: auto; padding-top: var(--space-4); border-top: 1px solid var(--color-border);
-      font-size: 14px; line-height: 1.5; color: var(--color-text); }
-    .sv-quote figcaption strong{ display: block; font-weight: 600; }
-    .sv-formcard{ background: var(--pc-white); border-radius: var(--radius-lg); padding: var(--space-6); }
-    .sv-formcard h3{ font-family: var(--font-serif); font-weight: 500; font-size: 26px; line-height: 1.2;
-      margin: 0 0 var(--space-2); color: var(--color-text); }
-    .sv-formcard .sv-h2{ margin-bottom: var(--space-3); }
-    .sv-formcard > p{ margin: 0 0 var(--space-3); font-size: var(--body); line-height: 1.7; color: var(--color-text); }
-    .sv-formcard > p:last-of-type{ margin-bottom: var(--space-5); }
-    .sv-formcard--navy{ background: none; border-radius: 0; padding: 0; }
-    .sv-formcard--navy .sv-h2, .sv-formcard--navy > p{ color: var(--pc-white); }
-    .sv-formcard--navy .sv-field label{ color: var(--pc-light-blue); }
-    .sv-formcard--navy .sv-field input:focus, .sv-formcard--navy .sv-field select:focus,
-    .sv-formcard--navy .sv-field textarea:focus{ outline-color: var(--pc-blue); border-color: var(--pc-blue); }
-    .sv-band--soft .sv-quote{ background: var(--pc-white); }
-    .sv-form{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4) var(--space-5); }
-    .sv-field--half{ grid-column: span 2; }
-    .sv-field{ display: grid; gap: var(--space-2); align-content: start; }
+    /* Staggered reveal: a card's --rd delays its fade so a row arrives one card at a time. */
+    .reveal{ transition-delay: var(--rd, 0s); }
+    /* Blog cards keep their own hover transition, so their reveal is a keyframe instead. */
+    .sv-post.reveal{ transition: box-shadow .18s ease, transform .18s ease; }
+    .sv-post.reveal.in{ animation: sv-rise .6s ease var(--rd, 0s) backwards; }
+    @keyframes sv-rise{ from{ opacity: 0; transform: translateY(16px); } to{ opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce){ .sv-post.reveal.in{ animation: none; } }
+
+    /* -- SUB NAV -------------------------------------------------------------------
+       Hidden at the top of the page, where the Interactive Map tab hangs from the
+       header. Once the H1 scrolls under the header the tab slides up behind it and the
+       sub nav slides down from under it, full width: jump links spread across the rail,
+       Request a Proposal right. Scrolling back up reverses it. The script toggles
+       html.sv-sub-on. The underline (.sv-jump-ind) slides to the section in view.
+       --sv-jump-h is the bar's height, JS-synced; this value is the fallback. z-index 29
+       keeps it under the header (45) and the map layer's backdrop (30). */
+    :root{ --sv-jump-h: 57px; }
+    .sv-subbar{ position: fixed; top: var(--navH); left: 0; right: 0; z-index: 29;
+      background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+      backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--color-border);
+      box-shadow: 0 8px 24px rgba(7,22,44,.08);
+      transform: translateY(-100%); visibility: hidden;
+      transition: transform .35s cubic-bezier(.2,.7,.2,1), visibility 0s linear .35s; }
+    .sv-sub-on .sv-subbar{ transform: none; visibility: visible;
+      transition: transform .35s cubic-bezier(.2,.7,.2,1) .12s, visibility 0s; }
+    .sv-subbar-in{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail);
+      display: flex; align-items: center; gap: var(--space-8); }
+    .sv-jump{ position: relative; flex: 1; display: flex; justify-content: space-between; }
+    .sv-jump a{ padding: 18px 0; font-size: 15px; font-weight: 500; line-height: 1.3; white-space: nowrap;
+      color: var(--color-text-muted); text-decoration: none; transition: color .2s ease; }
+    .sv-jump a:hover, .sv-jump a[aria-current="location"]{ color: var(--pc-navy); }
+    .sv-jump a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: -2px; }
+    .sv-jump-ind{ position: absolute; left: 0; bottom: 0; width: 0; height: 3px; opacity: 0;
+      border-radius: 3px 3px 0 0; background: var(--pc-medium-blue); pointer-events: none;
+      transition: transform .4s cubic-bezier(.2,.7,.2,1), width .4s cubic-bezier(.2,.7,.2,1), opacity .2s ease; }
+    .sv-subbar .btn{ padding: 10px 18px; font-size: 14px; }
+    /* The map tab floats up behind the header as the sub nav comes in, and back down
+       when it leaves. The transform is on the wrap: the tab's own height animates. */
+    .md-tabwrap{ transition: transform .3s ease, opacity .3s ease, visibility 0s linear 0s; }
+    .sv-sub-on .md-tabwrap{ transform: translateY(-100px); opacity: 0; visibility: hidden;
+      transition: transform .3s ease, opacity .3s ease, visibility 0s linear .3s; }
+    @media (prefers-reduced-motion: reduce){
+      .sv-subbar, .sv-sub-on .sv-subbar, .md-tabwrap, .sv-sub-on .md-tabwrap{ transition: none; }
+    }
+
+    /* -- GETTING STARTED (slim form) ---------------------------------------------------
+       Copy left (5 of 12), form right (7 of 12), on navy. A six-column grid, three fields a
+       row, then Comments (five columns) with Submit beside it. */
+    .sv-connect{ display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8);
+      align-items: start; }
+    .sv-connect .sv-h2, .sv-connect .sv-prose p{ color: var(--pc-white); }
+    .sv-form{ display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-4); }
+    .sv-req{ margin-left: 2px; color: var(--pc-white); }
+    .sv-c2{ grid-column: span 2; }
+    .sv-c3{ grid-column: span 3; }
+    .sv-c5{ grid-column: span 5; }
+    .sv-field{ display: grid; gap: 6px; align-content: start; min-width: 0; }
     .sv-field--full{ grid-column: 1 / -1; }
-    .sv-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
-      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
-    .sv-field input, .sv-field select, .sv-field textarea{ font-family: var(--font-sans); font-size: var(--body);
-      line-height: 1.5; color: var(--color-text); background: var(--pc-white);
-      border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px 14px; width: 100%;
+    .sv-field label{ padding: 0; font-family: var(--font-sans); font-size: var(--label);
+      font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--pc-light-blue); }
+    .sv-field input, .sv-field select, .sv-field textarea{ font-family: var(--font-sans); font-size: 15px;
+      line-height: 1.4; color: var(--color-text); background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 10px 12px; width: 100%;
       box-sizing: border-box; }
-    .sv-field textarea{ min-height: 100px; resize: vertical; }
+    .sv-field textarea{ min-height: 88px; resize: vertical; }
     .sv-field input:focus, .sv-field select:focus, .sv-field textarea:focus{
-      outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
-    .sv-form .btn{ justify-self: start; grid-column: 1 / -1; }
+      outline: 2px solid var(--pc-blue); outline-offset: 1px; border-color: var(--pc-blue); }
+    /* Submit takes the sixth column of the Comments row: full column width so its right
+       edge lines up with State above, bottom-aligned with the text box. */
+    .sv-form .btn{ grid-column: 6; justify-self: stretch; align-self: end; padding-left: 0; padding-right: 0; }
     /* -- SIGN-IN MODALS (Create Account, Sign In, Recover) ---------------------
        Native <dialog> opened with showModal(): the browser supplies the focus trap,
        Esc-to-close and the inert page behind it. Visual mockup only, no submit. */
@@ -338,14 +447,30 @@
     </div>
   </div>
 
+  <!-- ================= SUB NAV: jump links, contact ================= -->
+  <div class="sv-subbar">
+    <div class="sv-subbar-in">
+      <nav class="sv-jump" aria-label="On this page">
+        <a href="#overview">Overview</a>
+        <a href="#video">Video</a>
+        <a href="#protection">Integrated Protection</a>
+        <a href="#partnership">Strategic Farm Marketing</a>
+        <a href="#why">Why It Matters</a>
+        <a href="#insights">Insights</a>
+        <span class="sv-jump-ind" aria-hidden="true"></span>
+      </nav>
+      <a class="btn btn-primary" href="#connect">Connect With An Expert</a>
+    </div>
+  </div>
+
   <!-- ================= PAGE CONTENT — Crop Insurance ================= -->
   <main class="internal-body" aria-label="Page content">
-    <div class="internal-wrap reveal">
+    <div class="internal-wrap reveal" id="overview">
       <div class="sv-intro">
         <div>
           <h1>Crop Insurance</h1>
           <p>At Peoples Company, we integrate crop insurance considerations into every decision we make across our brokerage, land management, appraisal, and capital markets services. Crop insurance is a fundamental part of sound agricultural management, informing critical decisions for family farmers, landowners partnering with tenants, and institutional investors alike. From evaluating insurable yields during acquisition to structuring lease agreements that account for revenue protection, we leverage crop insurance as both a risk management tool and a financial planning asset.</p>
-          <p>We understand that effective risk management requires both expertise and access. That&rsquo;s why we have partnered with Strategic Farm Marketing to provide our clients with comprehensive crop insurance analysis, recommendations, and broad product access&mdash;all of which can be coordinated through your existing relationship with Peoples Company. This partnership ensures you receive specialized crop insurance guidance while maintaining the seamless, integrated service experience that defines our approach to agricultural asset management.</p>
+          <p>We understand that effective risk management requires both expertise and access. That&rsquo;s why we have partnered with Strategic Farm Marketing to provide our clients with comprehensive crop insurance analysis, recommendations, and broad product access, all of which can be coordinated through your existing relationship with Peoples Company. This partnership ensures you receive specialized crop insurance guidance while maintaining the seamless, integrated service experience that defines our approach to agricultural asset management.</p>
           <div class="sv-actions">
             <a class="btn btn-primary" href="#connect">Connect With An Expert</a>
           </div>
@@ -355,22 +480,15 @@
         </figure>
       </div>
     </div>
-    <section class="sv-band" aria-labelledby="sv-int-h">
+    <section class="sv-band sv-band--statement" id="experience" aria-labelledby="sv-seam-h">
       <div class="sv-wrap reveal">
-        <div class="sv-split sv-split--stretch">
-          <figure class="sv-fig">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_442352767-4.jpg/2dad1e85e88bbf94a563cd4cb1d6ad4e.webp" alt="Corn field flattened by storm damage" loading="lazy" decoding="async" onerror="this.style.display='none'" />
-          </figure>
-          <div>
-            <h2 class="sv-h2" id="sv-int-h">Integrated Protection for Agricultural Assets</h2>
-            <div class="sv-prose">
-              <p>The USDA&rsquo;s Federal Crop Insurance program makes U.S. farmland a uniquely resilient asset class. By guaranteeing minimum annual revenue, it reduces operational risk for farmers while protecting asset value for landowners and investors. Established 1938, the program promotes agricultural economic stability through a comprehensive crop insurance system backed by ongoing research and actuarial development.</p>
-            </div>
-          </div>
+        <h2 class="sv-h2 sr-only" id="sv-seam-h">A Seamless Experience</h2>
+        <div class="sv-statement">
+          <p>Whether you&rsquo;re protecting production, optimizing lease structures, or evaluating conservation incentives, Peoples Company integrates crop insurance into its comprehensive approach to farmland services.</p>
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--navy" aria-labelledby="sv-peace-h">
+    <section class="sv-band sv-band--navy" id="video" aria-labelledby="sv-peace-h">
       <div class="sv-wrap reveal">
         <div class="sv-split" style="align-items:center">
           <div>
@@ -385,42 +503,61 @@
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-sfm-h">
+    <section class="sv-band" id="protection" aria-labelledby="sv-int-h">
+      <div class="sv-wrap reveal">
+        <div class="rf-grid">
+          <div>
+            <h2 class="sv-h2" id="sv-int-h">Integrated Protection for Agricultural Assets</h2>
+            <div class="sv-prose">
+              <p>The USDA&rsquo;s Federal Crop Insurance program makes U.S. farmland a uniquely resilient asset class. By guaranteeing minimum annual revenue, it reduces operational risk for farmers while protecting asset value for landowners and investors. Established 1938, the program promotes agricultural economic stability through a comprehensive crop insurance system backed by ongoing research and actuarial development.</p>
+            </div>
+          </div>
+          <figure class="rf-fig reveal" style="--rd:.15s">
+            <svg class="rf-svg" viewBox="0 0 640 350" role="img" aria-labelledby="rf-t rf-d"><title id="rf-t">How crop insurance sets a revenue floor (illustrative)</title><desc id="rf-d">An illustrative line of annual farm revenue over ten years. It dips below a dashed guaranteed-minimum line in year 5 and year 9; the shortfall in those years is shaded as covered by crop insurance.</desc><line class="rf-base" x1="24" y1="300" x2="490" y2="300"/><polygon class="rf-gap" points="204.1,148.2 231.1,231.0 261.4,148.2"/><polygon class="rf-gap" points="423.0,148.2 438.2,182.7 456.1,148.2"/><line class="rf-floor" x1="24" y1="148.2" x2="490" y2="148.2"/><polyline class="rf-line" points="24.0,93.0 75.8,79.2 127.6,99.9 179.3,72.3 231.1,231.0 282.9,89.5 334.7,110.2 386.4,65.4 438.2,182.7 490.0,82.7"/><g class="rf-pt"><circle class="rf-hit" cx="24.0" cy="93.0" r="14"/><circle class="rf-dot" cx="24.0" cy="93.0" r="4.5"/><title>Year 1</title></g><g class="rf-pt"><circle class="rf-hit" cx="75.8" cy="79.2" r="14"/><circle class="rf-dot" cx="75.8" cy="79.2" r="4.5"/><title>Year 2</title></g><g class="rf-pt"><circle class="rf-hit" cx="127.6" cy="99.9" r="14"/><circle class="rf-dot" cx="127.6" cy="99.9" r="4.5"/><title>Year 3</title></g><g class="rf-pt"><circle class="rf-hit" cx="179.3" cy="72.3" r="14"/><circle class="rf-dot" cx="179.3" cy="72.3" r="4.5"/><title>Year 4</title></g><g class="rf-pt"><circle class="rf-hit" cx="231.1" cy="231.0" r="14"/><circle class="rf-dot" cx="231.1" cy="231.0" r="4.5"/><title>Year 5: below the guaranteed minimum, the shortfall is covered</title></g><g class="rf-pt"><circle class="rf-hit" cx="282.9" cy="89.5" r="14"/><circle class="rf-dot" cx="282.9" cy="89.5" r="4.5"/><title>Year 6</title></g><g class="rf-pt"><circle class="rf-hit" cx="334.7" cy="110.2" r="14"/><circle class="rf-dot" cx="334.7" cy="110.2" r="4.5"/><title>Year 7</title></g><g class="rf-pt"><circle class="rf-hit" cx="386.4" cy="65.4" r="14"/><circle class="rf-dot" cx="386.4" cy="65.4" r="4.5"/><title>Year 8</title></g><g class="rf-pt"><circle class="rf-hit" cx="438.2" cy="182.7" r="14"/><circle class="rf-dot" cx="438.2" cy="182.7" r="4.5"/><title>Year 9: below the guaranteed minimum, the shortfall is covered</title></g><g class="rf-pt"><circle class="rf-hit" cx="490.0" cy="82.7" r="14"/><circle class="rf-dot" cx="490.0" cy="82.7" r="4.5"/><title>Year 10</title></g><text class="rf-tick" x="24.0" y="324" text-anchor="middle">1</text><text class="rf-tick" x="75.8" y="324" text-anchor="middle">2</text><text class="rf-tick" x="127.6" y="324" text-anchor="middle">3</text><text class="rf-tick" x="179.3" y="324" text-anchor="middle">4</text><text class="rf-tick" x="231.1" y="324" text-anchor="middle">5</text><text class="rf-tick" x="282.9" y="324" text-anchor="middle">6</text><text class="rf-tick" x="334.7" y="324" text-anchor="middle">7</text><text class="rf-tick" x="386.4" y="324" text-anchor="middle">8</text><text class="rf-tick" x="438.2" y="324" text-anchor="middle">9</text><text class="rf-tick" x="490.0" y="324" text-anchor="middle">10</text><text class="rf-lab rf-lab--rev" x="502" y="86.7">Farm revenue</text><text class="rf-lab rf-lab--floor" x="502" y="146.2">Guaranteed</text><text class="rf-lab rf-lab--floor" x="502" y="163.2">minimum</text><text class="rf-call" x="231.1" y="259.0" text-anchor="middle">Covered by</text><text class="rf-call" x="231.1" y="275.0" text-anchor="middle">crop insurance</text></svg>
+            <figcaption class="rf-cap">Illustrative only: years 1 to 10, not actual revenue data.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+    <section class="sv-band sv-band--soft" id="partnership" aria-labelledby="sv-sfm-h">
       <div class="sv-wrap reveal">
         <h2 class="sv-h2" id="sv-sfm-h">Partnership with Strategic Farm Marketing</h2>
-        <div class="sv-prose sv-cta">
+        <div class="sv-prose sv-prose--logo sv-cta">
+          <span class="sv-logo-push" aria-hidden="true"></span>
+          <img class="sv-card-logo" src="../shared/logos/partners/strategic-farm-marketing.png" alt="Strategic Farm Marketing &amp; Crop Insurance" width="300" height="60" decoding="async" />
           <p>Through our partnership with Strategic Farm Marketing, Peoples Company clients gain access to best in class crop insurance analysis and market-leading product access. Strategic Farm Marketing&rsquo;s uses its proprietary decision-support tools and relationships with nine insurance providers to analyze thousands of policy combinations that can be distilled into clear, operation-specific recommendations. This partnership ensures our clients receive both broad product access and the strategic analysis needed to optimize coverage and manage risk effectively, all coordinated seamlessly through their Peoples Company relationship.</p>
           <p>Combined with Peoples Company&rsquo;s services, clients will be armed with the strategic insights needed to leverage crop insurance as a true financial management tool. This partnership delivers the specialized expertise required for complex crop insurance strategies while preserving the integrated, single-point-of-contact service model that defines the Peoples Company client experience.</p>
         </div>
       </div>
     </section>
-    <section class="sv-band" aria-labelledby="sv-why-h">
+    <section class="sv-band sv-opt why--lift" id="why" aria-labelledby="sv-why-h">
       <div class="sv-wrap reveal">
+        <span class="sv-optag">Option 1 &middot; Shadow and lift</span>
         <h2 class="sv-h2" id="sv-why-h">Why Crop Insurance Matters to Peoples Company</h2>
         <div class="sv-grid sv-grid--4">
-          <div class="sv-tile">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          <div class="sv-tile sv-tile--lift reveal" style="--rd:.1s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <div class="sv-tile-body">
               <h3>Land Brokerage &amp; Acquisition</h3>
               <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
             </div>
           </div>
-          <div class="sv-tile">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          <div class="sv-tile sv-tile--lift reveal" style="--rd:.2s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <div class="sv-tile-body">
               <h3>Land Management</h3>
               <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
             </div>
           </div>
-          <div class="sv-tile">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          <div class="sv-tile sv-tile--lift reveal" style="--rd:.3s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <div class="sv-tile-body">
               <h3>Appraisal &amp; Valuation</h3>
               <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
             </div>
           </div>
-          <div class="sv-tile">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          <div class="sv-tile sv-tile--lift reveal" style="--rd:.4s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <div class="sv-tile-body">
               <h3>Capital Markets</h3>
               <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
@@ -429,70 +566,210 @@
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-seam-h">
+    <section class="sv-band sv-band--soft sv-opt why--lift why--gray" aria-labelledby="sv-why2-h">
       <div class="sv-wrap reveal">
-        <h2 class="sv-h2" id="sv-seam-h">A Seamless Experience</h2>
-        <div class="sv-prose sv-cta">
-          <p>Our clients work directly with Peoples Company. We coordinate with our trusted partner, Strategic Farm Management, to ensure your crop insurance needs are handled efficiently and strategically, giving you one point of contact for all your agricultural asset needs.</p>
-          <p>Whether you&rsquo;re protecting production, optimizing lease structures, or evaluating conservation incentives, Peoples Company integrates crop insurance into its comprehensive approach to farmland services.</p>
+        <span class="sv-optag">Option 2 &middot; Shadow and lift, grayscale to color</span>
+        <h2 class="sv-h2" id="sv-why2-h">Why Crop Insurance Matters to Peoples Company</h2>
+        <div class="sv-grid sv-grid--4">
+          <div class="sv-tile sv-tile--lift reveal" style="--rd:.1s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Land Brokerage &amp; Acquisition</h3>
+              <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
+            </div>
+          </div>
+          <div class="sv-tile sv-tile--lift reveal" style="--rd:.2s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Land Management</h3>
+              <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
+            </div>
+          </div>
+          <div class="sv-tile sv-tile--lift reveal" style="--rd:.3s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Appraisal &amp; Valuation</h3>
+              <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
+            </div>
+          </div>
+          <div class="sv-tile sv-tile--lift reveal" style="--rd:.4s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Capital Markets</h3>
+              <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="sv-band sv-opt why--gray" aria-labelledby="sv-why3-h">
+      <div class="sv-wrap reveal">
+        <span class="sv-optag">Option 3 &middot; Grayscale to color on hover</span>
+        <h2 class="sv-h2" id="sv-why3-h">Why Crop Insurance Matters to Peoples Company</h2>
+        <div class="sv-grid sv-grid--4">
+          <div class="sv-tile reveal" style="--rd:.1s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Land Brokerage &amp; Acquisition</h3>
+              <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.2s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Land Management</h3>
+              <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.3s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Appraisal &amp; Valuation</h3>
+              <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.4s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Capital Markets</h3>
+              <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="sv-band sv-band--soft sv-opt why--wipe" aria-labelledby="sv-why5-h">
+      <div class="sv-wrap reveal">
+        <span class="sv-optag">Option 4 &middot; Photo wipe-in on scroll</span>
+        <h2 class="sv-h2" id="sv-why5-h">Why Crop Insurance Matters to Peoples Company</h2>
+        <div class="sv-grid sv-grid--4">
+          <div class="sv-tile reveal" style="--rd:.1s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Land Brokerage &amp; Acquisition</h3>
+              <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.2s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Land Management</h3>
+              <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.3s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Appraisal &amp; Valuation</h3>
+              <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.4s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Capital Markets</h3>
+              <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="sv-band sv-opt why--zoom" aria-labelledby="sv-why7-h">
+      <div class="sv-wrap reveal">
+        <span class="sv-optag">Option 5 &middot; Photo zoom on hover only</span>
+        <h2 class="sv-h2" id="sv-why7-h">Why Crop Insurance Matters to Peoples Company</h2>
+        <div class="sv-grid sv-grid--4">
+          <div class="sv-tile reveal" style="--rd:.1s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Land Brokerage &amp; Acquisition</h3>
+              <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.2s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Land Management</h3>
+              <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.3s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Appraisal &amp; Valuation</h3>
+              <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
+            </div>
+          </div>
+          <div class="sv-tile reveal" style="--rd:.4s">
+            <span class="sv-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="sv-tile-body">
+              <h3>Capital Markets</h3>
+              <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
     <section class="sv-band sv-band--navy" id="connect" aria-labelledby="sv-go-h">
       <div class="sv-wrap reveal">
-        <div class="sv-formcard sv-formcard--navy">
+        <div class="sv-connect">
+          <div>
             <h2 class="sv-h2" id="sv-go-h">Ready to discuss how crop insurance fits into your investment or operation?</h2>
-            <p>Contact your Peoples Company team member to learn more.</p>
-            <form class="sv-form" action="#" onsubmit="return false;" aria-labelledby="sv-go-h">
-              <div class="sv-field">
-                <label for="ci-first">First Name</label>
-                <input type="text" id="ci-first" name="ci-first" autocomplete="given-name" />
-              </div>
-              <div class="sv-field">
-                <label for="ci-last">Last Name</label>
-                <input type="text" id="ci-last" name="ci-last" autocomplete="family-name" />
-              </div>
-              <div class="sv-field">
-                <label for="ci-email">Email</label>
-                <input type="email" id="ci-email" name="ci-email" autocomplete="email" />
-              </div>
-              <div class="sv-field">
-                <label for="ci-mobile">Mobile</label>
-                <input type="tel" id="ci-mobile" name="ci-mobile" autocomplete="tel" />
-              </div>
-              <div class="sv-field">
-                <label for="ci-state">State</label>
-                <select id="ci-state" name="ci-state"><option value="">Select&hellip;</option><option>AK</option><option>AL</option><option>AR</option><option>AZ</option><option>CA</option><option>CO</option><option>CT</option><option>DC</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>IA</option><option>ID</option><option>IL</option><option>IN</option><option>KS</option><option>KY</option><option>LA</option><option>MA</option><option>MD</option><option>ME</option><option>MI</option><option>MN</option><option>MO</option><option>MS</option><option>MT</option><option>NC</option><option>ND</option><option>NE</option><option>NH</option><option>NJ</option><option>NM</option><option>NV</option><option>NY</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VA</option><option>VT</option><option>WA</option><option>WI</option><option>WV</option><option>WY</option></select>
-              </div>
-              <div class="sv-field">
-                <label for="ci-county">County or Parish</label>
-                <input type="text" id="ci-county" name="ci-county" />
-              </div>
-              <div class="sv-field">
-                <label for="ci-crop">Crop Type</label>
-                <select id="ci-crop" name="ci-crop"><option value="">Select&hellip;</option><option>Row</option><option>Permanent</option><option>Organic</option><option>Specialty</option></select>
-              </div>
-              <div class="sv-field">
-                <label for="ci-heard">How Did You Hear About Us?</label>
-                <input type="text" id="ci-heard" name="ci-heard" />
-              </div>
-              <div class="sv-field sv-field--full">
-                <label for="ci-comments">Comments or Questions</label>
-                <textarea id="ci-comments" name="ci-comments"></textarea>
-              </div>
-              <button class="btn btn-white" type="submit">Submit</button>
-            </form>
+            <div class="sv-prose">
+              <p>Contact your Peoples Company team member to learn more.</p>
+            </div>
           </div>
+          <form class="sv-form" action="#" onsubmit="return false;" aria-labelledby="sv-go-h">
+            <!-- Six columns: three fields a row. -->
+            <div class="sv-field sv-c2">
+              <label for="ci-first">First Name<span class="sv-req" aria-hidden="true">*</span></label>
+              <input type="text" id="ci-first" name="ci-first" required autocomplete="given-name" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="ci-last">Last Name<span class="sv-req" aria-hidden="true">*</span></label>
+              <input type="text" id="ci-last" name="ci-last" required autocomplete="family-name" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="ci-email">Email<span class="sv-req" aria-hidden="true">*</span></label>
+              <input type="email" id="ci-email" name="ci-email" required autocomplete="email" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="ci-mobile">Mobile</label>
+              <input type="tel" id="ci-mobile" name="ci-mobile" autocomplete="tel" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="ci-county">County or Parish</label>
+              <input type="text" id="ci-county" name="ci-county" />
+            </div>
+            <div class="sv-field sv-c2">
+              <label for="ci-state">State</label>
+              <select id="ci-state" name="ci-state"><option value="">Select&hellip;</option><option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="DC">District of Columbia</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option></select>
+            </div>
+            <div class="sv-field sv-c3">
+              <label for="ci-crop">Crop Type</label>
+              <select id="ci-crop" name="ci-crop"><option value="">Select&hellip;</option><option>Row</option><option>Permanent</option><option>Organic</option><option>Specialty</option></select>
+            </div>
+            <div class="sv-field sv-c3">
+              <label for="ci-heard">How Did You Hear About Us?</label>
+              <input type="text" id="ci-heard" name="ci-heard" />
+            </div>
+            <div class="sv-field sv-c5">
+              <label for="ci-comments">Comments or Questions</label>
+              <textarea id="ci-comments" name="ci-comments" rows="3"></textarea>
+            </div>
+            <button class="btn btn-white" type="submit">Submit</button>
+          </form>
+        </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-blog-h">
+    <section class="sv-band sv-band--soft" id="insights" aria-labelledby="sv-blog-h">
       <div class="sv-wrap reveal">
         <div class="sv-head">
           <h2 class="sv-h2" id="sv-blog-h">Crop Insurance Blog Articles</h2>
           <a class="sv-viewall" href="./blog.html">View all articles &rarr;</a>
         </div>
         <div class="sv-grid sv-grid--3">
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.1s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---crop-insurance-update-%28website%29.jpg/907b6b34baf2ea7f2ce58ad83d93e3e6.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Crop Insurance</span><span class="sv-chip">Land Management</span><span>June 19, 2025</span></span>
@@ -501,7 +778,7 @@
               <span class="sv-post-more" aria-hidden="true">Read More</span>
             </span>
           </a>
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.2s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog-post---crop-insurance-risk-management-%28website%29.jpg/b8a558ed42efddf3b3fd1425bae92df4.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Land Management</span><span class="sv-chip">Crop Insurance</span><span>August 20, 2024</span></span>
@@ -510,7 +787,7 @@
               <span class="sv-post-more" aria-hidden="true">Read More</span>
             </span>
           </a>
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.3s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog-post---2024-planting-season-%28website%29-1712181498.jpg/8e83917410a12543a491edfd91039cb9.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Crop Insurance</span><span>April 3, 2024</span></span>
@@ -1118,7 +1395,7 @@
         featured: [
           { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"../assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
           { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"../assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
-          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
+          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have, and have not, meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
         ],
         more: [
           "The Inflation Hedge: Farmland vs. Traditional Assets",
@@ -1193,6 +1470,97 @@
       tabbedBlock('hpInsights', 'Land intelligence, made readable.',
         '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
         '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
+    })();
+
+    // Sub nav: keeps --sv-jump-h current, marks the section in view (aria-current) and
+    // slides the underline to it, and smooth-scrolls a jump (instant under reduced motion).
+    (function(){
+      var bar = document.querySelector(".sv-subbar"),
+          nav = bar && bar.querySelector(".sv-jump"),
+          ind = nav && nav.querySelector(".sv-jump-ind");
+      if(!nav) return;
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var root = document.documentElement;
+      var h1 = document.querySelector("main h1"), header = document.querySelector("header.pcf");
+      var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
+      var targets = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); });
+      var current = null, ticking = false;
+      function syncH(){ root.style.setProperty("--sv-jump-h", bar.offsetHeight + "px"); }
+      function moveInd(a){
+        if(!ind) return;
+        if(!a){ ind.style.opacity = 0; return; }
+        ind.style.width = a.offsetWidth + "px";
+        ind.style.transform = "translateX(" + a.offsetLeft + "px)";
+        ind.style.opacity = 1;
+      }
+      function spy(){
+        ticking = false;
+        // The section whose top has passed a line 80px under the sub nav is current;
+        // at the very bottom of the page the last one is.
+        var line = bar.getBoundingClientRect().bottom + 80, pick = null;
+        targets.forEach(function(t, i){ if(t && t.getBoundingClientRect().top <= line) pick = links[i]; });
+        if(window.innerHeight + window.scrollY >= root.scrollHeight - 2) pick = links[links.length - 1];
+        if(pick === null) pick = links[0];
+        // Sub nav in, map tab out, once the H1 has scrolled under the header.
+        root.classList.toggle("sv-sub-on", !!(h1 && header && h1.getBoundingClientRect().bottom < header.getBoundingClientRect().bottom));
+        if(pick === current) return;
+        if(current) current.removeAttribute("aria-current");
+        pick.setAttribute("aria-current", "location");
+        current = pick;
+        moveInd(pick);
+      }
+      function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(spy); } }
+      nav.addEventListener("click", function(e){
+        var a = e.target.closest && e.target.closest('a[href^="#"]');
+        if(!a) return;
+        var t = document.getElementById(a.getAttribute("href").slice(1));
+        if(!t) return;
+        e.preventDefault();
+        t.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        if(history.replaceState) history.replaceState(null, "", a.getAttribute("href"));
+        // Focus follows the jump for keyboard and screen reader users.
+        if(!t.hasAttribute("tabindex")) t.setAttribute("tabindex", "-1");
+        t.focus({ preventScroll: true });
+      });
+      syncH(); spy();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", function(){ syncH(); moveInd(current); onScroll(); });
+      window.addEventListener("load", function(){ syncH(); moveInd(current); spy(); });
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ syncH(); moveInd(current); });
+    })();
+
+    // Partner logos: size each .sv-logo-push so the floated logo after it lands on the
+    // last lines of the copy. Wrapping changes the copy's height, so it settles over a
+    // few passes.
+    (function(){
+      var pushes = document.querySelectorAll(".sv-logo-push");
+      if(!pushes.length) return;
+      function place(){
+        pushes.forEach(function(push){
+          var prose = push.parentNode, logo = push.nextElementSibling, last = prose.lastElementChild;
+          if(!logo || !last) return;
+          var mb = parseFloat(getComputedStyle(logo).marginBottom);
+          // gap = how far the logo's bottom sits above the copy's last line. Step the push
+          // down by the gap and keep the lowest push that leaves the logo no more than one
+          // line below the copy: when the last line would reflow under the logo, letting it
+          // hang a line low keeps it in the corner instead of a line up.
+          var line = parseFloat(getComputedStyle(last).lineHeight) || 27;
+          var h = 0, best = 0;
+          for(var i = 0; i < 10; i++){
+            push.style.height = h + "px";
+            var gap = last.getBoundingClientRect().bottom - (logo.getBoundingClientRect().bottom + mb);
+            if(gap >= -line && h > best) best = h;
+            if(Math.abs(gap) < 1) break;
+            h = Math.max(0, Math.round(h + gap));
+          }
+          push.style.height = best + "px";
+        });
+      }
+      place();
+      window.addEventListener("resize", place);
+      window.addEventListener("load", place);
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+      document.querySelectorAll(".sv-card-logo").forEach(function(img){ if(!img.complete) img.addEventListener("load", place); });
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe
