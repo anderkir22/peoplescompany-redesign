@@ -33,7 +33,9 @@
     .sv-intro h1{ margin: 0 0 var(--space-5); }
     .internal-wrap .sv-intro p{ margin: 0 0 var(--space-4); color: var(--color-text); }
     .sv-actions{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
-    .sv-band{ padding: var(--space-7) 0; scroll-margin-top: var(--navH); }
+    .sv-band{ padding: var(--space-7) 0; }
+    /* A jump lands the section's top edge under the sub nav (header + sub nav). */
+    .sv-band, .sv-film, #overview{ scroll-margin-top: calc(var(--navH) + var(--sv-jump-h)); }
     .sv-band--soft{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border); }
     .sv-band--navy{ background: var(--pc-navy); }
@@ -134,34 +136,118 @@
     .sv-svc-ic svg{ fill: #fff; stroke: none; }
     .sv-svc-label{ font-family: var(--font-serif); font-weight: 500; font-size: 19px; line-height: 1.25; }
     .sv-svc:hover .sv-svc-label{ color: var(--pc-medium-blue); }
-    .sv-embed{ position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden;
-      background: var(--pc-black); }
-    .sv-embed iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .sv-stack{ display: grid; gap: var(--space-5); align-content: start; }
-    .sv-formcard{ background: var(--pc-white); border-radius: var(--radius-lg); padding: var(--space-6); }
-    .sv-formcard h3{ font-family: var(--font-serif); font-weight: 500; font-size: 26px; line-height: 1.2;
-      margin: 0 0 var(--space-2); color: var(--color-text); }
-    .sv-formcard .sv-h2{ margin-bottom: var(--space-3); }
-    .sv-formcard > p{ margin: 0 0 var(--space-3); font-size: var(--body); line-height: 1.7; color: var(--color-text); }
-    .sv-formcard > p:last-of-type{ margin-bottom: var(--space-5); }
-    .sv-formcard--navy{ background: none; border-radius: 0; padding: 0; }
-    .sv-formcard--navy .sv-h2, .sv-formcard--navy > p{ color: var(--pc-white); }
-    .sv-formcard--navy .sv-field label{ color: var(--pc-light-blue); }
-    .sv-formcard--navy .sv-field input:focus, .sv-formcard--navy .sv-field select:focus,
-    .sv-formcard--navy .sv-field textarea:focus{ outline-color: var(--pc-blue); border-color: var(--pc-blue); }
-    .sv-form{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4) var(--space-5); }
-    .sv-field--half{ grid-column: span 2; }
-    .sv-field{ display: grid; gap: var(--space-2); align-content: start; }
+    /* Staggered reveal: a card's --rd delays its fade so a row arrives one card at a time. */
+    .reveal{ transition-delay: var(--rd, 0s); }
+    /* Blog cards keep their own hover transition, so their reveal is a keyframe instead. */
+    .sv-post.reveal{ transition: box-shadow .18s ease, transform .18s ease; }
+    .sv-post.reveal.in{ animation: sv-rise .6s ease var(--rd, 0s) backwards; }
+    @keyframes sv-rise{ from{ opacity: 0; transform: translateY(16px); } to{ opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce){ .sv-post.reveal.in{ animation: none; } }
+
+    /* -- SUB NAV -------------------------------------------------------------------
+       Pinned under the header from the top of the page: page title left, jump links,
+       Request a Proposal right. The underline (.sv-jump-ind) slides to the section in
+       view. --sv-jump-h is the bar's height, JS-synced; this value is the fallback.
+       z-index 29 keeps it under the map layer's backdrop (30). */
+    :root{ --sv-jump-h: 57px; }
+    .sv-subbar{ position: sticky; top: var(--navH); z-index: 29;
+      background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+      backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--color-border);
+      transition: box-shadow .2s ease; }
+    .sv-subbar.is-scrolled{ box-shadow: 0 8px 24px rgba(7,22,44,.08); }
+    .sv-subbar-in{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail);
+      display: flex; align-items: center; gap: var(--space-6); }
+    .sv-subbar-title{ margin-right: auto; font-family: var(--font-serif); font-weight: 500; font-size: 20px;
+      line-height: 1; color: var(--color-text); white-space: nowrap; }
+    .sv-jump{ position: relative; display: flex; gap: var(--space-5); }
+    .sv-jump a{ padding: 18px 0; font-size: 15px; font-weight: 500; line-height: 1.3; white-space: nowrap;
+      color: var(--color-text-muted); text-decoration: none; transition: color .2s ease; }
+    .sv-jump a:hover, .sv-jump a[aria-current="location"]{ color: var(--pc-navy); }
+    .sv-jump a:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: -2px; }
+    .sv-jump-ind{ position: absolute; left: 0; bottom: 0; width: 0; height: 3px; opacity: 0;
+      border-radius: 3px 3px 0 0; background: var(--pc-medium-blue); pointer-events: none;
+      transition: transform .4s cubic-bezier(.2,.7,.2,1), width .4s cubic-bezier(.2,.7,.2,1), opacity .2s ease; }
+    .sv-subbar .btn{ padding: 10px 18px; font-size: 14px; }
+    /* The map tab hangs from the sub nav, not the header. */
+    .md-tabwrap{ top: calc(var(--navH) + var(--sv-jump-h)); }
+
+    /* -- VIDEO FEATURE -------------------------------------------------------------
+       A PC Black band: copy left (4 of 12), a large poster frame right (8 of 12). The
+       poster is the Vimeo thumbnail; a click on it, or on Watch the Video, swaps in the
+       player with autoplay. The thumbnail carries its own title and logo, so no copy
+       sits on top of it. */
+    .sv-film{ background: var(--pc-black); padding: var(--space-8) 0; }
+    .sv-film-grid{ display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-8);
+      align-items: center; }
+    .sv-film .sv-h2, .sv-film .sv-prose p{ color: var(--pc-white); }
+    .sv-film .sv-actions .btn-ghost{ color: var(--pc-white); border-color: rgba(255,255,255,.6); }
+    .sv-film .sv-actions .btn-ghost:hover{ border-color: var(--pc-white); background: transparent; }
+    .sv-film .sv-actions .btn-ghost:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px; }
+    .sv-film .btn svg{ width: 14px; height: 14px; fill: currentColor; }
+    .sv-film-len{ opacity: .75; }
+    .sv-player{ position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden;
+      background: #000; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+    .sv-player iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .sv-poster{ position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0;
+      background: #000; cursor: pointer; }
+    .sv-poster img{ display: block; width: 100%; height: 100%; object-fit: cover;
+      transition: transform .9s cubic-bezier(.2,.7,.2,1), filter .4s ease; }
+    .sv-poster:hover img{ transform: scale(1.04); filter: brightness(.88); }
+    .sv-poster:focus-visible{ outline: 3px solid var(--pc-white); outline-offset: -6px; }
+    .sv-play{ position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px;
+      display: grid; place-items: center; border-radius: 50%; background: var(--pc-white);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35); transition: transform .25s ease; }
+    .sv-play::before{ content: ""; position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid var(--pc-white); animation: sv-pulse 2.4s ease-out infinite; }
+    .sv-play svg{ width: 32px; height: 32px; margin-left: 5px; fill: var(--pc-navy); }
+    .sv-poster:hover .sv-play{ transform: scale(1.08); }
+    @keyframes sv-pulse{ from{ transform: scale(1); opacity: .8; } to{ transform: scale(1.7); opacity: 0; } }
+    @media (prefers-reduced-motion: reduce){
+      .sv-play::before{ animation: none; opacity: 0; }
+      .sv-poster img, .sv-play, .sv-jump-ind{ transition: none; }
+      .sv-poster:hover img{ transform: none; }
+    }
+
+    /* -- GETTING STARTED (slim form) ---------------------------------------------------
+       Copy left (5 of 12), form right (7 of 12), on navy. Two columns of compact fields;
+       Energy Type and Purpose are pill choices (radios) instead of drop-downs; County,
+       Entity Name and How Did You Hear sit behind "Add more detail". Field names are
+       unchanged from the long form. */
+    .sv-connect{ display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8);
+      align-items: start; }
+    .sv-connect .sv-h2, .sv-connect .sv-prose p{ color: var(--pc-white); }
+    .sv-form{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+    .sv-field{ display: grid; gap: 6px; align-content: start; min-width: 0; margin: 0; padding: 0; border: 0; }
     .sv-field--full{ grid-column: 1 / -1; }
-    .sv-field label{ font-family: var(--font-sans); font-size: var(--label); font-weight: 600;
-      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
-    .sv-field input, .sv-field select, .sv-field textarea{ font-family: var(--font-sans); font-size: var(--body);
-      line-height: 1.5; color: var(--color-text); background: var(--pc-white);
-      border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px 14px; width: 100%;
+    .sv-field label, .sv-field legend{ padding: 0; font-family: var(--font-sans); font-size: var(--label);
+      font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--pc-light-blue); }
+    .sv-field legend{ margin-bottom: 6px; }
+    .sv-field input, .sv-field select, .sv-field textarea{ font-family: var(--font-sans); font-size: 15px;
+      line-height: 1.4; color: var(--color-text); background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 10px 12px; width: 100%;
       box-sizing: border-box; }
-    .sv-field textarea{ min-height: 100px; resize: vertical; }
+    .sv-field textarea{ min-height: 88px; resize: vertical; }
     .sv-field input:focus, .sv-field select:focus, .sv-field textarea:focus{
-      outline: 2px solid var(--pc-medium-blue); outline-offset: 1px; border-color: var(--pc-medium-blue); }
+      outline: 2px solid var(--pc-blue); outline-offset: 1px; border-color: var(--pc-blue); }
+    .sv-chips{ display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .sv-chips input{ position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+    .sv-chips label{ padding: 9px 16px; border: 1px solid rgba(255,255,255,.45); border-radius: var(--radius-pill);
+      font-size: 14px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--pc-white);
+      cursor: pointer; transition: background-color .15s ease, color .15s ease, border-color .15s ease; }
+    .sv-chips label:hover{ border-color: var(--pc-white); }
+    .sv-chips input:checked + label{ background: var(--pc-white); border-color: var(--pc-white); color: var(--pc-navy); }
+    .sv-chips input:focus-visible + label{ outline: 2px solid var(--pc-blue); outline-offset: 2px; }
+    .sv-more{ grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,.2); padding-top: var(--space-3); }
+    .sv-more summary{ display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer;
+      font-size: 14px; font-weight: 600; color: var(--pc-light-blue); list-style: none; }
+    .sv-more summary::-webkit-details-marker{ display: none; }
+    .sv-more summary::before{ content: "+"; display: grid; place-items: center; width: 20px; height: 20px;
+      border: 1px solid currentColor; border-radius: 50%; font-size: 15px; line-height: 1; }
+    .sv-more[open] summary::before{ content: "\2212"; }
+    .sv-more summary:hover{ color: var(--pc-white); }
+    .sv-more summary:focus-visible{ outline: 2px solid var(--pc-blue); outline-offset: 2px; }
+    .sv-more-grid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4);
+      margin-top: var(--space-4); }
     .sv-form .btn{ justify-self: start; grid-column: 1 / -1; }
     /* -- SIGN-IN MODALS (Create Account, Sign In, Recover) ---------------------
        Native <dialog> opened with showModal(): the browser supplies the focus trap,
@@ -325,9 +411,27 @@
     </div>
   </div>
 
+  <!-- ================= SUB NAV: page title, jump links, proposal ================= -->
+  <div class="sv-subbar">
+    <div class="sv-subbar-in">
+      <span class="sv-subbar-title" aria-hidden="true">Energy Management</span>
+      <nav class="sv-jump" aria-label="On this page">
+        <a href="#overview">Overview</a>
+        <a href="#video">Video</a>
+        <a href="#mineral">Mineral &amp; Royalty</a>
+        <a href="#disposition">Disposition</a>
+        <a href="#renewables">Renewables</a>
+        <a href="#platform">Platform</a>
+        <a href="#insights">Insights</a>
+        <span class="sv-jump-ind" aria-hidden="true"></span>
+      </nav>
+      <a class="btn btn-primary" href="#connect">Request a Proposal</a>
+    </div>
+  </div>
+
   <!-- ================= PAGE CONTENT — Energy Management ================= -->
   <main class="internal-body" aria-label="Page content">
-    <div class="internal-wrap reveal">
+    <div class="internal-wrap reveal" id="overview">
       <div class="sv-intro">
         <div>
           <h1>Energy Management</h1>
@@ -342,22 +446,29 @@
         </figure>
       </div>
     </div>
-    <section class="sv-band sv-band--navy" aria-labelledby="sv-exp-h">
-      <div class="sv-wrap reveal">
-        <div class="sv-split" style="align-items:center">
-          <div>
+    <section class="sv-film" id="video" aria-labelledby="sv-exp-h">
+      <div class="sv-wrap">
+        <div class="sv-film-grid">
+          <div class="reveal">
             <h2 class="sv-h2" id="sv-exp-h">Over 30 Years of Experience</h2>
             <div class="sv-prose">
               <p>Peoples Company&rsquo;s energy management model is designed to help landowners address the complexities of energy assets through proactive administration, transparent reporting, and strategic positioning that protects the assets while maximizing their performance.</p>
             </div>
+            <div class="sv-actions">
+              <button class="btn btn-ghost" type="button" data-play="em-player"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="sv-film-len">3:17</span></button>
+            </div>
           </div>
-          <div class="sv-embed">
-            <iframe src="https://player.vimeo.com/video/1221509605?dnt=1" title="Energy Management at Peoples Company" loading="lazy" allow="fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          <!-- data-vimeo is the video id; the script builds the player on play. -->
+          <div class="sv-player reveal" id="em-player" data-vimeo="1221509605" data-title="Energy Management at Peoples Company" style="--rd:.15s">
+            <button class="sv-poster" type="button" data-play="em-player" aria-label="Play video: Energy Management at Peoples Company, 3 minutes 17 seconds">
+              <img src="https://i.vimeocdn.com/video/2194241801-740c714a1142b0446e42c15c4422106ac47b290183f1d26c405fb2d7a7ec9100-d_1920?region=us" alt="" loading="lazy" decoding="async" />
+              <span class="sv-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+            </button>
           </div>
         </div>
       </div>
     </section>
-    <section class="sv-band" aria-labelledby="sv-min-h">
+    <section class="sv-band" id="mineral" aria-labelledby="sv-min-h">
       <div class="sv-wrap reveal">
         <div class="sv-split">
           <div>
@@ -367,7 +478,7 @@
               <p>Peoples Company&rsquo;s mineral management service provides comprehensive oversight of your oil and gas assets&mdash;from division order reviews through ongoing lease monitoring and negotiation. We coordinate directly with operators, process documentation, track lease compliance, and deliver transparent reporting that gives you complete visibility into asset performance and revenue streams.</p>
             </div>
           </div>
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.15s">
             <h3>Partnership with Valor</h3>
             <div class="sv-prose">
               <p>Peoples Company structures energy management services through an established partnership with Valor, a Fort Worth-based firm that delivers enterprise-grade management infrastructure accessible to individual owners. Valor&rsquo;s team utilizes the mineral.tech&reg; software system that was purpose-built for energy management administration, integrating accounting, analytics, and reporting into one platform. Valor&rsquo;s mineral.tech&reg; system provides detailed production tracking, automated revenue reconciliation, digital document management, and customized reporting that gives you complete visibility into asset performance.</p>
@@ -377,7 +488,7 @@
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-disp-h">
+    <section class="sv-band sv-band--soft" id="disposition" aria-labelledby="sv-disp-h">
       <div class="sv-wrap reveal">
         <div class="sv-split">
           <div>
@@ -387,7 +498,7 @@
               <p>Our in-house marketing team develops targeted campaigns that highlight asset value through clear data presentation, production mapping, and cash flow summaries. These materials are distributed through industry-specific platforms with our partners, curated buyer lists, and digital channels that reach qualified purchasers actively seeking energy assets.</p>
             </div>
           </div>
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.15s">
             <h3>Structured Auctions with Mid-Continent Energy Exchange</h3>
             <div class="sv-prose">
               <p>For clients monetizing oil and gas interests, we partner with Mid-Continent Energy Exchange to execute structured auction sales that create competitive bidding environments. This Wichita-based firm specializes in energy asset auctions and provides the platform infrastructure to reach qualified buyers across institutional, private equity, and individual operator segments.</p>
@@ -397,21 +508,21 @@
         </div>
       </div>
     </section>
-    <section class="sv-band" aria-labelledby="sv-ren-h">
+    <section class="sv-band" id="renewables" aria-labelledby="sv-ren-h">
       <div class="sv-wrap reveal">
         <h2 class="sv-h2" id="sv-ren-h">Renewable Energy Assets</h2>
         <div class="sv-prose">
           <p>Solar leases and wind agreements introduce revenue streams that behave fundamentally differently than traditional agricultural income. These contracts extend 20 to 40 years, include complex decommissioning provisions, and tie payments to developer financial stability, project completion risk, and evolving regulatory incentives. Managing these assets requires evaluating variables that fall outside conventional farmland expertise.</p>
         </div>
         <div class="sv-grid sv-grid--2">
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.1s">
             <h3>Partnership with Farm First Energy</h3>
             <div class="sv-prose">
               <p>We collaborate with Farm First Energy to evaluate renewable opportunities and negotiate lease terms that protect landowner interests while facilitating economically viable projects. Their platform connects landowners with vetted developers who have demonstrated track records of project completion, appropriate capitalization, and responsible site management.</p>
               <p>This partnership provides Peoples Company land management clients with access to market intelligence on current lease rates, developer reputations, and regional project activity that individual landowners cannot efficiently gather. When renewable opportunities emerge in the area of your land assets, we ensure you understand true market value, realistic project timelines, and the contractual provisions that matter&mdash;decommissioning bonds, CPI escalation clauses, early termination rights, and restrictions on future land use.</p>
             </div>
           </div>
-          <div class="sv-card">
+          <div class="sv-card reveal" style="--rd:.25s">
             <h3>Valuation &amp; Appraisals Through Lease Gen</h3>
             <div class="sv-prose">
               <p>Determining the present value of multi-decade renewable contracts involves more than applying discount rates to projected payments. Project completion risk, developer creditworthiness, regional capacity constraints, and regulatory incentive structures all materially impact what a renewable lease is actually worth today.</p>
@@ -421,7 +532,7 @@
         </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-plat-h">
+    <section class="sv-band sv-band--soft" id="platform" aria-labelledby="sv-plat-h">
       <div class="sv-wrap reveal">
         <div class="sv-split">
           <div class="sv-col">
@@ -430,7 +541,7 @@
               <p>Energy management clients gain access to Peoples Company&rsquo;s complete agricultural platform. When situations require land sales, 1031 exchange coordination, estate planning, or capital structure optimization, our brokerage, appraisal, and capital markets teams provide integrated solutions without requiring you to establish new advisor relationships.</p>
             </div>
           </div>
-          <div class="sv-col">
+          <div class="sv-col reveal" style="--rd:.15s">
             <h2 class="sv-h2" id="sv-rep-h">Client Reporting &amp; Communication</h2>
             <div class="sv-prose">
               <p>Energy asset management generates substantial information flow&mdash;monthly revenue statements, lease correspondence, regulatory notices, operator communications. We consolidate this information into structured reporting that provides complete transparency without overwhelming you with operational detail.</p>
@@ -442,68 +553,85 @@
     </section>
     <section class="sv-band sv-band--navy" id="connect" aria-labelledby="sv-go-h">
       <div class="sv-wrap reveal">
-        <div class="sv-formcard sv-formcard--navy">
+        <div class="sv-connect">
+          <div>
             <h2 class="sv-h2" id="sv-go-h">Getting Started</h2>
-            <p>Peoples Company manages energy assets across major producing regions and renewable development zones throughout the United States. Whether you&rsquo;re seeking active management of existing interests, strategic advice on incoming lease proposals, or disposition services for assets you&rsquo;ve decided to monetize, our team provides the specialized expertise these holdings demand.</p>
-            <p>Fill out the form to request a proposal or communicate with a Peoples Company Energy Management team member.</p>
-            <form class="sv-form" action="#" onsubmit="return false;" aria-labelledby="sv-go-h">
-              <div class="sv-field">
-                <label for="em-first">First Name</label>
-                <input type="text" id="em-first" name="em-first" autocomplete="given-name" />
-              </div>
-              <div class="sv-field">
-                <label for="em-last">Last Name</label>
-                <input type="text" id="em-last" name="em-last" autocomplete="family-name" />
-              </div>
-              <div class="sv-field">
-                <label for="em-email">Email</label>
-                <input type="email" id="em-email" name="em-email" autocomplete="email" />
-              </div>
-              <div class="sv-field">
-                <label for="em-mobile">Mobile</label>
-                <input type="tel" id="em-mobile" name="em-mobile" autocomplete="tel" />
-              </div>
-              <div class="sv-field">
-                <label for="em-state">State</label>
-                <select id="em-state" name="em-state"><option value="">Select&hellip;</option><option>AK</option><option>AL</option><option>AR</option><option>AZ</option><option>CA</option><option>CO</option><option>CT</option><option>DC</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>IA</option><option>ID</option><option>IL</option><option>IN</option><option>KS</option><option>KY</option><option>LA</option><option>MA</option><option>MD</option><option>ME</option><option>MI</option><option>MN</option><option>MO</option><option>MS</option><option>MT</option><option>NC</option><option>ND</option><option>NE</option><option>NH</option><option>NJ</option><option>NM</option><option>NV</option><option>NY</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VA</option><option>VT</option><option>WA</option><option>WI</option><option>WV</option><option>WY</option></select>
-              </div>
-              <div class="sv-field">
-                <label for="em-county">County or Parish</label>
-                <input type="text" id="em-county" name="em-county" />
-              </div>
-              <div class="sv-field">
-                <label for="em-type">Energy Type</label>
-                <select id="em-type" name="em-type"><option value="">Select&hellip;</option><option>Mineral</option><option>Renewable</option></select>
-              </div>
-              <div class="sv-field">
-                <label for="em-purpose">Purpose</label>
-                <select id="em-purpose" name="em-purpose"><option value="">Select&hellip;</option><option>Management</option><option>Sales</option><option>Valuation</option><option>Leasing</option></select>
-              </div>
-              <div class="sv-field sv-field--half">
-                <label for="em-entity">Entity Name</label>
-                <input type="text" id="em-entity" name="em-entity" autocomplete="organization" />
-              </div>
-              <div class="sv-field sv-field--half">
-                <label for="em-heard">How Did You Hear About Us?</label>
-                <input type="text" id="em-heard" name="em-heard" />
-              </div>
-              <div class="sv-field sv-field--full">
-                <label for="em-comments">Comments or Questions</label>
-                <textarea id="em-comments" name="em-comments"></textarea>
-              </div>
-              <button class="btn btn-white" type="submit">Submit</button>
-            </form>
+            <div class="sv-prose">
+              <p>Peoples Company manages energy assets across major producing regions and renewable development zones throughout the United States. Whether you&rsquo;re seeking active management of existing interests, strategic advice on incoming lease proposals, or disposition services for assets you&rsquo;ve decided to monetize, our team provides the specialized expertise these holdings demand.</p>
+              <p>Fill out the form to request a proposal or communicate with a Peoples Company Energy Management team member.</p>
+            </div>
           </div>
+          <form class="sv-form" action="#" onsubmit="return false;" aria-labelledby="sv-go-h">
+            <div class="sv-field">
+              <label for="em-first">First Name</label>
+              <input type="text" id="em-first" name="em-first" autocomplete="given-name" />
+            </div>
+            <div class="sv-field">
+              <label for="em-last">Last Name</label>
+              <input type="text" id="em-last" name="em-last" autocomplete="family-name" />
+            </div>
+            <div class="sv-field">
+              <label for="em-email">Email</label>
+              <input type="email" id="em-email" name="em-email" autocomplete="email" />
+            </div>
+            <div class="sv-field">
+              <label for="em-mobile">Mobile</label>
+              <input type="tel" id="em-mobile" name="em-mobile" autocomplete="tel" />
+            </div>
+            <div class="sv-field">
+              <label for="em-state">State</label>
+              <select id="em-state" name="em-state"><option value="">Select&hellip;</option><option>AK</option><option>AL</option><option>AR</option><option>AZ</option><option>CA</option><option>CO</option><option>CT</option><option>DC</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>IA</option><option>ID</option><option>IL</option><option>IN</option><option>KS</option><option>KY</option><option>LA</option><option>MA</option><option>MD</option><option>ME</option><option>MI</option><option>MN</option><option>MO</option><option>MS</option><option>MT</option><option>NC</option><option>ND</option><option>NE</option><option>NH</option><option>NJ</option><option>NM</option><option>NV</option><option>NY</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VA</option><option>VT</option><option>WA</option><option>WI</option><option>WV</option><option>WY</option></select>
+            </div>
+            <fieldset class="sv-field">
+              <legend>Energy Type</legend>
+              <div class="sv-chips">
+                <input type="radio" id="em-type-min" name="em-type" value="Mineral" /><label for="em-type-min">Mineral</label>
+                <input type="radio" id="em-type-ren" name="em-type" value="Renewable" /><label for="em-type-ren">Renewable</label>
+              </div>
+            </fieldset>
+            <fieldset class="sv-field sv-field--full">
+              <legend>Purpose</legend>
+              <div class="sv-chips">
+                <input type="radio" id="em-purpose-man" name="em-purpose" value="Management" /><label for="em-purpose-man">Management</label>
+                <input type="radio" id="em-purpose-sal" name="em-purpose" value="Sales" /><label for="em-purpose-sal">Sales</label>
+                <input type="radio" id="em-purpose-val" name="em-purpose" value="Valuation" /><label for="em-purpose-val">Valuation</label>
+                <input type="radio" id="em-purpose-lea" name="em-purpose" value="Leasing" /><label for="em-purpose-lea">Leasing</label>
+              </div>
+            </fieldset>
+            <div class="sv-field sv-field--full">
+              <label for="em-comments">Comments or Questions</label>
+              <textarea id="em-comments" name="em-comments" rows="3"></textarea>
+            </div>
+            <details class="sv-more">
+              <summary>Add more detail (optional)</summary>
+              <div class="sv-more-grid">
+                <div class="sv-field">
+                  <label for="em-county">County or Parish</label>
+                  <input type="text" id="em-county" name="em-county" />
+                </div>
+                <div class="sv-field">
+                  <label for="em-entity">Entity Name</label>
+                  <input type="text" id="em-entity" name="em-entity" autocomplete="organization" />
+                </div>
+                <div class="sv-field sv-field--full">
+                  <label for="em-heard">How Did You Hear About Us?</label>
+                  <input type="text" id="em-heard" name="em-heard" />
+                </div>
+              </div>
+            </details>
+            <button class="btn btn-white" type="submit">Submit</button>
+          </form>
+        </div>
       </div>
     </section>
-    <section class="sv-band sv-band--soft" aria-labelledby="sv-blog-h">
+    <section class="sv-band sv-band--soft" id="insights" aria-labelledby="sv-blog-h">
       <div class="sv-wrap reveal">
         <div class="sv-head">
           <h2 class="sv-h2" id="sv-blog-h">Energy Management Blog Articles</h2>
           <a class="sv-viewall" href="./blog.html">View all articles &rarr;</a>
         </div>
         <div class="sv-grid sv-grid--3">
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.1s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---sell-mineral-rights-%28website%29.jpg/7a1265b686767469cefb125cc76baee3.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Energy Management</span><span>July 29, 2026</span></span>
@@ -512,7 +640,7 @@
               <span class="sv-post-more" aria-hidden="true">Read More</span>
             </span>
           </a>
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.2s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/em-webinar-7-28-26-%28blog%29.jpg/8002121d256db12d7bccb426f9b567bc.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Energy Management</span><span>July 10, 2026</span></span>
@@ -521,7 +649,7 @@
               <span class="sv-post-more" aria-hidden="true">Read More</span>
             </span>
           </a>
-          <a class="sv-post" href="./blog-story.html">
+          <a class="sv-post reveal" style="--rd:.3s" href="./blog-story.html">
             <span class="sv-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---battery-energy-storage-%28website%29.jpg/a5ada50724481b009fdb19612158dd40.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <span class="sv-post-body">
               <span class="sv-post-meta"><span class="sv-chip">Energy Management</span><span>June 22, 2026</span></span>
@@ -1204,6 +1332,86 @@
       tabbedBlock('hpInsights', 'Land intelligence, made readable.',
         '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
         '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
+    })();
+
+    // Sub nav: keeps --sv-jump-h current, marks the section in view (aria-current) and
+    // slides the underline to it, and smooth-scrolls a jump (instant under reduced motion).
+    (function(){
+      var bar = document.querySelector(".sv-subbar"),
+          nav = bar && bar.querySelector(".sv-jump"),
+          ind = nav && nav.querySelector(".sv-jump-ind");
+      if(!nav) return;
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var root = document.documentElement;
+      var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
+      var targets = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); });
+      var current = null, ticking = false;
+      function syncH(){ root.style.setProperty("--sv-jump-h", bar.offsetHeight + "px"); }
+      function moveInd(a){
+        if(!ind) return;
+        if(!a){ ind.style.opacity = 0; return; }
+        ind.style.width = a.offsetWidth + "px";
+        ind.style.transform = "translateX(" + a.offsetLeft + "px)";
+        ind.style.opacity = 1;
+      }
+      function spy(){
+        ticking = false;
+        // The section whose top has passed a line 80px under the sub nav is current;
+        // at the very bottom of the page the last one is.
+        var line = bar.getBoundingClientRect().bottom + 80, pick = null;
+        targets.forEach(function(t, i){ if(t && t.getBoundingClientRect().top <= line) pick = links[i]; });
+        if(window.innerHeight + window.scrollY >= root.scrollHeight - 2) pick = links[links.length - 1];
+        if(pick === null) pick = links[0];
+        bar.classList.toggle("is-scrolled", window.scrollY > 0);
+        if(pick === current) return;
+        if(current) current.removeAttribute("aria-current");
+        pick.setAttribute("aria-current", "location");
+        current = pick;
+        moveInd(pick);
+      }
+      function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(spy); } }
+      nav.addEventListener("click", function(e){
+        var a = e.target.closest && e.target.closest('a[href^="#"]');
+        if(!a) return;
+        var t = document.getElementById(a.getAttribute("href").slice(1));
+        if(!t) return;
+        e.preventDefault();
+        t.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        if(history.replaceState) history.replaceState(null, "", a.getAttribute("href"));
+        // Focus follows the jump for keyboard and screen reader users.
+        if(!t.hasAttribute("tabindex")) t.setAttribute("tabindex", "-1");
+        t.focus({ preventScroll: true });
+      });
+      syncH(); spy();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", function(){ syncH(); moveInd(current); onScroll(); });
+      window.addEventListener("load", function(){ syncH(); moveInd(current); spy(); });
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ syncH(); moveInd(current); });
+    })();
+
+    // Video feature: either play control swaps the poster for the Vimeo player, autoplaying.
+    (function(){
+      document.querySelectorAll("[data-play]").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var box = document.getElementById(btn.getAttribute("data-play"));
+          if(!box || box.querySelector("iframe")) return;
+          var f = document.createElement("iframe");
+          f.src = "https://player.vimeo.com/video/" + box.getAttribute("data-vimeo") + "?autoplay=1&dnt=1";
+          f.title = box.getAttribute("data-title") || "Video";
+          f.allow = "autoplay; fullscreen; picture-in-picture";
+          f.setAttribute("allowfullscreen", "");
+          f.referrerPolicy = "strict-origin-when-cross-origin";
+          var poster = box.querySelector(".sv-poster");
+          if(poster) poster.remove();
+          box.appendChild(f);
+          f.focus();
+          // The copy-column button has done its job once the player is up.
+          document.querySelectorAll('[data-play="' + box.id + '"]').forEach(function(b){
+            var wrap = b.closest(".sv-actions");
+            if(wrap) wrap.style.display = "none";
+          });
+        });
+      });
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe
