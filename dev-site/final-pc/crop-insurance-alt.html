@@ -139,28 +139,20 @@
       font-family: var(--font-serif); font-size: 24px; font-style: italic; font-weight: 500; line-height: 1.35;
       color: var(--pc-black); background: var(--pc-white); }
 
-    /* ACROSS EVERY SERVICE: an index of four rows. Number, service, what crop insurance
-       does there, and a wide photo strip that opens to color on hover. */
-    .ci-index{ margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--pc-black); }
-    .ci-row{ display: grid; grid-template-columns: 72px minmax(0, 4fr) minmax(0, 5fr) 280px; gap: var(--space-6);
-      align-items: center; padding: var(--space-6) 0; border-bottom: 1px solid var(--color-border); }
-    .ci-row-n{ font-family: var(--font-serif); font-size: 20px; color: var(--pc-medium-blue); }
-    .ci-row h3{ margin: 0; font-family: var(--font-serif); font-weight: 500; font-size: 32px; line-height: 1.15;
-      color: var(--pc-black); transition: color .2s ease; }
-    .ci-row p{ margin: 0; font-size: 16px; line-height: 1.6; color: var(--pc-black); }
-    .ci-row-ph{ display: block; overflow: hidden; border-radius: var(--radius-md); aspect-ratio: 700 / 250;
-      background: var(--pc-light-blue); }
-    .ci-row-ph img{ display: block; width: 100%; height: 100%; object-fit: cover;
-      transition: transform .7s cubic-bezier(.2,.7,.2,1), filter .5s ease; }
-    .ci-row:hover h3{ color: var(--pc-medium-blue); }
-    @media (hover: hover){
-      .ci-row-ph img{ filter: grayscale(1); }
-      .ci-row:hover .ci-row-ph img{ filter: none; transform: scale(1.05); }
-    }
-    @media (prefers-reduced-motion: reduce){
-      .ci-row h3, .ci-row-ph img{ transition: none; }
-      .ci-row:hover .ci-row-ph img{ transform: none; }
-    }
+    /* ACROSS EVERY SERVICE: four tiles (Option 4 from crop-insurance.html). Each photo
+       uncovers top to bottom as its card arrives; --rd staggers the cards. */
+    .ci-tiles{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
+    .ci-tile{ display: flex; flex-direction: column; background: var(--pc-white);
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; }
+    .ci-tile-ph{ display: block; overflow: hidden; }
+    .ci-tile img{ display: block; width: 100%; aspect-ratio: 700 / 250; object-fit: cover;
+      clip-path: inset(0 0 100% 0); transition: clip-path 1s cubic-bezier(.2,.7,.2,1) calc(var(--rd, 0s) + .2s); }
+    .ci-tile.in img{ clip-path: inset(0); }
+    .ci-tile-body{ display: block; padding: var(--space-5); }
+    .ci-tile h3{ margin: 0 0 var(--space-2); font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      line-height: 1.2; color: var(--pc-black); }
+    .ci-tile p{ margin: 0; font-size: 15px; line-height: 1.6; color: var(--pc-black); }
+    @media (prefers-reduced-motion: reduce){ .ci-tile img{ clip-path: none; transition: none; } }
 
     /* VIDEO: centered heading, then the player at the full site width. */
     .ci-film-head{ max-width: 760px; margin: 0 auto var(--space-7); text-align: center; }
@@ -505,32 +497,36 @@
           </div>
           <p class="ci-p">From evaluating insurable yields during acquisition to structuring lease agreements, it shapes the work across the platform.</p>
         </div>
-        <ol class="ci-index">
-          <li class="ci-row reveal" style="--rd:.05s">
-            <span class="ci-row-n" aria-hidden="true">01</span>
-            <h3>Land Brokerage &amp; Acquisition</h3>
-            <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
-            <span class="ci-row-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-          </li>
-          <li class="ci-row reveal" style="--rd:.1s">
-            <span class="ci-row-n" aria-hidden="true">02</span>
-            <h3>Land Management</h3>
-            <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
-            <span class="ci-row-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-          </li>
-          <li class="ci-row reveal" style="--rd:.15s">
-            <span class="ci-row-n" aria-hidden="true">03</span>
-            <h3>Appraisal &amp; Valuation</h3>
-            <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
-            <span class="ci-row-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-          </li>
-          <li class="ci-row reveal" style="--rd:.2s">
-            <span class="ci-row-n" aria-hidden="true">04</span>
-            <h3>Capital Markets</h3>
-            <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
-            <span class="ci-row-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-          </li>
-        </ol>
+        <div class="ci-tiles">
+          <div class="ci-tile reveal" style="--rd:.1s">
+            <span class="ci-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance4.png/be2f79c6183ad29b432af42c33e614c5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="ci-tile-body">
+              <h3>Land Brokerage &amp; Acquisition</h3>
+              <p>County-level insurable yields inform asset valuation and acquisition decisions, enabling precise evaluation of productive capacity and revenue potential.</p>
+            </div>
+          </div>
+          <div class="ci-tile reveal" style="--rd:.2s">
+            <span class="ci-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance3.png/dee6aba62db4b67b37e16d2df44d7165.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="ci-tile-body">
+              <h3>Land Management</h3>
+              <p>Guaranteed minimum revenue protects operational performance and stabilizes cash flow, regardless of weather challenges or market volatility.</p>
+            </div>
+          </div>
+          <div class="ci-tile reveal" style="--rd:.3s">
+            <span class="ci-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance1.png/0a26a64db6845c6d95fe16500c775194.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="ci-tile-body">
+              <h3>Appraisal &amp; Valuation</h3>
+              <p>Historical APH data and insurable revenue provide essential benchmarks for asset underwriting and investment analysis.</p>
+            </div>
+          </div>
+          <div class="ci-tile reveal" style="--rd:.4s">
+            <span class="ci-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/insurance2.png/1d09b7eb145b97a629744e07e6195201.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
+            <div class="ci-tile-body">
+              <h3>Capital Markets</h3>
+              <p>Investors require quantifiable risk mitigation. Crop insurance delivers measurable downside protection for agricultural portfolios.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
