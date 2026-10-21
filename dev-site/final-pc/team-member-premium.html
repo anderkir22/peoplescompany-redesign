@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Final (PC) · Steve Bruere, President</title>
+  <meta name="description" content="Steve Bruere, President of Peoples Company and keynote speaker. Bio, signature speaking topics, speaker reel, booking, listings, licenses and contact." />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Single source of truth for the final PC direction -->
+  <link href="pc.css?v=20260827a" rel="stylesheet" />
+
+  <!-- ================= TEAM MEMBER PREMIUM (speaker) =================
+       The expanded team-member page plus a speaker layer, for the few people on staff who
+       are booked to speak. Same identity band, same tab strip built from the panels that
+       exist, same rail. Added: the speaker strip under the band, and the Speaking, Videos and
+       Book panels. Any [data-goto] control opens the tab it names; a [data-topic] one also
+       preselects that talk in the booking form. -->
+  <style>
+    /* ---------------------------------------------------------------
+       Team member (tmd-). Page-local only; everything shared is pc.css.
+       --------------------------------------------------------------- */
+    .tmd{ background: var(--pc-white); }
+    .tmd-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+
+    /* ---- breadcrumb ---- */
+    .tmd-crumb{ padding: var(--space-5) 0 0; font-size: 13px; color: rgba(7,22,44,.62); }
+    .tmd-crumb a{ color: rgba(7,22,44,.62); text-decoration: none; }
+    .tmd-crumb a:hover{ color: var(--pc-navy); text-decoration: underline; }
+    .tmd-crumb span{ margin: 0 8px; }
+
+    /* ---- identity band ----
+       Deliberately CONTAINED, not bled: it sits inside .tmd-wrap and ends on a hairline.
+       Portrait is fixed at 168px so the band's height is set by the copy, not the photo. */
+    /* CONTAINED DARK BAND, not a bleed: the band is a panel inside .tmd-wrap with its own
+       radius, so the color stops at the site measure on both sides.
+       This is the page's one dark ground, and it is what carries the brand color: it is
+       the only place bright PC Blue is legal, since PC Blue fails contrast on white. Every
+       child below reads through the ON-DARK scheme - white copy, Light Blue secondary,
+       PC Blue accent - which is why the overrides are grouped here rather than scattered. */
+    .tmd-id{ display: grid; grid-template-columns: 241px minmax(0,1fr) auto;
+      gap: var(--space-6); align-items: start; margin: var(--space-4) 0 0;
+      /* An EVEN inset on all four sides. 40px is deliberately OFF the shared spacing scale,
+         which jumps 32 -> 48 with nothing between: the band was 48 top/bottom and 32 left/
+         right, and this splits that difference so the portrait is inset the same amount in
+         every direction. It is named rather than inlined so it reads as a decision.
+         This is also the band's height control - the portrait is the tallest child, so the
+         band is 241 + 2 x this. */
+      --tmd-band-pad: 40px;
+      padding: var(--tmd-band-pad); border: 0;
+      border-radius: var(--radius-md);
+      background: linear-gradient(118deg, var(--pc-black) 0%, var(--pc-navy) 100%); }
+    /* SQUARE, the same 1:1 as the finder cards in team.html - one headshot ratio across the
+       site, so the CMS crops each person once.
+
+       WHY 241 AND NOT 193: the portrait is the tallest thing in the band, so it - not the
+       copy - sets the band's height. The old box was 193 x 241 (4:5), so going square at 193
+       would have shortened the band. 241 square holds the height the 4:5 box gave and takes
+       its extra 48px of width out of the copy column beside it. Change this number and the
+       band's height changes with it, since the band is this + 2 x --tmd-band-pad. */
+    .tmd-portrait{ width: 241px; aspect-ratio: 1 / 1; border-radius: var(--radius-md);
+      overflow: hidden; box-shadow: 0 0 0 1px rgba(215,239,251,.45);
+      /* NO-HEADSHOT FALLBACK. PC's own contact placeholder - the diamond on light gray - sits
+         BEHIND the <img> as this box's background, so it needs no JS and no conditional
+         markup: if the record has no photo, or the CDN 404s, or the file is still uploading,
+         the placeholder is already there. When a real headshot loads it covers this
+         completely, since the img is 100% x 100% with object-fit: cover.
+         The asset is 506 x 478 - a hair wider than square - so a 1:1 cover crop trims ~7px
+         off each side and nothing off the top or bottom. The diamond is centered and clears
+         that easily, which is why the portrait crop below can stay top-anchored for real
+         portraits without cutting the logo.
+         The CMS should ALSO emit this URL as the img src when the photo field is empty, so
+         the alt text and the accessibility tree stay correct rather than describing a person
+         whose picture is not there. This background is the second line of defense. */
+      --tmd-portrait-fallback:
+        url("https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/0bEVuGyMjZEE3mMGupnfGoU9OGiNvyobum2f3nAc.jpg");
+      background: var(--pc-light-blue) var(--tmd-portrait-fallback) center / cover no-repeat; }
+    /* object-position: center top matches .tm-ph on team.html - a square crop of a tall
+       photograph has to be anchored to the top or it takes the chin and loses the head. */
+    .tmd-portrait img{ width: 100%; height: 100%; object-fit: cover; display: block;
+      object-position: center top; }
+
+    /* BOTTOM-ALIGNED CONTACT BLOCK. The copy column is stretched to the portrait's full
+       height and made a flex column so the contact block can be pushed to the bottom with
+       margin-top:auto - the two columns then share one bottom edge instead of the picture
+       running 55px deeper than the text beside it. align-self is on THIS element rather than
+       align-items:stretch on .tmd-id on purpose: stretching the whole row would also stretch
+       .tmd-portrait, and a stretched height fights its aspect-ratio: 1/1 and breaks the
+       square the moment the copy is taller than the picture. Name and role stay at the top;
+       the slack collects between the role and the contact block. */
+    .tmd-idmain{ min-width: 0; padding-top: 2px; align-self: stretch;
+      display: flex; flex-direction: column; }
+    /* The site H1, not a page-local size: --h1-size / 1.1 / -0.01em, same as every other
+       page's headline. Only the color is stated, and it matches the global h1 anyway. */
+    .tmd-name{ font-family: var(--font-serif); font-weight: 500; font-size: var(--h1-size);
+      line-height: 1.1; letter-spacing: -0.01em; color: var(--pc-white); margin: 0; }
+    .tmd-desig{ font-family: var(--font-sans); font-size: 17px; font-weight: 500;
+      color: rgba(215,239,251,.70); letter-spacing: .01em; }
+    .tmd-role{ font-family: var(--font-sans); font-size: 15px; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--pc-blue); margin: 8px 0 0; }
+    /* The contact block is two columns: the reachable data points on the left, one per
+       row (Office, Mobile, Email), and the office address beside them on the right. The
+       address is a separate column rather than a fourth row because it is three lines and
+       would otherwise dwarf the numbers above it. flex-wrap, not a media query: when the
+       band narrows the address simply drops under the list. */
+    /* align-items: FLEX-END, so the two columns share a bottom row. The phone/email list is
+       shorter than the three-line address whenever a person has fewer data points than the
+       address has lines, and bottom-aligning drops the list by whole 30.2px pitches - so its
+       last row lands on the address's last line instead of its first. The two columns stay on
+       one rhythm either way; this decides which END of that rhythm they agree on. Where the
+       two columns are the same height it changes nothing. */
+    .tmd-contact{ display: flex; flex-wrap: wrap; align-items: flex-end;
+      gap: var(--space-5) var(--space-8);
+      /* auto, not a fixed top margin: this is what bottom-aligns the block to the portrait.
+         --space-4 is kept as the MINIMUM so the block never collides with the role above it
+         if the copy ever grows tall enough to use up the slack. */
+      margin: var(--space-4) 0 0; margin-top: auto; }
+    .tmd-meta{ list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 7px; }
+    .tmd-meta li{ display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-sans); font-size: 14.5px; color: var(--pc-light-blue); }
+    .tmd-meta svg{ width: 15px; height: 15px; flex: none; fill: var(--pc-blue); opacity: 1; }
+    .tmd-meta a{ color: var(--pc-white); text-decoration: none; }
+    .tmd-meta a:hover{ color: var(--pc-blue); text-decoration: underline; }
+    .tmd-tag{ color: rgba(215,239,251,.62); font-size: 12.5px; letter-spacing: .05em;
+      text-transform: uppercase; }
+    /* font-style is reset because <address> is italic by UA default. The pin is nudged down
+       a hair so it sits on the first line's cap height, not its box.
+       margin-left is the ~50px shift off the contact list; it stacks with
+       the .tmd-contact column gap, so change this value alone to slide the block. */
+    .tmd-addr{ display: flex; align-items: flex-start; gap: 8px; font-style: normal;
+      font-family: var(--font-sans); font-size: 14.5px;
+      color: var(--pc-light-blue); margin-left: 50px; }
+    .tmd-addr svg{ width: 15px; height: 15px; flex: none; fill: var(--pc-blue); margin-top: 4px; }
+    /* The three lines are ROWS, not <br> breaks, so they share the contact list's rhythm
+       exactly: same 14.5px, same inherited 1.6 line-height, same 7px gap. Line one of the
+       address therefore sits on line one of the phone list, and so on down. */
+    .tmd-addrlines{ display: flex; flex-direction: column; gap: 7px; }
+    /* The office NAME reuses .tmd-tag, the same treatment the Office / Mobile labels carry
+       in the list beside it - one label style in the band, not two. It stays INLINE inside
+       its row: the row's own 14.5px strut is what keeps the shorter 12.5px label on the
+       same pitch as the rows below it. */
+
+    /* ---- social ---- */
+    .tmd-idside{ display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-4);
+      padding-top: 4px; }
+    .tmd-social{ display: flex; gap: 8px; }
+    .tmd-social a{ width: 38px; height: 38px; border-radius: var(--radius-pill);
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(0,174,239,.55); color: var(--pc-light-blue); background: rgba(255,255,255,.06);
+      transition: background .18s ease, color .18s ease, border-color .18s ease; }
+    .tmd-social a:hover{ background: var(--pc-blue); border-color: var(--pc-blue); color: var(--pc-black); }
+    .tmd-social svg{ width: 17px; height: 17px; fill: currentColor; }
+
+    /* ---- two-column shell ---- */
+    /* align-items is STRETCH, not start, and that is load-bearing: a sticky element can only
+       travel inside its own containing block, so .tmd-main has to run the full height of the
+       row or the sub-nav unsticks the moment the bio panel ends. */
+    .tmd-cols{ display: grid; --tmd-rail-w: 320px;
+      grid-template-columns: minmax(0,1fr) var(--tmd-rail-w);
+      gap: var(--space-8); align-items: stretch;
+      padding: var(--space-6) 0 var(--space-9); }
+    /* AN EMPTY RAIL IS NO RAIL. Set by the guard in the script when the record produces no
+       rail cards: the rail track and the gap both come off, so no blank 320px column is left
+       standing beside the panels. Same rule as the single tab - a container with nothing in
+       it does not get to keep its space. */
+    .tmd-cols.is-norail{ grid-template-columns: minmax(0,1fr); gap: 0; }
+    /* BUT THE COPY DOES NOT WIDEN. The column keeps the exact measure it would have had with
+       the rail beside it, so hiding the rail LOOKS like hiding the rail: every line of the
+       panel - heading, rule, prose, facts - stays where it sat, and the space the rail
+       occupied simply empties. The alternative, letting the panel run the full 1376px, both
+       re-flows copy that did not change and sets prose at ~130ch.
+       Stated as the arithmetic rather than as 992px, off the same two tokens the grid uses,
+       so it cannot drift from the real rail width. */
+    .tmd-cols.is-norail .tmd-main{
+      max-width: calc(100% - var(--tmd-rail-w) - var(--space-8)); }
+    .tmd-main{ min-width: 0; }
+
+    /* ---- sub-nav tabs ---- */
+    /* STICKY SUB-NAV, the same mechanism as .ld-subbar on the listing detail, but it does NOT
+       park at var(--navH): the Interactive Map tab is also sticky there, 340px wide and centered,
+       which puts it straight over the middle of this column - and at z-39 it wins. So the bar
+       parks below the map tab's full extent instead - and does it with PADDING rather than a
+       lower `top`, so the white ground reaches the header and nothing shows through the band.
+       --md-tab-h-peak, not --md-tab-h, because the tab's idle animation grows it to the peak;
+       +8px keeps them off each other. Both tokens are per-breakpoint, so this clears the tab at
+       every width without a second rule.
+       The padding-top plus the matching negative margin let the ground cover the gap above
+       the buttons without adding space when the bar is at rest. */
+    .tmd-tabs{ position: sticky; top: var(--navH); z-index: 20;
+      display: flex; gap: var(--space-6); border-bottom: 2px solid var(--pc-light-blue);
+      background: var(--pc-white);
+      /* The PADDING is the cover. The box parks at var(--navH) - flush under the header - and
+         its own white ground fills the whole band down to the buttons, so nothing scrolls
+         through the space the map tab occupies. The negative margin cancels .tmd-cols'
+         padding-top so the box starts level with the identity band instead of below it;
+         change one and change the other. */
+      margin: calc(-1 * var(--space-6)) 0 var(--space-6);
+      padding-top: calc(var(--md-tab-h-peak) + 8px);
+      overflow-x: auto; scrollbar-width: none; }
+    .tmd-tabs::-webkit-scrollbar{ display: none; }
+    .tmd-tab{ appearance: none; background: none; border: 0; cursor: pointer; white-space: nowrap;
+      font-family: var(--font-sans); font-size: 14px; font-weight: 600; letter-spacing: .07em;
+      text-transform: uppercase; color: rgba(7,22,44,.55);
+      padding: 0 0 14px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+      transition: color .18s ease, border-color .18s ease; }
+    .tmd-tab:hover{ color: var(--pc-navy); }
+    .tmd-tab[aria-selected="true"]{ color: var(--pc-black); border-bottom-color: var(--pc-blue); }
+    .tmd-tab:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px; }
+
+    .tmd-panel:focus{ outline: none; }
+    /* Every panel headline carries the same short PC Blue rule. It is the motif that ties
+       the white panels to the dark band above them - repeated on the fact blocks and the
+       testimonial attributions rather than invented once per section. */
+    .tmd-h2{ font-family: var(--font-serif); font-weight: 500; font-size: 27px; line-height: 1.2;
+      color: var(--pc-black); margin: 0 0 var(--space-4); padding-bottom: 12px;
+      position: relative; }
+    .tmd-h2::after{ content: ""; position: absolute; left: 0; bottom: 0;
+      width: 46px; height: 3px; background: var(--pc-blue); border-radius: 2px; }
+
+    /* ---- bio ---- */
+    /* Bio copy runs the FULL panel width rather than sitting on a measure cap - the panel
+       is 992px here and a 68ch cap leaves a third of it empty. */
+    .tmd-bio p{ font-family: var(--font-sans); font-size: 16.5px; line-height: 1.75;
+      color: rgba(7,22,44,.86); margin: 0 0 var(--space-4); }
+    .tmd-bio p:last-child{ margin-bottom: 0; }
+    .tmd-facts{ margin: var(--space-6) 0 0; padding: var(--space-5) 0 0;
+      border-top: 1px solid var(--pc-light-blue);
+      display: flex; flex-direction: column; gap: var(--space-5); }
+    .tmd-fact{ padding-left: var(--space-4); border-left: 3px solid var(--pc-blue); }
+    .tmd-fact h3{ font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--pc-navy); margin: 0 0 6px; }
+    .tmd-fact p{ font-family: var(--font-sans); font-size: 15px; line-height: 1.6;
+      color: rgba(7,22,44,.82); margin: 0; }
+
+    /* ---- testimonials: full-width stacked cards ----
+       One card per row across the whole panel: attribution in a fixed left column so every
+       quote starts on the same line, and the quote is set in the serif at 21px. No
+       decorative quote glyph - a watermark behind the attribution reads as stray content. */
+    .tmd-quotes{ display: flex; flex-direction: column; gap: var(--space-4); }
+    /* margin:0 is required - <figure> carries a UA default of `1em 40px`, which was eating
+       80px of the card width and doubling the gap between cards. */
+    .tmd-quote{ margin: 0; display: grid; grid-template-columns: 244px minmax(0,1fr);
+      gap: var(--space-6); align-items: start;
+      background: var(--pc-soft-white); border: 1px solid var(--pc-light-blue);
+      border-radius: var(--radius-md); padding: var(--space-6); }
+    /* Source order is quote then attribution; the grid puts the attribution in column 1. */
+    .tmd-quote blockquote{ grid-column: 2; margin: 0; font-family: var(--font-serif);
+      font-size: 21px; line-height: 1.55; color: var(--pc-black); }
+    .tmd-quote figcaption{ grid-column: 1; grid-row: 1;
+      font-family: var(--font-sans); font-size: 13.5px; line-height: 1.5;
+      color: rgba(7,22,44,.62); padding-left: var(--space-4);
+      border-left: 3px solid var(--pc-blue); }
+    .tmd-quote figcaption strong{ display: block; font-weight: 600; font-size: 15px;
+      color: var(--pc-black); margin-bottom: 3px; }
+
+    /* ---- listing cards: 3-up, two rows of three, inside the 992px panel ----
+       pc.css also runs .lc-grid at three columns, but against the full 1440 measure; this
+       restates it so the panel column keeps three across regardless of what the shared
+       grid does at a given width. Cards land at 314px. */
+    .tmd-main .lc-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .tmd-panelfoot{ margin: var(--space-6) 0 0; }
+
+    /* ---- photo gallery: two rows of three ---- */
+    .tmd-gal{ display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: var(--space-5); }
+    .tmd-gal figure{ margin: 0; }
+    .tmd-gal img{ width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block;
+      border-radius: var(--radius-md); background: var(--pc-soft-white); }
+
+    /* ---- right rail ---- */
+    .tmd-rail{ display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+    /* The rail is HIDDEN rather than removed now that its cards migrate at 1023 and come
+       back above it - a detached rail has nowhere to put them back. display:flex above beats
+       the UA's [hidden] rule, so the attribute needs this to bite. */
+    .tmd-rail[hidden]{ display: none; }
+    /* The rail is a color column, not three white boxes: a tinted ground, a Light Blue
+       hairline, and a PC Blue cap rule that repeats the tab underline. The cap is drawn as
+       a border-top so it sits inside the card's own radius. */
+    .tmd-rcard{ background: var(--pc-soft-white); border: 1px solid var(--pc-light-blue);
+      border-top: 3px solid var(--pc-blue);
+      border-radius: var(--radius-md); padding: var(--space-5); }
+    .tmd-rcard.is-filled{ background: var(--pc-light-blue); }
+    .tmd-rtitle{ font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--pc-navy); margin: 0 0 var(--space-4);
+      padding-bottom: 10px; border-bottom: 1px solid var(--pc-light-blue); }
+
+    /* contact form - lives in the panel column now, so it lays out across the measure */
+    .tmd-formlede{ font-family: var(--font-sans); font-size: 16px; line-height: 1.7;
+      color: rgba(7,22,44,.82); margin: 0 0 var(--space-5); }
+    /* No max-width: the form fills the panel measure like every other panel. The tinted
+       ground is what keeps the Contact tab - now the second tab, so it is reached often -
+       from reading as an empty white page; the inputs stay white so they still read as
+       fields against it. */
+    .tmd-form{ display: flex; flex-direction: column; gap: var(--space-4);
+      background: var(--pc-soft-white); border: 1px solid var(--pc-light-blue);
+      border-radius: var(--radius-md); padding: var(--space-6); }
+    .tmd-frow{ display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-4); }
+    .tmd-field{ display: flex; flex-direction: column; gap: 6px; }
+    .tmd-fsubmit{ display: flex; }
+    .tmd-fsubmit .btn{ width: auto; min-width: 200px; }
+    .tmd-form label{ font-family: var(--font-sans); font-size: 12.5px; font-weight: 600;
+      color: rgba(7,22,44,.70); }
+    .tmd-form input, .tmd-form textarea{ font-family: var(--font-sans); font-size: 14.5px;
+      color: var(--pc-black); background: var(--pc-white);
+      border: 1px solid rgba(18,64,106,.30); border-radius: var(--radius-sm);
+      padding: 10px 12px; width: 100%; }
+    .tmd-form textarea{ resize: vertical; min-height: 88px; }
+    .tmd-form input:focus, .tmd-form textarea:focus{ outline: 2px solid var(--pc-blue);
+      outline-offset: 1px; border-color: var(--pc-navy); }
+    .tmd-formnote{ font-family: var(--font-sans); font-size: 12px; line-height: 1.5;
+      color: rgba(7,22,44,.55); margin: 4px 0 0; }
+
+    /* licenses - a repeating list, never a single line: many states, many numbers */
+    .tmd-lic{ list-style: none; margin: 0; padding: 0; }
+    .tmd-lic li{ display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+      padding: 9px 0; border-bottom: 1px dashed var(--pc-light-blue); }
+    .tmd-lic li:first-child{ padding-top: 0; }
+    .tmd-lic li:last-child{ border-bottom: 0; padding-bottom: 0; }
+    .tmd-licwho{ font-family: var(--font-sans); font-size: 14px; color: var(--pc-black); }
+    .tmd-licwho small{ display: block; font-size: 12px; color: rgba(7,22,44,.55); margin-top: 1px; }
+    .tmd-licno{ font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-size: 13px;
+      color: rgba(7,22,44,.72); white-space: nowrap; }
+
+    /* awards - regional and national recognition. Name over years; the names run long
+       (up to 71 characters) so they wrap rather than sitting beside a badge. */
+    .tmd-awards{ list-style: none; margin: 0; padding: 0; }
+    .tmd-awards li{ padding: 10px 0 10px 14px; position: relative;
+      border-bottom: 1px solid var(--pc-light-blue); }
+    .tmd-awards li:first-child{ padding-top: 0; }
+    .tmd-awards li:first-child::before{ top: 7px; }
+    .tmd-awards li:last-child{ border-bottom: 0; padding-bottom: 0; }
+    .tmd-awards li::before{ content: ""; position: absolute; left: 0; top: 17px;
+      width: 5px; height: 5px; border-radius: 50%; background: var(--pc-blue); }
+    .tmd-awname{ display: block; font-family: var(--font-sans); font-size: 14px; line-height: 1.4;
+      color: var(--pc-black); }
+    .tmd-awyrs{ display: block; font-family: var(--font-sans); font-size: 12.5px;
+      font-variant-numeric: tabular-nums; color: rgba(7,22,44,.55); margin-top: 2px; }
+
+    /* awards inside the bio - the panel is 992px wide, where a stacked name-over-years row
+       left most of the line empty. Name and years share one row instead, years right-aligned
+       and tabular so the columns line up down the list. */
+    .tmd-awards-wide li{ display: grid; grid-template-columns: minmax(0,1fr) auto;
+      gap: var(--space-4); align-items: baseline; padding: 8px 0 8px 14px; }
+    .tmd-awards-wide li::before{ top: 15px; }
+    .tmd-awards-wide li:first-child::before{ top: 5px; }
+    .tmd-awards-wide .tmd-awname{ font-size: 15px; line-height: 1.5;
+      color: rgba(7,22,44,.82); }
+    .tmd-awards-wide .tmd-awyrs{ margin-top: 0; font-size: 13.5px; white-space: nowrap; }
+
+    /* memberships - a stacked list inside the last fact block */
+    .tmd-affil{ list-style: none; margin: 0; padding: 0; }
+    .tmd-affil li{ font-family: var(--font-sans); font-size: 15px; line-height: 1.5;
+      color: rgba(7,22,44,.82); padding: 4px 0; }
+    .tmd-fact sup{ font-size: .62em; }
+
+    /* blog stories - title and date only, five of them */
+    .tmd-posts{ list-style: none; margin: 0; padding: 0; }
+    .tmd-posts li{ padding: 11px 0; border-bottom: 1px solid var(--pc-light-blue); }
+    .tmd-posts li:first-child{ padding-top: 0; }
+    .tmd-posts li:last-child{ border-bottom: 0; padding-bottom: 0; }
+    .tmd-posts a{ display: block; font-family: var(--font-sans); font-size: 14.5px; line-height: 1.4;
+      font-weight: 500; color: var(--pc-black); text-decoration: none; }
+    .tmd-posts a:hover{ color: var(--pc-navy); text-decoration: underline; }
+    .tmd-posts time{ display: block; font-family: var(--font-sans); font-size: 12.5px;
+      color: rgba(7,22,44,.55); margin-top: 3px; }
+    .tmd-railmore{ display: inline-block; margin-top: var(--space-4); font-family: var(--font-sans);
+      font-size: 13px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--pc-navy); text-decoration: none; }
+    .tmd-railmore:hover{ text-decoration: underline; }
+
+    /* ---- responsive ---- */
+    @media (max-width: 1279px){
+      .tmd-cols{ grid-template-columns: minmax(0,1fr) 296px; gap: var(--space-6); }
+      /* KEEP THE ADDRESS BESIDE THE PHONE LIST. Below 1280 the --site step drops to
+         1024, which takes .tmd-idmain from 701px to 445px - narrower than the two
+         contact columns need (283 + 222), so the address wrapped under the list and
+         the text column grew 37px DEEPER than the portrait. nowrap holds the two on
+         one row and the block bottom-aligns to the picture again, as it does at 1280.
+         The address then reaches past .tmd-idmain's cell edge into the column the
+         social icons are in - deliberate, and it clears them by ~115px because the
+         icons sit at the TOP of that column and the address at the bottom. The two
+         gaps come in to buy the room: 64 -> 32 between the columns, 50 -> 24 on the
+         address's own shift. Right edge lands 46px inside the band's inset. */
+      .tmd-contact{ flex-wrap: nowrap; gap: var(--space-5) var(--space-6); }
+      .tmd-addr{ flex: none; margin-left: var(--space-5); }
+      /* THE LISTING GRID DROPS TO TWO ACROSS - three rows of two per panel. Below 1280
+         the panel column is narrow enough that a 3-up card leaves only 162.7px of
+         body measure, and NO headline fits it - not the auction lines and not a
+         plain sold date like "December 11, 2025" (168.5px). Since .lc-headline is
+         the one card line that is not white-space: nowrap, a wrap there makes its
+         row the tallest and stretches every other row (see the .lc-grid note in
+         pc.css). Two across gives 272px of measure and every headline sits on one
+         line, so all six cards in a panel agree again. 3-up returns at 1280. */
+      .tmd-panel .lc-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 1023px){
+      /* Rail drops under the panels. The tabs still swap one panel at a time; only the
+         columns collapse, so the contact form lands directly after the active panel. */
+      .tmd-cols{ grid-template-columns: minmax(0,1fr); gap: var(--space-7); }
+      .tmd-rail{ max-width: 560px; }
+      /* ROW GAP ONLY, not the column gap: 12px pulls the icon row up under the picture
+         while the 32px between the picture and the copy is left alone. */
+      .tmd-id{ grid-template-columns: 170px minmax(0,1fr); row-gap: var(--space-3); }
+      .tmd-portrait{ width: 170px; }
+      /* THE COPY COLUMN SPANS BOTH ROWS so .tmd-contact's margin-top: auto has the full
+         height to push against. The phone list then bottom-aligns to the ICON ROW rather
+         than to the picture, which is what keeps the band's blue from opening up under the
+         copy. The 40px bottom inset is symmetric with the top. */
+      .tmd-idmain{ grid-row: 1 / span 2; }
+      /* THE SUB-NAV BAR RUNS THE FULL WIDTH OF THE PAGE. It bleeds a --rail either side
+         to the viewport edges, and takes the same --rail back as padding so the TABS stay
+         on the content's vertical line - the ground goes edge to edge, the type does not
+         move off the rail every other element on the page aligns to. Eight tabs need
+         650.4px at a 16px gap against the 704px inside that padding, so the gap steps
+         32 -> 16 here: at 24 the eight come to 706.4 and Blogs would fall off the end. */
+      .tmd-tabs{ margin-inline: calc(-1 * var(--rail)); padding-inline: var(--rail);
+        gap: var(--space-4); }
+      /* Licenses and Blogs are panels at this width, so the rail empties and the script's
+         is-norail fires. Its desktop rule holds the panel column at the measure it had
+         WITH the rail beside it, which here would squeeze it to ~320px - the rail is not
+         beside anything at this width, it is gone, so the column takes the full width. */
+      .tmd-cols.is-norail .tmd-main{ max-width: none; }
+      /* THE ICONS MOVE UNDER THE HEADSHOT. Row 2 of the FIRST column, so they sit
+         beneath the picture and share its left edge instead of hanging off the end of
+         the copy in column 2. Placed explicitly rather than left to auto-placement:
+         the row matters as much as the column here. */
+      /* align-items CENTER, so the icon row is centered on the 170px portrait column
+         rather than flush to its left edge. */
+      .tmd-idside{ grid-column: 1; grid-row: 2; align-items: center; padding-top: 0; }
+      /* THE OFFICE ADDRESS COMES OUT OF THE BAND. Visually only - this is the .sr-only
+         treatment from pc.css inlined, so the street address stays in the accessibility
+         tree and in the markup for the CMS. The phone list keeps the band; the address is
+         three lines that earn their place next to a 241px portrait and not next to a
+         170px one. IT IS NOT REPEATED ANYWHERE ELSE IN THE PROFILE: the only other copy
+         on the page is the footer's Corporate Office block, which happens to match
+         because John's office IS the Cumming HQ - an agent in any other office would
+         have no visible office address below 1024. */
+      .tmd-addr{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+        overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+        border: 0; }
+    }
+    @media (max-width: 767px){
+      /* THE BAND GETS ITS HORIZONTAL INSET BACK. It was 24px 0 here, so the portrait sat
+         hard against the page's content rail and the band read as edge-to-edge color with
+         the picture jammed into the corner. 24px all four sides now - the same even inset
+         --tmd-band-pad gives it at 768 and up, at this width's spacing step - which moves
+         the picture and the icons under it 24px right. The column gap goes 16 -> 24 on top
+         of that, so the copy column moves 32px right in total: it needs to clear the
+         picture by more than the picture is inset, or the two read as one block. */
+      .tmd-id{ grid-template-columns: 120px minmax(0,1fr); gap: var(--space-5);
+        padding: var(--space-5); }
+      .tmd-portrait{ width: 120px; }
+      /* THE ICON ROW GOES FLUSH LEFT, NOT CENTERED. Centered is right at 768, where the
+         column is 170px and the row of three 38px icons is 130px wide - it has room. Here
+         the column is 120px, NARROWER than the row, so centering hung the icons 5px past
+         the picture on BOTH sides and put their left edge outside the page's rail. Flush
+         left lands them on the picture's own left edge and lets the 10px overhang fall
+         into the gap on the right, where there is space for it. */
+      .tmd-idside{ align-items: flex-start; }
+      /* THE STRIP BECOMES A 2 x 4 MATRIX. Eight tabs need 682.4px and
+         there are 576px here, so one row cannot hold them - and flex-wrap would not give
+         four and four: greedily filled, the first row takes SEVEN (570.1px of the 576)
+         and drops Photos on its own. A four-column grid is what makes the break
+         deliberate, and it also lines the two rows up with each other.
+         1fr columns rather than max-content, so the four span the full width of the bar
+         the way the bar spans the page. justify-self: start keeps each BUTTON shrunk to
+         its label inside its cell, so the selected underline still hugs the word instead
+         of running the width of the column. */
+      /* ROW GAP 4, not 12. Each tab already carries 14px of padding UNDER its label - the
+         offset the selected underline sits on - so the row gap is added to that, not to
+         the type: 12 read as 26px of air between the two lines of labels. At 4 the two
+         rows read as one control in two lines. The COLUMN gap stays 16: it is doing a
+         different job, keeping the longest label off its neighbor's cell. */
+      .tmd-tabs{ display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-1) var(--space-4); }
+      /* CENTERED IN THE CELL, not flush to its left edge. The button stays shrunk to its
+         label - justify-self sizes and places it - so the selected underline still hugs
+         the word rather than running the width of the column. */
+      /* CENTERED IN THE CELL, and the underline comes up close to the word. 14px of
+         padding under the label is the desktop bar's measure, where the underline has to
+         reach down to the bar's own border to sit on it; with that border gone here the
+         padding is just a gap, and at 6px the line reads as belonging to the word above
+         it. margin-bottom: -1px goes for the same reason - it existed to overlap the
+         border that is no longer drawn. */
+      /* ONE LINE LENGTH FOR ALL EIGHT, AND IT IS NOT A BORDER. A border-bottom is always
+         exactly as wide as its box, which is why an active Bio was a 26.8px stub against
+         Testimonials' 117px. This paints the line as a BACKGROUND BAR instead: a 2px
+         gradient, no-repeat, centered on the bottom of the padding box, sized to a fixed
+         width - so it is free of the label's width and every tab gets the same line
+         centered under its word.
+         64.3px is not arbitrary: it is the rendered width of the word PHOTOS at this
+         strip's type - 14px/600/.07em uppercase - and that is the reference length every
+         tab uses. Stated once so the eight cannot drift apart.
+         A ::after was the obvious way to do this and it DOES NOT WORK: Chrome computes
+         the pseudo-element's style once and does not re-run it when aria-selected flips,
+         so the line stayed under Bio while the selection moved. Verified by clicking
+         through all eight. A property on the button itself invalidates properly, and
+         background-size carries the width, so the whole thing is one declaration.
+         The button's own border-bottom comes off, and padding 8 = the 6px gap the line
+         reads with plus the 2px it occupies, which keeps the box the same 25px tall. */
+      /* CLEAR THE INTERACTIVE MAP TAB. The tab is sticky at var(--navH) and hangs
+         var(--md-tab-h-peak) below it - 38px at this breakpoint - and it is CENTERED, which
+         is why this only bites when the page is narrow: at 640 it occupies x 225-415 while
+         the crumb reads "Home / Our Team / John Reburn" out to about 255, so the last
+         crumb sat behind the tab. 24px of padding was not enough to get under it.
+         Written as the same expression the sub-nav bar uses to clear the same tab, off the
+         same token, so the two cannot disagree - and if the tab's height changes at a
+         breakpoint, both follow it. */
+      .tmd-crumb{ padding-top: calc(var(--md-tab-h-peak) + 8px); }
+      .tmd-tabs{ --tmd-tab-line: 64.3px; }
+      .tmd-tab{ justify-self: center; margin-bottom: 0;
+        border-bottom: 0; padding-bottom: 8px;
+        background-image: linear-gradient(var(--pc-blue), var(--pc-blue));
+        background-repeat: no-repeat; background-position: 50% 100%;
+        background-size: 0 2px;
+        transition: color .18s ease, background-size .18s ease; }
+      .tmd-tab[aria-selected="true"]{ background-size: var(--tmd-tab-line) 2px; }
+      /* NO RULE UNDER THE STRIP. The 2px light-blue border-bottom is the desktop bar's
+         baseline, and once the bar bleeds to both page edges that hairline becomes a line
+         drawn across the whole width of the page - it reads as a divider between two
+         regions rather than as the underside of a control. The selected tab keeps its own
+         underline; that is the indicator, and it no longer has a full-width line competing
+         with it. .tmd-tab's margin-bottom: -1px existed to sit ON this border and is
+         harmless with it gone. */
+      .tmd-tabs{ border-bottom: 0; }
+      /* TESTIMONIALS: STACKED, AND THE TYPE STEPS DOWN. The attribution column is a FIXED
+         244px at every width, so at 640 it takes 244 of the card's 576 and leaves the quote
+         234px - 23.2 characters per line, eight lines deep for three sentences. No type
+         size fixes that: the column has to go. Single track puts the attribution above the
+         quote (figcaption is already pinned to row 1, so source order does not change) and
+         hands the quote the whole card. 21 -> 17px on 528px is 62ch, inside the 45-75 this
+         build holds real body copy to. At 21px the same width is 50ch, which also reads,
+         but the quote then looks like a heading next to 14px names. */
+      .tmd-quote{ grid-template-columns: minmax(0,1fr); gap: var(--space-4);
+        padding: var(--space-5); }
+      /* max-width in ch, because the cap is a READING measure, not a pixel one - it holds
+         at 45-75 whatever the type does. Without it the top of this band overshoots: the
+         card is 703px wide at 767, which is 80ch of 17px serif. At 640 the quote is 64.5ch
+         and the cap does not apply. */
+      .tmd-quote blockquote{ grid-column: 1; font-size: 17px; max-width: 70ch; }
+      .tmd-quote figcaption{ grid-column: 1; font-size: 13px; }
+      .tmd-quote figcaption strong{ font-size: 14px; }
+      .tmd-name{ font-size: 27px; }
+      .tmd-desig{ font-size: 15px; }
+      .tmd-meta{ gap: 6px; }
+      .tmd-tcar{ grid-auto-columns: minmax(0, 88%); }
+      /* TWO IMAGES ACROSS, 640-767. Explicit columns rather than grid-auto-columns: this
+         grid is not a carousel and has no implicit columns to size. */
+      .tmd-gal{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .tmd-main .lc-grid{ grid-template-columns: minmax(0,1fr); }
+      .tmd-h2{ font-size: 23px; }
+      /* The longest award name runs 71 characters; beside a years column it wraps to four
+         lines here, so the row goes back to name over years. */
+      .tmd-awards-wide li{ display: block; }
+      .tmd-awards-wide .tmd-awyrs{ margin-top: 2px; }
+    }
+    /* 639 AND DOWN: one image across. The rung sits on the site's own sm boundary - 640
+       is where --site stops stepping and goes fluid at a 20px rail - so the gallery
+       changes where the page's whole measure changes. The ladder: one column to 639, two
+       from 640 to 767, three at 768 and up. */
+    @media (max-width: 639px){
+      .tmd-gal{ grid-template-columns: minmax(0,1fr); }
+    }
+
+    @media (max-width: 519px){
+      /* THE BAND BECOMES A TRUE STACK: picture, then name and contact, then the icons, all
+         on one left edge. The single column was already declared here, but the rules above
+         were still placing items explicitly - the copy pinned to `grid-row: 1 / span 2`
+         and the icons to row 2 - so the copy could not fit beside the picture and the
+         browser INVENTED a second column for it. The band computed as 84.86px + 283.14px,
+         the 120px picture overflowed its 84.86px track, and the name, role and phone list
+         printed over the photograph. Both placements are handed back to auto here, which
+         is what lets source order do the stacking. */
+      /* Two tracks, but NOT two columns of content: the second one exists only to hold
+         the icon rail in the top right corner, and it is `auto`, so it is exactly as wide
+         as the icons are. The picture takes column 1 of row 1 by auto-placement. */
+      .tmd-id{ grid-template-columns: minmax(0,1fr) auto; row-gap: var(--space-4); }
+      /* The copy spans BOTH tracks on row 2, so it keeps the band's full width - the icon
+         rail is above it, not beside it, and cannot narrow it. This is also what makes the
+         corner placement collision-proof without any absolute positioning: the two live in
+         different rows, so no amount of name or a long email address can reach the icons. */
+      .tmd-idmain{ grid-row: 2; grid-column: 1 / -1; }
+      /* THE ICONS STACK VERTICALLY IN THE TOP RIGHT CORNER. align-items: flex-end puts the
+         rail on the band's right inset - the wider breakpoints set flex-start for the row
+         under the picture, so it is restated here. align-self: start keeps the rail at the
+         TOP of row 1 rather than stretching down it. */
+      .tmd-idside{ grid-column: 2; grid-row: 1; align-items: flex-end;
+        align-self: start; padding-top: 0; }
+      /* .tmd-social is a flex ROW everywhere else - three 38px buttons side by side. One
+         declaration turns it into the column. */
+      .tmd-social{ flex-direction: column; }
+      /* PDF ABOVE LINKEDIN in the vertical rail, so the stack reads email, bio PDF,
+         LinkedIn. Done with `order` rather than by moving the markup, because the
+         horizontal row at 520 and up runs email, LinkedIn, PDF and the DOM is what that
+         order comes from. Keyed off the classes rather than :nth-child so it still means
+         what it says if the CMS ever outputs a fourth icon. */
+      .tmd-social .tmd-pdf{ order: 1; }
+      .tmd-social .tmd-li{ order: 2; }
+      /* .tmd-contact bottom-aligns to the picture with margin-top: auto, which needs FREE
+         SPACE in the column to do anything. In a stack the column is exactly as tall as
+         its content, so auto resolves to 0 and the phone list would sit hard against the
+         role above it. There is nothing left to bottom-align to, so it goes back to being
+         a plain gap. */
+      .tmd-contact{ margin-top: var(--space-4); }
+      /* NO GAP OVERRIDE HERE. Every range with more than one row carries the same gap, so
+         there is exactly ONE gap declaration for the strip - in the 767 rung, 4px rows and
+         16px columns - and every width below it inherits. A 24px column gap at this rung
+         pushes the three columns 6px past the end of the strip at 320. */
+    }
+
+    /* ======================================================================
+       THE TWO BOTTOM RUNGS. Two different things give way below 519, at two different
+       widths, so rather than one compromise applied to both there are two queries.
+       479 AND DOWN: the contact labels go, and the sub-nav takes a third row.
+       399 AND DOWN: the sub-nav type steps with it.
+       ====================================================================== */
+    @media (max-width: 479px){
+      /* THE OFFICE / MOBILE / EMAIL WORDS COME OFF - the icon is the label now.
+         VISUALLY only: the SVGs beside them are aria-hidden, so deleting the words
+         would leave a screen reader three bare links with no idea which number is
+         which. This is pc.css's .sr-only treatment inlined, so the words stay in the
+         accessibility tree and in the markup for the CMS.
+         It also fixes a real overflow: the row read EMAIL JohnR@PeoplesCompany.com at
+         283.1px in a 232px column, and an email address is one unbreakable token, so
+         the whole PAGE scrolled 7px sideways. Dropping the word takes the row inside
+         its column. Only .tmd-meta's tags - the address block's "Cumming Office" tag
+         is already hidden at 1023 and down. */
+      .tmd-meta .tmd-tag{ position: absolute; width: 1px; height: 1px; margin: -1px;
+        padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+        white-space: nowrap; border: 0; }
+      /* THREE ROWS OF TABS: 3 - 3 - 2, in the order already set for this end of the
+         ladder, so nothing is resequenced - Bio Licenses Contact / Blogs Available Sold /
+         Testimonials Photos.
+         IT STARTS HERE RATHER THAN AT 320 BECAUSE FOUR COLUMNS ALREADY FAIL HERE. The
+         2 x 4 grid is sized by its tallest demand per column - 84.9 + 75.8 + 117 + 64.3 =
+         342px of label plus 48px of gap - so it needs 390px and only fits from about 430
+         up. At 400 it has 360 and drops Blogs and Photos off the right edge. Three columns
+         need 277.7 + 32 = 309.7, which clears every width from 350 up. */
+      .tmd-tabs{ grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* 399 AND DOWN: the third row is in place above; this rung is only the TYPE. Three
+       columns at 14px need 309.7px and run out of room at about 350, so below that the
+       labels step down. */
+    @media (max-width: 399px){
+      /* THREE ROWS OF TABS: 3 - 3 - 2, in the order already set for this end of the
+         ladder, so nothing is resequenced - Bio Licenses Contact / Blogs Available
+         Sold / Testimonials Photos.
+         THE TYPE HAS TO STEP WITH IT. The three columns are sized by their tallest
+         demand - col 1 by Testimonials, col 2 by Available, col 3 by Contact - which
+         at 14px is 257.8px of label plus 32px of gap against the 280px this width
+         has. It does not fit at 14, and it does not fit at 13 either (289.8). At 12px
+         the three columns come to 238.1 and the strip has room to spare.
+         The underline scales with the type for the same reason it was 64.3px in the
+         first place: that number is the width of the word PHOTOS, so at 12px it is
+         55.1px. The line still matches the reference word, which is the point of it. */
+      .tmd-tabs{ --tmd-tab-line: 55.1px; }
+      .tmd-tab{ font-size: 12px; }
+    }
+
+    /* ===============================================================
+       PREMIUM / SPEAKER LAYER (tms-). Everything above is the expanded
+       team-member template unchanged; these rules add the speaker pieces.
+       =============================================================== */
+
+    /* "Keynote Speaker" marker beside the role, on the dark band. */
+    .tms-badge{ display: inline-block; vertical-align: 2px; margin-left: 12px;
+      padding: 4px 10px; border-radius: var(--radius-pill);
+      border: 1px solid rgba(0,174,239,.55); background: rgba(0,174,239,.12);
+      font-size: 11.5px; letter-spacing: .1em; color: var(--pc-light-blue); }
+
+    /* ---- speaker strip: the at-a-glance booking row under the band ----
+       Four facts, then the actions. The facts are fixed-content columns, the gap before
+       the actions is 1fr so the buttons always sit on the right edge of the measure. */
+    .tms-strip{ display: grid; grid-template-columns: repeat(4, auto) minmax(0,1fr) auto;
+      gap: var(--space-6); align-items: center;
+      padding: var(--space-5) 0; border-bottom: 1px solid var(--pc-light-blue); }
+    .tms-stat{ display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .tms-stat dt{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--pc-navy); }
+    .tms-stat dd{ margin: 0; font-family: var(--font-sans); font-size: 15.5px;
+      color: var(--pc-black); white-space: nowrap; }
+    .tms-stats{ display: contents; }
+    .tms-actions{ grid-column: 6; display: flex; gap: var(--space-3); align-items: center; }
+    .tms-actions .btn{ white-space: nowrap; }
+
+    /* ---- shared bits ---- */
+    .tms-chips{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .tms-chips li{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+      color: var(--pc-navy); background: var(--pc-light-blue);
+      padding: 6px 12px; border-radius: var(--radius-pill); }
+    .tms-label{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--pc-navy); margin: 0 0 10px; }
+    .tms-sec + .tms-sec{ margin-top: var(--space-7); }
+
+    /* ---- speaker profile ---- */
+    .tms-prose p{ font-family: var(--font-sans); font-size: 16.5px; line-height: 1.75;
+      color: rgba(7,22,44,.86); margin: 0 0 var(--space-4); }
+    .tms-speaks{ margin: var(--space-5) 0 0; }
+    .tms-facts{ margin: var(--space-6) 0 0; padding: var(--space-6);
+      background: var(--pc-soft-white); border: 1px solid var(--pc-light-blue);
+      border-radius: var(--radius-md); }
+    .tms-facts ul{ list-style: none; margin: 0; padding: 0;
+      display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px var(--space-6); }
+    .tms-facts li{ position: relative; padding-left: 18px; font-family: var(--font-sans);
+      font-size: 15px; line-height: 1.55; color: rgba(7,22,44,.86); }
+    .tms-facts li::before{ content: ""; position: absolute; left: 0; top: 9px;
+      width: 6px; height: 6px; border-radius: 50%; background: var(--pc-blue); }
+
+    /* ---- signature topics: one expandable card per talk ----
+       <details> so it opens without script and stays keyboard-operable. The summary is the
+       whole header row: number, title over tagline, and the chevron. */
+    .tms-topics{ display: flex; flex-direction: column; gap: var(--space-4); }
+    .tms-topic{ background: var(--pc-white); border: 1px solid var(--pc-light-blue);
+      border-radius: var(--radius-md); transition: border-color .18s ease, background .18s ease; }
+    .tms-topic[open]{ background: var(--pc-soft-white); border-color: rgba(49,111,150,.45); }
+    .tms-topic summary{ list-style: none; cursor: pointer; display: grid;
+      grid-template-columns: 56px minmax(0,1fr) 24px; gap: var(--space-4); align-items: start;
+      padding: var(--space-5) var(--space-6); }
+    .tms-topic summary::-webkit-details-marker{ display: none; }
+    .tms-topic summary:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: -2px;
+      border-radius: var(--radius-md); }
+    .tms-num{ font-family: var(--font-serif); font-size: 34px; line-height: 1; font-weight: 500;
+      color: var(--pc-medium-blue); font-variant-numeric: tabular-nums; }
+    .tms-ttl{ font-family: var(--font-serif); font-weight: 500; font-size: 23px; line-height: 1.25;
+      color: var(--pc-black); margin: 0; }
+    .tms-tag{ font-family: var(--font-serif); font-style: italic; font-size: 17px; line-height: 1.5;
+      color: rgba(7,22,44,.70); margin: 8px 0 0; }
+    .tms-chev{ width: 24px; height: 24px; margin-top: 4px; fill: none; stroke: var(--pc-navy);
+      stroke-width: 2; transition: transform .2s ease; }
+    .tms-topic[open] .tms-chev{ transform: rotate(180deg); }
+    .tms-topicbody{ padding: 0 var(--space-6) var(--space-6) calc(var(--space-6) + 56px + var(--space-4)); }
+    .tms-topicbody > p{ font-family: var(--font-sans); font-size: 16px; line-height: 1.7;
+      color: rgba(7,22,44,.86); margin: 0 0 var(--space-5); }
+    .tms-topicgrid{ display: grid; grid-template-columns: minmax(0,1.35fr) minmax(0,1fr);
+      gap: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--pc-light-blue); }
+    .tms-takes{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .tms-takes li{ position: relative; padding-left: 26px; font-family: var(--font-sans);
+      font-size: 15px; line-height: 1.55; color: rgba(7,22,44,.86); }
+    .tms-takes svg{ position: absolute; left: 0; top: 3px; width: 16px; height: 16px;
+      fill: none; stroke: var(--pc-medium-blue); stroke-width: 2.4; }
+    .tms-best p{ font-family: var(--font-sans); font-size: 15px; line-height: 1.55;
+      color: rgba(7,22,44,.86); margin: 0 0 var(--space-5); }
+
+    /* ---- videos ---- */
+    .tms-feat{ display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr);
+      gap: var(--space-6); align-items: center; margin: 0 0 var(--space-7); }
+    .tms-feat .tms-vidtitle{ font-family: var(--font-serif); font-weight: 500; font-size: 26px;
+      line-height: 1.25; color: var(--pc-black); margin: 6px 0 var(--space-3); }
+    .tms-feat p{ font-family: var(--font-sans); font-size: 15.5px; line-height: 1.65;
+      color: rgba(7,22,44,.82); margin: 0 0 var(--space-5); }
+    .tms-reel{ display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-6) var(--space-5); }
+    .tms-vid{ display: block; text-decoration: none; color: inherit; }
+    .tms-media{ position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden;
+      border-radius: var(--radius-md); background: var(--pc-navy); }
+    .tms-media img{ width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .35s ease; }
+    /* A navy wash so the white play button reads on any photograph. */
+    .tms-media::after{ content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(7,22,44,.05) 40%, rgba(7,22,44,.55) 100%); }
+    .tms-play{ position: absolute; z-index: 1; left: 50%; top: 50%; width: 56px; height: 56px;
+      margin: -28px 0 0 -28px; border-radius: 50%; background: rgba(255,255,255,.94);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 18px rgba(7,22,44,.35); transition: transform .2s ease, background .2s ease; }
+    .tms-play svg{ width: 20px; height: 20px; fill: var(--pc-navy); margin-left: 3px; }
+    .tms-feat .tms-play{ width: 76px; height: 76px; margin: -38px 0 0 -38px; }
+    .tms-feat .tms-play svg{ width: 26px; height: 26px; }
+    .tms-dur{ position: absolute; z-index: 1; right: 10px; bottom: 10px;
+      font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; color: var(--pc-white);
+      background: rgba(7,22,44,.82); padding: 3px 8px; border-radius: var(--radius-sm);
+      font-variant-numeric: tabular-nums; }
+    .tms-vid:hover .tms-media img{ transform: scale(1.04); }
+    .tms-vid:hover .tms-play, .tms-feat:hover .tms-play{ background: var(--pc-blue); }
+    .tms-vid:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 4px; border-radius: var(--radius-md); }
+    .tms-vidtype{ display: block; margin: var(--space-3) 0 4px; font-family: var(--font-sans);
+      font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--pc-medium-blue); }
+    .tms-reel .tms-vidtitle{ display: block; font-family: var(--font-sans); font-size: 15.5px;
+      font-weight: 600; line-height: 1.4; color: var(--pc-black); }
+    .tms-vid:hover .tms-vidtitle{ color: var(--pc-navy); text-decoration: underline; }
+
+    /* ---- booking form: the contact form's shell, with selects and a two-up row ---- */
+    .tmd-form select{ font-family: var(--font-sans); font-size: 14.5px; color: var(--pc-black);
+      background: var(--pc-white); border: 1px solid rgba(18,64,106,.30);
+      border-radius: var(--radius-sm); padding: 10px 12px; width: 100%; }
+    .tmd-form select:focus{ outline: 2px solid var(--pc-blue); outline-offset: 1px; border-color: var(--pc-navy); }
+    .tmd-form input[type="date"]{ min-height: 43px; }
+    .tms-frow2{ display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-4); }
+    .tms-fgroup{ margin: var(--space-2) 0 0; padding-top: var(--space-4);
+      border-top: 1px solid var(--pc-light-blue); }
+
+    /* ---- booking FAQs ---- */
+    .tms-faq{ border-top: 1px solid var(--pc-light-blue); }
+    .tms-faq details{ border-bottom: 1px solid var(--pc-light-blue); }
+    .tms-faq summary{ list-style: none; cursor: pointer; display: flex; justify-content: space-between;
+      gap: var(--space-4); align-items: center; padding: 18px 0;
+      font-family: var(--font-sans); font-size: 16.5px; font-weight: 600; color: var(--pc-black); }
+    .tms-faq summary::-webkit-details-marker{ display: none; }
+    .tms-faq summary:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    .tms-faq details[open] .tms-chev{ transform: rotate(180deg); }
+    .tms-faq p{ font-family: var(--font-sans); font-size: 15.5px; line-height: 1.7;
+      color: rgba(7,22,44,.82); margin: 0 0 18px; padding-right: 48px; }
+
+    /* ---- award badges, above the awards list in the bio ---- */
+    .tms-badges{ list-style: none; margin: 0 0 var(--space-4); padding: 0;
+      display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5) var(--space-6); }
+    .tms-badges img{ height: 84px; width: auto; display: block; }
+
+    /* ---- rail: speaking inquiry card + references ---- */
+    .tms-rcta p{ font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6;
+      color: rgba(7,22,44,.82); margin: 0 0 var(--space-4); }
+    .tms-rcta .btn{ width: 100%; }
+    .tms-refs{ list-style: none; margin: 0; padding: 0; }
+    .tms-refs li{ padding: 9px 0; border-bottom: 1px dashed var(--pc-light-blue); }
+    .tms-refs li:first-child{ padding-top: 0; }
+    .tms-refs li:last-child{ border-bottom: 0; padding-bottom: 0; }
+    .tms-refs strong{ display: block; font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      color: var(--pc-black); }
+    .tms-refs span{ display: block; font-family: var(--font-sans); font-size: 12.5px;
+      line-height: 1.45; color: rgba(7,22,44,.62); margin-top: 1px; }
+
+    /* ---- premium layer: responsive ---- */
+    @media (max-width: 1279px){
+      .tms-strip{ grid-template-columns: repeat(4, auto); }
+      .tms-actions{ grid-column: 1 / -1; }
+      .tms-reel{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .tms-feat{ grid-template-columns: minmax(0,1fr); }
+      .tms-topicbody{ padding-left: var(--space-6); }
+    }
+    @media (max-width: 767px){
+      .tms-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-4); }
+      .tms-stat dd{ white-space: normal; }
+      .tms-actions{ flex-wrap: wrap; }
+      .tms-facts ul, .tms-topicgrid, .tms-frow2{ grid-template-columns: minmax(0,1fr); }
+      .tmd-frow{ grid-template-columns: minmax(0,1fr); }
+      .tms-topic summary{ grid-template-columns: 40px minmax(0,1fr) 20px; padding: var(--space-4); gap: var(--space-3); }
+      .tms-topicbody{ padding: 0 var(--space-4) var(--space-4); }
+      .tms-num{ font-size: 26px; }
+      .tms-ttl{ font-size: 20px; }
+      .tms-tag{ font-size: 15.5px; }
+      .tms-badges img{ height: 64px; }
+      .tms-faq p{ padding-right: 0; }
+    }
+    @media (max-width: 639px){
+      .tms-reel{ grid-template-columns: minmax(0,1fr); }
+    }
+    @media (max-width: 479px){
+      .tms-badge{ display: table; margin: 8px 0 0; }
+      .tms-actions .btn{ width: 100%; }
+    }
+  </style>
+</head>
+
+
+<body>
+  <!-- ================= HEADER ================= -->
+  <header class="pcf">
+    <div class="pcf-inner">
+      <div class="pcf-brandrow">
+        <!-- Hamburger: left edge, shown only <=899 where the inline menus don't fit.
+             Opens #navDrawer, which is built from the same NAV array as the mega panels. -->
+        <button class="pcf-burger" id="navBurger" type="button"
+                aria-label="Menu" aria-expanded="false" aria-controls="navDrawer">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="pcf-brandcell">
+          <a href="./index.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+          </a>
+        </div>
+        <div class="pcf-stack">
+          <div class="pcf-util">
+            <span class="sp"></span>
+            <a href="./internal.html">Create An Account</a>
+            <span class="sep">|</span>
+            <a href="./internal.html">Login</a>
+          </div>
+          <nav class="pcf-row" aria-label="Primary">
+            <ul class="pcf-menus" id="pcfMenus"></ul>
+            <div class="pcf-searchwrap">
+              <button class="pcf-search" id="searchToggle" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+              </button>
+              <div class="pcf-searchpanel" id="searchPanel">
+                <form class="pcf-searchform" role="search" action="#" onsubmit="return false;">
+                  <input type="search" id="searchInput" placeholder="Search Peoples Company…" aria-label="Search the site" />
+                  <button type="submit" class="pcf-searchgo" aria-label="Submit search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hamburger drawer (<=899). Sits under the sticky header; content injected from NAV. -->
+  <div class="pcf-drawer-backdrop" hidden></div>
+  <div class="pcf-drawer" id="navDrawer" role="region" aria-label="Menu" hidden>
+    <div class="pcf-drawer-in"></div>
+  </div>
+
+  <!-- ============ INTERACTIVE MAP pull-down tab → map layer ============ -->
+  <div class="md-tabwrap">
+    <button class="md-tab" type="button" aria-expanded="false" aria-controls="md-layer">Interactive Map <span class="md-chev" aria-hidden="true">▾</span></button>
+  </div>
+  <div class="md-backdrop" hidden></div>
+  <div class="md-layer" id="md-layer" role="region" aria-label="Interactive map" aria-hidden="true" hidden>
+    <div class="md-layer-bar"><button class="md-close" type="button" aria-label="Close">✕</button></div>
+    <div class="md-layer-body">
+      <img class="md-mapimg" src="../assets/find-properties-map.png" alt="Interactive FarmWorth map (placeholder)"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<p class=\'md-placeholder\'>Interactive FarmWorth Map</p>');this.onerror=null;" />
+    </div>
+  </div>
+
+  <!-- ================= PAGE CONTENT — team member ================= -->
+  <main class="tmd" aria-label="Page content">
+
+
+    <div class="tmd-wrap">
+      <nav class="tmd-crumb" aria-label="Breadcrumb">
+        <a href="./internal.html">Home</a><span aria-hidden="true">/</span><a href="./team.html">Our Team</a><span aria-hidden="true">/</span>Steve Bruere
+      </nav>
+
+      <!-- ---- identity band ---- -->
+      <header class="tmd-id">
+        <div class="tmd-portrait">
+          <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/steve-bruere-ar0ykscrwbys-Steve%20Bruere.jpg"
+               alt="Steve Bruere" width="336" height="420" />
+        </div>
+
+        <div class="tmd-idmain">
+          <h1 class="tmd-name">Steve Bruere</h1>
+          <p class="tmd-role">President<span class="tms-badge">Keynote Speaker</span></p>
+
+          <div class="tmd-contact">
+            <ul class="tmd-meta">
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>
+                <span class="tmd-tag">Office</span> <a href="tel:8558005263">855.800.LAND</a>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.2L4.4 7H19.6L12 12.2zM4 8.5V17h16V8.5l-8 5.5-8-5.5z"/></svg>
+                <span class="tmd-tag">Email</span> <a href="mailto:Steve@PeoplesCompany.com">Steve@PeoplesCompany.com</a>
+              </li>
+            </ul>
+
+            <address class="tmd-addr">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              <span class="tmd-addrlines">
+                <span><span class="tmd-tag">Cumming Office</span></span>
+                <span>1108 S. 44th Street, Suite 102</span>
+                <span>Cumming, IA 50061</span>
+              </span>
+            </address>
+          </div>
+        </div>
+
+        <div class="tmd-idside">
+          <div class="tmd-social">
+            <a href="mailto:Steve@PeoplesCompany.com" aria-label="Email Steve Bruere">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.2L4.4 7H19.6L12 12.2zM4 8.5V17h16V8.5l-8 5.5-8-5.5z"/></svg>
+            </a>
+            <a class="tmd-li" href="https://www.linkedin.com/in/stevebruere/" aria-label="Steve Bruere on LinkedIn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.94 8.5a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44zM5.4 9.9h3.08V19H5.4V9.9zm5.02 0h2.95v1.24h.04c.41-.78 1.42-1.6 2.92-1.6 3.12 0 3.7 2.05 3.7 4.72V19h-3.08v-4.2c0-1-.02-2.29-1.4-2.29-1.4 0-1.62 1.09-1.62 2.22V19h-3.51V9.9z"/></svg>
+            </a>
+            <a href="https://x.com/SBruere" aria-label="Steve Bruere on X">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg>
+            </a>
+            <a href="https://instagram.com/stevebruere" aria-label="Steve Bruere on Instagram">
+              <svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" style="fill:currentColor;stroke:none"/></svg>
+            </a>
+            <a class="tmd-pdf" href="https://peoplescompany.com/team/steve-bruere/download" aria-label="Download Steve Bruere's bio (PDF)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm-1 7V3.5L18.5 9zM8.6 18.4v-5h1.9c1.2 0 1.9.7 1.9 1.8s-.7 1.8-1.9 1.8h-.8v1.4zm1.1-2.4h.7c.5 0 .8-.25.8-.7s-.3-.7-.8-.7h-.7zm3.6 2.4v-5h1.8c1.5 0 2.4 1 2.4 2.5s-.9 2.5-2.4 2.5zm1.1-1h.6c.9 0 1.3-.55 1.3-1.5s-.4-1.5-1.3-1.5h-.6z"/></svg>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <!-- ---- speaker strip: the at-a-glance booking row ---- -->
+      <section class="tms-strip" aria-label="Speaker at a glance">
+        <dl class="tms-stats">
+          <div class="tms-stat"><dt>Based In</dt><dd>Cumming, Iowa</dd></div>
+          <div class="tms-stat"><dt>Formats</dt><dd>Keynote, Breakout, Panel, Studio</dd></div>
+          <div class="tms-stat"><dt>Signature Topics</dt><dd>7 Talks</dd></div>
+          <div class="tms-stat"><dt>Featured At</dt><dd>Land Investment Expo</dd></div>
+        </dl>
+        <div class="tms-actions">
+          <a class="btn btn-ghost" href="#">One-Sheet (PDF)</a>
+          <a class="btn btn-primary" href="#tmdPanel-book" data-goto="Book">Check Availability</a>
+        </div>
+      </section>
+
+      <!-- ---- two columns: tab panels left, rail right ---- -->
+      <div class="tmd-cols">
+
+        <div class="tmd-main">
+          <div class="tmd-tabs" role="tablist" aria-label="Steve Bruere profile sections" id="tmdTabs"></div>
+
+          <!-- ===== 1. BIO ===== -->
+          <section class="tmd-panel tmd-bio" data-label="Bio" id="tmdPanel-bio" role="tabpanel" tabindex="-1">
+            <h2 class="tmd-h2">Biography</h2>
+            <p>Steve Bruere is one of the leading experts in agricultural real estate, farmland
+              investment, and farm management. As President of Peoples Company, he has built a
+              nationally recognized firm offering brokerage, management, appraisal, and capital
+              markets services across all major agricultural regions in the U.S. His deep
+              understanding of farmland as an asset class has positioned him as a sought-after
+              voice in the industry, advising institutional investors, wealth managers, and
+              landowners on navigating the evolving agricultural landscape.</p>
+            <p>Raised in a multigenerational farm family in Iowa, Steve&rsquo;s connection to
+              farmland began early. His firsthand experience working on the farm shaped his belief
+              that agricultural land is more than just an asset; it&rsquo;s a long-term investment
+              that requires strategic management and thoughtful stewardship. In 2004, Steve became
+              President of Peoples Company and began to transform the business from a small-town
+              brokerage into a full-service farmland transaction firm serving the largest
+              landowners and investors in the U.S.</p>
+            <p>In addition to his leadership of Peoples Company, Steve has played a pivotal role in
+              shaping the industry&rsquo;s most important conversations. In 2008, he founded the
+              Land Investment Expo, an annual forum that has grown into the premier event for
+              farmland investors, policymakers, and industry leaders. To educate the landowner
+              community and provide a resource for agricultural news, Steve founded American
+              Farmland Owner. Both initiatives provide valuable, timely content and insights to
+              farmland stakeholders.</p>
+            <p>As part of Steve&rsquo;s long-term goal to expand opportunities in the market, Steve
+              has driven innovative ventures to capitalize on a variety of farmland opportunities.
+              To consolidate digital tools, Steve created a proprietary data exploration toolkit,
+              FarmWorth, which powers Peoples Company&rsquo;s mapping, data analytics, and farmland
+              insights. As a member of the executive board, Steve provides leadership, experience,
+              and guidance to Farmland Capital Alliance, a coalition-based organization focused on
+              large-scale U.S. farmland ownership, management, and investment. In 2025, Steve
+              co-founded the International Ag Alliance, a global coalition of premier agricultural
+              land firms focused on streamlining international investment and promoting
+              responsible land management.</p>
+            <p>Steve&rsquo;s commitment to the future of agricultural land extends beyond investment
+              to sustainability and responsible development. In 2019, just a few miles from his
+              family farm, Steve spearheaded the creation of Middlebrook, Iowa&rsquo;s first
+              Agrihood: an innovative community integrating agriculture with residential living.
+              His leadership in sustainability also extends to his role as a founding member of
+              Leading Harvest, a national organization promoting responsible land stewardship.
+              Throughout his career, Steve has remained a relentless advocate for farmland owners,
+              shaping the industry with his expertise, vision, and commitment to U.S.
+              agriculture.</p>
+
+            <div class="tmd-facts">
+              <div class="tmd-fact">
+                <h3>Education</h3>
+                <p>University of Northern Iowa, B.A. Marketing, 2003, Cedar Falls, Iowa</p>
+              </div>
+              <div class="tmd-fact">
+                <h3>Memberships &amp; Affiliations</h3>
+                <ul class="tmd-affil">
+                  <li>REALTORS<sup>&reg;</sup> Land Institute</li>
+                  <li>Iowa Commercial Real Estate Association</li>
+                  <li>Iowa Association of REALTORS<sup>&reg;</sup></li>
+                  <li>National Association of REALTORS<sup>&reg;</sup></li>
+                  <li>National Auctioneers Association</li>
+                  <li>American Society of Farm Managers and Rural Appraisers</li>
+                </ul>
+              </div>
+              <div class="tmd-fact">
+                <h3>Boards</h3>
+                <ul class="tmd-affil">
+                  <li>President for International Ag Alliance</li>
+                  <li>Executive Committee Treasurer for the Farmland Capital Alliance</li>
+                  <li>Iowa Chapter of The Nature Conservancy Board of Trustees</li>
+                  <li>Chair of Iowa&rsquo;s Soil and Water Future Task Force</li>
+                  <li>Past President of the Iowa Chapter of the REALTORS<sup>&reg;</sup> Land Institute</li>
+                  <li>Advisory Council for UNI Real Estate Program</li>
+                </ul>
+              </div>
+              <div class="tmd-fact">
+                <h3>Awards &amp; Recognition</h3>
+                <ul class="tms-badges">
+                  <li><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/awards/QtIjcdQG0v398PJCEiquhjknt88WnVRAbfd6zerO.png" alt="REALTORS Land Institute APEX Awards: National Broker of the Year" loading="lazy" /></li>
+                  <li><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/awards/yAwdo79PdvvmfY7Agct1jhY85oHIv07cKku5d8QN.png" alt="REALTORS Land Institute APEX Awards: Top 20 National Producer" loading="lazy" /></li>
+                  <li><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/awards/RJdZ8spwcRF9shiQgniSgk3Z6LBXBjWBBmQGVQ1A.png" alt="NAA Auction Marketing Campaign of the Year" loading="lazy" /></li>
+                  <li><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/awards/LPUxl2A8g3skeAm49qjEaD0iv6yfNgJyUXcbAD9S.png" alt="National Association of REALTORS Commercial Award" loading="lazy" /></li>
+                  <li><img src="https://peoples-listings.nyc3.digitaloceanspaces.com/awards/K5RqAsppvO9DDOypjOynQIDHFfq2RC2K2cbq56sL.png" alt="RLI Iowa Chapter Most Acres Sold Award" loading="lazy" /></li>
+                </ul>
+                <ul class="tmd-awards tmd-awards-wide">
+                  <li><span class="tmd-awname">REALTORS<sup>&reg;</sup> Land Institute National Broker of the Year, Cropland Sales Category</span><span class="tmd-awyrs">2022</span></li>
+                  <li><span class="tmd-awname">REALTORS<sup>&reg;</sup> Land Institute Broker of the Year, Auction Land Sales Category</span><span class="tmd-awyrs">2019&ndash;2022, 2025</span></li>
+                  <li><span class="tmd-awname">Iowa REALTORS<sup>&reg;</sup> Land Institute Award for &ldquo;Most Acres Sold&rdquo;</span><span class="tmd-awyrs">2018&ndash;2022</span></li>
+                  <li><span class="tmd-awname">National Auctioneers Association &ldquo;Auction Marketing Campaign of the Year&rdquo;</span><span class="tmd-awyrs">2018, 2019, 2020, 2022</span></li>
+                  <li><span class="tmd-awname">REALTORS<sup>&reg;</sup> Land Institute APEX Top Twenty Producer Award</span><span class="tmd-awyrs">2017&ndash;2025</span></li>
+                  <li><span class="tmd-awname">UNI Heritage Honours Young Alumni Award</span><span class="tmd-awyrs">2014</span></li>
+                  <li><span class="tmd-awname">REALTORS<sup>&reg;</sup> Land Institute Land Broker of the Year</span><span class="tmd-awyrs">2013</span></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== 2. SPEAKING: speaker profile + signature topics ===== -->
+          <section class="tmd-panel" data-label="Speaking" id="tmdPanel-speaking" role="tabpanel" tabindex="-1" hidden>
+            <div class="tms-sec">
+              <h2 class="tmd-h2">Speaker Profile</h2>
+              <div class="tms-prose">
+                <p>Steve Bruere doesn&rsquo;t just study farmland: he&rsquo;s built the technology
+                  that manages it, founded and sold a company around it, and still farms it himself.
+                  As Vice President of Peoples Company, the nation&rsquo;s leading farm and land real
+                  estate firm, Steve oversees asset management strategy for investment-grade farmland
+                  on behalf of clients and capital partners, translating decades of price cycles,
+                  interest-rate shifts, and land-value data into insight investors can actually use.</p>
+                <p>A mechanical engineer by training with a PhD from Iowa State University, Steve
+                  spent his early career developing advanced biofuel technology with the U.S.
+                  Department of Energy before co-founding AgSolver, Inc. in 2013, an agricultural data
+                  startup where he created &ldquo;Precision Business Planning,&rdquo; a sub-acre
+                  analytics framework for optimizing farm income, investor returns, and environmental
+                  outcomes. He led AgSolver through its 2017 acquisition by EFC Systems, where he
+                  continues to advise on ag-technology integration.</p>
+                <p>Steve still works his family&rsquo;s farm in North Central Iowa, where he grew up,
+                  a hands-on connection to production agriculture that grounds every talk he gives.
+                  He&rsquo;s a recurring main-stage speaker at the Land Investment Expo and the
+                  on-camera expert behind Peoples Company&rsquo;s farmland education video series,
+                  known for turning a historically insider-only asset class into something any
+                  audience, from family offices to farm country, can follow and act on.</p>
+              </div>
+
+              <div class="tms-speaks">
+                <p class="tms-label">Speaks On</p>
+                <ul class="tms-chips">
+                  <li>Farmland Investment</li>
+                  <li>Land Values</li>
+                  <li>Interest Rates &amp; Cap Rates</li>
+                  <li>Farm Economy History</li>
+                  <li>Ag Technology &amp; AI</li>
+                  <li>Consumer &amp; Food Trends</li>
+                  <li>Land &amp; Energy</li>
+                </ul>
+              </div>
+
+              <div class="tms-facts">
+                <p class="tms-label">Fast Facts</p>
+                <ul>
+                  <li>PhD, Mechanical Engineering, Iowa State University</li>
+                  <li>Co-founder, AgSolver, Inc. (acquired by EFC Systems, 2017)</li>
+                  <li>Creator of &ldquo;Precision Business Planning,&rdquo; a sub-acre farm analytics framework</li>
+                  <li>Vice President, Peoples Company: oversees investment-grade farmland asset management</li>
+                  <li>Active family farmer in North Central Iowa</li>
+                  <li>Keynote speaker for land and agricultural events across the United States, including the Land Investment Expo</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="tms-sec">
+              <h2 class="tmd-h2">Signature Speaking Topics</h2>
+              <div class="tms-topics">
+              <details class="tms-topic" open>
+                <summary>
+                  <span class="tms-num" aria-hidden="true">01</span>
+                  <span>
+                    <h3 class="tms-ttl">Farmland: The $4 Trillion Asset Class Wall Street Still Doesn&rsquo;t Understand</h3>
+                    <p class="tms-tag">Farmland isn&rsquo;t just for farming; it&rsquo;s one of the largest, least-understood investment categories in the country.</p>
+                  </span>
+                  <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="tms-topicbody">
+                  <p>Steve breaks down why farmland behaves differently than stocks, bonds, or commercial real estate, walking audiences through the two engines of farmland return (annual income vs. long-term appreciation), why institutional capital is moving into the space, and what that means for individual investors, advisors, and lenders trying to get ahead of the trend. As a PhD engineer who built his own farm-data company, Steve brings a rare, numbers-first rigor most speakers on this topic don&rsquo;t have.</p>
+                  <div class="tms-topicgrid">
+                    <div>
+                      <p class="tms-label">Key Takeaways</p>
+                      <ul class="tms-takes">
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Why farmland has quietly outperformed as an asset class for decades</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>The 1/3&ndash;2/3 breakdown of farmland returns (income vs. appreciation) and why it matters</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Where institutional and family-office capital is moving next, and why</li>
+                      </ul>
+                    </div>
+                    <div class="tms-best">
+                      <p class="tms-label">Best For</p>
+                      <p>Investment &amp; wealth management conferences, family office forums, RIA/advisor events</p>
+                      <a class="btn btn-ghost" href="#tmdPanel-book" data-goto="Book" data-topic="1">Request This Topic</a>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <details class="tms-topic">
+                <summary>
+                  <span class="tms-num" aria-hidden="true">02</span>
+                  <span>
+                    <h3 class="tms-ttl">From Crisis to Comeback: What the 1980s Farm Crisis Teaches Us About Where Land Values Are Headed</h3>
+                    <p class="tms-tag">History doesn&rsquo;t repeat, but in farmland, it rhymes, and the pattern is worth knowing before the next cycle turns.</p>
+                  </span>
+                  <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="tms-topicbody">
+                  <p>Using the 1980s farm crisis as a case study, Steve connects historical land-value collapses and recoveries to today&rsquo;s interest-rate environment, showing lenders, landowners, and investors how to read the current cycle instead of being surprised by it. The talk bridges hard history with modern precision-ag and land-tech trends to show how far, and how fast, the industry has evolved.</p>
+                  <div class="tms-topicgrid">
+                    <div>
+                      <p class="tms-label">Key Takeaways</p>
+                      <ul class="tms-takes">
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>What actually caused the 1980s farm crisis, and why it&rsquo;s widely misread today</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>How interest rates and land values have historically moved together</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>What&rsquo;s structurally different about today&rsquo;s farmland market vs. the 1980s</li>
+                      </ul>
+                    </div>
+                    <div class="tms-best">
+                      <p class="tms-label">Best For</p>
+                      <p>Ag economy outlooks, banking &amp; ag-lending conferences, commodity and cooperative events</p>
+                      <a class="btn btn-ghost" href="#tmdPanel-book" data-goto="Book" data-topic="2">Request This Topic</a>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <details class="tms-topic">
+                <summary>
+                  <span class="tms-num" aria-hidden="true">03</span>
+                  <span>
+                    <h3 class="tms-ttl">Cap Rates, Interest Rates, and the Future of Farmland Returns</h3>
+                    <p class="tms-tag">The macro forces moving every other asset class are moving farmland too; most investors just aren&rsquo;t watching for it yet.</p>
+                  </span>
+                  <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="tms-topicbody">
+                  <p>A data-driven session on how rising and falling interest rates flow through to farmland cap rates and valuations. Originally delivered as a main-stage session at the Land Investment Expo, this talk gives investors and advisors a framework for evaluating farmland deals in the current rate environment, rather than relying on outdated assumptions.</p>
+                  <div class="tms-topicgrid">
+                    <div>
+                      <p class="tms-label">Key Takeaways</p>
+                      <ul class="tms-takes">
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>How cap rate compression/expansion has actually played out in farmland vs. other real estate</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>A simple framework for stress-testing a farmland deal against rate moves</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>What to watch for over the next 12&ndash;24 months</li>
+                      </ul>
+                    </div>
+                    <div class="tms-best">
+                      <p class="tms-label">Best For</p>
+                      <p>Real estate investment conferences, institutional/REIT audiences, land investor summits</p>
+                      <a class="btn btn-ghost" href="#tmdPanel-book" data-goto="Book" data-topic="3">Request This Topic</a>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <details class="tms-topic">
+                <summary>
+                  <span class="tms-num" aria-hidden="true">04</span>
+                  <span>
+                    <h3 class="tms-ttl">State of the Farmland Market: Annual Outlook</h3>
+                    <p class="tms-tag">A fresh, data-backed read on farmland values, refreshed every year for the room it&rsquo;s delivered to.</p>
+                  </span>
+                  <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="tms-topicbody">
+                  <p>A customizable keynote built fresh for each event, pulling the latest land-value data, regional trends, and macro forces into a forward-looking outlook. Ideal for event organizers who want an authoritative, current-year read on the farmland market rather than a static, recycled talk.</p>
+                  <div class="tms-topicgrid">
+                    <div>
+                      <p class="tms-label">Key Takeaways</p>
+                      <ul class="tms-takes">
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Current-year land value trends by region</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>What&rsquo;s driving (or dragging on) demand this cycle</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>A practical outlook for the coming 12 months</li>
+                      </ul>
+                    </div>
+                    <div class="tms-best">
+                      <p class="tms-label">Best For</p>
+                      <p>Annual conferences, recurring industry events, association keynotes</p>
+                      <a class="btn btn-ghost" href="#tmdPanel-book" data-goto="Book" data-topic="4">Request This Topic</a>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <details class="tms-topic">
+                <summary>
+                  <span class="tms-num" aria-hidden="true">05</span>
+                  <span>
+                    <h3 class="tms-ttl">Technology in Agriculture: Where Are We At and Where Are We Going</h3>
+                    <p class="tms-tag">Agriculture remains among the least digitized industries in most industry reports: why is that, and how is that changing?</p>
+                  </span>
+                  <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="tms-topicbody">
+                  <p>Steve provides perspective that covers the gap between technology development and actual boots-on-the-ground implementation. Audiences are provided the success stories for digitization in agriculture with the on-farm perspective on why these technologies have worked. The challenges for digitizing agriculture are more nuanced and interesting to explore. The integration of AI into agriculture decision making will have a similar profile of successes and challenges. Ideal for event organizers that want to provide their audiences with vision and perspective on how a fast-changing technology landscape will impact agriculture.</p>
+                  <div class="tms-topicgrid">
+                    <div>
+                      <p class="tms-label">Key Takeaways</p>
+                      <ul class="tms-takes">
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Historical perspective on technology deployment in agriculture</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>A vision for AI-based acceleration</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Perspectives on ag technology drawing from examples, specifically changes from global battlefields</li>
+                      </ul>
+                    </div>
+                    <div class="tms-best">
+                      <p class="tms-label">Best For</p>
+                      <p>Annual conferences, recurring industry events, association keynotes</p>
+                      <a class="btn btn-ghost" href="#tmdPanel-book" data-goto="Book" data-topic="5">Request This Topic</a>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <details class="tms-topic">
+                <summary>
+                  <span class="tms-num" aria-hidden="true">06</span>
+                  <span>
+                    <h3 class="tms-ttl">Consumer Trends Impacting Farmland and Agricultural Production</h3>
+                    <p class="tms-tag">The consumer market is demanding a different set of characteristics from their food: what is the response and impact moving from low-cost to consumer-connected supply chains?</p>
+                  </span>
+                  <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="tms-topicbody">
+                  <p>The &lsquo;Make America Healthy Again&rsquo; movement has highlighted a deeper dynamic in global food production; consumers want a robust connection with their food. Steve walks audiences through the commoditization of food production driven by incentives to reduce costs and enhance convenience, and how the current consumer landscape is changing that dynamic. This is creating significant opportunities for agricultural producers and landowners to realize value.</p>
+                  <div class="tms-topicgrid">
+                    <div>
+                      <p class="tms-label">Key Takeaways</p>
+                      <ul class="tms-takes">
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>What happened disconnecting the farm from the fork</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Data-driven perspective on more connected supply chains like organically certified products</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Policy drivers that supported commoditization of food and how they are unwinding</li>
+                      </ul>
+                    </div>
+                    <div class="tms-best">
+                      <p class="tms-label">Best For</p>
+                      <p>Annual conferences, recurring industry events, association keynotes</p>
+                      <a class="btn btn-ghost" href="#tmdPanel-book" data-goto="Book" data-topic="6">Request This Topic</a>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <details class="tms-topic">
+                <summary>
+                  <span class="tms-num" aria-hidden="true">07</span>
+                  <span>
+                    <h3 class="tms-ttl">Integrating Farmland, Agriculture, and Energy Production</h3>
+                    <p class="tms-tag">Land is one of the fundamental pillars of all economic development: optimized agricultural systems are being deployed to produce energy along with calories, creating significant opportunity.</p>
+                  </span>
+                  <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="tms-topicbody">
+                  <p>A customizable keynote that discusses how energy production has become a core component of farmland and agricultural systems, the policy dynamics that are impacting this integration, and visionary scenarios that may be realized based on pragmatic data analysis. Ideal for event organizers that want to explore the integration of land and energy systems for their audiences.</p>
+                  <div class="tms-topicgrid">
+                    <div>
+                      <p class="tms-label">Key Takeaways</p>
+                      <ul class="tms-takes">
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>US feed grain production efficiency has accelerated to the point of diverting calories toward energy production</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Exploring the impact of global regulation on carbon on farmland revenue streams</li>
+                      <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>Practical scenarios for farmland and agriculture as energy production increases over the coming decades</li>
+                      </ul>
+                    </div>
+                    <div class="tms-best">
+                      <p class="tms-label">Best For</p>
+                      <p>Annual conferences, recurring industry events, association keynotes</p>
+                      <a class="btn btn-ghost" href="#tmdPanel-book" data-goto="Book" data-topic="7">Request This Topic</a>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== 3. VIDEOS: speaker reel ===== -->
+          <section class="tmd-panel" data-label="Videos" id="tmdPanel-videos" role="tabpanel" tabindex="-1" hidden>
+            <h2 class="tmd-h2">Speaker Reel</h2>
+            <div class="tms-feat">
+              <a class="tms-vid" href="#" aria-label="Play 2025 Land Expo Main Stage">
+                <span class="tms-media">
+                  <img src="../assets/pc-expo.webp" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~27 min</span>
+                </span>
+              </a>
+              <div>
+                <span class="tms-vidtype">Live &middot; Main Stage</span>
+                <h3 class="tms-vidtitle">2025 Land Expo Main Stage</h3>
+                <p>The latest main-stage session from the Land Investment Expo.</p>
+                <a class="btn btn-primary" href="#">Watch Session</a>
+              </div>
+            </div>
+            <div class="tms-reel">
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/pc-hero2.jpg" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~44 min</span>
+                </span>
+                <span class="tms-vidtype">Live</span>
+                <span class="tms-vidtitle">2025 Land Expo Breakout Session</span>
+              </a>
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/pc-culture-field.webp" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~25 min</span>
+                </span>
+                <span class="tms-vidtype">Live</span>
+                <span class="tms-vidtitle">2024 Land Expo Main Stage</span>
+              </a>
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/pc-hero6.jpg" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~43 min</span>
+                </span>
+                <span class="tms-vidtype">Live / Panel</span>
+                <span class="tms-vidtitle">2024 Land Expo Breakout Session 1</span>
+              </a>
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/pc-hero8.jpg" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~42 min</span>
+                </span>
+                <span class="tms-vidtype">Live</span>
+                <span class="tms-vidtitle">2024 Land Expo Breakout Session 2</span>
+              </a>
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/pc-legacy-field.webp" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~45 min</span>
+                </span>
+                <span class="tms-vidtype">Live / Panel</span>
+                <span class="tms-vidtitle">2023 Land Expo Breakout Session 1</span>
+              </a>
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/pc-hero9.jpg" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~47 min</span>
+                </span>
+                <span class="tms-vidtype">Live</span>
+                <span class="tms-vidtitle">2023 Land Expo Breakout Session 2</span>
+              </a>
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/pc-trip-silos.jpg" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~33 min</span>
+                </span>
+                <span class="tms-vidtype">Live</span>
+                <span class="tms-vidtitle">2022 Land Expo Main Stage</span>
+              </a>
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/farmland_fundamentals.png" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~4:40</span>
+                </span>
+                <span class="tms-vidtype">Studio</span>
+                <span class="tms-vidtitle">PC Edu Ep. 1: &ldquo;$4 Trillion Asset Class&rdquo;</span>
+              </a>
+              <a class="tms-vid" href="#">
+                <span class="tms-media">
+                  <img src="../assets/pc-heritage-cap.png" alt="" loading="lazy" decoding="async" />
+                  <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
+                  <span class="tms-dur"><span class="sr-only">Length </span>~4:45</span>
+                </span>
+                <span class="tms-vidtype">Studio</span>
+                <span class="tms-vidtitle">PC Edu Ep. 7: Farm Crisis to Modern Ag</span>
+              </a>
+            </div>
+          </section>
+
+          <!-- ===== 4. BOOK: speaking request ===== -->
+          <section class="tmd-panel" data-label="Book" id="tmdPanel-book" role="tabpanel" tabindex="-1" hidden>
+            <div class="tms-sec">
+              <h2 class="tmd-h2">Book Steve to Speak</h2>
+              <p class="tmd-formlede">Tell us about your event and we will follow up on availability.</p>
+              <form class="tmd-form" action="#" onsubmit="return false;">
+                <div class="tmd-frow">
+                  <div class="tmd-field">
+                    <label for="bkName">Name</label>
+                    <input id="bkName" name="name" type="text" autocomplete="name" required />
+                  </div>
+                  <div class="tmd-field">
+                    <label for="bkTitle">Title</label>
+                    <input id="bkTitle" name="title" type="text" autocomplete="organization-title" />
+                  </div>
+                  <div class="tmd-field">
+                    <label for="bkOrg">Organization</label>
+                    <input id="bkOrg" name="organization" type="text" autocomplete="organization" />
+                  </div>
+                </div>
+                <div class="tms-frow2">
+                  <div class="tmd-field">
+                    <label for="bkEmail">Email</label>
+                    <input id="bkEmail" name="email" type="email" autocomplete="email" required />
+                  </div>
+                  <div class="tmd-field">
+                    <label for="bkPhone">Phone</label>
+                    <input id="bkPhone" name="phone" type="tel" autocomplete="tel" />
+                  </div>
+                </div>
+                <div class="tmd-frow tms-fgroup">
+                  <div class="tmd-field">
+                    <label for="bkEvent">Event Name</label>
+                    <input id="bkEvent" name="event" type="text" />
+                  </div>
+                  <div class="tmd-field">
+                    <label for="bkDate">Event Date</label>
+                    <input id="bkDate" name="date" type="date" />
+                  </div>
+                  <div class="tmd-field">
+                    <label for="bkCity">Event Location</label>
+                    <input id="bkCity" name="location" type="text" placeholder="City, State" />
+                  </div>
+                </div>
+                <div class="tmd-frow">
+                  <div class="tmd-field">
+                    <label for="bkFormat">Format</label>
+                    <select id="bkFormat" name="format">
+                      <option value="">Select a format</option>
+                      <option>Keynote / Main Stage</option>
+                      <option>Breakout Session</option>
+                      <option>Panel</option>
+                      <option>Virtual</option>
+                    </select>
+                  </div>
+                  <div class="tmd-field">
+                    <label for="bkAudience">Expected Audience</label>
+                    <select id="bkAudience" name="audience">
+                      <option value="">Select a size</option>
+                      <option>Under 100</option>
+                      <option>100&ndash;250</option>
+                      <option>250&ndash;500</option>
+                      <option>500&ndash;1,000</option>
+                      <option>1,000+</option>
+                    </select>
+                  </div>
+                  <div class="tmd-field">
+                    <label for="bkTopic">Topic of Interest</label>
+                    <select id="bkTopic" name="topic">
+                      <option value="">Select a topic</option>
+                    <option value="1">Farmland: The $4 Trillion Asset Class</option>
+                    <option value="2">From Crisis to Comeback: The 1980s Farm Crisis</option>
+                    <option value="3">Cap Rates, Interest Rates, and Farmland Returns</option>
+                    <option value="4">State of the Farmland Market: Annual Outlook</option>
+                    <option value="5">Technology in Agriculture</option>
+                    <option value="6">Consumer Trends Impacting Farmland</option>
+                    <option value="7">Integrating Farmland, Agriculture, and Energy</option>
+                      <option value="custom">Custom / Not Sure Yet</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="tmd-field">
+                  <label for="bkMsg">Tell Us About Your Event</label>
+                  <textarea id="bkMsg" name="message" rows="5"></textarea>
+                </div>
+                <div class="tmd-fsubmit">
+                  <button class="btn btn-primary" type="submit">Submit Request</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="tms-sec">
+              <h2 class="tmd-h2">Booking FAQs</h2>
+              <div class="tms-faq">
+                <details>
+                  <summary>What topics does Steve speak on? <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary>
+                  <p>Seven signature talks, listed under Speaking: farmland as an asset class, the
+                    1980s farm crisis and land-value cycles, cap rates and interest rates, the annual
+                    State of the Farmland Market outlook, technology in agriculture, consumer trends,
+                    and the integration of farmland and energy production.</p>
+                </details>
+                <details>
+                  <summary>Can a talk be built for our event? <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary>
+                  <p>Yes. The State of the Farmland Market outlook is built fresh for each event with
+                    current-year data, and Integrating Farmland, Agriculture, and Energy Production is
+                    offered as a customizable keynote.</p>
+                </details>
+                <details>
+                  <summary>What formats are available? <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary>
+                  <p>Main-stage keynotes, breakout sessions and panels, as delivered at the Land
+                    Investment Expo, plus the studio format of Peoples Company&rsquo;s farmland
+                    education series.</p>
+                </details>
+                <details>
+                  <summary>How do I check availability? <svg class="tms-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary>
+                  <p>Send the request form above with your event date, location and audience, or call
+                    the Peoples Company office at 855.800.LAND.</p>
+                </details>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== 5. CONTACT ===== -->
+          <section class="tmd-panel" data-label="Contact" id="tmdPanel-contact" role="tabpanel" tabindex="-1" hidden>
+            <h2 class="tmd-h2">Contact Steve</h2>
+            <p class="tmd-formlede">Please use the form to request a comparative market analysis or
+              connect with us about buying, selling, or exploring land opportunities. We&rsquo;re
+              ready to be your trusted resource.</p>
+            <form class="tmd-form tmd-form-wide" action="#" onsubmit="return false;">
+              <div class="tmd-frow">
+                <div class="tmd-field">
+                  <label for="tmdName">Name</label>
+                  <input id="tmdName" name="name" type="text" autocomplete="name" required />
+                </div>
+                <div class="tmd-field">
+                  <label for="tmdEmail">Email</label>
+                  <input id="tmdEmail" name="email" type="email" autocomplete="email" required />
+                </div>
+                <div class="tmd-field">
+                  <label for="tmdPhone">Phone</label>
+                  <input id="tmdPhone" name="phone" type="tel" autocomplete="tel" />
+                </div>
+              </div>
+              <div class="tmd-field">
+                <label for="tmdMsg">Comment</label>
+                <textarea id="tmdMsg" name="message" rows="6"></textarea>
+              </div>
+              <div class="tmd-fsubmit">
+                <button class="btn btn-primary" type="submit">Send Message</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- ===== 6. LISTINGS ===== -->
+          <section class="tmd-panel" data-label="Listings" id="tmdPanel-listings" role="tabpanel" tabindex="-1" hidden>
+            <h2 class="tmd-h2">Available Listings</h2>
+            <div class="lc-grid">
+              <article class="lc">
+                <div class="lc-media">
+                  <img src="../assets/pc-hero6.jpg" alt="Tillable acres under an open sky" loading="lazy" decoding="async" />
+                  <span class="lc-pill is-auction">Live Auction</span>
+                </div>
+                <div class="lc-body">
+                  <div class="lc-statusrow">
+                    <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
+                    <p class="lc-id"><span class="sr-only">Listing </span>#19620</p>
+                  </div>
+                  <p class="lc-place"><a class="lc-link" href="./listings-details-auction.html">Greene County, IA</a></p>
+                  <p class="lc-headline">Auction Oct 23, 2026</p>
+                </div>
+              </article>
+            </div>
+            <p class="tmd-panelfoot">
+              <a class="btn btn-ghost" href="./listings.html">See all of Steve&rsquo;s listings</a>
+            </p>
+          </section>
+        </div>
+
+        <!-- ---- RIGHT RAIL ---- -->
+        <aside class="tmd-rail" aria-label="Speaking, credentials and references">
+
+          <section class="tmd-rcard is-filled tms-rcta">
+            <h2 class="tmd-rtitle">Speaking Inquiries</h2>
+            <p>Check Steve&rsquo;s availability for your conference, association meeting or
+              investor event.</p>
+            <a class="btn btn-primary" href="#tmdPanel-book" data-goto="Book">Check Availability</a>
+          </section>
+
+          <section class="tmd-rcard" id="tmdPanel-licenses" data-tab-label="Licenses">
+            <h2 class="tmd-rtitle">Licenses</h2>
+            <ul class="tmd-lic">
+              <li><span class="tmd-licwho">Arkansas</span><span class="tmd-licno">SA00080953</span></li>
+              <li><span class="tmd-licwho">Colorado</span><span class="tmd-licno">IA.100095578</span></li>
+              <li><span class="tmd-licwho">Georgia</span><span class="tmd-licno">439185</span></li>
+              <li><span class="tmd-licwho">Illinois</span><span class="tmd-licno">475173929</span></li>
+              <li><span class="tmd-licwho">Iowa</span><span class="tmd-licno">S43684000</span></li>
+              <li><span class="tmd-licwho">Kansas</span><span class="tmd-licno">SP00242717</span></li>
+              <li><span class="tmd-licwho">Minnesota</span><span class="tmd-licno">40285814</span></li>
+              <li><span class="tmd-licwho">Mississippi</span><span class="tmd-licno">S-52145</span></li>
+              <li><span class="tmd-licwho">Missouri</span><span class="tmd-licno">2011022778</span></li>
+              <li><span class="tmd-licwho">Nebraska</span><span class="tmd-licno">20170640</span></li>
+              <li><span class="tmd-licwho">North Dakota</span><span class="tmd-licno">10165</span></li>
+              <li><span class="tmd-licwho">Ohio</span><span class="tmd-licno">REC.2022000505</span></li>
+              <li><span class="tmd-licwho">Oregon</span><span class="tmd-licno">201232246</span></li>
+              <li><span class="tmd-licwho">South Dakota</span><span class="tmd-licno">17886</span></li>
+              <li><span class="tmd-licwho">Washington</span><span class="tmd-licno">130577</span></li>
+            </ul>
+          </section>
+
+          <section class="tmd-rcard" id="tmdPanel-references" data-tab-label="References">
+            <h2 class="tmd-rtitle">References</h2>
+            <ul class="tms-refs">
+              <li><strong>Terry Lutz</strong><span>President, McClure Engineering Co.</span></li>
+              <li><strong>Chris Sackett</strong><span>Attorney, Brown Winick Law Firm</span></li>
+              <li><strong>Dave Brown</strong><span>President, IPE 1031 Exchange</span></li>
+              <li><strong>John Frandson</strong><span>Director, Principal Global Investors</span></li>
+              <li><strong>Bill Hanigan</strong><span>Attorney, Davis Brown Law Firm</span></li>
+            </ul>
+          </section>
+
+        </aside>
+      </div>
+    </div>
+  </main>
+
+
+  <script>
+  (function(){
+    /* ---- SUB-NAV: one tab per panel that exists ------------------------------
+       The tablist ships empty and is written from the DOM. A CMS that outputs no
+       .tmd-panel for a section produces no tab for it, and the first panel that
+       survives is the one that opens. Nothing else needs to know which sections
+       an agent happens to have.
+
+       buildTabs() IS RE-CALLABLE, because the set of panels is no longer fixed for the
+       life of the page: at 1023 and down Licenses and Blogs migrate out of the rail and
+       become panels (see the migration block below), so the strip has to be written
+       again from whatever is in .tmd-main at the time. */
+    var tabsBox = document.getElementById("tmdTabs");
+    var main    = document.querySelector(".tmd-main");
+    var cols    = document.querySelector(".tmd-cols");
+    var rail    = document.querySelector(".tmd-rail");
+    if(!tabsBox || !main) return;
+
+    var panels = [], tabs = [], keyBound = false;
+
+    function select(i, focusPanel){
+      tabs.forEach(function(t, n){
+        var on = n === i;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.setAttribute("tabindex", on ? "0" : "-1");
+        panels[n].hidden = !on;
+      });
+      if(focusPanel) panels[i].focus();
+    }
+
+    /* Left/right arrow keys walk the tablist, which is what the tab pattern expects.
+       Bound ONCE - the listener reads the current tabs/panels through the closure, so a
+       rebuild needs no new listener and cannot stack duplicates. */
+    function onKey(e){
+      var i = tabs.indexOf(document.activeElement);
+      if(i < 0) return;
+      var next = e.key === "ArrowRight" ? i + 1
+               : e.key === "ArrowLeft"  ? i - 1
+               : e.key === "Home"       ? 0
+               : e.key === "End"        ? tabs.length - 1 : -1;
+      if(next < 0 && next !== 0) return;
+      e.preventDefault();
+      next = (next + tabs.length) % tabs.length;
+      tabs[next].focus();
+      select(next);
+    }
+
+    /* ONE PANEL MEANS NO TAB BAR. A tablist holding a single tab is 98px of sticky chrome
+       whose only offer is the panel already on screen, and it lies to a screen reader:
+       role="tablist" announces a choice that does not exist. So the bar is REMOVED from the
+       DOM, not hidden - .tmd-tabs sets display:flex, which beats the UA's [hidden] rule, so
+       hiding it by attribute would leave it on screen.
+       The lone panel then has to stop pretending to be a tab panel: role, tabindex and
+       aria-labelledby all come off, and `hidden` is cleared, so it reads as ordinary content
+       with its own h2. data-label stays - it is the CMS's field, not a tab artefact.
+       THE TAB LABEL AND THE HEADING ARE TWO DIFFERENT FIELDS. data-label is "Available" and
+       "Sold" while the panels' own h2 reads "Available Listings" and "Sold Listings": the tab
+       is a place in a strip that has to hold every section on one row, the heading is the
+       title of the section once you are in it.
+       No CSS needs changing. The bar's negative top margin exists to cancel .tmd-cols'
+       padding-top; with the bar gone that padding simply applies, which is the right gap
+       between the identity band and the panel. */
+    function buildTabs(keepLabel){
+      if(!tabsBox.parentNode) return;
+      panels = [].slice.call(main.querySelectorAll(".tmd-panel[data-label]"));
+      while(tabsBox.firstChild) tabsBox.removeChild(tabsBox.firstChild);
+      tabs = [];
+      if(!panels.length) return;
+
+      if(panels.length < 2){
+        tabsBox.parentNode.removeChild(tabsBox);
+        var only = panels[0];
+        only.removeAttribute("role");
+        only.removeAttribute("tabindex");
+        only.removeAttribute("aria-labelledby");
+        only.hidden = false;
+        return;
+      }
+
+      tabs = panels.map(function(panel, i){
+        var b = document.createElement("button");
+        b.className = "tmd-tab";
+        b.type = "button";
+        b.id = panel.id.replace("tmdPanel-", "tmdTab-");
+        b.setAttribute("role", "tab");
+        b.setAttribute("aria-controls", panel.id);
+        b.textContent = panel.getAttribute("data-label");
+        panel.setAttribute("aria-labelledby", b.id);
+        tabsBox.appendChild(b);
+        b.addEventListener("click", function(){ select(i); });
+        return b;
+      });
+
+      if(!keyBound){ tabsBox.addEventListener("keydown", onKey); keyBound = true; }
+
+      /* KEEP THE SECTION THE READER WAS ON. A rebuild happens when the viewport crosses
+         1024 and the panel set changes, and dropping them back on Bio because the window
+         was dragged is a bug, not a reset. Matched by LABEL, not index: the set it is
+         being restored into is a different length. A label that no longer exists - only
+         Licenses and Blogs can vanish, by going back into the rail - falls back to the
+         first panel. */
+      var want = keepLabel ? panels.map(function(pn){
+        return pn.getAttribute("data-label");
+      }).indexOf(keepLabel) : -1;
+      select(want < 0 ? 0 : want);
+    }
+
+    /* ---- 1023 AND DOWN: LICENSES AND BLOGS ARE TABS, NOT RAIL CARDS ----------
+       At 1024 and up they are cards in the rail beside the panels. Below it the rail stacks
+       UNDER the panels, where two more cards read as a second page of content after the tabs
+       have already offered six - so they become the seventh and eighth panels instead, and
+       the rail, now empty, takes itself out.
+
+       THIS IS A DOM MOVE, NOT A COPY. CSS cannot re-parent an element, and the same content
+       must never exist twice on a page, so the sections are relocated and their heading swaps
+       class: .tmd-rtitle is a card's 12px eyebrow, .tmd-h2 is a panel's 27px heading. Nothing
+       else about them changes.
+
+       data-tab-label, not data-label: buildTabs() collects .tmd-panel[data-label], so the
+       label has to sit in an attribute the builder ignores until the section really is a
+       panel. It is the same CMS field either way. */
+    var movers = [].slice.call(document.querySelectorAll("[data-tab-label]"));
+    movers.forEach(function(s){
+      s._railHome = s.parentNode;
+      s._railNext = s.nextElementSibling;
+    });
+
+    /* ---- THE STRIP READS IN A DIFFERENT ORDER BELOW 1024 ---------------------
+       At 1024 and up the six panels keep their markup order, so the wide order is
+       CAPTURED HERE - at load, before anything moves - rather than written out a second
+       time where it could drift from the markup.
+
+       Why the DOM is re-ordered and not just the tablist: the tab sequence should be the
+       panel sequence. Keeping them in step means a screen reader walking the document
+       and a reader walking the strip meet the sections in the same order, and it keeps
+       buildTabs() honest - it reads the DOM and nothing else.
+
+       A label not named below keeps its place at the end, so a CMS section nobody
+       thought about here still gets a tab. */
+    var homeOrder = [].slice.call(main.querySelectorAll(".tmd-panel"));
+
+    /* THREE ORDERS, ONE PER STATE. "wide" is the markup order, captured above.
+       "mid" is 768-1023, a single row of eight.
+       "small" is 767 and down, where the strip is a 2 x 4 grid - so this list is read as
+       a matrix, four across then four across:
+           Bio        Licenses  Contact       Blogs
+           Available  Sold      Testimonials  Photos
+       Which means the order here is the READING order of that matrix, not a ranking. */
+    var midOrder   = ["Bio", "Speaking", "Videos", "Book",
+                      "Contact", "Listings", "Licenses", "References"];
+    var smallOrder = midOrder;
+
+    function orderPanels(stateNow){
+      var here = [].slice.call(main.querySelectorAll(".tmd-panel[data-label]"));
+      var list;
+      if(stateNow !== "wide"){
+        var want = stateNow === "small" ? smallOrder : midOrder;
+        var byLabel = {};
+        here.forEach(function(pn){ byLabel[pn.getAttribute("data-label")] = pn; });
+        list = want.map(function(l){ return byLabel[l]; }).filter(Boolean);
+        here.forEach(function(pn){ if(list.indexOf(pn) < 0) list.push(pn); });
+      } else {
+        list = homeOrder.filter(function(pn){ return pn.parentNode === main; });
+      }
+      /* appendChild MOVES a node that is already in the document, so walking the list in
+         order lands them in that order. The tablist is not in the list, so it stays put
+         at the top of the column. */
+      list.forEach(function(pn){ main.appendChild(pn); });
+    }
+
+    function asPanel(s){
+      s.classList.remove("tmd-rcard");
+      s.classList.add("tmd-panel");
+      s.setAttribute("data-label", s.getAttribute("data-tab-label"));
+      s.setAttribute("role", "tabpanel");
+      s.setAttribute("tabindex", "-1");
+      s.hidden = true;
+      var t = s.querySelector(".tmd-rtitle");
+      if(t) t.className = "tmd-h2";
+      main.appendChild(s);
+    }
+
+    function asRailCard(s){
+      s.classList.remove("tmd-panel");
+      s.classList.add("tmd-rcard");
+      s.removeAttribute("data-label");
+      s.removeAttribute("role");
+      s.removeAttribute("tabindex");
+      s.removeAttribute("aria-labelledby");
+      s.hidden = false;
+      var t = s.querySelector(".tmd-h2");
+      if(t) t.className = "tmd-rtitle";
+      if(!s._railHome) return;
+      /* The remembered sibling may itself still be out in .tmd-main, in which case it is not
+         a child of the rail and cannot be an insertion reference - appending is then correct,
+         since the movers are restored in document order. */
+      var ref = (s._railNext && s._railNext.parentNode === s._railHome) ? s._railNext : null;
+      s._railHome.insertBefore(s, ref);
+    }
+
+    /* AN EMPTY RAIL IS NO RAIL. The minimum record has no licenses and no posts, so the rail
+       can come out with zero cards - and a 320px column of nothing beside the panels reads as
+       a load failure rather than as a thin profile. Below 1024 it is empty for the other
+       reason: both its cards are tabs. Either way the track and the gap come off.
+       It is HIDDEN rather than detached, because the cards have to have somewhere to go back
+       to when the viewport crosses 1024 again. */
+    function syncRail(){
+      if(!cols || !rail) return;
+      var empty = !rail.querySelector(".tmd-rcard");
+      rail.hidden = empty;
+      if(empty) cols.classList.add("is-norail");
+      else      cols.classList.remove("is-norail");
+    }
+
+    /* THREE STATES, AND THE TWO BREAKPOINTS THAT SEPARATE THEM. Both queries sit on the
+       ladder in pc.css - 1024 is where the rail exists, 768 is where the strip stops
+       being one row - so this reads the same two numbers the stylesheet does. */
+    var mqNarrow = window.matchMedia("(max-width: 1023px)");
+    var mqSmall  = window.matchMedia("(max-width: 767px)");
+    var state = null;
+
+    function stateNow(){
+      return mqSmall.matches  ? "small"
+           : mqNarrow.matches ? "mid"
+           :                    "wide";
+    }
+
+    /* GUARDED, so this is safe to call as often as anything wants to. It returns
+       immediately unless the STATE has actually changed, which is what makes the resize
+       listener below cheap and stops a drag across the middle of a range from rebuilding
+       the strip on every frame - or resetting the open tab. */
+    function apply(){
+      var now = stateNow();
+      if(now === state) return;
+      state = now;
+      var open = tabs.length ? tabs.filter(function(t){
+        return t.getAttribute("aria-selected") === "true";
+      })[0] : null;
+      movers.forEach(now === "wide" ? asRailCard : asPanel);
+      orderPanels(now);
+      syncRail();
+      buildTabs(open ? open.textContent : null);
+    }
+
+    apply();
+
+    /* BOTH KINDS OF LISTENER ON PURPOSE. The MediaQueryList change event is the right
+       signal and the one that fires in a browser; resize is the belt-and-braces path for
+       anything that moves the viewport without dispatching it. The guard above makes the
+       overlap free - whichever arrives first does the work, the others return at once. */
+    [mqNarrow, mqSmall].forEach(function(q){
+      if(q.addEventListener)  q.addEventListener("change", apply);
+      else if(q.addListener)  q.addListener(apply);
+    });
+    window.addEventListener("resize", apply);
+
+    /* ---- JUMP LINKS: [data-goto] opens the tab it names --------------------------
+       Used by Check Availability and every Request This Topic button. Matched by label,
+       so it works in whatever order the strip is in at the current width. data-topic
+       preselects that talk in the booking form. */
+    document.addEventListener("click", function(e){
+      var g = e.target.closest ? e.target.closest("[data-goto]") : null;
+      if(!g) return;
+      var want = g.getAttribute("data-goto");
+      var tab = tabs.filter(function(t){ return t.textContent === want; })[0];
+      if(!tab) return;
+      e.preventDefault();
+      tab.click();
+      var topic = g.getAttribute("data-topic");
+      var sel = document.getElementById("bkTopic");
+      if(topic && sel) sel.value = topic;
+      var navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--navH")) || 0;
+      window.scrollTo({ top: cols.getBoundingClientRect().top + window.pageYOffset - navH, behavior: "smooth" });
+      var first = document.getElementById("bkName");
+      if(first && want === "Book") first.focus({ preventScroll: true });
+    });
+  })();
+  </script>
+
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="pff">
+    <div class="pff-main">
+      <!-- connect band on top: logo · newsletter line · subscribe pill -->
+      <div class="pff-inner pff-connect">
+        <a class="pff-connect-logo" href="./index.html" aria-label="Peoples Company home">
+          <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+        </a>
+        <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
+             Keeps one line where it fits (>=1536) instead of a hard <br> everywhere. -->
+        <p class="pff-connect-line">Stay Connected and Subscribe to&nbsp;Our&nbsp;Newsletter.</p>
+        <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
+          <input type="email" placeholder="Email Address" aria-label="Email address" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+
+      <div class="pff-inner pff-grid">
+        <div class="pff-brand pff-col">
+          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
+               design puts it between the rule and "Corporate Office". Exactly one footer
+               lockup is visible at any width. -->
+          <a class="pff-brand-logo" href="./index.html" aria-label="Peoples Company home">
+            <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+          </a>
+          <h3>Corporate Office</h3>
+          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
+               row separated by "|" (CSS can't attach a separator to a bare text node). The
+               <br>s are kept for every other width, where the block still stacks. -->
+          <p class="pff-contact">
+            <span>1108 S. 44th Street, Suite 102</span><br />
+            <span>Cumming, IA 50061</span><br />
+            <span><b><a href="tel:+18558005263">855.800.LAND</a></b></span><br />
+            <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
+          </p>
+          <div class="pff-cta">
+            <a class="btn btn-subscribe" href="./contact.html">Find an Office</a>
+          </div>
+        </div>
+
+        <nav class="pff-col" aria-label="Real Estate">
+          <h3>Real Estate</h3>
+          <ul>
+            <li><a href="./listings.html">Traditional Search</a></li>
+            <li><a href="./internal.html">AI Search</a></li>
+            <li><a href="./internal.html">Interactive Map</a></li>
+            <li><a href="./internal.html">Auctions</a></li>
+            <li><a href="./internal.html">Prior Transactions</a></li>
+            <li><a href="./team-member.html">Find An Agent</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="The Company">
+          <h3>The Company</h3>
+          <ul>
+            <li><a href="./about.html">Overview</a></li>
+            <li><a href="./regions.html">Regions</a></li>
+            <li><a href="./internal.html">Industry Collaboration</a></li>
+            <li><a href="./team.html">Our Team</a></li>
+            <li><a href="./contact.html">Offices</a></li>
+            <li><a href="./culture.html">Culture</a></li>
+            <li><a href="./careers.html">Careers</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="What We Do">
+          <h3>What We Do</h3>
+          <ul>
+            <li><a href="./internal.html">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="./internal.html">Agricultural Appraisal</a></li>
+            <li><a href="./internal.html">Land Management</a></li>
+            <li><a href="./internal.html">Energy Management</a></li>
+            <li><a href="./internal.html">Crop Insurance</a></li>
+            <li><a href="./internal.html">Capital Markets</a></li>
+            <li><a href="./internal.html">Corporate Services</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="Insights &amp; News">
+          <h3>Insights &amp; News</h3>
+          <ul>
+            <li><a href="./industry-research.html">Industry Research</a></li>
+            <li><a href="./nlv.html">National Land Values</a></li>
+            <li><a href="./internal.html">Case Studies</a></li>
+            <li><a href="./newsletters.html">Newsletters</a></li>
+            <li><a href="./blog.html">Blog</a></li>
+            <li><a href="./internal.html">In the News</a></li>
+            <li><a href="./awards-recognition.html">Industry Recognition</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="pff-bottom">
+      <div class="pff-bottom-inner">
+        <span class="copy">© 2026 Peoples Company</span>
+
+        <span class="legal-links">
+          <a href="./legal.html#privacy-notice">Privacy Notice</a>
+          <a href="./legal.html#disclaimer">Disclaimer</a>
+          <a href="./legal.html#equal-opportunity">Equal Opportunity</a>
+        </span>
+
+        <span class="pff-social">
+          <a href="./internal.html" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="./internal.html" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="./internal.html" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="./internal.html" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="./internal.html" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </span>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
+       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
+       The open card carries the same alert icon as the handle. -->
+  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
+    <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <div class="pc-toast-body">
+      <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
+        <a href="./internal.html">136.57 Acres M/L in Wayne County IA</a><br>
+        <a href="./internal.html"><em>WATCH</em></a><br>
+        <a href="./internal.html">804 Acres M/L in Juneau County WI</a><br>
+        <a href="./internal.html"><em>WATCH</em></a>
+      </p>
+    </div>
+    <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
+  </aside>
+
+  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
+       open; at <=1279px the JS starts minimized and this handle shows instead. -->
+  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <span>Auction Alerts</span>
+  </button>
+
+  <script>
+    // Mega-menu nav built from the real IA. "The Company" panel carries three
+    // affiliation badges on the right (this tab only).
+    (function(){
+      var IAA_SVG = '<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.6"/><ellipse cx="32" cy="26" rx="6" ry="14" fill="none" stroke="currentColor" stroke-width="1.1"/><line x1="18" y1="26" x2="46" y2="26" stroke="currentColor" stroke-width="1.1"/><path d="M20 19 Q32 23 44 19" fill="none" stroke="currentColor" stroke-width="1"/><path d="M20 33 Q32 29 44 33" fill="none" stroke="currentColor" stroke-width="1"/><path d="M32 45 C24 43 18 47 15 55 C24 55 30 52 32 45Z" fill="currentColor"/><path d="M32 45 C40 43 46 47 49 55 C40 55 34 52 32 45Z" fill="currentColor"/><line x1="32" y1="43" x2="32" y2="55" stroke="currentColor" stroke-width="1.3"/></svg>';
+      var EXPO_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5"/><circle cx="12" cy="10" r="2.6"/><path d="M7.5 19c0-2.5 2-4.4 4.5-4.4s4.5 1.9 4.5 4.4"/><path d="M4.5 8l2 1M19.5 8l-2 1"/></svg>';
+
+      var NAV = [
+        { label: "Real Estate", cols: [
+          { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
+          { h: "Auctions", items: ["Upcoming Auctions","Auction Results"] },
+          { h: "Prior Transactions", items: [] }
+        ]},
+        { label: "The Company", cols: [
+          { h: "The Company", items: ["Overview","Regions"] },
+          { spacer: true, items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
+          { badges: [
+            { type: "expo", label: "Land Investment Expo" },
+            { type: "afo",  label: "American Farmland Owner" },
+            { type: "iaa",  label: "International Ag Alliance" }
+          ]}
+        ]},
+        { label: "What We Do", cols: [
+          { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] } ]},
+          { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] } ]},
+          { svc: [ { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
+          { svc: [ { name: "Energy Management" }, { name: "Crop Insurance" }, { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+        ]},
+        { label: "Insights & News", cols: [
+          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
+        ]}
+      ];
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+      function badgeHTML(b){
+        var emb;
+        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="./internal.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
+        if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="./internal.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
+        // american farmland owner — real horizontal logo (assets/afo.png)
+        return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
+      }
+      function colHTML(c){
+        if(c.badges){
+          return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
+        }
+        if(c.svc){
+          var blocks = c.svc.map(function(s){
+            var sub = (s.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+            return '<div class="pcf-svcblock">'+
+              '<div class="pcf-svc"><a href="./internal.html">'+esc(s.name)+'</a></div>'+
+              (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
+            '</div>';
+          }).join("");
+          return '<div class="pcf-col">'+blocks+'</div>';
+        }
+        if(c.h && (!c.items || !c.items.length) && !c.note){
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+        }
+        var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+        // spacer:true → an invisible h4 so a continuation column's first link lines up
+        // with the neighboring column's first link (see .pcf-h4-ghost in pc.css).
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
+                       : (c.spacer ? '<h4 class="pcf-h4-ghost" aria-hidden="true">&nbsp;</h4>' : '');
+        var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
+        return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
+      }
+      // Top level is a TRIGGER, not a destination: a <button>, so clicking opens the panel
+      // instead of navigating. It must not be an <a href>, which would reload the page on
+      // click and leave the panel reachable only by hovering.
+      function itemHTML(n){
+        return '<li><button class="pcf-menu-btn" type="button" aria-haspopup="true" aria-expanded="false">'+
+            esc(n.label)+
+          '</button>'+
+          '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
+            '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
+          '</div></li>';
+      }
+      var mount = document.getElementById("pcfMenus");
+      if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+
+      // Hamburger drawer content — SAME colHTML() as the mega panels, so the two can never
+      // drift apart. Each top-level section becomes a heading with its columns beneath.
+      var drawer = document.querySelector("#navDrawer .pcf-drawer-in");
+      if(drawer){
+        // Each section carries a slug class ("sec-the-company") so per-section drawer
+        // layout can be targeted BY NAME rather than by nth-of-type — reordering NAV must
+        // not silently move a layout override onto a different section.
+        function slug(s){
+          return s.toLowerCase().replace(/&/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+        }
+        drawer.innerHTML = NAV.map(function(n){
+          return '<section class="pcf-drawer-sec sec-'+slug(n.label)+'">'+
+                   '<h3>'+esc(n.label)+'</h3>'+
+                   '<div class="pcf-drawer-cols">'+n.cols.map(colHTML).join("")+'</div>'+
+                 '</section>';
+        }).join("");
+      }
+    })();
+
+    // SHARED PAGE SCROLL LOCK for the overlays (map layer, hamburger drawer).
+    // `overscroll-behavior: contain` only stops a scroll gesture INSIDE an overlay from
+    // chaining to the page; a wheel over the backdrop still scrolled the document. This
+    // locks the document itself.
+    //
+    // Reference-counted on purpose: the map layer and the drawer can be open at the same
+    // time, and closing one must not unlock the page while the other is still open.
+    //
+    // Uses overflow:hidden on <html> (which preserves scroll position, so nothing needs
+    // restoring) and pads the right by the scrollbar's width, otherwise removing the
+    // scrollbar shifts the whole page sideways as the overlay opens.
+    var pcScrollLock = (function(){
+      var count = 0;
+      var root = document.documentElement;
+      return {
+        on: function(){
+          if(count++ > 0) return;
+          var sbw = window.innerWidth - root.clientWidth;
+          root.style.overflow = "hidden";
+          if(sbw > 0) root.style.paddingRight = sbw + "px";
+        },
+        off: function(){
+          if(count === 0 || --count > 0) return;   // never go negative
+          root.style.overflow = "";
+          root.style.paddingRight = "";
+        }
+      };
+    })();
+
+    // Hamburger open/close — same contract as the search popover and the map layer:
+    // click toggles, Esc closes and returns focus, backdrop/outside click closes.
+    (function(){
+      var btn = document.getElementById("navBurger"),
+          drawer = document.getElementById("navDrawer"),
+          backdrop = document.querySelector(".pcf-drawer-backdrop");
+      if(!btn || !drawer) return;
+
+      function open(){
+        drawer.hidden = false;
+        if(backdrop) backdrop.hidden = false;
+        pcScrollLock.on();
+        btn.setAttribute("aria-expanded", "true");
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        drawer.hidden = true;
+        if(backdrop) backdrop.hidden = true;
+        pcScrollLock.off();
+        btn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus) btn.focus();
+      }
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(true); }
+
+      btn.addEventListener("click", function(){
+        if(btn.getAttribute("aria-expanded") === "true") close(false); else open();
+      });
+      if(backdrop) backdrop.addEventListener("click", function(){ close(false); });
+      // Close on resize past the collapse point, so the drawer can't be left open and
+      // unreachable once the burger is hidden and the inline menus return.
+      // MUST MATCH the hamburger's media query in pc.css — it is 899px. A lower value
+      // makes the drawer close itself on any resize event between that value and 899,
+      // which reads as the drawer never opening at all.
+      var COLLAPSE_AT = 899;
+      window.addEventListener("resize", function(){
+        if(window.innerWidth > COLLAPSE_AT && btn.getAttribute("aria-expanded") === "true") close(false);
+      });
+    })();
+
+    // Mega-menu open/close — same interaction contract as the search popover:
+    // click toggles, Esc closes and returns focus, clicking outside closes.
+    // Hover is re-implemented here (not left to CSS) because the CSS :focus-within rule
+    // would otherwise pin the panel open after a click and defeat click-to-close.
+    (function(){
+      var ul = document.getElementById("pcfMenus");
+      if(!ul) return;
+      var items = [].slice.call(ul.children);
+      if(!items.length) return;
+      ul.classList.add("nav-js");        // hands control to JS — see .nav-js rules in pc.css
+      var locked = null;                 // opened by CLICK: stays open when the pointer leaves
+
+      function btnOf(li){ return li.querySelector(".pcf-menu-btn"); }
+      function setOpen(li){
+        items.forEach(function(x){
+          var on = (x === li);
+          x.classList.toggle("is-open", on);
+          var b = btnOf(x);
+          if(b) b.setAttribute("aria-expanded", on ? "true" : "false");
+        });
+      }
+      function closeAll(returnFocus){
+        var was = locked;
+        locked = null; setOpen(null);
+        if(returnFocus && was){ var b = btnOf(was); if(b) b.focus(); }
+      }
+
+      items.forEach(function(li){
+        var btn = btnOf(li);
+        if(!btn) return;
+        // A click LOCKS this panel open; clicking the same trigger again closes it.
+        // `locked` must only ever be set by a click — if hover also moved it, then moving
+        // the pointer from one title to another would pre-lock the second one, and the
+        // click that followed would read as a second click and close it instead of opening.
+        btn.addEventListener("click", function(){
+          if(locked === li){ locked = null; setOpen(null); }
+          else { locked = li; setOpen(li); }
+        });
+        // Hover previews any panel without taking the lock. On leave, fall back to whatever
+        // is locked (setOpen(null) closes everything when nothing is).
+        li.addEventListener("mouseenter", function(){ setOpen(li); });
+        li.addEventListener("mouseleave", function(){ setOpen(locked); });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" || e.key === "Esc"){
+          if(locked) closeAll(true); else setOpen(null);
+        }
+      });
+      document.addEventListener("click", function(e){
+        if(!ul.contains(e.target)) closeAll(false);
+      });
+    })();
+
+    // Interactive Map pull-down → slide-down map layer (map module drops in later)
+    (function(){
+      var tab = document.querySelector(".md-tab"),
+          layer = document.getElementById("md-layer"),
+          backdrop = document.querySelector(".md-backdrop"),
+          closeBtn = document.querySelector(".md-close"),
+          header = document.querySelector("header.pcf");
+      if(!tab || !layer || !backdrop) return;
+      function syncNavH(){ if(header) document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      syncNavH(); window.addEventListener("resize", syncNavH); window.addEventListener("load", syncNavH);
+      var logoImg = header && header.querySelector("img");
+      if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(); }
+      function open(){
+        if(tab.getAttribute("aria-expanded") === "true") return;   // already open
+        pcScrollLock.on();
+        syncNavH(); backdrop.hidden = false; layer.hidden = false;
+        requestAnimationFrame(function(){ backdrop.classList.add("is-open"); layer.classList.add("is-open"); });
+        tab.setAttribute("aria-expanded", "true"); layer.setAttribute("aria-hidden", "false");
+        closeBtn.focus(); document.addEventListener("keydown", onKey);
+      }
+      function close(){
+        // Guarded so close() is idempotent: it is wired to the close button, the backdrop
+        // and Esc, and a double call would unbalance the shared scroll-lock count.
+        if(tab.getAttribute("aria-expanded") !== "true") return;
+        pcScrollLock.off();
+        backdrop.classList.remove("is-open"); layer.classList.remove("is-open");
+        tab.setAttribute("aria-expanded", "false"); layer.setAttribute("aria-hidden", "true");
+        document.removeEventListener("keydown", onKey);
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var after = function(){ backdrop.hidden = true; layer.hidden = true; };
+        if(reduce) after();
+        else layer.addEventListener("transitionend", function te(e){ if(e.propertyName === "transform"){ layer.removeEventListener("transitionend", te); after(); } });
+        tab.focus();
+      }
+      tab.addEventListener("click", function(){ if(tab.getAttribute("aria-expanded") === "true") close(); else open(); });
+      closeBtn.addEventListener("click", close); backdrop.addEventListener("click", close);
+    })();
+
+    // Search: magnifier toggles a text field + submit icon below it
+    (function(){
+      var toggle = document.getElementById("searchToggle");
+      var panel  = document.getElementById("searchPanel");
+      var input  = document.getElementById("searchInput");
+      if(!toggle || !panel) return;
+      function open(){
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        if(input){ input.focus(); }
+        document.addEventListener("mousedown", onOutside);
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutside);
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus){ toggle.focus(); }
+      }
+      function onOutside(e){
+        if(!panel.contains(e.target) && !toggle.contains(e.target)){ close(false); }
+      }
+      function onKey(e){
+        if(e.key === "Escape" || e.key === "Esc"){ close(true); }
+      }
+      toggle.addEventListener("click", function(){
+        if(panel.classList.contains("open")){ close(true); } else { open(); }
+      });
+    })();
+
+    // Scroll-reveal (must-have) — reduced-motion safe
+    (function(){
+      var els = document.querySelectorAll(".reveal");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce || !("IntersectionObserver" in window)){
+        els.forEach(function(el){ el.classList.add("in"); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+
+    // Announcement toast: bottom-right floating card that MINIMIZES to a
+    // right-edge handle (instead of vanishing) so it can be reopened.
+    (function(){
+      var t = document.getElementById("pcToast");
+      if(!t) return;
+      var reopen = document.getElementById("pcToastReopen");
+      var x = t.querySelector(".pc-toast-x");
+      // moveFocus is false for the automatic narrow-viewport minimize below — focusing
+      // the handle on page load would steal focus and jump the page to the right edge.
+      function setMinimized(min, moveFocus){
+        t.hidden = min;
+        if(reopen){ reopen.hidden = !min; }
+        if(moveFocus){
+          var target = min ? reopen : x;
+          if(target){ target.focus(); }
+        }
+      }
+      function minimize(){ setMinimized(true, true); }
+      function restore(){ userChose = true; setMinimized(false, true); }
+      if(x){ x.addEventListener("click", minimize); }
+      if(reopen){ reopen.addEventListener("click", restore); }
+
+      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
+         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
+         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
+         never auto-restores, so once the visitor opens the handle it stays open, and a
+         toast never pops itself back open mid-resize. */
+      var TOAST_NARROW = 1279, userChose = false;
+      function narrowCheck(){
+        if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
+      }
+      narrowCheck();
+      window.addEventListener("resize", narrowCheck);
+    })();
+  </script>
+</body>
+</html>
