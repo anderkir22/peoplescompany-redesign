@@ -689,6 +689,15 @@
     .tms-actions{ grid-column: 6; display: flex; gap: var(--space-3); align-items: center; }
     .tms-actions .btn{ white-space: nowrap; }
 
+    /* ---- tab strip divider: agent tabs | speaker tabs ----
+       A PC Blue rule centered in the gap before Speaking, spanning the label's line box
+       (bottom stops at the 14px padding the selected underline sits in). Keyed to the id
+       buildTabs() writes, so it follows Speaking wherever the strip puts it. The offset is
+       half the strip gap plus half the rule, so it moves with the gap at 1023. */
+    #tmdTab-speaking{ position: relative; --tms-tabgap: var(--space-6); }
+    #tmdTab-speaking::before{ content: ""; position: absolute; top: 0; bottom: 14px;
+      left: calc(var(--tms-tabgap) / -2 - 1px); width: 2px; background: var(--pc-blue); }
+
     /* ---- shared bits ---- */
     .tms-chips{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
     .tms-chips li{ font-family: var(--font-sans); font-size: 13px; font-weight: 600;
@@ -813,6 +822,14 @@
     .tms-rcta .btn{ width: 100%; }
 
     /* ---- premium layer: responsive ---- */
+    @media (max-width: 1023px){
+      #tmdTab-speaking{ --tms-tabgap: var(--space-4); }
+    }
+    /* The strip becomes a grid of centered cells below 768, so a rule at the button's edge
+       would no longer sit between two labels. */
+    @media (max-width: 767px){
+      #tmdTab-speaking::before{ display: none; }
+    }
     @media (max-width: 1279px){
       .tms-strip{ grid-template-columns: repeat(4, auto); }
       .tms-actions{ grid-column: 1 / -1; }
