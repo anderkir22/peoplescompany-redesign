@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Peoples Company · Final (PC) · Steve Bruere, President</title>
-  <meta name="description" content="Steve Bruere, President of Peoples Company and keynote speaker. Bio, signature speaking topics, speaker reel, booking, listings, licenses and contact." />
+  <meta name="description" content="Steve Bruere, President of Peoples Company and keynote speaker. Bio, signature speaking topics, speaker reel, booking, properties, licenses and contact." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,7 +17,7 @@
   <!-- ================= TEAM MEMBER PREMIUM (speaker) =================
        The expanded team-member page plus a speaker layer, for the few people on staff who
        are booked to speak. Same identity band, same tab strip built from the panels that
-       exist, same rail. Added: the speaker strip under the band, and the Speaking, Videos and
+       exist, same rail. Added: the speaker fact sheet link in the band, and the Speaking, Videos and
        Book panels. Any [data-goto] control opens the tab it names; a [data-topic] one also
        preselects that talk in the booking form. -->
   <style>
@@ -668,39 +668,17 @@
        team-member template unchanged; these rules add the speaker pieces.
        =============================================================== */
 
-    /* "Keynote Speaker" marker beside the role, on the dark band. */
-    .tms-badge{ display: inline-block; vertical-align: 2px; margin-left: 12px;
+    /* Speaker fact sheet link, pinned to the band's lower right: the side column stretches
+       to the band's height and the link takes the space left under the social marks. */
+    .tmd-idside{ align-self: stretch; }
+    .tms-badge{ margin-top: auto; display: inline-block;
       padding: 4px 10px; border-radius: var(--radius-pill);
       border: 1px solid rgba(0,174,239,.55); background: rgba(0,174,239,.12);
-      font-size: 11.5px; letter-spacing: .1em; color: var(--pc-light-blue); }
-
-    /* ---- speaker strip: the at-a-glance booking row under the band ----
-       Four facts, then the actions. The facts are fixed-content columns, the gap before
-       the actions is 1fr so the buttons always sit on the right edge of the measure. */
-    .tms-strip{ display: grid; grid-template-columns: repeat(4, auto) minmax(0,1fr) auto;
-      gap: var(--space-6); align-items: center;
-      padding: var(--space-5) 0; border-bottom: 1px solid var(--pc-light-blue); }
-    .tms-stat{ display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .tms-stat dt{ font-family: var(--font-sans); font-size: 12px; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase; color: var(--pc-navy); }
-    .tms-stat dd{ margin: 0; font-family: var(--font-sans); font-size: 15.5px;
-      color: var(--pc-black); white-space: nowrap; }
-    .tms-stats{ display: contents; }
-    .tms-actions{ grid-column: 6; display: flex; gap: var(--space-3); align-items: center; }
-    .tms-actions .btn{ white-space: nowrap; }
-
-    /* ---- tab strip divider: agent tabs | speaker tabs ----
-       Kept subtle on purpose: the grouping is carried mostly by SPACE - Speaking takes an
-       extra --tms-tabsep on its left, so the gap there is wider than between any other two
-       tabs - and a 1px PC Blue rule, centered in that wider gap, confirms it. The rule spans
-       the label's line box (bottom stops at the 14px padding the selected underline sits
-       in). Keyed to the id buildTabs() writes, so it follows Speaking wherever the strip
-       puts it; the offset is computed from the strip gap, so it moves with it at 1023. */
-    #tmdTab-speaking{ position: relative; --tms-tabgap: var(--space-6); --tms-tabsep: var(--space-4);
-      margin-left: var(--tms-tabsep); }
-    #tmdTab-speaking::before{ content: ""; position: absolute; top: 0; bottom: 14px;
-      left: calc((var(--tms-tabgap) + var(--tms-tabsep)) / -2 - .5px); width: 1px;
-      background: var(--pc-blue); }
+      font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--pc-light-blue); text-decoration: none;
+      transition: background .18s ease, color .18s ease, border-color .18s ease; }
+    .tms-badge:hover{ background: var(--pc-blue); border-color: var(--pc-blue); color: var(--pc-black); }
+    .tms-badge:focus-visible{ outline: 2px solid var(--pc-light-blue); outline-offset: 2px; }
 
     /* ---- shared bits ---- */
     .tms-chips{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -712,9 +690,7 @@
     .tms-sec + .tms-sec{ margin-top: var(--space-7); }
 
     /* ---- speaker profile ---- */
-    .tms-prose p{ font-family: var(--font-sans); font-size: 16.5px; line-height: 1.75;
-      color: rgba(7,22,44,.86); margin: 0 0 var(--space-4); }
-    .tms-speaks{ margin: var(--space-5) 0 0; }
+    .tms-speaks{ margin: 0; }
     .tms-facts{ margin: var(--space-6) 0 0; padding: var(--space-6);
       background: var(--pc-soft-white); border: 1px solid var(--pc-light-blue);
       border-radius: var(--radius-md); }
@@ -826,25 +802,11 @@
     .tms-rcta .btn{ width: 100%; }
 
     /* ---- premium layer: responsive ---- */
-    @media (max-width: 1023px){
-      #tmdTab-speaking{ --tms-tabgap: var(--space-4); }
-    }
-    /* The strip becomes a grid of centered cells below 768, so a rule at the button's edge
-       would no longer sit between two labels. */
-    @media (max-width: 767px){
-      #tmdTab-speaking{ margin-left: 0; }
-      #tmdTab-speaking::before{ display: none; }
-    }
     @media (max-width: 1279px){
-      .tms-strip{ grid-template-columns: repeat(4, auto); }
-      .tms-actions{ grid-column: 1 / -1; }
       .tms-reel{ grid-template-columns: repeat(2, minmax(0,1fr)); }
       .tms-feat{ grid-template-columns: minmax(0,1fr); }
     }
     @media (max-width: 767px){
-      .tms-strip{ grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-4); }
-      .tms-stat dd{ white-space: normal; }
-      .tms-actions{ flex-wrap: wrap; }
       .tms-facts ul, .tms-topicgrid, .tms-frow2{ grid-template-columns: minmax(0,1fr); }
       .tmd-frow{ grid-template-columns: minmax(0,1fr); }
       .tms-topic summary{ grid-template-columns: minmax(0,1fr) 20px; padding: var(--space-4); gap: var(--space-3); }
@@ -855,10 +817,6 @@
     }
     @media (max-width: 639px){
       .tms-reel{ grid-template-columns: minmax(0,1fr); }
-    }
-    @media (max-width: 479px){
-      .tms-badge{ display: table; margin: 8px 0 0; }
-      .tms-actions .btn{ width: 100%; }
     }
   </style>
 </head>
@@ -945,7 +903,7 @@
 
         <div class="tmd-idmain">
           <h1 class="tmd-name">Steve Bruere</h1>
-          <p class="tmd-role">President<span class="tms-badge">Keynote Speaker</span></p>
+          <p class="tmd-role">President</p>
 
           <div class="tmd-contact">
             <ul class="tmd-meta">
@@ -988,21 +946,10 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm-1 7V3.5L18.5 9zM8.6 18.4v-5h1.9c1.2 0 1.9.7 1.9 1.8s-.7 1.8-1.9 1.8h-.8v1.4zm1.1-2.4h.7c.5 0 .8-.25.8-.7s-.3-.7-.8-.7h-.7zm3.6 2.4v-5h1.8c1.5 0 2.4 1 2.4 2.5s-.9 2.5-2.4 2.5zm1.1-1h.6c.9 0 1.3-.55 1.3-1.5s-.4-1.5-1.3-1.5h-.6z"/></svg>
             </a>
           </div>
+          <a class="tms-badge" href="#" target="_blank" rel="noopener noreferrer">Speaker Fact Sheet<span class="sr-only"> (PDF, opens in a new tab)</span></a>
         </div>
       </header>
 
-      <!-- ---- speaker strip: the at-a-glance booking row ---- -->
-      <section class="tms-strip" aria-label="Speaker at a glance">
-        <dl class="tms-stats">
-          <div class="tms-stat"><dt>Travels From</dt><dd>Des Moines, Iowa, USA</dd></div>
-          <div class="tms-stat"><dt>Formats</dt><dd>Keynote, Breakout, Panel, Studio</dd></div>
-          <div class="tms-stat"><dt>Live Event Fee</dt><dd>Available on Request</dd></div>
-          <div class="tms-stat"><dt>Virtual Event Fee</dt><dd>Available on Request</dd></div>
-        </dl>
-        <div class="tms-actions">
-          <a class="btn btn-ghost" href="#">Fact-Sheet (PDF)</a>
-        </div>
-      </section>
 
       <!-- ---- two columns: tab panels left, rail right ---- -->
       <div class="tmd-cols">
@@ -1111,10 +1058,10 @@
             </div>
           </section>
 
-          <!-- ===== 2. LISTINGS: available on top, sold underneath ===== -->
-          <section class="tmd-panel" data-label="Listings" id="tmdPanel-listings" role="tabpanel" tabindex="-1" hidden>
+          <!-- ===== 2. PROPERTIES: available on top, sold underneath ===== -->
+          <section class="tmd-panel" data-label="Properties" id="tmdPanel-listings" role="tabpanel" tabindex="-1" hidden>
             <div class="tms-sec">
-            <h2 class="tmd-h2">Available Listings</h2>
+            <h2 class="tmd-h2">Available</h2>
             <div class="lc-grid">
               <article class="lc">
                 <div class="lc-media">
@@ -1231,7 +1178,7 @@
             </div>
 
             <div class="tms-sec">
-            <h2 class="tmd-h2">Sold Listings</h2>
+            <h2 class="tmd-h2">Sold</h2>
             <div class="lc-grid">
               <article class="lc">
                 <div class="lc-media">
@@ -1347,29 +1294,6 @@
           <!-- ===== 3. SPEAKING: speaker profile + signature topics ===== -->
           <section class="tmd-panel" data-label="Speaking" id="tmdPanel-speaking" role="tabpanel" tabindex="-1" hidden>
             <div class="tms-sec">
-              <h2 class="tmd-h2">Speaker Profile</h2>
-              <div class="tms-prose">
-                <p>Steve Bruere doesn&rsquo;t just study farmland: he&rsquo;s built the technology
-                  that manages it, founded and sold a company around it, and still farms it himself.
-                  As Vice President of Peoples Company, the nation&rsquo;s leading farm and land real
-                  estate firm, Steve oversees asset management strategy for investment-grade farmland
-                  on behalf of clients and capital partners, translating decades of price cycles,
-                  interest-rate shifts, and land-value data into insight investors can actually use.</p>
-                <p>A mechanical engineer by training with a PhD from Iowa State University, Steve
-                  spent his early career developing advanced biofuel technology with the U.S.
-                  Department of Energy before co-founding AgSolver, Inc. in 2013, an agricultural data
-                  startup where he created &ldquo;Precision Business Planning,&rdquo; a sub-acre
-                  analytics framework for optimizing farm income, investor returns, and environmental
-                  outcomes. He led AgSolver through its 2017 acquisition by EFC Systems, where he
-                  continues to advise on ag-technology integration.</p>
-                <p>Steve still works his family&rsquo;s farm in North Central Iowa, where he grew up,
-                  a hands-on connection to production agriculture that grounds every talk he gives.
-                  He&rsquo;s a recurring main-stage speaker at the Land Investment Expo and the
-                  on-camera expert behind Peoples Company&rsquo;s farmland education video series,
-                  known for turning a historically insider-only asset class into something any
-                  audience, from family offices to farm country, can follow and act on.</p>
-              </div>
-
               <div class="tms-speaks">
                 <p class="tms-label">Speaks On</p>
                 <ul class="tms-chips">
@@ -2034,7 +1958,7 @@
            Bio        Licenses  Contact       Blogs
            Available  Sold      Testimonials  Photos
        Which means the order here is the READING order of that matrix, not a ranking. */
-    var midOrder   = ["Bio", "Listings", "Speaking", "Videos", "Book",
+    var midOrder   = ["Bio", "Properties", "Speaking", "Videos", "Book",
                       "FAQ", "Licenses", "Research"];
     var smallOrder = midOrder;
 
