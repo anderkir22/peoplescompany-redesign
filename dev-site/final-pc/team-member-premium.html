@@ -690,13 +690,17 @@
     .tms-actions .btn{ white-space: nowrap; }
 
     /* ---- tab strip divider: agent tabs | speaker tabs ----
-       A PC Blue rule centered in the gap before Speaking, spanning the label's line box
-       (bottom stops at the 14px padding the selected underline sits in). Keyed to the id
-       buildTabs() writes, so it follows Speaking wherever the strip puts it. The offset is
-       half the strip gap plus half the rule, so it moves with the gap at 1023. */
-    #tmdTab-speaking{ position: relative; --tms-tabgap: var(--space-6); }
+       Kept subtle on purpose: the grouping is carried mostly by SPACE - Speaking takes an
+       extra --tms-tabsep on its left, so the gap there is wider than between any other two
+       tabs - and a 1px PC Blue rule, centered in that wider gap, confirms it. The rule spans
+       the label's line box (bottom stops at the 14px padding the selected underline sits
+       in). Keyed to the id buildTabs() writes, so it follows Speaking wherever the strip
+       puts it; the offset is computed from the strip gap, so it moves with it at 1023. */
+    #tmdTab-speaking{ position: relative; --tms-tabgap: var(--space-6); --tms-tabsep: var(--space-4);
+      margin-left: var(--tms-tabsep); }
     #tmdTab-speaking::before{ content: ""; position: absolute; top: 0; bottom: 14px;
-      left: calc(var(--tms-tabgap) / -2 - 1px); width: 2px; background: var(--pc-blue); }
+      left: calc((var(--tms-tabgap) + var(--tms-tabsep)) / -2 - .5px); width: 1px;
+      background: var(--pc-blue); }
 
     /* ---- shared bits ---- */
     .tms-chips{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -828,6 +832,7 @@
     /* The strip becomes a grid of centered cells below 768, so a rule at the button's edge
        would no longer sit between two labels. */
     @media (max-width: 767px){
+      #tmdTab-speaking{ margin-left: 0; }
       #tmdTab-speaking::before{ display: none; }
     }
     @media (max-width: 1279px){
