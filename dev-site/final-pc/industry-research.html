@@ -54,13 +54,23 @@
       .ir-grid .io-card:hover .io-ph img{ transform: none; }
     }
     .ir-grid{ list-style: none; margin: 0; padding: 0; display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); }
+      grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); }
     .ir-grid .io-title{ font-size: 20px; }
     .ir-cardby{ font-size: 12px; font-weight: 600; line-height: 1.4; color: var(--pc-navy); }
-    /* National Land Values Report: a short note closing the papers band. */
-    .ir-nlv{ margin-top: var(--space-8); }
-    .ir-h3{ font-family: var(--font-serif); font-weight: 500; font-size: 28px; line-height: 1.18;
-      color: var(--pc-black); margin: 0; }
+    /* Papers left, National Land Values in a right rail. The rail must stretch (no
+       align-items) so the sticky box has the column's height to travel in. */
+    .ir-cols{ --ir-side-w: 380px; display: grid; grid-template-columns: minmax(0, 1fr) var(--ir-side-w);
+      gap: 0 var(--space-8); }
+    .ir-side{ min-width: 0; }
+    /* RAIL STANDARD (blog-story .bs-box): 12px corners, 24/24/32 padding, 22px serif head on a hairline. */
+    .ir-nlv{ position: sticky; top: calc(var(--navH) + var(--space-5));
+      background: var(--pc-soft-white); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); padding: var(--space-5) var(--space-5) var(--space-6); }
+    .ir-h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; line-height: 1.18;
+      color: var(--pc-black); margin: 0; padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border); }
+    .ir-nlv p{ font-size: var(--body); line-height: 1.7; color: var(--pc-black); margin: var(--space-4) 0 0; }
+    .ir-nlv .ir-actions{ margin-top: var(--space-5); }
     /* From the Blog: blog.html's cards, four across. */
     .ir-blog{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
     .ir-blog .io-card{ height: 100%; }
@@ -77,9 +87,17 @@
 
     /* ---- responsive: steps sit on the shared --site ladder ---- */
     /* Featured: the fixed 560px image gives way to two equal columns. */
+    @media (max-width: 1535px){
+      .ir-cols{ --ir-side-w: 340px; column-gap: var(--space-7); }
+    }
     @media (max-width: 1279px){
       .ir-feature{ grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-6); }
       .ir-grid, .ir-blog{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    /* Rail drops below the papers, full width, unpinned. */
+    @media (max-width: 1023px){
+      .ir-cols{ display: block; }
+      .ir-nlv{ position: static; margin-top: var(--space-7); }
     }
     /* 768-1279: smaller featured type (two columns to 900, stacked below). */
     @media (min-width: 768px) and (max-width: 1279px){
@@ -235,6 +253,8 @@
     <!-- ============ 3 - ALL RESEARCH ============ Newest first. Each card is one link. -->
     <section class="ir-band" aria-labelledby="ir-all-h">
       <div class="ir-wrap">
+        <div class="ir-cols">
+        <div class="ir-main">
         <div class="ir-gridhead reveal">
           <div>
             <p class="io-eyebrow">White Papers &amp; Reports</p>
@@ -420,13 +440,17 @@
             </a>
           </li>
         </ul>
+        </div><!-- /.ir-main -->
+        <aside class="ir-side" aria-label="National Land Values Report">
         <div class="ir-nlv reveal">
           <h3 class="ir-h3">National Land Values Report</h3>
-          <p class="ir-lede">Since 2020, Peoples Company&rsquo;s National Land Values Report has given landowners, investors, and ag professionals a clear national view of the U.S. farmland market. We started it because there were very few reliable ways to compare land values across regions. The first edition pulled the country&rsquo;s land value studies together into one report. Each year since, the report has added more regions, deeper data, and more forward-looking analysis. Now it is one of the most complete summaries of U.S. farmland values available.</p>
+          <p>Since 2020, Peoples Company&rsquo;s National Land Values Report has given landowners, investors, and ag professionals a clear national view of the U.S. farmland market. We started it because there were very few reliable ways to compare land values across regions. The first edition pulled the country&rsquo;s land value studies together into one report. Each year since, the report has added more regions, deeper data, and more forward-looking analysis. Now it is one of the most complete summaries of U.S. farmland values available.</p>
           <div class="ir-actions">
             <a class="btn btn-primary" href="/nlv">More Details</a>
           </div>
         </div>
+        </aside>
+        </div><!-- /.ir-cols -->
       </div>
     </section>
 
