@@ -35,8 +35,7 @@
     /* Hero: H1 and copy in one column (download form removed for now). */
     .nv-hero{ display: grid; grid-template-columns: minmax(0, 1fr); }
     /* Latest report: industry-research.html's Featured panel. 16:9 cover left, copy right,
-       on a soft panel. Bottom padding keeps it off the soft What's Inside band below. */
-    .nv-feat{ padding-bottom: var(--space-8); }
+       on a soft panel. */
     .nv-feature{ display: grid; grid-template-columns: 560px minmax(0, 1fr); gap: var(--space-8);
       align-items: center; padding: var(--space-6); background: var(--pc-soft-white);
       border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
@@ -62,6 +61,57 @@
       .nv-feature-copy .nv-actions{ margin-top: var(--space-5); }
     }
     @media (max-width: 639px){ .nv-feature{ padding: var(--space-5); } }
+    /* Past editions: newsletters.html's Past Editions grid. Five portrait cover cards across. */
+    .nv-gridhead{ display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4);
+      margin: 0 0 var(--space-6); }
+    .nv-count{ font-size: 13px; color: var(--pc-black); margin: 0; }
+    .nv-grid .io-card{ height: 100%; }
+    /* Light Blue behind the cover, not the shared dark gradient: the hover zoom can expose a sliver at the image edge. */
+    .io-scope .nv-grid .io-ph.rcover{ border-bottom: 1px solid var(--color-border); background: var(--pc-light-blue); }
+    .nv-grid .io-link{ margin-top: auto; padding-top: var(--space-2); }
+    /* Hover: no lift. Fill turns PC Light Blue, cover zooms 1.03, Read arrow nudges right. */
+    .io-scope .nv-grid .io-card{ transition: background-color .18s ease; }
+    .io-scope .nv-grid .io-card:hover{ box-shadow: none; transform: none; background: var(--pc-light-blue); }
+    .nv-grid .io-ph img{ transition: transform .25s ease; }
+    .io-scope .nv-grid .io-card:hover .io-ph img{ transform: scale(1.03); }
+    .nv-grid .io-link [aria-hidden="true"]{ display: inline-block; transition: transform .18s ease; }
+    .nv-grid .io-link{ transition: color .18s ease; }
+    .io-scope .nv-grid .io-card:hover .io-link{ color: var(--color-accent); }
+    .nv-grid .io-card:hover .io-link [aria-hidden="true"]{ transform: translateX(4px); }
+    @media (prefers-reduced-motion: reduce){
+      .nv-grid .io-ph img, .nv-grid .io-link [aria-hidden="true"]{ transition: none; }
+      .io-scope .nv-grid .io-card:hover .io-ph img, .nv-grid .io-card:hover .io-link [aria-hidden="true"]{ transform: none; }
+    }
+    .nv-grid{ list-style: none; margin: 0; padding: 0; display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); }
+    .nv-grid .io-title{ font-size: 20px; }
+    .nv-grid .io-body{ padding: 14px 14px 16px; gap: 4px; }
+    @media (min-width: 768px) and (max-width: 1023px){
+      .nv-grid{ gap: var(--space-5) var(--space-4); }
+      .nv-grid .io-title{ font-size: 17px; }
+      .nv-grid .io-body{ padding: 12px 12px 14px; }
+    }
+    @media (min-width: 768px) and (max-width: 899px){
+      .nv-grid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    /* 767 and below: a list, small cover left. Two columns to 640, one below. */
+    @media (max-width: 767px){
+      .nv-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-6); }
+      .nv-grid > li{ border-top: 1px solid var(--color-border); }
+      .io-scope .nv-grid .io-card{ flex-direction: row; align-items: center; gap: var(--space-4);
+        padding: var(--space-4) 0; height: auto; background: none; border: 0; border-radius: 0; overflow: visible; }
+      .io-scope .nv-grid .io-card:hover{ background: none; }
+      .io-scope .nv-grid .io-ph.rcover{ flex: 0 0 72px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+      .io-scope .nv-grid .io-body{ flex: 1 1 auto; min-width: 0; padding: 0; gap: var(--space-1); }
+      .nv-grid .io-title{ font-size: 18px; line-height: 1.3; }
+      .nv-grid .io-link{ margin-top: 0; padding-top: 0; }
+    }
+    @media (min-width: 640px) and (max-width: 767px){
+      .nv-grid > li:nth-last-child(-n+2){ border-bottom: 1px solid var(--color-border); }
+    }
+    @media (max-width: 639px){
+      .nv-grid{ grid-template-columns: minmax(0, 1fr); border-bottom: 1px solid var(--color-border); }
+    }
     @media (max-width: 767px){ .nv-feature .nv-h2{ font-size: 26px; line-height: 1.18; } }
     @media (max-width: 359px){ .nv-feature .nv-h2{ font-size: 24px; } }
     /* What's inside: four columns, hairline above each. */
@@ -177,7 +227,104 @@
       </div>
     </section>
 
-    <!-- ============ 3 - WHAT'S INSIDE ============ -->
+    <!-- ============ 3 - PAST EDITIONS ============ newsletters.html's Past Editions grid.
+         Placeholder cards, 2024 back to 2016: no covers or links yet. -->
+    <section class="nv-band" aria-labelledby="nv-past-h">
+      <div class="nv-wrap">
+        <div class="nv-gridhead reveal">
+          <div>
+            <p class="io-eyebrow" aria-hidden="true">Past Editions</p>
+            <h2 class="sr-only" id="nv-past-h">Past Editions</h2>
+          </div>
+          <p class="nv-count">9 Editions</p>
+        </div>
+        <ul class="nv-grid reveal">
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2024</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2023</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2022</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2021</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2020</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2019</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2018</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2017</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="io-card" href="#">
+              <span class="io-ph rcover"></span>
+              <span class="io-body">
+                <h3 class="io-title">2016</h3>
+                <span class="io-link">Read <span aria-hidden="true">&rarr;</span></span>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ 4 - WHAT'S INSIDE ============ -->
     <section class="nv-band nv-band--soft" aria-labelledby="nv-inside-h">
       <div class="nv-wrap reveal">
         <p class="io-eyebrow">2025 Report</p>
@@ -203,7 +350,7 @@
       </div>
     </section>
 
-    <!-- ============ 4 - EXPLORE THE REGIONS ============ -->
+    <!-- ============ 5 - EXPLORE THE REGIONS ============ -->
     <section class="nv-band" aria-labelledby="nv-regions-h">
       <div class="nv-wrap">
         <div class="nv-regions reveal">
