@@ -40,6 +40,16 @@
     .pcf-sold time{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
       color: var(--color-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .pcf-sold a{ display: inline; }
+    /* Insights & News: the same 1 : 1 : 2 : 2 split, with Latest Blogs on column 3 and
+       Latest Insights on column 4 (one headline per row). Replaces pc.css's two capped
+       columns. */
+    .pcf-mega[aria-label="Insights & News"] .pcf-mega-in{ justify-content: normal;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr); }
+    /* A headline that wraps keeps its first line on the shared row line: same 1lh box
+       and 8px text offset as the sale rows. */
+    .pcf-latest li{ display: grid; align-content: start; min-height: 1lh; padding-top: 8px;
+      box-sizing: border-box; }
+    .pcf-latest a{ display: inline; }
     /* Drawer (899 and below): the block takes the full row, still two columns of five;
        one column of ten from 479 down. */
     .pcf-drawer-cols .pcf-soldcol{ grid-column: 1 / -1; }
@@ -569,7 +579,24 @@
         ]},
         { label: "Insights & News", cols: [
           { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
-          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] }
+          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] },
+          // Latest Blogs / Latest Insights: the five newest of each, headline only, each
+          // linking to its own page. Live, both lists come from the content feed.
+          { h: "Latest Blogs", latest: [
+            { t: "Harvest Season on Leased Ground: A Checklist for Landowners", href: "./blog-story.html" },
+            { t: "Online, Live, or Hybrid: Choosing the Right Auction Format for Your Farm", href: "./blog-story.html" },
+            { t: "Pasture and Grazing Land: What Drives Value Outside the Row-Crop Belt", href: "./blog-story.html" },
+            { t: "Recreational Land Buyers Are Back: What They Want and What They Pay", href: "./blog-story.html" },
+            { t: "Better Records, Better Decisions", href: "./blog-story.html" }
+          ]},
+          // Insights are PDFs, so they open in a new tab, as on industry-research.html.
+          { h: "Latest Insights", latest: [
+            { t: "Farmland Fundamentals: Understanding the Asset Class", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/farmland-fundamantals-06092026.pdf", ext: true },
+            { t: "Shared DNA: Why Family Offices and Farmland Naturally Align", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/shared-dna-brochure-04232026.pdf", ext: true },
+            { t: "Perspectives on the Impact of Global Conflict on Farmland Returns", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/white-paper-global-conflict-04232026.pdf", ext: true },
+            { t: "International Farmland Markets", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/iaa-white-paper-(pages).pdf", ext: true },
+            { t: "A New Era of Capital in Farmland: From Opportunistic to Long-Duration Investors", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/a-new-era-of-capital-in-farmland-pages.pdf", ext: true }
+          ]}
         ]}
       ];
       function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
@@ -584,6 +611,12 @@
       var MON = ["Jan.","Feb.","March","April","May","June","July","Aug.","Sept.","Oct.","Nov.","Dec."];
       function soldDate(iso){ var p = iso.split("-"); return MON[+p[1] - 1]+" "+(+p[2]); }
       function colHTML(c){
+        if(c.latest){
+          var li = c.latest.map(function(r){
+            return '<li><a href="'+r.href+'"'+(r.ext ? ' target="_blank" rel="noopener noreferrer"' : '')+'>'+esc(r.t)+'</a></li>';
+          }).join("");
+          return '<div class="pcf-col pcf-latestcol"><h4>'+esc(c.h)+'</h4><ul class="pcf-latest">'+li+'</ul></div>';
+        }
         if(c.sold){
           var rows = c.sold.slice().sort(function(a, b){ return a.d < b.d ? 1 : -1; }).slice(0, 10)
             .map(function(r){
