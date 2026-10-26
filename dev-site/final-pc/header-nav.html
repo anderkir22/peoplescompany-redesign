@@ -18,6 +18,32 @@
        Once approved they move into pc.css (and the NAV list on every page), and this block
        is emptied. -->
   <style id="header-nav-test">
+    /* Real Estate, columns 3-4: Prior Transactions. The latest 10 sold listings, newest
+       first, five down column 3 then five down column 4. The heading is not a link; each
+       row links to its listing. The block spans two grid columns and its inner grid uses
+       the panel's own gap, so the two lists sit exactly on columns 3 and 4. */
+    .pcf-mega .pcf-soldcol{ grid-column: span 2; }
+    .pcf-col ul.pcf-sold{ display: grid; grid-auto-flow: column;
+      grid-template-rows: repeat(5, auto); grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-7); row-gap: 10px; }
+    /* Date in a fixed column so a long row wraps under its own text, not under the date. */
+    /* min-height 1lh = the line box every other mega link sits in, and 8px is where their
+       text sits inside it, so single-line rows keep columns 1-2's pitch and row one lines
+       up with their first link. A wrapped row grows by its extra line. */
+    .pcf-sold li{ display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 8px;
+      align-items: baseline; align-content: start; min-height: 1lh; padding-top: 8px;
+      box-sizing: border-box; }
+    .pcf-sold time{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      color: var(--color-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pcf-sold a{ display: inline; }
+    /* Drawer (899 and below): the block takes the full row, still two columns of five;
+       one column of ten from 479 down. */
+    .pcf-drawer-cols .pcf-soldcol{ grid-column: 1 / -1; }
+    .pcf-drawer-cols .pcf-col ul.pcf-sold{ column-gap: var(--space-5); row-gap: 5px; }
+    @media (max-width: 479px){
+      .pcf-drawer-cols .pcf-col ul.pcf-sold{ grid-auto-flow: row; grid-template-rows: none;
+        grid-template-columns: minmax(0, 1fr); }
+    }
   </style>
 
   <!-- Page-local: white body between the shared header and footer. The wrap uses the
@@ -506,7 +532,20 @@
         { label: "Real Estate", cols: [
           { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
           { h: "Auctions", items: ["Upcoming Auctions","Auction Results"] },
-          { h: "Prior Transactions", items: [] }
+          // Prior Transactions: the latest 10 listings marked Sold, any type, newest first.
+          // Live, this list comes from the listings feed; t = the card's location + size.
+          { h: "Prior Transactions", sold: [
+            { d: "2026-10-26", t: "Rock County, WI - 28± Acres" },
+            { d: "2026-10-24", t: "Wright County, IA - 40± Acres" },
+            { d: "2026-10-22", t: "804 E Ashland Avenue, Indianola, IA - 1,680 Sq Ft" },
+            { d: "2026-10-21", t: "Story County, IA - 152± Acres" },
+            { d: "2026-10-20", t: "Hall County, NE - 318± Acres" },
+            { d: "2026-10-17", t: "Walla Walla County, WA - 96± Acres" },
+            { d: "2026-10-16", t: "Sanilac County, MI - 74± Acres" },
+            { d: "2026-10-15", t: "Warren County, IA - 12± Acres" },
+            { d: "2026-10-14", t: "Fresno County, CA - 160± Acres" },
+            { d: "2026-10-10", t: "Iowa County, WI - 62± Acres" }
+          ]}
         ]},
         { label: "The Company", cols: [
           { h: "The Company", items: ["Overview","Regions"] },
@@ -537,7 +576,18 @@
         // american farmland owner — real horizontal logo (assets/afo.png)
         return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
       }
+      // AP-style month: abbreviated with a period, except March-July, which are spelled out.
+      var MON = ["Jan.","Feb.","March","April","May","June","July","Aug.","Sept.","Oct.","Nov.","Dec."];
+      function soldDate(iso){ var p = iso.split("-"); return MON[+p[1] - 1]+" "+(+p[2]); }
       function colHTML(c){
+        if(c.sold){
+          var rows = c.sold.slice().sort(function(a, b){ return a.d < b.d ? 1 : -1; }).slice(0, 10)
+            .map(function(r){
+              return '<li><time datetime="'+r.d+'">'+soldDate(r.d)+'</time>'+
+                '<a href="./internal.html">'+esc(r.t)+'</a></li>';
+            }).join("");
+          return '<div class="pcf-col pcf-soldcol"><h4>'+esc(c.h)+'</h4><ul class="pcf-sold">'+rows+'</ul></div>';
+        }
         if(c.badges){
           return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
         }
