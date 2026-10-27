@@ -2,7 +2,7 @@
    In production the CMS supplies these rows from the uploaded CSV. One array per sale, fields in AR_FIELDS order.
    status: Sold | Undisclosed | No Sale | Pending | Postponed | Cancelled | Sold Prior | Not Reported.
    lat/lng are carried for the planned map view. */
-window.AR_FIELDS = ["date", "state", "county", "use", "acres", "price", "perAcre", "status", "soil", "soilType", "saleType", "tillable", "perTillable", "perPoint", "mapUrl", "lat", "lng", "pcListing"];
+window.AR_FIELDS = ["date", "state", "county", "use", "acres", "price", "perAcre", "status", "soil", "soilType", "saleType", "tillable", "perTillable", "perPoint", "mapUrl", "lat", "lng", "pcListing", "company", "grantor"];
 window.AR_ROWS = [
 ["2026-10-23","IA","Plymouth","Ag",138.21,2017866.0,14600.0,"Sold",73.8,"CSR2","Auction",0.94,15441.27,209.23,"https://farmworth.com/im/Af1Wid",42.59367,-95.98657,""],
 ["2026-10-23","IA","Plymouth","Ag",72.33,1193445.0,16500.0,"Sold",73.8,"CSR2","Auction",0.9,18304.37,248.02,"https://farmworth.com/im/KA5b5U",42.59379,-95.98099,""],

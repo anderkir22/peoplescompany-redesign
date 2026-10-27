@@ -21,6 +21,7 @@
     .ar-intro{ padding: var(--space-8) 0 var(--space-6); }
     .ar-lede{ font-size: var(--body-lg); line-height: 1.7; color: var(--pc-black); margin: var(--space-4) 0 0; }
     .ar-note{ font-size: 14px; line-height: 1.6; color: var(--pc-black); margin: var(--space-3) 0 0; }
+    .ar-note--table{ margin-top: var(--space-8); }
     .ar-note a, .ar-sub-copy a{ color: var(--pc-medium-blue); }
     .ar-h2{ font-family: var(--font-serif); font-weight: 500; font-size: 36px; line-height: 1.14;
       color: var(--pc-black); margin: 0; }
@@ -60,16 +61,16 @@
     .ar-count{ margin: 0; font-size: 14px; color: var(--pc-black); }
     .ar-count b{ font-weight: 600; }
 
-    /* ---- 2 · SUMMARY: four figures that follow the filters ---- */
+    /* ---- 2 · SUMMARY: five figures that follow the filters ---- */
     .ar-stats{ list-style: none; margin: var(--space-6) 0 0; padding: 0; display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); }
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-5); }
     .ar-stat{ padding: var(--space-4) 0 0; border-top: 2px solid var(--pc-navy); }
     .ar-stat-v{ display: block; font-family: var(--font-serif); font-weight: 500; font-size: 36px; line-height: 1.1;
       color: var(--pc-black); font-variant-numeric: lining-nums tabular-nums; }
     .ar-stat-l{ display: block; margin-top: var(--space-1); font-size: 13px; line-height: 1.4; color: var(--pc-black); }
 
     /* ---- 3 · RESULTS TABLE ---- */
-    .ar-results{ padding: var(--space-7) 0 var(--space-8); scroll-margin-top: var(--navH, 120px); }
+    .ar-results{ padding: var(--space-3) 0 var(--space-8); scroll-margin-top: var(--navH, 120px); }
     /* Scroll container only matters below the 1536 design width: the table never squeezes, it scrolls. */
     .ar-tablewrap{ overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
     .ar-tablewrap:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
@@ -217,8 +218,7 @@
     <section class="ar-intro">
       <div class="ar-wrap reveal">
         <h1>Land Auction Results</h1>
-        <p class="ar-lede">Recent farmland auction results from across the Midwest and Plains, from Peoples Company and other auction firms. Peoples Company auctions carry our diamond and link to the full listing, where you can contact the listing agent.</p>
-        <p class="ar-note">Productivity is the soil rating reported for each tract (CSR2, PI or NCCPI). <a href="https://www.nrcs.usda.gov/resources/data-and-reports/web-soil-survey" target="_blank" rel="noopener noreferrer">Soil Rating Systems information from USDA.gov<span class="sr-only"> (opens in a new tab)</span></a></p>
+        <p class="ar-lede">View recent land auction results from across the Midwest and Plains. Peoples Company auctions carry our logo and link to the full listing, where you can view details and contact the agent.</p>
       </div>
     </section>
 
@@ -234,7 +234,7 @@
             <label for="arQ">Search</label>
             <div class="ar-searchbox">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-              <input class="ar-input" type="search" id="arQ" placeholder="County, state or land use" autocomplete="off" />
+              <input class="ar-input" type="search" id="arQ" placeholder="County, state, or land use" autocomplete="off" />
             </div>
           </div>
           <div class="ar-field">
@@ -268,8 +268,8 @@
           <div class="ar-filterfoot">
             <label class="ar-pcopt" for="arPc">
               <input type="checkbox" id="arPc" />
-              <img src="../assets/PC_Logomark-Navy-Diamond.svg" alt="" />
               Peoples Company auctions only
+              <img src="../assets/PC_Logomark-Navy-Diamond.svg" alt="" />
             </label>
             <p class="ar-count" id="arCount" aria-live="polite"></p>
           </div>
@@ -277,11 +277,14 @@
 
         <!-- Summary figures follow the filters. Median $/Acre counts sold tracts that report a $/Acre. -->
         <ul class="ar-stats reveal" aria-label="Summary of matching results">
-          <li class="ar-stat"><span class="ar-stat-v" id="arStatCount">0</span><span class="ar-stat-l">Auction tracts</span></li>
-          <li class="ar-stat"><span class="ar-stat-v" id="arStatAcres">0</span><span class="ar-stat-l">Acres offered</span></li>
-          <li class="ar-stat"><span class="ar-stat-v" id="arStatMedian">0</span><span class="ar-stat-l">Median $/Acre, sold tracts</span></li>
-          <li class="ar-stat"><span class="ar-stat-v" id="arStatPc">0</span><span class="ar-stat-l">Peoples Company auctions</span></li>
+          <li class="ar-stat"><span class="ar-stat-v" id="arStatPc">0</span><span class="ar-stat-l">Peoples Company Auctions</span></li>
+          <li class="ar-stat"><span class="ar-stat-v" id="arStatAuctions">0</span><span class="ar-stat-l">Total Auctions</span></li>
+          <li class="ar-stat"><span class="ar-stat-v" id="arStatCount">0</span><span class="ar-stat-l">Total Tracts</span></li>
+          <li class="ar-stat"><span class="ar-stat-v" id="arStatAcres">0</span><span class="ar-stat-l">Acres Offered</span></li>
+          <li class="ar-stat"><span class="ar-stat-v" id="arStatMedian">0</span><span class="ar-stat-l">Median $/Acre, Sold Tracts</span></li>
         </ul>
+
+        <p class="ar-note ar-note--table">Productivity is the soil rating reported for each tract (CSR2, PI, or NCCPI). <a href="https://www.nrcs.usda.gov/resources/data-and-reports/web-soil-survey" target="_blank" rel="noopener noreferrer">Soil Rating Systems information from USDA.gov<span class="sr-only"> (opens in a new tab)</span></a></p>
       </div>
     </section>
 
@@ -301,7 +304,6 @@
                 <th scope="col" data-col="state"><button class="ar-sort" type="button" data-sort="state">State <i aria-hidden="true"></i></button></th>
                 <th scope="col" data-col="use"><button class="ar-sort" type="button" data-sort="use">Land Use <i aria-hidden="true"></i></button></th>
                 <th scope="col" class="num" data-col="acres"><button class="ar-sort" type="button" data-sort="acres">Acres <i aria-hidden="true"></i></button></th>
-                <th scope="col" class="num" data-col="price"><button class="ar-sort" type="button" data-sort="price">Total Price <i aria-hidden="true"></i></button></th>
                 <th scope="col" class="num" data-col="perAcre"><button class="ar-sort" type="button" data-sort="perAcre">$/Acre <i aria-hidden="true"></i></button></th>
                 <th scope="col" class="num" data-col="soil"><button class="ar-sort" type="button" data-sort="soil">Productivity <i aria-hidden="true"></i></button></th>
                 <th scope="col" class="num" data-col="tillable"><button class="ar-sort" type="button" data-sort="tillable">Tillable <i aria-hidden="true"></i></button></th>
@@ -892,7 +894,6 @@
 
       function rowHTML(r){
         var pcRow = !!r.pcListing;
-        var price = r.status === "Sold" ? (r.price != null ? money(r.price) : NA) : '<span class="ar-status">' + esc(r.status) + '</span>';
         var details = [];
         if(pcRow){
           details.push('<a class="ar-link" href="' + esc(listingUrl(r)) + '"><img src="../assets/PC_Logomark-Navy-Diamond.svg" alt="" />Listing<span class="sr-only">: Peoples Company auction, ' + esc(r.county) + ' County, ' + esc(r.stateName) + '</span></a>');
@@ -906,8 +907,7 @@
           '<td><abbr title="' + esc(r.stateName) + '">' + esc(r.state) + '</abbr></td>' +
           '<td class="wrap">' + (r.use ? esc(r.use.replace(/\//g, " / ")) : NA) + '</td>' +
           '<td class="num">' + (r.acres != null ? acres(r.acres) : NA) + '</td>' +
-          '<td class="num">' + price + '</td>' +
-          '<td class="num">' + (r.perAcre != null ? money(r.perAcre) : NA) + '</td>' +
+          '<td class="num">' + (r.status !== "Sold" ? '<span class="ar-status">' + esc(r.status) + '</span>' : (r.perAcre != null ? money(r.perAcre) : NA)) + '</td>' +
           '<td class="num">' + (r.soil != null ? r.soil.toFixed(1) + (r.soilType ? '<span class="ar-unit">' + esc(r.soilType) + '</span>' : '') : NA) + '</td>' +
           '<td class="num">' + (r.tillable != null ? Math.round(r.tillable * 100) + "%" : NA) + '</td>' +
           '<td class="num">' + (r.perTillable != null ? money(r.perTillable) : NA) + '</td>' +
@@ -950,13 +950,16 @@
       }
 
       function stats(){
-        var ac = 0, ppa = [], pcN = 0;
+        var ac = 0, ppa = [], pcSet = {}, saleSet = {};
         view.forEach(function(r){
           if(r.acres) ac += r.acres;
           if(r.status === "Sold" && r.perAcre > 0) ppa.push(r.perAcre);
-          if(r.pcListing) pcN++;
+          // One auction = same date, county (and state), company and grantor; its rows are the tracts.
+          saleSet[[r.date, r.state, r.county, r.company, r.grantor].join("|")] = 1;
+          if(r.pcListing) pcSet[r.pcListing] = 1;
         });
-        var med = median(ppa);
+        var med = median(ppa), pcN = Object.keys(pcSet).length;
+        $("arStatAuctions").textContent = n0(Object.keys(saleSet).length);
         $("arStatCount").textContent = n0(view.length);
         $("arStatAcres").textContent = n0(ac);
         $("arStatMedian").textContent = med == null ? "--" : money(med);
