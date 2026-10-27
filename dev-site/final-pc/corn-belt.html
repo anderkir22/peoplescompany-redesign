@@ -4,32 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Corn Belt Region | Peoples Company</title>
-  <meta name="description" content="The Corn Belt from the inside: Iowa, Illinois, Indiana, Ohio and Missouri. Regional offices, current listings and the Peoples Company team serving the Corn Belt." />
-
-  <!-- ===================== SEO / SOCIAL / STRUCTURED DATA =====================
-       This page is the /regions/corn-belt URL, so the head is part of the deliverable
-       rather than scaffolding.
-
-       EVERY ABSOLUTE URL BELOW IS THE LIVE PRODUCTION URL, not a dev-site one:
-       canonical and og:url have to resolve to peoplescompany.com or they are worse
-       than absent. They do not match wherever this file is hosted, and that is
-       correct.
-       ------------------------------------------------------------------------- -->
-  <link rel="canonical" href="https://peoplescompany.com/regions/corn-belt" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Peoples Company" />
-  <meta property="og:locale" content="en_US" />
-  <meta property="og:url" content="https://peoplescompany.com/regions/corn-belt" />
-  <meta property="og:title" content="Corn Belt Region" />
-  <meta property="og:description" content="The Corn Belt from the inside: Iowa, Illinois, Indiana, Ohio and Missouri. Regional offices, current listings and the Peoples Company team serving the Corn Belt." />
-  <meta property="og:image" content="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/maps/peoples-company-regional-map-6-30-26.jpg/9761b73340f147c2df67f872b8c1a626.webp" />
-  <meta property="og:image:alt" content="Map of the Peoples Company regional footprint across the United States" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Corn Belt Region" />
-  <meta name="twitter:description" content="The Corn Belt from the inside: Iowa, Illinois, Indiana, Ohio and Missouri. Regional offices, current listings and the Peoples Company team serving the Corn Belt." />
-  <meta name="twitter:image" content="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/maps/peoples-company-regional-map-6-30-26.jpg/9761b73340f147c2df67f872b8c1a626.webp" />
+  <meta name="description" content="Corn Belt region page, Peoples Company." />
 
   <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,226 +14,115 @@
   <!-- Single source of truth for the final PC direction -->
   <link href="pc.css?v=20260827a" rel="stylesheet" />
 
+  <!-- Page-local: white body between the shared header and footer. The wrap uses the
+       shared --site / --rail tokens so its content lines up with the header lockup and
+       footer columns. Type comes from pc.css base styles (h1 = EB Garamond 48px). -->
   <style>
-    /* =========================================================================
-       PAGE-LOCAL CSS - corn-belt.html.  Prefix: cb-
-       Scaffolding for this page only. Nothing here is a component; do not port an
-       cb- class into pc.css or the build.
+    .internal-body{ background:#fff; min-height:60vh; }
+    .internal-wrap{ max-width: var(--site); margin: 0 auto; padding: var(--space-8) var(--rail); }
+    /* No measure cap — the paragraph runs the full content width on purpose, so both
+       margins are visible against the --rail. */
+    .internal-wrap p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted);
+      margin: var(--space-4) 0 0; }
+    /* -- SIGN-IN MODALS (Create Account, Sign In, Recover) ---------------------
+       Native <dialog> opened with showModal(): the browser supplies the focus trap,
+       Esc-to-close and the inert page behind it. Visual mockup only, no submit. */
+    .ca-dialog{ width: min(640px, calc(100% - 32px)); max-height: calc(100dvh - 32px);
+      padding: 0; border: 0; border-radius: var(--radius-lg); background: #fff;
+      color: var(--color-text); box-shadow: 0 24px 64px rgba(7,22,44,.28); overflow: hidden; }
+    /* .ca-inner scrolls, not the card, so the close X stays pinned when a form is
+       taller than the screen */
+    .ca-dialog[open]{ display: flex; flex-direction: column; }
+    .ca-dialog::backdrop{ background: rgba(7,22,44,.62); backdrop-filter: blur(3px); }
+    /* Sign In and Recover: 480 wide; Create Account: 640 */
+    #signIn, #forgotPass{ width: min(480px, calc(100% - 32px)); }
+    /* Recover: intro sits under the heading */
+    .ca-title + .ca-intro{ margin: 0 0 var(--space-5); }
+    .ca-inner{ min-height: 0; overflow-y: auto; padding: var(--space-7) 56px var(--space-6); }
+    .ca-close{ position: absolute; z-index: 1; top: 16px; right: 16px; width: 40px; height: 40px;
+      display: grid; place-items: center; border: 0; border-radius: 50%; background: #fff;
+      color: var(--pc-black); cursor: pointer; }
+    .ca-close:hover{ background: var(--pc-light-blue); }
+    .ca-close:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
 
-       THIS IS THE GENERIC REGION TEMPLATE. Corn Belt is the first region built, but
-       the band order, the wrappers and every cb- class are meant to carry to the
-       other regions with nothing changed but the copy, the map crop, the office
-       rows, the listing cards and the team cards. Keep it that way - if something
-       here only makes sense for the Corn Belt, it belongs in the copy, not in a
-       class name.
+    .ca-logo{ display: block; margin: 0 auto; height: 62px; width: auto; }
+    .ca-intro{ margin: var(--space-5) auto 0; text-align: center;
+      font-size: 15px; line-height: 1.55; color: var(--color-text-muted); }
+    .ca-title{ margin: var(--space-5) 0; text-align: center;
+      font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1.15; }
 
-       DESKTOP ONLY AT THIS STAGE. There is deliberately no responsive ladder in
-       this file - the design is being settled at 1536 first, and the breakpoints
-       are a separate pass once it is signed off. Every fixed column width and
-       every 3/4-up grid below is a desktop figure with no fallback under it.
-       DO NOT BUILD FROM THIS FILE UNTIL THE LADDER IS ADDED.
+    .ca-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+    .ca-field{ display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .ca-grid + .ca-field{ margin-top: var(--space-4); }
+    .ca-label{ font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--color-text-subtle); }
+    .ca-label .req{ color: var(--pc-black); margin-left: 2px; }
+    .ca-input{ position: relative; }
+    .ca-input input{ width: 100%; height: 48px; padding: 0 14px; font: 400 16px/1 var(--font-sans);
+      color: var(--pc-black); background: #fff; border: 1px solid rgba(18,64,106,.45);
+      border-radius: var(--radius-sm); transition: border-color .15s ease, box-shadow .15s ease; }
+    .ca-input input::placeholder{ color: rgba(7,22,44,.45); }
+    .ca-input input:hover{ border-color: var(--pc-navy); }
+    .ca-input input:focus{ outline: none; border-color: var(--pc-navy);
+      box-shadow: 0 0 0 3px var(--pc-light-blue); }
+    .ca-input.has-eye input{ padding-right: 48px; }
+    .ca-eye{ position: absolute; top: 4px; right: 4px; width: 40px; height: 40px;
+      display: grid; place-items: center; border: 0; border-radius: 6px; background: transparent;
+      color: var(--pc-navy); cursor: pointer; }
+    .ca-eye:hover{ background: var(--pc-light-blue); }
+    .ca-eye:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 0; }
+    .ca-eye .eye-open{ display: none; }
+    .ca-eye[aria-pressed="true"] .eye-open{ display: block; }
+    .ca-eye[aria-pressed="true"] .eye-shut{ display: none; }
 
-       BAND RHYTHM, top to bottom:
-         1 intro        white           h1 + lede + regional map
-         2 numbers      PC Light Blue   four figures off the report
-         3 outlook      white           the Corn Belt write-up
-        3b summary      PC Medium Blue  the report's own summary, full bleed
-         4 performance  white           the returns table + the two series charts
-         5 for sale     PC Light Blue   lc- cards straight out of pc.css
-         6 offices      white           the office list
-         7 team         PC Light Blue   the regional roster
-       ========================================================================= */
+    .ca-rule{ height: 1px; border: 0; background: var(--color-border); margin: var(--space-5) 0; }
+    .ca-hint{ margin: var(--space-3) 0 0; font-size: 13px; line-height: 1.5; color: var(--color-text-muted); }
+    .ca-forgot{ margin: var(--space-3) 0 0; text-align: right; font-size: 13px; }
+    .ca-forgot a{ color: var(--pc-medium-blue); font-weight: 600; text-decoration: underline;
+      text-underline-offset: 3px; }
+    .ca-forgot a:hover{ color: var(--pc-navy); }
+    .ca-submit{ display: flex; width: 100%; margin-top: var(--space-5); }
+    .ca-or{ display: flex; align-items: center; gap: var(--space-4); margin: var(--space-5) 0 var(--space-4);
+      font-size: 12px; font-weight: 600; letter-spacing: .12em; color: var(--color-text-subtle); }
+    .ca-or::before, .ca-or::after{ content: ""; flex: 1; height: 1px; background: var(--color-border); }
+    .ca-switch{ margin: 0; text-align: center; font-size: 15px; color: var(--color-text-muted); }
+    .ca-switch a{ color: var(--pc-medium-blue); font-weight: 600; text-decoration: underline;
+      text-underline-offset: 3px; }
+    .ca-switch a:hover{ color: var(--pc-navy); }
 
-    /* The width of the 2025 Market Analysis callout. The copy takes the rest.
-       min-content means the box is exactly as wide as its widest unbreakable
-       child, which is the nowrap h3 - so the box is sized BY the heading and
-       stays right if the heading text or size ever changes. At the 1376px rail
-       that resolves to 348px: heading 282 + 32 padding a side + 1 border a side.
-
-       DESKTOP ONLY. The nowrap that makes this work has no fallback under it -
-       below about 1100px the heading will start to push the copy column narrow,
-       and further down it overflows. The narrow-window pass has to release the
-       nowrap and put the box back on a percentage.
-
-       Measured alternatives at this rail, if the empty space at the bottom of the
-       box matters more than the one-line heading: 22% (303px) leaves the box 14px
-       short of full with a two-line heading, and 20% (275px) fills it exactly. */
-    :root{ --cb-pull-w: min-content; }
-
-    .cb-body{ background: var(--pc-white); }
-    .cb-band{ padding: var(--space-8) 0; }
-    .cb-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
-    .cb-band--tint{ background: var(--pc-light-blue); }
-    .cb-band--mid{ background: var(--pc-medium-blue); }
-
-    /* Section heads. .cb-h2 is the serif head; it repeats in every band, which is
-       why it is a class rather than an element selector. */
-    .cb-h2{ font-family: var(--font-serif); font-weight: 500; font-size: var(--h2-size);
-            line-height: 1.15; margin-bottom: var(--space-5); }
-    .cb-headrow{ display: flex; align-items: flex-end; justify-content: space-between;
-                 gap: var(--space-6); margin-bottom: var(--space-6); }
-    .cb-headrow .cb-h2{ margin-bottom: 0; }
-
-    /* ---- 1 intro ---------------------------------------------------------- */
-    .cb-intro h1{ margin-bottom: var(--space-6); }
-    .cb-headsplit{ display: grid; grid-template-columns: 1.1fr 1fr; gap: var(--space-8);
-                   align-items: start; }
-    .cb-lede{ font-size: var(--body-lg); line-height: 1.6; margin-bottom: var(--space-4); }
-    .cb-prose p{ margin-bottom: var(--space-4); line-height: 1.65; }
-    .cb-prose p:last-child{ margin-bottom: 0; }
-    /* The map is the Corn Belt region cut out of the real PC regional
-       footprint art (assets/corn-belt-region-map.png): ND, SD, NE, KS, MN, IA and MO
-       plus IL, IN and OH, with the office pins and the region label intact and
-       every other state removed. It is a transparent PNG, so there is no box round
-       it - a border would only draw a rectangle round a shape that is not one.
-       Cut the other regions the same way when their pages come up. */
-    .cb-fig{ margin: 0; }
-    .cb-fig img{ display: block; width: 100%; height: auto; }
-
-    /* ---- 2 numbers -------------------------------------------------------- */
-    .cb-numbers{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
-    .cb-num{ border-left: 2px solid var(--pc-medium-blue); padding-left: var(--space-4); }
-    .cb-num b{ display: block; font-family: var(--font-serif); font-weight: 500;
-               font-size: 44px; line-height: 1.05; color: var(--pc-navy);
-               margin-bottom: var(--space-2); }
-    .cb-num span{ font-family: var(--font-sans); font-size: 14px; line-height: 1.45; display: block; }
-
-    /* ---- 3 outlook -------------------------------------------------------- */
-    /* The prose and the callout are a two-column grid: the copy flows down the
-       left column, the callout is one cell in the right column spanning every row.
-       That is what makes the box exactly as tall as the body text beside it, for
-       ANY amount of copy in either - a float cannot do this, because a float is
-       sized by its own content and the text just wraps what is left over.
-       The report's own summary is band 3b below. */
-    /* NO MEASURE CAP ANYWHERE ON THIS PAGE. There is deliberately no max-width on
-       a text block here - the bands run the full content rail. Do not reintroduce
-       a ch- or px-based cap on a prose block. */
-    .cb-cols{ display: grid; grid-template-columns: 1fr var(--cb-pull-w);
-              column-gap: var(--space-7); align-items: stretch; }
-    .cb-cols p{ margin: 0 0 var(--space-4); line-height: 1.65; }
-    .cb-cols p:last-child{ margin-bottom: 0; }
-    /* The summary has no ground of its own - band 3b is PC Medium Blue, full bleed
-       to the window edge, and the copy sits on the rail inside it. */
-    .cb-summary .cb-sumcols{ columns: 2; column-gap: var(--space-8); }
-    .cb-summary p{ margin: 0 0 var(--space-4); line-height: 1.65; break-inside: avoid; }
-    .cb-summary p:last-child{ margin-bottom: 0; }
-
-    /* The callout box that carries a single headline figure with its explanation.
-       The printed report draws this as a speech-bubble with a notched corner; here
-       it is a bordered box with a serif head, which is the same emphasis without
-       borrowing a shape the rest of the site does not use. */
-    /* The callout is the grid's second cell. Both cells are in ONE row, so the row
-       is as tall as whichever is taller and the stretch takes the box down to meet
-       it - the two finish level however long either one gets. This is also why the
-       copy is wrapped in .cb-colstext rather than auto-placed: separate paragraphs
-       would each make their own row, and a box cannot span implicit rows.
-       --cb-pull-w is the box width and the only number to touch. */
-    .cb-pull{ margin: 0;
-              border: 1px solid var(--pc-medium-blue);
-              border-radius: var(--radius-md); padding: var(--space-5);
-              background: var(--pc-white); }
-    /* nowrap is what the box width is derived from - see --cb-pull-w. */
-    .cb-pull h3{ white-space: nowrap;
-                 font-family: var(--font-serif); font-weight: 600; font-size: 28px;
-                 line-height: 1.1; color: var(--pc-navy); margin-bottom: var(--space-3); }
-    /* 20px, not the 17px the other callouts use: the nowrap heading fixes this
-       box's inner width at 282px, so the type size is what fills the height. At
-       the 1376px rail this lands 3px short of the copy column beside it. */
-    .cb-pull p{ font-family: var(--font-serif); font-size: 20px; line-height: 1.55;
-                color: var(--pc-navy); margin: 0; }
-    .cb-pull em{ font-style: italic; }
-
-
-    /* ---- 4 performance ---------------------------------------------------- */
-    /* The returns table and the two long-run series charts, side by side with the
-       commentary. Every figure in the table is from the 2025 National Land Values
-       report and is a real number - do not round, re-derive or "refresh" any of
-       them here. They change once a year when the report does. */
-    .cb-perfsplit{ display: grid; grid-template-columns: 1fr 460px; gap: var(--space-8);
-                   align-items: start; }
-    .cb-tablewrap{ overflow-x: auto; }
-    .cb-table{ width: 100%; border-collapse: collapse; font-family: var(--font-sans); }
-    .cb-table caption{ text-align: left; font-size: var(--label); font-weight: 600;
-                       letter-spacing: .12em; text-transform: uppercase;
-                       color: var(--text-on-light-muted); padding-bottom: var(--space-3); }
-    .cb-table th, .cb-table td{ padding: var(--space-3) var(--space-2); text-align: right;
-                                font-size: 13px; line-height: 1.35;
-                                border-bottom: 1px solid var(--color-border); }
-    .cb-table thead th{ font-weight: 600; color: var(--pc-navy); white-space: nowrap; }
-    .cb-table thead th span{ display: block; font-weight: 400; font-size: 11px;
-                             color: var(--text-on-light-muted); }
-    .cb-table tbody th{ text-align: left; font-weight: 400; white-space: nowrap; }
-    .cb-table tr.is-total th, .cb-table tr.is-total td{ font-weight: 700;
-                                border-bottom: 2px solid var(--pc-medium-blue); }
-    .cb-table tr.is-rule th, .cb-table tr.is-rule td{ border-top: 1px solid var(--color-border); }
-
-    /* Chart frames. The axes, the ranges and the legend are real - the plotted
-       series are not in this file. The series live in the report's dataset and the
-       build will draw them from it, so the plot area carries a note rather than a
-       fabricated line. DO NOT hand-draw approximate lines in here to fill it. */
-    .cb-charts{ display: grid; gap: var(--space-6); }
-    .cb-chart{ border: 1px solid var(--color-border); border-radius: var(--radius-md);
-               background: var(--pc-white); padding: var(--space-5); }
-    .cb-chart h3{ font-family: var(--font-serif); font-weight: 600; font-size: var(--h4-size);
-                  color: var(--pc-navy); text-align: right; margin-bottom: var(--space-3);
-                  border-top: 2px solid var(--pc-medium-blue); padding-top: var(--space-3); }
-    .cb-legend{ display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4);
-                margin-bottom: var(--space-3); }
-    .cb-legend span{ display: inline-flex; align-items: center; gap: 6px;
-                     font-family: var(--font-sans); font-size: 11px; color: var(--pc-navy); }
-    .cb-legend i{ width: 16px; height: 0; border-top: 2px solid currentColor; display: block; }
-    .cb-legend .is-avg i{ border-top-style: dotted; border-top-width: 3px; }
-    .cb-chart svg{ display: block; width: 100%; height: auto; }
-    .cb-plotnote{ font-family: var(--font-sans); font-size: 11px; fill: var(--pc-navy); }
-
-    .cb-source{ margin-top: var(--space-6); font-family: var(--font-sans); font-size: 12px;
-                line-height: 1.5; color: var(--text-on-light-muted); }
-    .cb-source a{ color: var(--pc-navy); }
-    /* ---- 5 for sale ------------------------------------------------------- */
-    /* .lc-grid and .lc are pc.css components, used here exactly as the listings
-       page uses them. Nothing about the card is restyled for this page. */
-    .cb-listings .lc-grid{ margin-bottom: var(--space-7); }
-    .cb-more-cta{ text-align: center; }
-
-    /* ---- 6 offices -------------------------------------------------------- */
-    /* Four across at desktop. Each card is one office record - city/state,
-       street and phone. */
-    .cb-offices{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
-    /* PC Medium Blue, not the --color-border hairline: that token is PC Light
-       Blue, about 1.2:1 on white, and it could not hold the card edge on this
-       band. Same 1px PC Medium Blue the callout box in band 3 uses.
-       NO hover state - these cards are not links. */
-    .cb-office{ background: var(--pc-white); border: 1px solid var(--pc-medium-blue);
-                border-radius: var(--radius-md); padding: var(--space-5); }
-    .cb-office h3{ font-family: var(--font-serif); font-weight: 500; font-size: var(--h4-size);
-                   margin-bottom: var(--space-3); }
-    .cb-office address{ font-style: normal; font-family: var(--font-sans); font-size: 14px;
-                        line-height: 1.55; }
-    .cb-office address a{ color: var(--pc-navy); text-decoration: none; }
-    .cb-office address a:hover{ color: var(--accent-on-light); text-decoration: underline; }
-    .cb-office-st{ display: block; margin-bottom: var(--space-3); }
-
-    /* ---- 7 team ----------------------------------------------------------- */
-    .cb-team{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
-    .cb-person{ background: var(--pc-white); border: 1px solid var(--color-border);
-                border-radius: var(--radius-md); overflow: hidden; }
-    .cb-ph{ aspect-ratio: 1 / 1; background: var(--pc-light-blue); }
-    .cb-ph img{ display: block; width: 100%; height: 100%; object-fit: cover;
-                object-position: 50% 20%; }
-    .cb-personbody{ padding: var(--space-4) var(--space-5) var(--space-5); }
-    .cb-name{ font-family: var(--font-serif); font-weight: 500; font-size: var(--h4-size);
-              line-height: 1.25; margin-bottom: var(--space-2); }
-    .cb-name a{ color: inherit; text-decoration: none; }
-    .cb-name a:hover{ color: var(--accent-on-light); }
-    /* Designations are their own CMS field, kept out of the name string. */
-    .cb-desig{ font-family: var(--font-sans); font-size: 13px; font-weight: 500;
-               color: var(--text-on-light-muted); }
-    .cb-role{ font-family: var(--font-sans); font-size: 14px; line-height: 1.45;
-              margin-bottom: var(--space-2); }
-    .cb-basedin{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45;
-                 color: var(--text-on-light-muted); }
+    /* Screens 800 tall or less: tighter vertical rhythm so Create Account fits a
+       720-tall laptop without scrolling */
+    @media (max-height: 800px){
+      .ca-inner{ padding-top: var(--space-6); padding-bottom: var(--space-5); }
+      .ca-logo{ height: 52.8px; }
+      .ca-intro{ margin-top: var(--space-4); }
+      .ca-title{ margin: var(--space-4) 0; }
+      .ca-title + .ca-intro{ margin: 0 0 var(--space-4); }
+      .ca-rule{ margin: var(--space-4) 0; }
+      .ca-submit{ margin-top: var(--space-4); }
+      .ca-or{ margin: var(--space-4) 0 var(--space-3); }
+    }
+    @media (max-width: 639px){
+      .ca-inner{ padding: 56px var(--space-5) var(--space-5); }
+      .ca-grid{ grid-template-columns: 1fr; }
+      /* Logo visually hidden (kept for screen readers) to save height; the 56 top
+         padding clears the close X */
+      .ca-logo{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+        overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+      .ca-logo + .ca-intro, .ca-logo + .ca-title{ margin-top: 0; }
+    }
+    /* Site-wide small-width type scale; kept last so it wins */
+    @media (max-width: 767px){
+      .ca-title{ font-size: 26px; line-height: 1.18; }
+    }
+    @media (max-width: 359px){
+      .ca-inner{ padding-left: var(--space-4); padding-right: var(--space-4); }
+      .ca-title{ font-size: 24px; }
+      .ca-intro, .ca-switch{ font-size: 14px; }
+    }
   </style>
 </head>
+
 <body>
   <!-- ================= HEADER ================= -->
   <header class="pcf">
@@ -278,9 +142,9 @@
         <div class="pcf-stack">
           <div class="pcf-util">
             <span class="sp"></span>
-            <a href="./internal.html">Create An Account</a>
+            <a href="#create-account" data-open-dialog="createAccount" aria-haspopup="dialog">Create An Account</a>
             <span class="sep">|</span>
-            <a href="./internal.html">Login</a>
+            <a href="#sign-in" data-open-dialog="signIn" aria-haspopup="dialog">Login</a>
           </div>
           <nav class="pcf-row" aria-label="Primary">
             <ul class="pcf-menus" id="pcfMenus"></ul>
@@ -322,657 +186,158 @@
     </div>
   </div>
 
-  <!-- ================= PAGE CONTENT - corn belt region ================= -->
-  <main class="cb-body" aria-label="Page content">
-
-    <!-- ============ 1 - INTRO ============
-         h1 spans both columns, copy left and the regional map right. Same
-         proportion as the About and Culture intros on purpose. -->
-    <section class="cb-band cb-intro">
-      <div class="cb-wrap">
-        <h1>Corn Belt Region</h1>
-        <div class="cb-headsplit">
-          <div class="cb-prose reveal">
-            <p class="cb-lede">The Corn Belt is 111.2 million acres of the most efficient, most closely watched farmland in the world: Iowa, Illinois, Indiana, Ohio and Missouri. It is the region with the most sophisticated farm operations in the country, and it has long been the first place capital looks when it wants exposure to agriculture.</p>
-            <p>Its record is steady income that generally exceeds Treasury returns, appreciation near 6% a year over the long run, and the strongest inflation hedge of any major production region. What is different this year is the spread around that record: policy, trade and government payments now move local markets more than input costs and output prices do.</p>
-            <p>Peoples Company has worked this region since the company started, and it is where the largest share of our offices, our brokers, our land managers and our appraisers sit.</p>
-          </div>
-          <div class="reveal">
-            <!-- PLACEHOLDER. The region visual is still being designed; until it
-                 lands this is the full national map, which at least shows the
-                 region in context. The finished art is a Corn Belt cutout, so
-                 expect a taller, narrower frame here and an alt that describes
-                 the region alone, not the country. -->
-            <figure class="cb-fig">
-              <img src="../assets/pc-national-office-map.jpg"
-                   width="2550" height="1688" loading="lazy" decoding="async"
-                   alt="Map of the United States divided into the ten Peoples Company regions, shaded in tints of blue, with white dots marking office locations. Corn Belt, the darkest region, runs from North Dakota and Minnesota south to Kansas and Missouri and east through Illinois, Indiana and Ohio." />
-            </figure>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 2 - NUMBERS ============
-         Four figures, every one of them from the Corn Belt section of the 2025
-         National Land Values report. If the report changes, these change - do not
-         round them, restate them or refresh them from anywhere else. -->
-    <section class="cb-band cb-band--tint" aria-labelledby="cb-numbers-h">
-      <div class="cb-wrap">
-        <h2 class="sr-only" id="cb-numbers-h">The region in figures</h2>
-        <div class="cb-numbers reveal">
-          <div class="cb-num">
-            <b>111.2M</b>
-            <span>Acres of farmland across Iowa, Illinois, Indiana, Ohio and Missouri</span>
-          </div>
-          <div class="cb-num">
-            <b>$110&ndash;120B</b>
-            <span>Gross farm receipts annually across the five-state region (USDA, 2025)</span>
-          </div>
-          <div class="cb-num">
-            <b>30%+</b>
-            <span>Of total U.S. corn and soybean production from Iowa and Illinois together</span>
-          </div>
-          <div class="cb-num">
-            <b>~6%</b>
-            <span>Long-term annual appreciation, with income returns near 3.5%</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 3 - REGIONAL OUTLOOK ============
-         The Corn Belt market write-up from the 2025 National Land Values report,
-         which supersedes the older text on the live /regions/corn-belt page. The
-         copy runs down the left of a two-column grid with the 6% callout as the
-         right-hand column, full height against it. The report's own summary
-         follows in its own band, 3b. -->
-    <section class="cb-band" aria-labelledby="cb-outlook-h">
-      <div class="cb-wrap">
-        <div class="cb-outlook">
-          <h2 class="cb-h2" id="cb-outlook-h">2025 Market Analysis</h2>
-
-          <div class="cb-cols reveal">
-            <div class="cb-colstext">
-              <p>The Corn Belt contains approximately 111.2 million acres of farmland across the relatively homogeneous, row-crop&ndash;dominated production region of Iowa, Illinois, Indiana, Ohio and Missouri. Iowa and Illinois consistently rank first and second in the value of agricultural output within the region, and all five states rank among the top 13 nationally in agricultural production value, as well as within the top 10 for both corn and soybean production. Iowa leads the nation in corn production, while Illinois leads in soybeans.</p>
-              <p>Iowa is unique within this group due to its substantial reliance on livestock production, generating nearly $19.5 billion in annual livestock revenue &mdash; ranking third nationally behind Texas ($24 billion) and Nebraska ($20 billion). Indiana, Missouri and Ohio each generate approximately $6&ndash;7 billion annually from livestock, while Illinois generates roughly $4 billion. Livestock income is of particular importance, as livestock and crop sectors tend to move inversely: lower commodity prices reduce feed costs for livestock operations, and vice versa.</p>
-              <p>Total returns have exceeded those of publicly traded equity indexes with substantially lower volatility for nearly every possible 10-year holding period since 1990. However, the &ldquo;thin market&rdquo; and heterogeneous nature of farmland investments complicate access to the asset class relative to equities. Corn Belt farmland has also served as a strong inflation hedge, with returns exceeding inflation in all but one year since 1990.</p>
-            </div>
-            <aside class="cb-pull">
-              <h3>6% Annual Appreciation</h3>
-              <p>There is an adage that says, <em>&ldquo;you make more on your balance sheet than on your income statement with farmland,&rdquo;</em> and this has historically held true in the Corn Belt, with long-term appreciation averaging around 6% per year and income returns averaging approximately 3.5% annually.</p>
-            </aside>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 3b - CORN BELT SUMMARY ============
-         The report's own summary, shortened. It is its own band so the ground can
-         run full bleed to the window edge; the copy still sits on the content rail
-         because .cb-wrap carries it. The ground is dark, so the section carries
-         .on-dark for the type colours. -->
-    <section class="cb-band cb-band--mid on-dark" aria-labelledby="cb-summary-h">
-      <div class="cb-wrap">
-        <div class="cb-summary reveal">
-          <h2 class="cb-h2" id="cb-summary-h">Corn Belt Summary</h2>
-          <div class="cb-sumcols">
-            <p>The Corn Belt has long been a target for financial investment in agriculture, and is the region with the most efficient and sophisticated farm operations. The historic financial performance has been remarkable relative to competing investments, but the current uncertainties stemming from recent policy changes have created greater variability in local market conditions than has come from market or weather conditions in the past.</p>
-            <p>In total, the factors surrounding agricultural production and investment valuation models that created the steady and competitive returns, inflation hedging features and diversification benefits in the Corn Belt appear to remain, and returns are still relatively attractive, but in a widely expanded possibility set. The longer-term prospects remain positive, though shorter-term minor additional pullbacks would not be surprising. The best summary may still be that there will be both opportunities and disappointments as the markets churn back to a longer-run position of greater market certainty.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 4 - PERFORMANCE ============
-         The returns table and the two long-run series charts.
-
-         THE TABLE IS REAL DATA, every cell of it, straight from the 2025 National
-         Land Values report. Do not round, re-derive or "update" a number here.
-
-         THE CHARTS ARE FRAMES, NOT PLOTS. The axes, the ranges, the years and the
-         legend are real; the five state series and the five-state average are not
-         in this file, because the series data is in the report's dataset and is not
-         something to eyeball off a printed figure. The build draws them from the
-         dataset. Do not hand-draw approximate lines to fill the plot area. -->
-    <section class="cb-band" aria-labelledby="cb-perf-h">
-      <div class="cb-wrap">
-        <h2 class="cb-h2" id="cb-perf-h">What the region has actually returned</h2>
-
-        <div class="cb-perfsplit">
-          <div class="reveal">
-            <div class="cb-tablewrap">
-              <table class="cb-table">
-                <caption>Corn Belt &mdash; five-state average, annualized</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Period</th>
-                    <th scope="col">1991&ndash;2025 <span>35 years</span></th>
-                    <th scope="col">2001&ndash;2025 <span>25 years</span></th>
-                    <th scope="col">2011&ndash;2025 <span>15 years</span></th>
-                    <th scope="col">2016&ndash;2025 <span>10 years</span></th>
-                    <th scope="col">2021&ndash;2025 <span>5 years</span></th>
-                    <th scope="col">2022&ndash;2025 <span>4 years</span></th>
-                    <th scope="col">2023&ndash;2025 <span>3 years</span></th>
-                    <th scope="col">2024&ndash;2025 <span>2 years</span></th>
-                    <th scope="col">2025 <span>1 year</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">Income %/year</th>
-                    <td>3.95%</td><td>3.36%</td><td>3.07%</td><td>2.90%</td><td>2.80%</td><td>2.75%</td><td>2.70%</td><td>2.66%</td><td>2.55%</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Capital gain %/year</th>
-                    <td>5.97%</td><td>6.02%</td><td>6.02%</td><td>2.71%</td><td>6.09%</td><td>7.42%</td><td>7.49%</td><td>5.54%</td><td>4.59%</td>
-                  </tr>
-                  <tr class="is-total">
-                    <th scope="row">Total return %/year</th>
-                    <td>9.91%</td><td>9.38%</td><td>9.09%</td><td>5.61%</td><td>8.89%</td><td>10.16%</td><td>10.19%</td><td>8.20%</td><td>7.14%</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">After tax and expenses</th>
-                    <td>9.40%</td><td>8.94%</td><td>8.57%</td><td>5.37%</td><td>8.60%</td><td>9.84%</td><td>9.84%</td><td>7.87%</td><td>6.86%</td>
-                  </tr>
-                  <tr class="is-rule">
-                    <th scope="row">CPI</th>
-                    <td>2.54%</td><td>2.54%</td><td>2.50%</td><td>2.95%</td><td>3.90%</td><td>4.42%</td><td>3.79%</td><td>2.99%</td><td>2.86%</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">CMT-10</th>
-                    <td>4.13%</td><td>3.32%</td><td>2.91%</td><td>2.65%</td><td>2.96%</td><td>3.37%</td><td>3.85%</td><td>4.15%</td><td>4.29%</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="cb-prose" style="margin-top: var(--space-6);">
-              <p>Returns from this region display the highest correlation with inflation over longer holding periods of any major production region, at nearly 75% over ten years, and the lowest drawdown risk. Iowa farmland prices react a little more than Illinois or Indiana in both rising and falling environments, but all three of the I states share very similar patterns, which correspond closely with rental rates as well. Ohio and Missouri have lower productivity on average and more diversified agriculture, with dairy, livestock and recreational ground representing a larger share of the land base.</p>
-            </div>
-
-            <p class="cb-source">Source: Peoples Company, <a href="./internal.html"><em>2025 National Land Values</em></a>, Corn Belt section. Figures are five-state averages and are updated once a year when the report is published.</p>
-          </div>
-
-          <div class="cb-charts reveal">
-
-            <figure class="cb-chart">
-              <h3>Price &mdash; $/Acre, Corn Belt</h3>
-              <div class="cb-legend" aria-hidden="true">
-                <span style="color:#D7EFFB"><i></i>Ohio</span>
-                <span style="color:#00AEEF"><i></i>Missouri</span>
-                <span style="color:#316F96"><i></i>Iowa</span>
-                <span style="color:#12406A"><i></i>Indiana</span>
-                <span style="color:#07162C"><i></i>Illinois</span>
-                <span class="is-avg" style="color:#316F96"><i></i>5-state average</span>
-              </div>
-              <svg viewBox="0 0 420 240" role="img" aria-labelledby="cb-chart1-t cb-chart1-d">
-                <title id="cb-chart1-t">Farmland price per acre, Corn Belt states, 2000 to 2025</title>
-                <desc id="cb-chart1-d">Axis frame only in this mockup. Five state series and a five-state average run from about $2,000 per acre in 2000 to about $10,000 per acre in 2025, with Iowa highest and Missouri lowest.</desc>
-                <g stroke="#D7EFFB" stroke-width="1">
-                  <line x1="52" y1="210" x2="410" y2="210"/><line x1="52" y1="178" x2="410" y2="178"/>
-                  <line x1="52" y1="145" x2="410" y2="145"/><line x1="52" y1="113" x2="410" y2="113"/>
-                  <line x1="52" y1="81"  x2="410" y2="81"/><line x1="52" y1="48"  x2="410" y2="48"/>
-                  <line x1="52" y1="16"  x2="410" y2="16"/>
-                </g>
-                <g fill="#12406A" font-family="Inter, sans-serif" font-size="9" text-anchor="end">
-                  <text x="46" y="213">$0</text><text x="46" y="181">$2,000</text>
-                  <text x="46" y="148">$4,000</text><text x="46" y="116">$6,000</text>
-                  <text x="46" y="84">$8,000</text><text x="46" y="51">$10,000</text>
-                  <text x="46" y="19">$12,000</text>
-                </g>
-                <g fill="#12406A" font-family="Inter, sans-serif" font-size="9" text-anchor="middle">
-                  <text x="52" y="226">2000</text><text x="124" y="226">2005</text>
-                  <text x="195" y="226">2010</text><text x="267" y="226">2015</text>
-                  <text x="338" y="226">2020</text><text x="410" y="226">2025</text>
-                </g>
-                <rect x="52" y="16" width="358" height="194" fill="none" stroke="#316F96"
-                      stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>
-                <text class="cb-plotnote" x="231" y="116" text-anchor="middle">Series plotted from the report dataset</text>
-              </svg>
-            </figure>
-
-            <figure class="cb-chart">
-              <h3>Cash Rent &mdash; $/Acre, Corn Belt</h3>
-              <div class="cb-legend" aria-hidden="true">
-                <span style="color:#D7EFFB"><i></i>Ohio</span>
-                <span style="color:#00AEEF"><i></i>Missouri</span>
-                <span style="color:#316F96"><i></i>Iowa</span>
-                <span style="color:#12406A"><i></i>Indiana</span>
-                <span style="color:#07162C"><i></i>Illinois</span>
-                <span class="is-avg" style="color:#316F96"><i></i>5-state average</span>
-              </div>
-              <svg viewBox="0 0 420 240" role="img" aria-labelledby="cb-chart2-t cb-chart2-d">
-                <title id="cb-chart2-t">Cash rent per acre, Corn Belt states, 2000 to 2025</title>
-                <desc id="cb-chart2-d">Axis frame only in this mockup. Five state series and a five-state average run from about $100 per acre in 2000 to between $155 and $275 per acre in 2025.</desc>
-                <g stroke="#D7EFFB" stroke-width="1">
-                  <line x1="52" y1="210" x2="410" y2="210"/><line x1="52" y1="178" x2="410" y2="178"/>
-                  <line x1="52" y1="145" x2="410" y2="145"/><line x1="52" y1="113" x2="410" y2="113"/>
-                  <line x1="52" y1="81"  x2="410" y2="81"/><line x1="52" y1="48"  x2="410" y2="48"/>
-                  <line x1="52" y1="16"  x2="410" y2="16"/>
-                </g>
-                <g fill="#12406A" font-family="Inter, sans-serif" font-size="9" text-anchor="end">
-                  <text x="46" y="213">$0</text><text x="46" y="181">$50</text>
-                  <text x="46" y="148">$100</text><text x="46" y="116">$150</text>
-                  <text x="46" y="84">$200</text><text x="46" y="51">$250</text>
-                  <text x="46" y="19">$300</text>
-                </g>
-                <g fill="#12406A" font-family="Inter, sans-serif" font-size="9" text-anchor="middle">
-                  <text x="52" y="226">2000</text><text x="124" y="226">2005</text>
-                  <text x="195" y="226">2010</text><text x="267" y="226">2015</text>
-                  <text x="338" y="226">2020</text><text x="410" y="226">2025</text>
-                </g>
-                <rect x="52" y="16" width="358" height="194" fill="none" stroke="#316F96"
-                      stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>
-                <text class="cb-plotnote" x="231" y="116" text-anchor="middle">Series plotted from the report dataset</text>
-              </svg>
-            </figure>
-
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- ============ 5 - REAL ESTATE FOR SALE ============
-         Six cards, not the live page's ten - the point of this band is to show the
-         region has inventory and send people to the filtered listings page, not to
-         be a second listings page. The cards are the pc.css .lc component used
-         exactly as listings.html uses it: no page-local styling touches them.
-         In the build this is the listings query filtered to the region. -->
-    <section class="cb-band cb-band--tint cb-listings" aria-labelledby="cb-listings-h">
-      <div class="cb-wrap">
-        <div class="cb-headrow">
-          <div>
-            <h2 class="cb-h2" id="cb-listings-h">Real Estate For Sale</h2>
-          </div>
-          <a class="btn btn-ghost" href="./listings.html">All Corn Belt listings</a>
-        </div>
-
-        <div class="lc-grid reveal">
-
-          <article class="lc">
-            <div class="lc-media">
-              <img src="../assets/pc-hero6.jpg" alt="Timbered building site with a small pond" loading="lazy" decoding="async" />
-              <span class="lc-pill is-new">New</span>
-              <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
-                <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-                <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              </button>
-            </div>
-            <div class="lc-body">
-              <div class="lc-statusrow">
-                <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="sr-only">Listing </span>#19835</p>
-              </div>
-              <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Warren County, IA</a></p>
-              <p class="lc-headline">$175,000</p>
-              <p class="lc-meta"><span>9.5 Acres</span><span>Timber</span><span>Building Site</span></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Landon Larkin</p>
-              </div>
-            </div>
-          </article>
-
-          <article class="lc">
-            <div class="lc-media">
-              <img src="../assets/pc-hero8.jpg" alt="Row-crop ground west of Rockford, Iowa" loading="lazy" decoding="async" />
-              <span class="lc-pill is-auction">Auction</span>
-              <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
-                <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-                <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              </button>
-            </div>
-            <div class="lc-body">
-              <div class="lc-statusrow">
-                <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="sr-only">Listing </span>#19826</p>
-              </div>
-              <p class="lc-place"><a class="lc-link" href="./listings-details-auction.html">Cerro Gordo County, IA</a></p>
-              <p class="lc-headline">November 5, 2026</p>
-              <p class="lc-meta"><span>320.56 Acres</span><span>Surveyed</span><span>West of Rockford</span></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Andrew Zellmer</p>
-              </div>
-            </div>
-          </article>
-
-          <article class="lc">
-            <div class="lc-media">
-              <img src="../assets/pc-hero6.jpg" alt="Farmland in Washington County, Iowa" loading="lazy" decoding="async" />
-              <span class="lc-pill is-auction">Auction</span>
-              <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
-                <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-                <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              </button>
-            </div>
-            <div class="lc-body">
-              <div class="lc-statusrow">
-                <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="sr-only">Listing </span>#19817</p>
-              </div>
-              <p class="lc-place"><a class="lc-link" href="./listings-details-auction.html">Washington County, IA</a></p>
-              <p class="lc-headline">November 18, 2026</p>
-              <p class="lc-meta"><span>70 Acres</span><span>Live Public Auction</span><span>10:00 AM</span></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Jared Chambers</p>
-              </div>
-            </div>
-          </article>
-
-          <article class="lc">
-            <div class="lc-media">
-              <img src="../assets/pc-hero8.jpg" alt="Farm ground outside Houghton, Iowa" loading="lazy" decoding="async" />
-              <span class="lc-pill is-auction">Auction</span>
-              <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
-                <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-                <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              </button>
-            </div>
-            <div class="lc-body">
-              <div class="lc-statusrow">
-                <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="sr-only">Listing </span>#19816</p>
-              </div>
-              <p class="lc-place"><a class="lc-link" href="./listings-details-auction.html">Lee County, IA</a></p>
-              <p class="lc-headline">November 6, 2026</p>
-              <p class="lc-meta"><span>89.88 Acres</span><span>Live Public Auction</span><span>Outside Houghton</span></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Mike Nelson</p>
-              </div>
-            </div>
-          </article>
-
-          <article class="lc">
-            <div class="lc-media">
-              <img src="../assets/pc-hero6.jpg" alt="Rolling recreational ground in southern Iowa" loading="lazy" decoding="async" />
-              <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
-                <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-                <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              </button>
-            </div>
-            <div class="lc-body">
-              <div class="lc-statusrow">
-                <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="sr-only">Listing </span>#19800</p>
-              </div>
-              <p class="lc-place"><a class="lc-link" href="./listings-details-forsale.html">Clarke County, IA</a></p>
-              <p class="lc-headline">$824,715</p>
-              <p class="lc-meta"><span>134.10 Acres</span><span>$6,150 / Acre</span><span>Turnkey Recreational</span></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Landon Larkin</p>
-              </div>
-            </div>
-          </article>
-
-          <article class="lc">
-            <div class="lc-media">
-              <img src="../assets/pc-hero8.jpg" alt="Farmhouse-style ranch home at Middlebrook in Cumming, Iowa" loading="lazy" decoding="async" />
-              <button class="lc-fav" type="button" aria-pressed="false" aria-label="Save this listing">
-                <svg class="lc-star-fill" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-                <svg class="lc-star-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.35l-5.81 3.05L7.3 13.93 2.6 9.35l6.5-.95L12 2.5z"/></svg>
-              </button>
-            </div>
-            <div class="lc-body">
-              <div class="lc-statusrow">
-                <p class="lc-status"><span class="lc-dot" aria-hidden="true"></span>Active</p>
-                <p class="lc-id"><span class="sr-only">Listing </span>#19804</p>
-              </div>
-              <p class="lc-place"><a class="lc-link" href="./listings-details-residential.html">Cumming, IA</a></p>
-              <p class="lc-headline">$714,900</p>
-              <p class="lc-meta"><span>0.34 Acres</span><span>5 Bed / 4 Bath</span><span>Middlebrook Agrihood</span></p>
-              <div class="lc-agentrow">
-                <p class="lc-agent"><span class="lc-agent-tag">Agent</span> Eric Bohnenkamp</p>
-              </div>
-            </div>
-          </article>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 6 - REGIONAL OFFICES ============
-         All sixteen offices the live page lists for this region, in the same order
-         (alphabetical by city). Phone and street address are real. No email row -
-         the region page sends people to the office, not to a person.
-         In the CMS this is one repeater: city, state, street, phone. -->
-    <section class="cb-band" aria-labelledby="cb-offices-h">
-      <div class="cb-wrap">
-        <div class="cb-headrow">
-          <div>
-            <h2 class="cb-h2" id="cb-offices-h">Regional Offices</h2>
-          </div>
-          <a class="btn btn-ghost" href="./contact.html">View All Offices</a>
-        </div>
-
-        <div class="cb-offices reveal">
-          <article class="cb-office">
-            <h3>Bloomington, IL</h3>
-            <address>
-              <span class="cb-office-st">1907 Jumer Drive, Suite D<br />Bloomington, IL 61704</span>
-              <a href="tel:+18006076888">800.607.6888</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Cascade, IA</h3>
-            <address>
-              <span class="cb-office-st">300 1st Avenue W<br />Cascade, IA 52033</span>
-              <a href="tel:+15635438338">563.543.8338</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Champaign, IL</h3>
-            <address>
-              <span class="cb-office-st">1605 South State Street, Suite 110<br />Champaign, IL 61820</span>
-              <a href="tel:+18006076888">800.607.6888</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Cumming, IA</h3>
-            <address>
-              <span class="cb-office-st">1108 S. 44th Street, Suite 102<br />Cumming, IA 50061</span>
-              <a href="tel:+15152221347">515.222.1347</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>DeWitt, IA</h3>
-            <address>
-              <span class="cb-office-st">700 6th Avenue<br />DeWitt, IA 52742</span>
-              <a href="tel:+15636598185">563.659.8185</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Fremont, NE</h3>
-            <address>
-              <span class="cb-office-st">1735 E. Military Avenue, P.O. Box 672<br />Fremont, NE 68026</span>
-              <a href="tel:+14027215995">402.721.5995</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Independence, IA</h3>
-            <address>
-              <span class="cb-office-st">2300 Swan Lake Boulevard, Suite 300<br />Independence, IA 50644</span>
-              <a href="tel:+13193618089">319.361.8089</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Indianola, IA</h3>
-            <address>
-              <span class="cb-office-st">113 W. Salem Avenue<br />Indianola, IA 50125</span>
-              <a href="tel:+15159610247">515.961.0247</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Kasson, MN</h3>
-            <address>
-              <span class="cb-office-st">20 4th Street SE<br />Kasson, MN 55944</span>
-              <a href="tel:+15076347033">507.634.7033</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Kearney, NE</h3>
-            <address>
-              <span class="cb-office-st">4111 4th Avenue, Suite 22<br />Kearney, NE 68845</span>
-              <a href="tel:+13082377662">308.237.7662</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Lincoln, NE</h3>
-            <address>
-              <span class="cb-office-st">3501 Plantation Drive, Suite 100<br />Lincoln, NE 68516</span>
-              <a href="tel:+14024344498">402.434.4498</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Norfolk, NE</h3>
-            <address>
-              <span class="cb-office-st">800 W. Benjamin Avenue, Suite B<br />Norfolk, NE 68701</span>
-              <a href="tel:+14023710065">402.371.0065</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Omaha, NE</h3>
-            <address>
-              <span class="cb-office-st">4601 Catalyst Court, Suite 1070<br />Omaha, NE 68106</span>
-              <a href="tel:+14023340256">402.334.0256</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Oswego, IL</h3>
-            <address>
-              <span class="cb-office-st">2681 U.S. Highway 34<br />Oswego, IL 60543</span>
-              <a href="tel:+13319993490">331.999.3490</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Wapakoneta, OH</h3>
-            <address>
-              <span class="cb-office-st">22253 Blank Pike<br />Wapakoneta, OH 45895</span>
-              <a href="tel:+14023340256">402.334.0256</a>
-            </address>
-          </article>
-          <article class="cb-office">
-            <h3>Wayne, NE</h3>
-            <address>
-              <span class="cb-office-st">206 Main Street, P.O. Box 16<br />Wayne, NE 68787</span>
-              <a href="tel:+14028333132">402.833.3132</a>
-            </address>
-          </article>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ============ 7 - REGIONAL TEAM ============
-         Eight people, the same pattern as the team page card but a local, simpler
-         card: photo, name, designations, role, home office. The live region page
-         loads its roster from the team directory filtered by region, and this band
-         is that query - the "Based in" line is the office relation, which is what
-         makes someone show up on a region page in the first place.
-         Designations are their own CMS field and are not part of the name string. -->
-    <section class="cb-band cb-band--tint" aria-labelledby="cb-team-h">
-      <div class="cb-wrap">
-        <div class="cb-headrow">
-          <div>
-            <h2 class="cb-h2" id="cb-team-h">Regional Team</h2>
-          </div>
-          <a class="btn btn-ghost" href="./team.html">View Full Team</a>
-        </div>
-
-        <div class="cb-team reveal">
-
-          <article class="cb-person">
-            <div class="cb-ph">
-              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/wQYQxAysx8OXdvfSQLThgnbRiTlstL65YRqB0YTy.jpg" alt="Ray Brownfield" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;" />
-            </div>
-            <div class="cb-personbody">
-              <h3 class="cb-name"><a href="./team-member.html">Ray Brownfield</a><span class="cb-desig">, ALC, AFM</span></h3>
-              <p class="cb-role">Designated Managing Broker</p>
-              <p class="cb-basedin">Oswego, IL</p>
-            </div>
-          </article>
-
-          <article class="cb-person">
-            <div class="cb-ph">
-              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/andrew-zellmer.jpg" alt="Andrew Zellmer" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;" />
-            </div>
-            <div class="cb-personbody">
-              <h3 class="cb-name"><a href="./team-member.html">Andrew Zellmer</a><span class="cb-desig">, ALC</span></h3>
-              <p class="cb-role">Senior Land Agent</p>
-              <p class="cb-basedin">Cumming, IA</p>
-            </div>
-          </article>
-
-          <article class="cb-person">
-            <div class="cb-ph">
-              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/Ltt80HzVf5honcUFheENJZH95qBBoivvodta4i6U.jpg" alt="Mollie Aronowitz" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;" />
-            </div>
-            <div class="cb-personbody">
-              <h3 class="cb-name"><a href="./team-member.html">Mollie Aronowitz</a><span class="cb-desig">, AFM</span></h3>
-              <p class="cb-role">Associate Director of Land Management</p>
-              <p class="cb-basedin">Cumming, IA</p>
-            </div>
-          </article>
-
-          <article class="cb-person">
-            <div class="cb-ph">
-              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/iwGX3X9aGpGJf3cvayrFjLbV0IWEoyqngqAnd39o.jpg" alt="Jared Chambers" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;" />
-            </div>
-            <div class="cb-personbody">
-              <h3 class="cb-name"><a href="./team-member.html">Jared Chambers</a><span class="cb-desig">, CAI</span></h3>
-              <p class="cb-role">Land Agent &amp; Auctioneer</p>
-              <p class="cb-basedin">Indianola, IA</p>
-            </div>
-          </article>
-
-          <article class="cb-person">
-            <div class="cb-ph">
-              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/muQGkVfanKBteWsWy0AZRZRlCO4uIWbJlLA3xu05.jpg" alt="George Baird" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;" />
-            </div>
-            <div class="cb-personbody">
-              <h3 class="cb-name"><a href="./team-member.html">George Baird</a><span class="cb-desig">, AFM, AAC</span></h3>
-              <p class="cb-role">Owner, Landmark Ag &amp; Senior Land Manager</p>
-              <p class="cb-basedin">Bloomington, IL</p>
-            </div>
-          </article>
-
-          <article class="cb-person">
-            <div class="cb-ph">
-              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/txSP2PfbsEJi35RbEd7eB6oFhzAnPaRVJC6Cyc9O.jpg" alt="Emily Oberbroeckling" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;" />
-            </div>
-            <div class="cb-personbody">
-              <h3 class="cb-name"><a href="./team-member.html">Emily Oberbroeckling</a><span class="cb-desig">, ARA</span></h3>
-              <p class="cb-role">Senior Certified General Appraiser</p>
-              <p class="cb-basedin">Cascade, IA</p>
-            </div>
-          </article>
-
-          <article class="cb-person">
-            <div class="cb-ph">
-              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/doZ7CYVQeyy6DIm6ZiENEUKKsinoDDMzmFII7anI.jpg" alt="Peter Isaacson" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;" />
-            </div>
-            <div class="cb-personbody">
-              <h3 class="cb-name"><a href="./team-member.html">Peter Isaacson</a><span class="cb-desig">, AFM, AAC</span></h3>
-              <p class="cb-role">Senior Land Manager</p>
-              <p class="cb-basedin">Independence, IA</p>
-            </div>
-          </article>
-
-          <article class="cb-person">
-            <div class="cb-ph">
-              <img src="https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/05CWlx2ooGqoY0jayUQgiU9ojvh9XwY4hfHAzKiJ.jpg" alt="Wendy Forthun" loading="lazy" decoding="async" onerror="this.style.display='none';this.onerror=null;" />
-            </div>
-            <div class="cb-personbody">
-              <h3 class="cb-name"><a href="./team-member.html">Wendy Forthun</a><span class="cb-desig">, ALC</span></h3>
-              <p class="cb-role">Land Broker</p>
-              <p class="cb-basedin">Kasson, MN</p>
-            </div>
-          </article>
-
-        </div>
-      </div>
-    </section>
-
+  <!-- ================= PAGE CONTENT — empty region page ================= -->
+  <main class="internal-body" aria-label="Page content">
+    <div class="internal-wrap reveal">
+      <h1>Corn Belt</h1>
+    </div>
   </main>
+
+  <!-- ================= CREATE ACCOUNT MODAL ================= -->
+  <dialog class="ca-dialog" id="createAccount" aria-labelledby="ca-title">
+    <div class="ca-inner">
+      <button class="ca-close" type="button" aria-label="Close" data-close-dialog>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+
+      <p class="ca-intro">Get access to valuable farmland insights and a personalized experience.</p>
+      <h2 class="ca-title" id="ca-title">Create Your Account</h2>
+
+      <form action="#" onsubmit="return false;" novalidate>
+        <div class="ca-grid">
+          <div class="ca-field">
+            <label class="ca-label" for="ca-first">First name</label>
+            <div class="ca-input"><input id="ca-first" type="text" autocomplete="given-name" placeholder="First name" /></div>
+          </div>
+          <div class="ca-field">
+            <label class="ca-label" for="ca-last">Last name</label>
+            <div class="ca-input"><input id="ca-last" type="text" autocomplete="family-name" placeholder="Last name" /></div>
+          </div>
+        </div>
+        <div class="ca-field" style="margin-top: var(--space-4);">
+          <label class="ca-label" for="ca-email">Email<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input"><input id="ca-email" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
+        </div>
+
+        <hr class="ca-rule" />
+
+        <div class="ca-grid">
+          <div class="ca-field">
+            <label class="ca-label" for="ca-pass">Create Password<span class="req" aria-hidden="true">*</span></label>
+            <div class="ca-input has-eye">
+              <input id="ca-pass" type="password" autocomplete="new-password" aria-describedby="ca-hint" required />
+              <button class="ca-eye" type="button" aria-label="Show password" aria-pressed="false" aria-controls="ca-pass"><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.6 3.4M6.6 6.6A17 17 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+          </div>
+          <div class="ca-field">
+            <label class="ca-label" for="ca-pass2">Confirm Password<span class="req" aria-hidden="true">*</span></label>
+            <div class="ca-input has-eye">
+              <input id="ca-pass2" type="password" autocomplete="new-password" required />
+              <button class="ca-eye" type="button" aria-label="Show password" aria-pressed="false" aria-controls="ca-pass2"><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.6 3.4M6.6 6.6A17 17 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <p class="ca-hint" id="ca-hint">At least 8 characters, with letters and numbers.</p>
+
+        <button class="btn btn-primary ca-submit" type="submit">Create Account</button>
+      </form>
+
+      <p class="ca-or" aria-hidden="true">OR</p>
+      <p class="ca-switch">Already have an account? <a href="#sign-in" data-open-dialog="signIn">Sign In</a></p>
+    </div>
+  </dialog>
+
+  <!-- ================= SIGN IN MODAL ================= -->
+  <dialog class="ca-dialog" id="signIn" aria-labelledby="si-title">
+    <div class="ca-inner">
+      <button class="ca-close" type="button" aria-label="Close" data-close-dialog>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+
+      <h2 class="ca-title" id="si-title">Sign in to your account</h2>
+
+      <form action="#" onsubmit="return false;" novalidate>
+        <div class="ca-field">
+          <label class="ca-label" for="si-email">Email<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input"><input id="si-email" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
+        </div>
+        <div class="ca-field" style="margin-top: var(--space-4);">
+          <label class="ca-label" for="si-pass">Password<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input has-eye">
+            <input id="si-pass" type="password" autocomplete="current-password" required />
+            <button class="ca-eye" type="button" aria-label="Show password" aria-pressed="false" aria-controls="si-pass"><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.6 3.4M6.6 6.6A17 17 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+        </div>
+        <p class="ca-forgot"><a href="#forgot-password" data-open-dialog="forgotPass">Forgot Password?</a></p>
+
+        <button class="btn btn-primary ca-submit" type="submit">Sign In</button>
+      </form>
+
+      <p class="ca-or" aria-hidden="true">OR</p>
+      <p class="ca-switch">Don&rsquo;t have an account? <a href="#create-account" data-open-dialog="createAccount">Sign Up</a></p>
+    </div>
+  </dialog>
+
+  <!-- ================= RECOVER ACCOUNT MODAL ================= -->
+  <dialog class="ca-dialog" id="forgotPass" aria-labelledby="fp-title">
+    <div class="ca-inner">
+      <button class="ca-close" type="button" aria-label="Close" data-close-dialog>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+
+      <h2 class="ca-title" id="fp-title">Recover your account</h2>
+      <p class="ca-intro">Enter the email address on your account and we&rsquo;ll send you a link to reset your password.</p>
+
+      <form action="#" onsubmit="return false;" novalidate>
+        <div class="ca-field">
+          <label class="ca-label" for="fp-email">Email<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input"><input id="fp-email" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
+        </div>
+
+        <button class="btn btn-primary ca-submit" type="submit">Send Recovery Email</button>
+      </form>
+
+      <p class="ca-or" aria-hidden="true">OR</p>
+      <p class="ca-switch">Remembered it? <a href="#sign-in" data-open-dialog="signIn">Back to Sign In</a></p>
+    </div>
+  </dialog>
+  <script>
+    (function(){
+      var dlgs = document.querySelectorAll(".ca-dialog");
+      if(!dlgs.length || !dlgs[0].showModal) return;
+      function open(id){
+        dlgs.forEach(function(d){ if(d.open) d.close(); });
+        document.getElementById(id).showModal();
+      }
+      document.querySelectorAll("[data-open-dialog]").forEach(function(a){
+        a.addEventListener("click", function(e){ e.preventDefault(); open(a.getAttribute("data-open-dialog")); });
+      });
+      dlgs.forEach(function(dlg){
+        dlg.querySelector("[data-close-dialog]").addEventListener("click", function(){ dlg.close(); });
+        /* a click on the backdrop (outside the card) closes */
+        dlg.addEventListener("click", function(e){ if(e.target === dlg) dlg.close(); });
+      });
+      document.querySelectorAll(".ca-eye").forEach(function(b){
+        b.addEventListener("click", function(){
+          var inp = document.getElementById(b.getAttribute("aria-controls")),
+              show = inp.type === "password";
+          inp.type = show ? "text" : "password";
+          b.setAttribute("aria-pressed", show);
+          b.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        });
+      });
+      if(location.hash === "#create-account") open("createAccount");
+      if(location.hash === "#sign-in") open("signIn");
+      if(location.hash === "#forgot-password") open("forgotPass");
+    })();
+  </script>
+
   <!-- ================= FOOTER ================= -->
   <footer class="pff">
     <div class="pff-main">
@@ -1084,6 +449,12 @@
         </span>
 
       </div>
+
+      <!-- State licensure disclosure. Legal requirement, so it is always rendered; it is
+           set small and subtle because it is reference text, not reading matter. Kept
+           OUTSIDE .pff-bottom-inner so the stacked grid-template-areas below 640 need no
+           new area. -->
+      <p class="pff-license">Peoples Company or one of our affiliates is a licensed real estate broker in Alabama, Alaska, Arkansas, California, Colorado, Delaware, Florida, Georgia, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana, Maryland, Michigan, Minnesota, Mississippi, Missouri, Montana, Nebraska, New Mexico, New York, North Carolina, North Dakota, Ohio, Oklahoma, Oregon, South Carolina, South Dakota, Tennessee, Texas, Virginia, Washington, Wisconsin, and Wyoming.</p>
     </div>
   </footer>
 
@@ -1401,6 +772,95 @@
       toggle.addEventListener("click", function(){
         if(panel.classList.contains("open")){ close(true); } else { open(); }
       });
+    })();
+
+    // Insights & Research — tabbed, varied-tile grid. Content model: Blog = 16:9
+    // photo + headline + teaser + date; Insights = digital documents, cover
+    // art 850x1100 portrait, often no date. Themed via the .io-scope vars.
+    (function(){
+      function hrow(title, date){
+        return '<a class="io-hrow" href="./internal.html"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
+      }
+
+      var INSIGHTS = {
+        featured: [
+          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"../assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
+          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"../assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
+          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
+        ],
+        more: [
+          "The Inflation Hedge: Farmland vs. Traditional Assets",
+          "Water Rights and the Value of Irrigated Ground",
+          "Row Crop vs. Permanent Crop: A Risk Framework",
+          "Carbon, Conservation, and Land Returns",
+          "Timber & Transition Land: An Allocation Primer",
+          "The 2025 National Land Values Report"
+        ]
+      };
+      var BLOG = {
+        featured: [
+          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
+          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
+          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
+        ],
+        more: [
+          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
+          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
+          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
+          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
+          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
+          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
+          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
+          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
+        ]
+      };
+
+      // Tabbed block: Industry Research (default open) + Peoples Perspective Blog.
+      function tabbedBlock(rootId, h2, researchInner, blogInner){
+        var root = document.getElementById(rootId);
+        if(!root) return;
+        root.innerHTML =
+          '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 id="hp-ins-h" class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="./internal.html">View more &rarr;</a></div>'+
+          '<div class="ioF-tabs" role="tablist">'+
+            '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
+            '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
+          '</div>'+
+          '<div class="ioF-panels">'+
+            '<div class="ioF-panel" data-panel="0">'+researchInner+'</div>'+
+            '<div class="ioF-panel" data-panel="1" hidden>'+blogInner+'</div>'+
+          '</div>';
+        root.querySelectorAll('.ioF-tab').forEach(function(t){
+          t.addEventListener('click', function(){
+            root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
+            root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
+          });
+        });
+      }
+
+      // Industry Research — horizontal 16:9 cards (no portrait cover, no
+      // "Report · PDF" tag), then a "More research" headline stack.
+      function researchCard(x){
+        return '<a class="io-card" href="./internal.html">'+
+          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
+          '<span class="io-body"><h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
+      }
+      // Peoples Perspective Blog — 16:9 photo + category chip + date + title +
+      // teaser + "Read more", then a "More from the blog" stack.
+      function blogCard(x){
+        return '<a class="io-card" href="./internal.html">'+
+          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
+          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span>'+
+          '<h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
+      }
+
+      var rc = INSIGHTS.featured.map(researchCard).join("");
+      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
+      var bc = BLOG.featured.map(blogCard).join("");
+      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+
+      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
+        '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
+        '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
     })();
 
     // Scroll-reveal (must-have) — reduced-motion safe
