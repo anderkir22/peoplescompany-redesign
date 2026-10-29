@@ -1,5 +1,6 @@
 /* =============================================================================
    Peoples Company — FINAL PC Design System  (pc.css)
+   Last edit: 2026-10-29 17:50 UTC
    -----------------------------------------------------------------------------
    Single source of truth for every page in final-pc/. Self-contained and
    dependency-free: these pages link ONLY this file. Do not fork it, and do not
@@ -2412,18 +2413,25 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .rg-quote h3{ margin: 0 0 var(--space-2); font-family: var(--font-sans); font-size: 14px; font-weight: 700;
   letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
 .rg-quote p{ margin: 0; font-family: var(--font-serif); font-size: 16px; line-height: 1.4; color: var(--pc-black); }
-.rg-table-wrap{ margin: var(--space-6) 0; overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
-.rg-table{ width: 100%; min-width: 720px; border-collapse: collapse; font-size: 14px; color: var(--pc-black); }
+.rg-table-wrap{ container-type: inline-size; margin: var(--space-6) 0; overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+/* Sized to its box, not scrolled: the type scales with the table's own width (cqw, from .rg-table-wrap) and
+   the cell padding is in em so the columns scale with it. 14px at full size, 10px at the smallest. */
+.rg-table{ width: 100%; border-collapse: collapse; font-size: clamp(10px, 1.38cqw, 14px); color: var(--pc-black); }
 .rg-table caption{ padding: var(--space-4) var(--space-4) var(--space-2); text-align: left;
   font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pc-navy); }
-.rg-table th, .rg-table td{ padding: 10px var(--space-3); text-align: right; white-space: nowrap; }
+.rg-table th, .rg-table td{ padding: .72em .7em; text-align: right; white-space: nowrap; }
 .rg-table thead th{ font-weight: 700; border-bottom: 2px solid var(--pc-navy); }
-.rg-table thead th small{ display: block; font-weight: 500; font-size: 12px; color: var(--pc-navy); }
+.rg-table thead th small{ display: block; font-weight: 500; font-size: .86em; color: var(--pc-navy); }
 .rg-table tbody th{ text-align: left; font-weight: 500; }
 .rg-table tbody tr + tr > *{ border-top: 1px solid var(--color-border); }
 .rg-table tr.rg-total > *{ font-weight: 700; background: var(--pc-soft-white); }
+/* 899 and below: no returns table in a region (pop-up or its own page). */
+@media (max-width: 899px){ .rg-table-wrap{ display: none; } }
+}
 .rg-summary{ margin: var(--space-7) 0 0; padding: var(--space-6); background: var(--pc-soft-white);
   border: 1px solid var(--pc-navy); border-radius: var(--radius-lg); }
+/* Pop-up only: the summary is not a card, its text lines up with the article text above it. */
+.rg-dialog .rg-summary{ background: none; border: 0; border-radius: 0; padding: 0; }
 .rg-summary h3{ margin: 0 0 var(--space-4); font-family: var(--font-serif); font-weight: 500; font-size: 28px; color: var(--pc-black); }
 .rg-summary p{ margin: 0 0 var(--space-4); font-size: 13px; line-height: 1.65; color: var(--pc-black); }
 .rg-summary p:last-child{ margin-bottom: 0; }
@@ -2473,4 +2481,6 @@ body:has(dialog.rg-dialog[open]){ overflow: hidden; }
 
 /* Region article: state-border outline floated right inside the first paragraph (lines only, no fill or labels) */
 .rg-map{ float: right; height: 221px; width: auto; margin: 4px 0 var(--space-3) var(--space-6); }
+/* Pop-up only: 30% smaller than on the region's own page (221px to 155px). */
+.rg-dialog .rg-map{ height: 155px; }
 .rg-map path{ fill: none; stroke: var(--pc-navy); stroke-width: 1.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
