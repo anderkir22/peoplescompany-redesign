@@ -72,7 +72,7 @@
 
     /* ---- 3 · RESULTS TABLE ---- */
     .ar-results{ padding: var(--space-3) 0 var(--space-8); scroll-margin-top: var(--navH, 120px); }
-    /* Scroll container only matters below the 1536 design width: the table never squeezes, it scrolls. */
+    /* Scroll container: a safety net if a row ever outgrows the box. Below 1024 the table is replaced by cards. */
     .ar-tablewrap{ overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
     .ar-tablewrap:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
     .ar-table{ width: 100%; min-width: 1180px; border-collapse: collapse; font-size: 14px; color: var(--pc-black);
@@ -145,6 +145,128 @@
     .ar-subform .ar-input:focus-visible{ outline-color: var(--pc-white); }
     .ar-subform .btn{ min-height: 48px; width: 100%; padding-left: 0; padding-right: 0; }
     .ar-subform .btn:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 2px; }
+    /* ======================= RESPONSIVE LADDER =======================
+       Rungs: 1279, 1023 (889-768 inside it), 767, 639, 479, 359. */
+    .ar-sortbar{ display: none; }
+    .ar-st{ display: none; }
+
+    /* 1279-1024: filters on two rows, table compacted, signup form narrower. */
+    @media (max-width: 1279px){
+      .ar-filters{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .ar-filters > .ar-field:first-child, .ar-filters > .ar-field:nth-child(5){ grid-column: span 2; }
+      .ar-reset{ width: 100%; }
+      .ar-table{ min-width: 0; font-size: 13px; }
+      .ar-table th, .ar-table td{ padding: 12px 8px; }
+      .ar-table td.wrap{ min-width: 0; }
+      .ar-table thead th{ font-size: 10.5px; letter-spacing: .06em; }
+      .ar-subpanel{ grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: var(--space-6); padding: var(--space-7); }
+    }
+
+    /* 1023 and down: no table. Each row is a card; the header row's sorting moves to .ar-sortbar. */
+    @media (max-width: 1023px){
+      .ar-stats{ grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .ar-stat{ grid-column: span 2; }
+      .ar-stat:nth-child(n+4){ grid-column: span 3; }
+      .ar-stat-v{ font-size: 32px; }
+      .ar-subpanel{ grid-template-columns: minmax(0, 1fr); gap: var(--space-5); padding: var(--space-7) var(--space-6); }
+
+      .ar-sortbar{ display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4); }
+      .ar-sortbar label{ font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .09em;
+        text-transform: uppercase; color: var(--pc-navy); }
+      .ar-sortbar .ar-select{ width: auto; flex: 0 1 240px; min-width: 0; }
+      .ar-sortdir{ min-height: 44px; white-space: nowrap; }
+
+      .ar-tablewrap{ overflow: visible; border: 0; border-radius: 0; }
+      .ar-table{ display: block; min-width: 0; font-size: 14px; }
+      /* The header row stays in the markup for assistive tech. */
+      .ar-table thead{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+        clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+      .ar-table tbody{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+      .ar-table tbody tr{ display: flex; flex-wrap: wrap; align-items: flex-start; padding: var(--space-4) var(--space-5);
+        background: var(--pc-white); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+      .ar-table tbody tr:hover{ background: var(--pc-white); }
+      .ar-table tr.is-pc{ border-left: 4px solid var(--pc-navy); padding-left: calc(var(--space-5) - 3px); }
+      .ar-table tr.is-pc td:first-child{ box-shadow: none; }
+      .ar-table td, .ar-table td.num{ box-sizing: border-box; padding: 0; border: 0; white-space: normal; text-align: left; }
+      .ar-table td.wrap{ min-width: 0; }
+      .ar-table td[data-label]::before{ content: attr(data-label); display: block; margin-bottom: 2px;
+        font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--pc-navy); }
+      /* Sale date on its own line, then "County, ST" as the card's title. */
+      .ar-table td:nth-child(1){ order: 1; flex: 0 0 100%; font-size: 13px; color: var(--pc-navy); }
+      /* The title carries the state ("Plymouth, IA") so the two can never wrap apart; the State cell is for the table. */
+      .ar-table td:nth-child(2){ flex: 1 1 0; min-width: 96px; order: 2; margin-top: 2px; font-size: 18px; line-height: 1.3; }
+      .ar-table td:nth-child(3){ display: none; }
+      .ar-st{ display: inline; }
+      .ar-table td:nth-child(-n+2)::before{ display: none; }
+      /* Six values, three to a row. */
+      .ar-table td:nth-child(n+4):nth-child(-n+9){ flex: 0 0 33.333%; order: 5; padding-top: var(--space-3); padding-right: var(--space-2); }
+      /* A full-width break after the title row, so the values always start a new line, links or not. */
+      .ar-table tbody tr::after{ content: ""; flex: 0 0 100%; order: 4; height: 0; }
+      /* Listing / Map sit on the title row, in the right corner. */
+      .ar-table td.ar-det{ flex: none; order: 3; margin: 2px 0 0 auto; padding: 0 0 0 var(--space-3); }
+      .ar-table td.ar-det::before{ display: none; }
+    }
+
+    /* 889-768: two cards per row are too narrow for three values across (the longest label is 118px), so two. */
+    @media (min-width: 768px) and (max-width: 889px){
+      .ar-table td:nth-child(n+4):nth-child(-n+9){ flex-basis: 50%; }
+    }
+
+    /* 767 and down: filters two across, one card per row. */
+    @media (max-width: 767px){
+      .ar-intro{ padding: var(--space-7) 0 var(--space-5); }
+      .ar-filters{ padding: var(--space-4) var(--space-5); }
+      .ar-note--table{ margin-top: var(--space-6); }
+      .ar-stat-v{ font-size: 30px; }
+      .ar-subpanel{ padding: var(--space-6) var(--space-5); }
+      .ar-filters{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .ar-filters > .ar-field:first-child{ grid-column: 1 / -1; }
+      .ar-filters > .ar-field:nth-child(5){ grid-column: span 1; }
+      .ar-reset{ grid-column: 1 / -1; }
+      .ar-table tbody{ grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* 639 and down: summary two across, centered; pager is Previous / "3 of N" / Next; signup fields stack. */
+    @media (max-width: 639px){
+      .ar-filterfoot{ flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+      .ar-stats{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+      .ar-stat, .ar-stat:nth-child(n+4){ grid-column: auto; text-align: center; }
+      .ar-stat:last-child{ grid-column: 1 / -1; }
+      .ar-pages li:not(:has(.ar-page[aria-current])){ display: none; }
+      .ar-page[aria-current]::after{ content: " " attr(data-of); }
+      .ar-pages .ar-page{ padding: 0 16px; }
+      .ar-subform{ grid-template-columns: minmax(0, 1fr); }
+      .ar-subform .ar-subfield, .ar-subform .ar-subfield:nth-child(3){ grid-column: auto; }
+    }
+
+    /* 479 and down: filters one across; two values per card row; 12 results a page. */
+    @media (max-width: 479px){
+      .ar-filters{ grid-template-columns: minmax(0, 1fr); }
+      .ar-filters > .ar-field:nth-child(5){ grid-column: 1 / -1; }
+      .ar-sortbar label{ flex: 0 0 100%; }
+      .ar-sortbar .ar-select{ flex: 1 1 0; }
+      .ar-table tbody tr{ padding: var(--space-4); }
+      .ar-table tr.is-pc{ padding-left: calc(var(--space-4) - 3px); }
+      .ar-table td:nth-child(n+4):nth-child(-n+9){ flex-basis: 50%; }
+    }
+
+    /* Small-width type scale: the same on every page. Kept last so it wins ties. */
+    @media (max-width: 767px){
+      .ar-intro h1{ font-size: 34px; line-height: 1.12; }
+      .ar-h2{ font-size: 26px; line-height: 1.18; }
+      .ar-lede{ font-size: 15px; line-height: 1.6; }
+      .ar-sub-copy{ font-size: 15px; }
+    }
+    @media (max-width: 359px){
+      .ar-intro h1{ font-size: 30px; }
+      .ar-h2{ font-size: 24px; }
+      .ar-lede, .ar-sub-copy{ font-size: 14px; }
+      .ar-stat-v{ font-size: 26px; }
+      .ar-searchbox .ar-input{ padding-left: 36px; padding-right: 8px; font-size: 13px; }
+      .ar-searchbox svg{ left: 12px; }
+      .ar-pager{ gap: var(--space-2); }
+      .ar-pager .btn{ padding-left: 14px; padding-right: 14px; }
+    }
   </style>
 </head>
 
@@ -212,9 +334,8 @@
     </section>
 
     <!-- ============ 2 - FILTERS + SUMMARY ============
-         Every control filters the rows on the page as it changes; there is no Apply step.
-         State, Land Use and Sale Date options are built from the data, so a new state or month
-         in the uploaded CSV appears without a code change. -->
+         Controls filter the rows as they change (no Apply step). State, Land Use and Sale Date
+         options are built from the data. -->
     <section aria-labelledby="ar-filter-h">
       <div class="ar-wrap">
         <h2 class="sr-only" id="ar-filter-h">Search auction results</h2>
@@ -283,6 +404,22 @@
     <section class="ar-results" aria-labelledby="ar-results-h">
       <div class="ar-wrap">
         <h2 class="sr-only" id="ar-results-h" tabindex="-1">Auction results</h2>
+        <!-- Below 1024 the header row is hidden and rows are cards, so sorting moves here. -->
+        <div class="ar-sortbar">
+          <label for="arSortSel">Sort by</label>
+          <select class="ar-select" id="arSortSel">
+            <option value="date">Sale Date</option>
+            <option value="county">County</option>
+            <option value="state">State</option>
+            <option value="use">Land Use</option>
+            <option value="acres">Acres</option>
+            <option value="perAcre">$/Acre</option>
+            <option value="soil">Productivity</option>
+            <option value="tillable">Tillable</option>
+            <option value="perTillable">$/Tillable Acre</option>
+          </select>
+          <button class="btn btn-ghost ar-sortdir" type="button" id="arSortDir"></button>
+        </div>
         <div class="ar-tablewrap" role="region" aria-label="Auction results table" tabindex="0">
           <table class="ar-table" id="arTable">
             <caption class="sr-only">Land auction results. Column headers sort the table.</caption>
@@ -752,11 +889,15 @@
     (function(){
       var F = window.AR_FIELDS, R = window.AR_ROWS;
       if(!F || !R) return;
-      var PER_PAGE = 25;
+      // Results a page: 30 where they are two or more across (table, or two cards a row); 16 at one card
+      // a row (767 and down); 12 at 479 and down.
+      var oneUp = window.matchMedia("(max-width: 767px)"), phone = window.matchMedia("(max-width: 479px)");
+      function perPage(){ return phone.matches ? 12 : oneUp.matches ? 16 : 30; }
+      var PER_PAGE = perPage();
       var STATE_NAMES = { IA:"Iowa", IL:"Illinois", IN:"Indiana", KS:"Kansas", KY:"Kentucky", MN:"Minnesota",
         MO:"Missouri", ND:"North Dakota", NE:"Nebraska", OK:"Oklahoma", SD:"South Dakota", WI:"Wisconsin" };
       // Land Use categories. The CSV holds free text ("Cropland/CRP/Building Site"), so a tract
-      // can match more than one category. "Ag" is the October 2026 shorthand for cropland.
+      // can match more than one category. "Ag" is shorthand for cropland.
       var USES = [
         { v:"cropland",  label:"Cropland",               re:/crop|^ag(\/|$)/i },
         { v:"irrigated", label:"Irrigated Cropland",     re:/irrigated/i },
@@ -781,7 +922,8 @@
       var q = $("arQ"), selState = $("arState"), selUse = $("arUse"), selWhen = $("arWhen"),
           min = $("arMin"), max = $("arMax"), pc = $("arPc"), form = $("arFilters"),
           tbody = $("arRows"), empty = $("arEmpty"), table = $("arTable"), pager = $("arPager"),
-          pages = $("arPages"), prev = $("arPrev"), next = $("arNext"), count = $("arCount");
+          pages = $("arPages"), prev = $("arPrev"), next = $("arNext"), count = $("arCount"),
+          sortSel = $("arSortSel"), sortDirBtn = $("arSortDir");
 
       // ---- options built from the data ----
       Object.keys(rows.reduce(function(m, r){ m[r.state] = 1; return m; }, {}))
@@ -862,16 +1004,16 @@
           details.push('<a class="ar-link" href="' + esc(r.mapUrl) + '" target="_blank" rel="noopener noreferrer">Map<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr-only">: FarmWorth map of ' + esc(r.county) + ' County tract (opens in a new tab)</span></a>');
         }
         return '<tr' + (pcRow ? ' class="is-pc"' : '') + '>' +
-          '<td>' + (r.date ? fmtDate(r.date) : NA) + (r.saleType === "Sealed Bid" ? '<span class="ar-tag">Sealed Bid</span>' : '') + '</td>' +
-          '<td class="ar-county">' + esc(r.county) + '</td>' +
-          '<td><abbr title="' + esc(r.stateName) + '">' + esc(r.state) + '</abbr></td>' +
-          '<td class="wrap">' + (r.use ? esc(r.use.replace(/\//g, " / ")) : NA) + '</td>' +
-          '<td class="num">' + (r.acres != null ? acres(r.acres) : NA) + '</td>' +
-          '<td class="num">' + (r.status !== "Sold" ? '<span class="ar-status">' + esc(r.status) + '</span>' : (r.perAcre != null ? money(r.perAcre) : NA)) + '</td>' +
-          '<td class="num">' + (r.soil != null ? r.soil.toFixed(1) + (r.soilType ? '<span class="ar-unit">' + esc(r.soilType) + '</span>' : '') : NA) + '</td>' +
-          '<td class="num">' + (r.tillable != null ? Math.round(r.tillable * 100) + "%" : NA) + '</td>' +
-          '<td class="num">' + (r.perTillable != null ? money(r.perTillable) : NA) + '</td>' +
-          '<td>' + (details.length ? '<span class="ar-links">' + details.join("") + '</span>' : NA) + '</td>' +
+          '<td data-label="Sale Date">' + (r.date ? fmtDate(r.date) : NA) + (r.saleType === "Sealed Bid" ? '<span class="ar-tag">Sealed Bid</span>' : '') + '</td>' +
+          '<td class="ar-county" data-label="County">' + esc(r.county) + '<span class="ar-st">, ' + esc(r.state) + '</span></td>' +
+          '<td data-label="State"><abbr title="' + esc(r.stateName) + '">' + esc(r.state) + '</abbr></td>' +
+          '<td class="wrap" data-label="Land Use">' + (r.use ? esc(r.use.replace(/\//g, " / ")) : NA) + '</td>' +
+          '<td class="num" data-label="Acres">' + (r.acres != null ? acres(r.acres) : NA) + '</td>' +
+          '<td class="num" data-label="$/Acre">' + (r.status !== "Sold" ? '<span class="ar-status">' + esc(r.status) + '</span>' : (r.perAcre != null ? money(r.perAcre) : NA)) + '</td>' +
+          '<td class="num" data-label="Productivity">' + (r.soil != null ? r.soil.toFixed(1) + (r.soilType ? '<span class="ar-unit">' + esc(r.soilType) + '</span>' : '') : NA) + '</td>' +
+          '<td class="num" data-label="Tillable">' + (r.tillable != null ? Math.round(r.tillable * 100) + "%" : NA) + '</td>' +
+          '<td class="num" data-label="$/Tillable Acre">' + (r.perTillable != null ? money(r.perTillable) : NA) + '</td>' +
+          '<td class="ar-det" data-label="Details">' + (details.length ? '<span class="ar-links">' + details.join("") + '</span>' : NA) + '</td>' +
         '</tr>';
       }
 
@@ -899,9 +1041,12 @@
         prev.disabled = page === 1; next.disabled = page === totalPages;
         pages.innerHTML = pageList(totalPages).map(function(p){
           return p === "gap" ? '<li class="ar-gap" aria-hidden="true">...</li>'
-            : '<li><button class="ar-page" type="button" data-page="' + p + '"' + (p === page ? ' aria-current="page"' : '') + ' aria-label="Page ' + p + '">' + p + '</button></li>';
+            : '<li><button class="ar-page" type="button" data-page="' + p + '" data-of="of ' + totalPages + '"' + (p === page ? ' aria-current="page"' : '') + ' aria-label="Page ' + p + '">' + p + '</button></li>';
         }).join("");
 
+        sortSel.value = sortKey;
+        sortDirBtn.textContent = sortDir < 0 ? "High to low" : "Low to high";
+        sortDirBtn.setAttribute("aria-label", "Sort order: " + (sortDir < 0 ? "descending" : "ascending") + ". Reverse it.");
         table.querySelectorAll("thead th[data-col]").forEach(function(th){
           var on = th.getAttribute("data-col") === sortKey;
           if(on) th.setAttribute("aria-sort", sortDir < 0 ? "descending" : "ascending"); else th.removeAttribute("aria-sort");
@@ -949,6 +1094,14 @@
         });
       });
 
+      // Sort bar (below 1024): the same sort as the column headers.
+      sortSel.addEventListener("change", function(){
+        sortKey = sortSel.value;
+        sortDir = (sortKey === "county" || sortKey === "state" || sortKey === "use") ? 1 : -1;
+        view.sort(cmp); page = 1; render();
+      });
+      sortDirBtn.addEventListener("click", function(){ sortDir = -sortDir; view.sort(cmp); page = 1; render(); });
+
       function go(p){
         page = p; render();
         var h = $("ar-results-h");
@@ -960,6 +1113,16 @@
       pages.addEventListener("click", function(e){
         var b = e.target.closest("[data-page]"); if(b) go(+b.getAttribute("data-page"));
       });
+
+      // Crossing 767 or 479: keep the first card on screen, re-cut the pages around it.
+      function recut(){
+        var first = (page - 1) * PER_PAGE;
+        PER_PAGE = perPage();
+        page = Math.floor(first / PER_PAGE) + 1;
+        render();
+      }
+      oneUp.addEventListener("change", recut);
+      phone.addEventListener("change", recut);
 
       apply();
     })();
