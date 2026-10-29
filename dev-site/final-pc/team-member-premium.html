@@ -16,15 +16,10 @@
   <link href="pc.css?v=20261029a" rel="stylesheet" />
 
   <!-- ================= TEAM MEMBER PREMIUM (speaker) =================
-       The expanded team-member page plus a speaker layer, for the few people on staff who
-       are booked to speak. Same identity band, same tab strip built from the panels that
-       exist, same rail. Added: the Keynote Speaker pill (fact sheet PDF) in the band, and the Topics, Videos and
-       Contact panels. Any [data-goto] control opens the tab it names; a [data-topic] one also
-       preselects that talk in the booking form. -->
+     The team-member page plus a speaker layer. Any [data-goto] control opens the tab it names; a
+     [data-topic] one also preselects that talk in the booking form. -->
   <style>
-    /* ---------------------------------------------------------------
-       Team member (tmd-). Page-local only; everything shared is pc.css.
-       --------------------------------------------------------------- */
+    /* Team member (tmd-). Page-local only; everything shared is pc.css. */
     .tmd{ background: var(--pc-white); }
     .tmd-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
 
@@ -34,49 +29,24 @@
     .tmd-crumb a:hover{ color: var(--pc-navy); text-decoration: underline; }
     .tmd-crumb span{ margin: 0 8px; }
 
-    /* ---- identity band ----
-       Deliberately CONTAINED, not bled: it sits inside .tmd-wrap and ends on a hairline.
-       Portrait is fixed at 168px so the band's height is set by the copy, not the photo. */
-    /* CONTAINED DARK BAND, not a bleed: the band is a panel inside .tmd-wrap with its own
-       radius, so the color stops at the site measure on both sides.
-       This is the page's one dark ground, and it is what carries the brand color: it is
-       the only place bright PC Blue is legal, since PC Blue fails contrast on white. Every
-       child below reads through the ON-DARK scheme - white copy, Light Blue secondary,
-       PC Blue accent - which is why the overrides are grouped here rather than scattered. */
+    /* ---- identity band ---- */
+    /* CONTAINED DARK BAND, not a bleed: the band is a panel inside .tmd-wrap with its own radius,
+       so the color stops at the site measure on both sides. */
     .tmd-id{ display: grid; grid-template-columns: 241px minmax(0,1fr) auto;
       gap: var(--space-6); align-items: start; margin: var(--space-4) 0 0;
-      /* An EVEN inset on all four sides. 40px is deliberately OFF the shared spacing scale,
-         which jumps 32 -> 48 with nothing between: the band was 48 top/bottom and 32 left/
-         right, and this splits that difference so the portrait is inset the same amount in
-         every direction. It is named rather than inlined so it reads as a decision.
-         This is also the band's height control - the portrait is the tallest child, so the
-         band is 241 + 2 x this. */
+      /* 40px is off the spacing scale on purpose: an even inset on all four sides. It is also the
+         band's height control: band = portrait + 2 x this. */
       --tmd-band-pad: 40px;
       padding: var(--tmd-band-pad); border: 0;
       border-radius: var(--radius-md);
       background: linear-gradient(118deg, var(--pc-black) 0%, var(--pc-navy) 100%); }
-    /* SQUARE, the same 1:1 as the finder cards in team.html - one headshot ratio across the
-       site, so the CMS crops each person once.
-
-       WHY 241 AND NOT 193: the portrait is the tallest thing in the band, so it - not the
-       copy - sets the band's height. The old box was 193 x 241 (4:5), so going square at 193
-       would have shortened the band. 241 square holds the height the 4:5 box gave and takes
-       its extra 48px of width out of the copy column beside it. Change this number and the
-       band's height changes with it, since the band is this + 2 x --tmd-band-pad. */
+    /* SQUARE, the finder cards' 1:1, so the CMS crops each headshot once. The portrait is the
+       tallest child and sets the band's height. */
     .tmd-portrait{ width: 241px; aspect-ratio: 1 / 1; border-radius: var(--radius-md);
       overflow: hidden; box-shadow: 0 0 0 1px rgba(215,239,251,.45);
-      /* NO-HEADSHOT FALLBACK. PC's own contact placeholder - the diamond on light gray - sits
-         BEHIND the <img> as this box's background, so it needs no JS and no conditional
-         markup: if the record has no photo, or the CDN 404s, or the file is still uploading,
-         the placeholder is already there. When a real headshot loads it covers this
-         completely, since the img is 100% x 100% with object-fit: cover.
-         The asset is 506 x 478 - a hair wider than square - so a 1:1 cover crop trims ~7px
-         off each side and nothing off the top or bottom. The diamond is centered and clears
-         that easily, which is why the portrait crop below can stay top-anchored for real
-         portraits without cutting the logo.
-         The CMS should ALSO emit this URL as the img src when the photo field is empty, so
-         the alt text and the accessibility tree stay correct rather than describing a person
-         whose picture is not there. This background is the second line of defense. */
+      /* NO-HEADSHOT FALLBACK: PC's contact placeholder is this box's background, behind the <img>,
+         so it needs no JS. The CMS should also emit the placeholder URL as the img src when the
+         photo field is empty, so alt text stays correct. */
       --tmd-portrait-fallback:
         url("https://peoples-listings.nyc3.digitaloceanspaces.com/contacts/0bEVuGyMjZEE3mMGupnfGoU9OGiNvyobum2f3nAc.jpg");
       background: var(--pc-light-blue) var(--tmd-portrait-fallback) center / cover no-repeat; }
@@ -85,14 +55,9 @@
     .tmd-portrait img{ width: 100%; height: 100%; object-fit: cover; display: block;
       object-position: center top; }
 
-    /* BOTTOM-ALIGNED CONTACT BLOCK. The copy column is stretched to the portrait's full
-       height and made a flex column so the contact block can be pushed to the bottom with
-       margin-top:auto - the two columns then share one bottom edge instead of the picture
-       running 55px deeper than the text beside it. align-self is on THIS element rather than
-       align-items:stretch on .tmd-id on purpose: stretching the whole row would also stretch
-       .tmd-portrait, and a stretched height fights its aspect-ratio: 1/1 and breaks the
-       square the moment the copy is taller than the picture. Name and role stay at the top;
-       the slack collects between the role and the contact block. */
+    /* BOTTOM-ALIGNED CONTACT BLOCK: the copy column stretches to the portrait's height (align-self
+       here, not align-items on .tmd-id, which would break the portrait's 1:1) and margin-top: auto
+       pushes the contact block to the bottom. */
     .tmd-idmain{ min-width: 0; padding-top: 2px; align-self: stretch;
       display: flex; flex-direction: column; }
     /* The site H1, not a page-local size: --h1-size / 1.1 / -0.01em, same as every other
@@ -103,22 +68,13 @@
       color: rgba(215,239,251,.70); letter-spacing: .01em; }
     .tmd-role{ font-family: var(--font-sans); font-size: 15px; font-weight: 600; letter-spacing: .08em;
       text-transform: uppercase; color: var(--pc-blue); margin: 8px 0 0; }
-    /* The contact block is two columns: the reachable data points on the left, one per
-       row (Office, Mobile, Email), and the office address beside them on the right. The
-       address is a separate column rather than a fourth row because it is three lines and
-       would otherwise dwarf the numbers above it. flex-wrap, not a media query: when the
-       band narrows the address simply drops under the list. */
-    /* align-items: FLEX-END, so the two columns share a bottom row. The phone/email list is
-       shorter than the three-line address whenever a person has fewer data points than the
-       address has lines, and bottom-aligning drops the list by whole 30.2px pitches - so its
-       last row lands on the address's last line instead of its first. The two columns stay on
-       one rhythm either way; this decides which END of that rhythm they agree on. Where the
-       two columns are the same height it changes nothing. */
+    /* The contact block is two columns: the reachable data points on the left, one per row (Office,
+       Mobile, Email), and the office address beside them on the right. */
+    /* align-items: FLEX-END, so the two columns share a bottom row. */
     .tmd-contact{ display: flex; flex-wrap: wrap; align-items: flex-end;
       gap: var(--space-5) var(--space-8);
-      /* auto, not a fixed top margin: this is what bottom-aligns the block to the portrait.
-         --space-4 is kept as the MINIMUM so the block never collides with the role above it
-         if the copy ever grows tall enough to use up the slack. */
+      /* auto bottom-aligns the block to the portrait; --space-4 is the minimum, so it never
+         collides with the role above. */
       margin: var(--space-4) 0 0; margin-top: auto; }
     .tmd-meta{ list-style: none; margin: 0; padding: 0;
       display: flex; flex-direction: column; gap: 7px; }
@@ -129,22 +85,16 @@
     .tmd-meta a:hover{ color: var(--pc-blue); text-decoration: underline; }
     .tmd-tag{ color: rgba(215,239,251,.62); font-size: 12.5px; letter-spacing: .05em;
       text-transform: uppercase; }
-    /* font-style is reset because <address> is italic by UA default. The pin is nudged down
-       a hair so it sits on the first line's cap height, not its box.
-       margin-left is the ~50px shift off the contact list; it stacks with
-       the .tmd-contact column gap, so change this value alone to slide the block. */
+    /* font-style is reset because <address> is italic by UA default. */
     .tmd-addr{ display: flex; align-items: flex-start; gap: 8px; font-style: normal;
       font-family: var(--font-sans); font-size: 14.5px;
       color: var(--pc-light-blue); margin-left: 50px; }
     .tmd-addr svg{ width: 15px; height: 15px; flex: none; fill: var(--pc-blue); margin-top: 4px; }
-    /* The three lines are ROWS, not <br> breaks, so they share the contact list's rhythm
-       exactly: same 14.5px, same inherited 1.6 line-height, same 7px gap. Line one of the
-       address therefore sits on line one of the phone list, and so on down. */
+    /* The three lines are ROWS, not <br> breaks, so they share the contact list's rhythm exactly:
+       same 14.5px, same inherited 1.6 line-height, same 7px gap. */
     .tmd-addrlines{ display: flex; flex-direction: column; gap: 7px; }
-    /* The office NAME reuses .tmd-tag, the same treatment the Office / Mobile labels carry
-       in the list beside it - one label style in the band, not two. It stays INLINE inside
-       its row: the row's own 14.5px strut is what keeps the shorter 12.5px label on the
-       same pitch as the rows below it. */
+    /* The office NAME reuses .tmd-tag, the same treatment the Office / Mobile labels carry in the
+       list beside it - one label style in the band, not two. */
 
     /* ---- social ---- */
     .tmd-idside{ display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-4);
@@ -158,48 +108,31 @@
     .tmd-social svg{ width: 17px; height: 17px; fill: currentColor; }
 
     /* ---- two-column shell ---- */
-    /* align-items is STRETCH, not start, and that is load-bearing: a sticky element can only
-       travel inside its own containing block, so .tmd-main has to run the full height of the
-       row or the sub-nav unsticks the moment the bio panel ends. */
+    /* align-items: STRETCH is load-bearing: a sticky element only travels inside its containing
+       block, so .tmd-main must run the full row height or the sub-nav unsticks when the bio panel
+       ends. */
     .tmd-cols{ display: grid; --tmd-rail-w: 320px;
       grid-template-columns: minmax(0,1fr) var(--tmd-rail-w);
       gap: var(--space-8); align-items: stretch;
       padding: var(--space-6) 0 var(--space-9); }
-    /* AN EMPTY RAIL IS NO RAIL. Set by the guard in the script when the record produces no
-       rail cards: the rail track and the gap both come off, so no blank 320px column is left
-       standing beside the panels. Same rule as the single tab - a container with nothing in
-       it does not get to keep its space. */
+    /* AN EMPTY RAIL IS NO RAIL: the guard in the script removes the rail track and the gap when the
+       record produces no rail cards. */
     .tmd-cols.is-norail{ grid-template-columns: minmax(0,1fr); gap: 0; }
-    /* BUT THE COPY DOES NOT WIDEN. The column keeps the exact measure it would have had with
-       the rail beside it, so hiding the rail LOOKS like hiding the rail: every line of the
-       panel - heading, rule, prose, facts - stays where it sat, and the space the rail
-       occupied simply empties. The alternative, letting the panel run the full 1376px, both
-       re-flows copy that did not change and sets prose at ~130ch.
-       Stated as the arithmetic rather than as 992px, off the same two tokens the grid uses,
-       so it cannot drift from the real rail width. */
+    /* THE COPY DOES NOT WIDEN: the panel column keeps the measure it had beside the rail, off the
+       same two tokens the grid uses, so it cannot drift from the real rail width. */
     .tmd-cols.is-norail .tmd-main{
       max-width: calc(100% - var(--tmd-rail-w) - var(--space-8)); }
     .tmd-main{ min-width: 0; }
 
     /* ---- sub-nav tabs ---- */
-    /* STICKY SUB-NAV, the same mechanism as .ld-subbar on the listing detail, but it does NOT
-       park at var(--navH): the Interactive Map tab is also sticky there, 340px wide and centered,
-       which puts it straight over the middle of this column - and at z-39 it wins. So the bar
-       parks below the map tab's full extent instead - and does it with PADDING rather than a
-       lower `top`, so the white ground reaches the header and nothing shows through the band.
-       --md-tab-h-peak, not --md-tab-h, because the tab's idle animation grows it to the peak;
-       +8px keeps them off each other. Both tokens are per-breakpoint, so this clears the tab at
-       every width without a second rule.
-       The padding-top plus the matching negative margin let the ground cover the gap above
-       the buttons without adding space when the bar is at rest. */
+    /* STICKY SUB-NAV, as .ld-subbar. Its padding-top (var(--md-tab-h-peak) + 8px) is the white
+       cover above the buttons; the negative margin cancels .tmd-cols' padding-top, so change one
+       and change the other. */
     .tmd-tabs{ position: sticky; top: var(--navH); z-index: 20;
       display: flex; gap: var(--space-6); border-bottom: 2px solid var(--pc-light-blue);
       background: var(--pc-white);
-      /* The PADDING is the cover. The box parks at var(--navH) - flush under the header - and
-         its own white ground fills the whole band down to the buttons, so nothing scrolls
-         through the space the map tab occupies. The negative margin cancels .tmd-cols'
-         padding-top so the box starts level with the identity band instead of below it;
-         change one and change the other. */
+      /* The PADDING is the cover: the bar's white ground fills the band down to the buttons, so
+         nothing scrolls through the space above them. */
       margin: calc(-1 * var(--space-6)) 0 var(--space-6);
       padding-top: calc(var(--md-tab-h-peak) + 8px);
       overflow-x: auto; scrollbar-width: none; }
@@ -214,9 +147,7 @@
     .tmd-tab:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 3px; }
 
     .tmd-panel:focus{ outline: none; }
-    /* Every panel headline carries the same short PC Blue rule. It is the motif that ties
-       the white panels to the dark band above them - repeated on the fact blocks and the
-       testimonial attributions rather than invented once per section. */
+    /* Every panel headline carries the same short PC Blue rule. */
     .tmd-h2{ font-family: var(--font-serif); font-weight: 500; font-size: 27px; line-height: 1.2;
       color: var(--pc-black); margin: 0 0 var(--space-4); padding-bottom: 12px;
       position: relative; }
@@ -238,10 +169,7 @@
     .tmd-fact p{ font-family: var(--font-sans); font-size: 15px; line-height: 1.6;
       color: rgba(7,22,44,.82); margin: 0; }
 
-    /* ---- testimonials: full-width stacked cards ----
-       One card per row across the whole panel: attribution in a fixed left column so every
-       quote starts on the same line, and the quote is set in the serif at 21px. No
-       decorative quote glyph - a watermark behind the attribution reads as stray content. */
+    /* ---- testimonials: full-width stacked cards ---- */
     .tmd-quotes{ display: flex; flex-direction: column; gap: var(--space-4); }
     /* margin:0 is required - <figure> carries a UA default of `1em 40px`, which was eating
        80px of the card width and doubling the gap between cards. */
@@ -259,10 +187,7 @@
     .tmd-quote figcaption strong{ display: block; font-weight: 600; font-size: 15px;
       color: var(--pc-black); margin-bottom: 3px; }
 
-    /* ---- listing cards: 3-up, two rows of three, inside the 992px panel ----
-       pc.css also runs .lc-grid at three columns, but against the full 1440 measure; this
-       restates it so the panel column keeps three across regardless of what the shared
-       grid does at a given width. Cards land at 314px. */
+    /* ---- listing cards: 3-up, two rows of three, inside the 992px panel ---- */
     .tmd-main .lc-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
     .tmd-panelfoot{ margin: var(--space-6) 0 0; }
 
@@ -275,13 +200,11 @@
 
     /* ---- right rail ---- */
     .tmd-rail{ display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
-    /* The rail is HIDDEN rather than removed now that its cards migrate at 1023 and come
-       back above it - a detached rail has nowhere to put them back. display:flex above beats
-       the UA's [hidden] rule, so the attribute needs this to bite. */
+    /* The rail is HIDDEN, not removed: its cards migrate at 1023 and need somewhere to return to.
+       display:flex beats the UA [hidden] rule, so this rule makes the attribute bite. */
     .tmd-rail[hidden]{ display: none; }
-    /* The rail is a color column, not three white boxes: a tinted ground, a Light Blue
-       hairline, and a PC Blue cap rule that repeats the tab underline. The cap is drawn as
-       a border-top so it sits inside the card's own radius. */
+    /* The rail is a color column, not three white boxes: a tinted ground, a Light Blue hairline,
+       and a PC Blue cap rule that repeats the tab underline. */
     .tmd-rcard{ background: var(--pc-soft-white); border: 1px solid var(--pc-light-blue);
       border-top: 3px solid var(--pc-blue);
       border-radius: var(--radius-md); padding: var(--space-5); }
@@ -293,10 +216,7 @@
     /* contact form - lives in the panel column now, so it lays out across the measure */
     .tmd-formlede{ font-family: var(--font-sans); font-size: 16px; line-height: 1.7;
       color: rgba(7,22,44,.82); margin: 0 0 var(--space-5); }
-    /* No max-width: the form fills the panel measure like every other panel. The tinted
-       ground is what keeps the Contact tab - now the second tab, so it is reached often -
-       from reading as an empty white page; the inputs stay white so they still read as
-       fields against it. */
+    /* No max-width: the form fills the panel measure like every other panel. */
     .tmd-form{ display: flex; flex-direction: column; gap: var(--space-4);
       background: var(--pc-soft-white); border: 1px solid var(--pc-light-blue);
       border-radius: var(--radius-md); padding: var(--space-6); }
@@ -342,9 +262,8 @@
     .tmd-awyrs{ display: block; font-family: var(--font-sans); font-size: 12.5px;
       font-variant-numeric: tabular-nums; color: rgba(7,22,44,.55); margin-top: 2px; }
 
-    /* awards inside the bio - the panel is 992px wide, where a stacked name-over-years row
-       left most of the line empty. Name and years share one row instead, years right-aligned
-       and tabular so the columns line up down the list. */
+    /* awards inside the bio - the panel is 992px wide, where a stacked name-over-years row left
+       most of the line empty. */
     .tmd-awards-wide li{ display: grid; grid-template-columns: minmax(0,1fr) auto;
       gap: var(--space-4); align-items: baseline; padding: 8px 0 8px 14px; }
     .tmd-awards-wide li::before{ top: 15px; }
@@ -377,26 +296,12 @@
     /* ---- responsive ---- */
     @media (max-width: 1279px){
       .tmd-cols{ grid-template-columns: minmax(0,1fr) 296px; gap: var(--space-6); }
-      /* KEEP THE ADDRESS BESIDE THE PHONE LIST. Below 1280 the --site step drops to
-         1024, which takes .tmd-idmain from 701px to 445px - narrower than the two
-         contact columns need (283 + 222), so the address wrapped under the list and
-         the text column grew 37px DEEPER than the portrait. nowrap holds the two on
-         one row and the block bottom-aligns to the picture again, as it does at 1280.
-         The address then reaches past .tmd-idmain's cell edge into the column the
-         social icons are in - deliberate, and it clears them by ~115px because the
-         icons sit at the TOP of that column and the address at the bottom. The two
-         gaps come in to buy the room: 64 -> 32 between the columns, 50 -> 24 on the
-         address's own shift. Right edge lands 46px inside the band's inset. */
+      /* KEEP THE ADDRESS BESIDE THE PHONE LIST below 1280: nowrap holds the two on one row so the
+         block bottom-aligns to the picture. The address reaches into the icons' column and clears
+         them because the icons sit at the top and the address at the bottom. */
       .tmd-contact{ flex-wrap: nowrap; gap: var(--space-5) var(--space-6); }
       .tmd-addr{ flex: none; margin-left: var(--space-5); }
-      /* THE LISTING GRID DROPS TO TWO ACROSS - three rows of two per panel. Below 1280
-         the panel column is narrow enough that a 3-up card leaves only 162.7px of
-         body measure, and NO headline fits it - not the auction lines and not a
-         plain sold date like "December 11, 2025" (168.5px). Since .lc-headline is
-         the one card line that is not white-space: nowrap, a wrap there makes its
-         row the tallest and stretches every other row (see the .lc-grid note in
-         pc.css). Two across gives 272px of measure and every headline sits on one
-         line, so all six cards in a panel agree again. 3-up returns at 1280. */
+      /* THE LISTING GRID DROPS TO TWO ACROSS - three rows of two per panel. */
       .tmd-panel .lc-grid{ grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 1023px){
@@ -408,110 +313,52 @@
          while the 32px between the picture and the copy is left alone. */
       .tmd-id{ grid-template-columns: 170px minmax(0,1fr); row-gap: var(--space-3); }
       .tmd-portrait{ width: 170px; }
-      /* THE COPY COLUMN SPANS BOTH ROWS so .tmd-contact's margin-top: auto has the full
-         height to push against. The phone list then bottom-aligns to the ICON ROW rather
-         than to the picture, which is what keeps the band's blue from opening up under the
-         copy. The 40px bottom inset is symmetric with the top. */
+      /* THE COPY COLUMN SPANS BOTH ROWS so .tmd-contact's margin-top: auto has the full height to
+         push against. */
       .tmd-idmain{ grid-row: 1 / span 2; }
-      /* THE SUB-NAV BAR RUNS THE FULL WIDTH OF THE PAGE. It bleeds a --rail either side
-         to the viewport edges, and takes the same --rail back as padding so the TABS stay
-         on the content's vertical line - the ground goes edge to edge, the type does not
-         move off the rail every other element on the page aligns to. Eight tabs need
-         650.4px at a 16px gap against the 704px inside that padding, so the gap steps
-         32 -> 16 here: at 24 the eight come to 706.4 and Blogs would fall off the end. */
+      /* THE SUB-NAV BAR RUNS THE FULL PAGE WIDTH: it bleeds a --rail either side and takes the same
+         --rail back as padding, so the tabs stay on the content line. The gap steps 32 -> 16 so the
+         seven tabs fit one row. */
       .tmd-tabs{ margin-inline: calc(-1 * var(--rail)); padding-inline: var(--rail);
         gap: var(--space-4); }
-      /* Licenses and Blogs are panels at this width, so the rail empties and the script's
-         is-norail fires. Its desktop rule holds the panel column at the measure it had
-         WITH the rail beside it, which here would squeeze it to ~320px - the rail is not
-         beside anything at this width, it is gone, so the column takes the full width. */
+      /* Licenses and Blogs are panels at this width, so the rail empties and the script's is-norail
+         fires. */
       .tmd-cols.is-norail .tmd-main{ max-width: none; }
-      /* THE ICONS MOVE UNDER THE HEADSHOT. Row 2 of the FIRST column, so they sit
-         beneath the picture and share its left edge instead of hanging off the end of
-         the copy in column 2. Placed explicitly rather than left to auto-placement:
-         the row matters as much as the column here. */
+      /* THE ICONS MOVE UNDER THE HEADSHOT: row 2 of the first column, placed explicitly (the row
+         matters as much as the column). */
       /* align-items CENTER, so the icon row is centered on the 170px portrait column
          rather than flush to its left edge. */
       .tmd-idside{ grid-column: 1; grid-row: 2; align-items: center; padding-top: 0; }
-      /* THE OFFICE ADDRESS COMES OUT OF THE BAND. Visually only - this is the .sr-only
-         treatment from pc.css inlined, so the street address stays in the accessibility
-         tree and in the markup for the CMS. The phone list keeps the band; the address is
-         three lines that earn their place next to a 241px portrait and not next to a
-         170px one. IT IS NOT REPEATED ANYWHERE ELSE IN THE PROFILE: the only other copy
-         on the page is the footer's Corporate Office block, which happens to match
-         because John's office IS the Cumming HQ - an agent in any other office would
-         have no visible office address below 1024. */
+      /* THE OFFICE ADDRESS COMES OUT OF THE BAND, visually only (.sr-only treatment inlined): it
+         stays in the accessibility tree and in the markup for the CMS. */
       .tmd-addr{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
         overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
         border: 0; }
     }
     @media (max-width: 767px){
-      /* THE BAND GETS ITS HORIZONTAL INSET BACK. It was 24px 0 here, so the portrait sat
-         hard against the page's content rail and the band read as edge-to-edge color with
-         the picture jammed into the corner. 24px all four sides now - the same even inset
-         --tmd-band-pad gives it at 768 and up, at this width's spacing step - which moves
-         the picture and the icons under it 24px right. The column gap goes 16 -> 24 on top
-         of that, so the copy column moves 32px right in total: it needs to clear the
-         picture by more than the picture is inset, or the two read as one block. */
+      /* THE BAND KEEPS A 24px INSET on all four sides at this width, and the column gap is 24, so
+         the copy clears the picture by more than the picture is inset. */
       .tmd-id{ grid-template-columns: 120px minmax(0,1fr); gap: var(--space-5);
         padding: var(--space-5); }
       .tmd-portrait{ width: 120px; }
-      /* THE ICON ROW GOES FLUSH LEFT, NOT CENTERED. Centered is right at 768, where the
-         column is 170px and the row of three 38px icons is 130px wide - it has room. Here
-         the column is 120px, NARROWER than the row, so centering hung the icons 5px past
-         the picture on BOTH sides and put their left edge outside the page's rail. Flush
-         left lands them on the picture's own left edge and lets the 10px overhang fall
-         into the gap on the right, where there is space for it. */
+      /* THE ICON ROW GOES FLUSH LEFT: the column is 120px, narrower than the icon row, so centering
+         would hang the icons past the picture on both sides and outside the page's rail. */
       .tmd-idside{ align-items: flex-start; }
-      /* THE STRIP BECOMES A 2 x 4 MATRIX. Eight tabs need 682.4px and
-         there are 576px here, so one row cannot hold them - and flex-wrap would not give
-         four and four: greedily filled, the first row takes SEVEN (570.1px of the 576)
-         and drops Photos on its own. A four-column grid is what makes the break
-         deliberate, and it also lines the two rows up with each other.
-         1fr columns rather than max-content, so the four span the full width of the bar
-         the way the bar spans the page. justify-self: start keeps each BUTTON shrunk to
-         its label inside its cell, so the selected underline still hugs the word instead
-         of running the width of the column. */
-      /* ROW GAP 4, not 12. Each tab already carries 14px of padding UNDER its label - the
-         offset the selected underline sits on - so the row gap is added to that, not to
-         the type: 12 read as 26px of air between the two lines of labels. At 4 the two
-         rows read as one control in two lines. The COLUMN gap stays 16: it is doing a
-         different job, keeping the longest label off its neighbor's cell. */
+      /* THE STRIP IS A GRID, not wrapped flex: four columns make the 4 + 3 break deliberate and
+         line the rows up. 1fr columns span the bar; justify-self keeps each button shrunk to its
+         label so the underline hugs the word. */
+      /* Row gap 4px, column gap 16px: each tab already carries 8px of padding under its label. */
       .tmd-tabs{ display: grid; grid-template-columns: repeat(4, 1fr);
         gap: var(--space-1) var(--space-4); }
-      /* CENTERED IN THE CELL, not flush to its left edge. The button stays shrunk to its
-         label - justify-self sizes and places it - so the selected underline still hugs
-         the word rather than running the width of the column. */
-      /* CENTERED IN THE CELL, and the underline comes up close to the word. 14px of
-         padding under the label is the desktop bar's measure, where the underline has to
-         reach down to the bar's own border to sit on it; with that border gone here the
-         padding is just a gap, and at 6px the line reads as belonging to the word above
-         it. margin-bottom: -1px goes for the same reason - it existed to overlap the
-         border that is no longer drawn. */
-      /* ONE LINE LENGTH FOR ALL EIGHT, AND IT IS NOT A BORDER. A border-bottom is always
-         exactly as wide as its box, which is why an active Bio was a 26.8px stub against
-         Testimonials' 117px. This paints the line as a BACKGROUND BAR instead: a 2px
-         gradient, no-repeat, centered on the bottom of the padding box, sized to a fixed
-         width - so it is free of the label's width and every tab gets the same line
-         centered under its word.
-         64.3px is not arbitrary: it is the rendered width of the word PHOTOS at this
-         strip's type - 14px/600/.07em uppercase - and that is the reference length every
-         tab uses. Stated once so the eight cannot drift apart.
-         A ::after was the obvious way to do this and it DOES NOT WORK: Chrome computes
-         the pseudo-element's style once and does not re-run it when aria-selected flips,
-         so the line stayed under Bio while the selection moved. Verified by clicking
-         through all eight. A property on the button itself invalidates properly, and
-         background-size carries the width, so the whole thing is one declaration.
-         The button's own border-bottom comes off, and padding 8 = the 6px gap the line
-         reads with plus the 2px it occupies, which keeps the box the same 25px tall. */
-      /* CLEAR THE INTERACTIVE MAP TAB. The tab is sticky at var(--navH) and hangs
-         var(--md-tab-h-peak) below it - 38px at this breakpoint - and it is CENTERED, which
-         is why this only bites when the page is narrow: at 640 it occupies x 225-415 while
-         the crumb reads "Home / Our Team / John Reburn" out to about 255, so the last
-         crumb sat behind the tab. 24px of padding was not enough to get under it.
-         Written as the same expression the sub-nav bar uses to clear the same tab, off the
-         same token, so the two cannot disagree - and if the tab's height changes at a
-         breakpoint, both follow it. */
+      /* CENTERED IN THE CELL, not flush to its left edge. */
+      /* CENTERED IN THE CELL, underline close to the word: with the bar's border gone the padding
+         under the label is just a gap, so it drops to 8px; margin-bottom: -1px existed to overlap
+         that border. */
+      /* ONE LINE LENGTH FOR EVERY TAB, painted as a BACKGROUND BAR (2px gradient, no-repeat,
+         centered, fixed width), not a border or ::after (a ::after does not re-render when
+         aria-selected flips). 64.3px is the fixed line length. */
+      /* THE CRUMB'S padding-top uses the same expression and token as the sub-nav bar, so the two
+         cannot disagree. */
       .tmd-crumb{ padding-top: calc(var(--md-tab-h-peak) + 8px); }
       .tmd-tabs{ --tmd-tab-line: 64.3px; }
       .tmd-tab{ justify-self: center; margin-bottom: 0;
@@ -521,28 +368,16 @@
         background-size: 0 2px;
         transition: color .18s ease, background-size .18s ease; }
       .tmd-tab[aria-selected="true"]{ background-size: var(--tmd-tab-line) 2px; }
-      /* NO RULE UNDER THE STRIP. The 2px light-blue border-bottom is the desktop bar's
-         baseline, and once the bar bleeds to both page edges that hairline becomes a line
-         drawn across the whole width of the page - it reads as a divider between two
-         regions rather than as the underside of a control. The selected tab keeps its own
-         underline; that is the indicator, and it no longer has a full-width line competing
-         with it. .tmd-tab's margin-bottom: -1px existed to sit ON this border and is
-         harmless with it gone. */
+      /* NO RULE UNDER THE STRIP: once the bar bleeds to both page edges its 2px border becomes a
+         full-width line. The selected tab keeps its own underline as the indicator. */
       .tmd-tabs{ border-bottom: 0; }
-      /* TESTIMONIALS: STACKED, AND THE TYPE STEPS DOWN. The attribution column is a FIXED
-         244px at every width, so at 640 it takes 244 of the card's 576 and leaves the quote
-         234px - 23.2 characters per line, eight lines deep for three sentences. No type
-         size fixes that: the column has to go. Single track puts the attribution above the
-         quote (figcaption is already pinned to row 1, so source order does not change) and
-         hands the quote the whole card. 21 -> 17px on 528px is 62ch, inside the 45-75 this
-         build holds real body copy to. At 21px the same width is 50ch, which also reads,
-         but the quote then looks like a heading next to 14px names. */
+      /* TESTIMONIALS STACK: the attribution column is a fixed 244px, which leaves the quote too
+         narrow here, so a single track puts the attribution above the quote and the type steps 21
+         -> 17px (62ch on 528px). */
       .tmd-quote{ grid-template-columns: minmax(0,1fr); gap: var(--space-4);
         padding: var(--space-5); }
-      /* max-width in ch, because the cap is a READING measure, not a pixel one - it holds
-         at 45-75 whatever the type does. Without it the top of this band overshoots: the
-         card is 703px wide at 767, which is 80ch of 17px serif. At 640 the quote is 64.5ch
-         and the cap does not apply. */
+      /* max-width in ch, because the cap is a READING measure, not a pixel one - it holds at 45-75
+         whatever the type does. */
       .tmd-quote blockquote{ grid-column: 1; font-size: 17px; max-width: 70ch; }
       .tmd-quote figcaption{ grid-column: 1; font-size: 13px; }
       .tmd-quote figcaption strong{ font-size: 14px; }
@@ -558,123 +393,73 @@
       /* The longest award name runs 71 characters; beside a years column it wraps to four
          lines here, so the row goes back to name over years. */
       .tmd-awards-wide li{ display: block; }
-      .tmd-awards-wide .tmd-awyrs{ margin-top: 2px; }
+      /* The desktop rule holds the years on one line beside the name. */
+      .tmd-awards-wide .tmd-awyrs{ margin-top: 2px; white-space: normal; }
     }
-    /* 639 AND DOWN: one image across. The rung sits on the site's own sm boundary - 640
-       is where --site stops stepping and goes fluid at a 20px rail - so the gallery
-       changes where the page's whole measure changes. The ladder: one column to 639, two
-       from 640 to 767, three at 768 and up. */
+    /* 639 AND DOWN: one image across. */
     @media (max-width: 639px){
       .tmd-gal{ grid-template-columns: minmax(0,1fr); }
     }
 
     @media (max-width: 519px){
-      /* THE BAND BECOMES A TRUE STACK: picture, then name and contact, then the icons, all
-         on one left edge. The single column was already declared here, but the rules above
-         were still placing items explicitly - the copy pinned to `grid-row: 1 / span 2`
-         and the icons to row 2 - so the copy could not fit beside the picture and the
-         browser INVENTED a second column for it. The band computed as 84.86px + 283.14px,
-         the 120px picture overflowed its 84.86px track, and the name, role and phone list
-         printed over the photograph. Both placements are handed back to auto here, which
-         is what lets source order do the stacking. */
-      /* Two tracks, but NOT two columns of content: the second one exists only to hold
-         the icon rail in the top right corner, and it is `auto`, so it is exactly as wide
-         as the icons are. The picture takes column 1 of row 1 by auto-placement. */
+      /* THE BAND IS A TRUE STACK: the explicit placements above (copy on rows 1-2, icons on row 2)
+         are handed back to auto so source order does the stacking; left in place, the browser
+         invents a second column the picture overflows. */
+      /* Two tracks: the second is `auto` and exists only to hold the icon rail in the top right
+         corner. */
       .tmd-id{ grid-template-columns: minmax(0,1fr) auto; row-gap: var(--space-4); }
-      /* The copy spans BOTH tracks on row 2, so it keeps the band's full width - the icon
-         rail is above it, not beside it, and cannot narrow it. This is also what makes the
-         corner placement collision-proof without any absolute positioning: the two live in
-         different rows, so no amount of name or a long email address can reach the icons. */
+      /* The copy spans BOTH tracks on row 2, so it keeps the band's full width - the icon rail is
+         above it, not beside it, and cannot narrow it. */
       .tmd-idmain{ grid-row: 2; grid-column: 1 / -1; }
-      /* THE ICONS STACK VERTICALLY IN THE TOP RIGHT CORNER. align-items: flex-end puts the
-         rail on the band's right inset - the wider breakpoints set flex-start for the row
-         under the picture, so it is restated here. align-self: start keeps the rail at the
-         TOP of row 1 rather than stretching down it. */
+      /* THE ICONS STACK VERTICALLY IN THE TOP RIGHT CORNER: align-items: flex-end puts the rail on
+         the band's right inset and align-self: start keeps it at the top of row 1. */
       .tmd-idside{ grid-column: 2; grid-row: 1; align-items: flex-end;
         align-self: start; padding-top: 0; }
       /* .tmd-social is a flex ROW everywhere else - three 38px buttons side by side. One
          declaration turns it into the column. */
       .tmd-social{ flex-direction: column; }
-      /* PDF ABOVE LINKEDIN in the vertical rail, so the stack reads email, bio PDF,
-         LinkedIn. Done with `order` rather than by moving the markup, because the
-         horizontal row at 520 and up runs email, LinkedIn, PDF and the DOM is what that
-         order comes from. Keyed off the classes rather than :nth-child so it still means
-         what it says if the CMS ever outputs a fourth icon. */
+      /* PDF ABOVE LINKEDIN in the vertical rail, so the stack reads email, bio PDF, LinkedIn. */
       .tmd-social .tmd-pdf{ order: 1; }
       .tmd-social .tmd-li{ order: 2; }
-      /* .tmd-contact bottom-aligns to the picture with margin-top: auto, which needs FREE
-         SPACE in the column to do anything. In a stack the column is exactly as tall as
-         its content, so auto resolves to 0 and the phone list would sit hard against the
-         role above it. There is nothing left to bottom-align to, so it goes back to being
-         a plain gap. */
+      /* .tmd-contact bottom-aligns to the picture with margin-top: auto, which needs FREE SPACE in
+         the column to do anything. */
       .tmd-contact{ margin-top: var(--space-4); }
-      /* NO GAP OVERRIDE HERE. Every range with more than one row carries the same gap, so
-         there is exactly ONE gap declaration for the strip - in the 767 rung, 4px rows and
-         16px columns - and every width below it inherits. A 24px column gap at this rung
-         pushes the three columns 6px past the end of the strip at 320. */
+      /* NO GAP OVERRIDE HERE: the strip's one gap declaration (4px rows, 16px columns) is in the
+         767 rung and every width below inherits it; 24px columns would push the three columns past
+         the strip's end at 320. */
     }
 
-    /* ======================================================================
-       THE TWO BOTTOM RUNGS. Two different things give way below 519, at two different
-       widths, so rather than one compromise applied to both there are two queries.
-       479 AND DOWN: the contact labels go, and the sub-nav takes a third row.
-       399 AND DOWN: the sub-nav type steps with it.
-       ====================================================================== */
+    /* THE BOTTOM RUNGS: 479 the contact labels go; 429 three rows of tabs; 349 the tab type steps
+       down. */
     @media (max-width: 479px){
-      /* THE OFFICE / MOBILE / EMAIL WORDS COME OFF - the icon is the label now.
-         VISUALLY only: the SVGs beside them are aria-hidden, so deleting the words
-         would leave a screen reader three bare links with no idea which number is
-         which. This is pc.css's .sr-only treatment inlined, so the words stay in the
-         accessibility tree and in the markup for the CMS.
-         It also fixes a real overflow: the row read EMAIL JohnR@PeoplesCompany.com at
-         283.1px in a 232px column, and an email address is one unbreakable token, so
-         the whole PAGE scrolled 7px sideways. Dropping the word takes the row inside
-         its column. Only .tmd-meta's tags - the address block's "Cumming Office" tag
-         is already hidden at 1023 and down. */
+      /* THE OFFICE / MOBILE / EMAIL WORDS COME OFF visually (.sr-only inlined): the icon is the
+         label, and an email address is one unbreakable token that overflows the column otherwise. */
       .tmd-meta .tmd-tag{ position: absolute; width: 1px; height: 1px; margin: -1px;
         padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
         white-space: nowrap; border: 0; }
-      /* THREE ROWS OF TABS: 3 - 3 - 2, in the order already set for this end of the
-         ladder, so nothing is resequenced - Bio Licenses Contact / Blogs Available Sold /
-         Testimonials Photos.
-         IT STARTS HERE RATHER THAN AT 320 BECAUSE FOUR COLUMNS ALREADY FAIL HERE. The
-         2 x 4 grid is sized by its tallest demand per column - 84.9 + 75.8 + 117 + 64.3 =
-         342px of label plus 48px of gap - so it needs 390px and only fits from about 430
-         up. At 400 it has 360 and drops Blogs and Photos off the right edge. Three columns
-         need 277.7 + 32 = 309.7, which clears every width from 350 up. */
+    }
+
+    /* 429 AND DOWN: THREE ROWS OF TABS, 3 - 3 - 1 (Biography Real Estate Topics / Videos Contact
+       Licenses / Research). The 4 + 3 grid needs 384px of strip, which fits from 424; the rung sits
+       at 429 for margin. */
+    @media (max-width: 429px){
       .tmd-tabs{ grid-template-columns: repeat(3, 1fr); }
     }
 
-    /* 399 AND DOWN: the third row is in place above; this rung is only the TYPE. Three
-       columns at 14px need 309.7px and run out of room at about 350, so below that the
-       labels step down. */
-    @media (max-width: 399px){
-      /* THREE ROWS OF TABS: 3 - 3 - 2, in the order already set for this end of the
-         ladder, so nothing is resequenced - Bio Licenses Contact / Blogs Available
-         Sold / Testimonials Photos.
-         THE TYPE HAS TO STEP WITH IT. The three columns are sized by their tallest
-         demand - col 1 by Testimonials, col 2 by Available, col 3 by Contact - which
-         at 14px is 257.8px of label plus 32px of gap against the 280px this width
-         has. It does not fit at 14, and it does not fit at 13 either (289.8). At 12px
-         the three columns come to 238.1 and the strip has room to spare.
-         The underline scales with the type for the same reason it was 64.3px in the
-         first place: that number is the width of the word PHOTOS, so at 12px it is
-         55.1px. The line still matches the reference word, which is the point of it. */
+    /* 349 AND DOWN: only the TYPE steps down, 14px -> 12px. Three columns at 14px need 302px of
+       strip, so 14px holds to 342. The tab line scales with it: 64.3 -> 55.1px. */
+    @media (max-width: 349px){
       .tmd-tabs{ --tmd-tab-line: 55.1px; }
       .tmd-tab{ font-size: 12px; }
     }
 
-    /* ===============================================================
-       PREMIUM / SPEAKER LAYER (tms-). Everything above is the expanded
-       team-member template unchanged; these rules add the speaker pieces.
-       =============================================================== */
+    /* PREMIUM / SPEAKER LAYER (tms-): the speaker pieces added to the team-member template. */
 
-    /* "Keynote Speaker" pill, linking the speaker fact sheet PDF, pinned to the band's lower
-       right: the side column stretches to the band's height and the link takes the space
-       left under the social marks. */
+    /* Keynote Speaker pill, linking the speaker fact sheet PDF: pinned to the band's lower right,
+       in the side column under the social marks. */
     .tmd-idside{ align-self: stretch; }
     .tms-badge{ margin-top: auto; display: inline-block;
-      padding: 4px 10px; border-radius: var(--radius-pill);
+      padding: 4px 10px; border-radius: var(--radius-pill); text-align: center;
       border: 1px solid rgba(0,174,239,.55); background: rgba(0,174,239,.12);
       font-size: 11.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
       color: var(--pc-white); text-decoration: none;
@@ -683,9 +468,8 @@
     .tms-badge:focus-visible{ outline: 2px solid var(--pc-light-blue); outline-offset: 2px; }
 
     /* ---- shared bits ---- */
-    /* Overview: a plain dotted list in three columns of 3 / 2 / 2, the odd item at the foot
-       of column one. No fill or border, so the items read as a list and not as controls.
-       The placement is written for seven items. */
+    /* Overview: a plain dotted list in three columns of 3 / 2 / 2, the odd item at the foot of
+       column one. */
     .tms-speaklist{ list-style: none; margin: 0; padding: 0;
       display: grid; grid-template-columns: repeat(3, max-content); justify-content: space-between;
       grid-auto-flow: row dense;
@@ -704,9 +488,7 @@
     /* ---- speaker profile ---- */
     .tms-speaks{ margin: 0; }
 
-    /* ---- signature topics: one expandable card per talk ----
-       <details> so it opens without script and stays keyboard-operable. The summary is the
-       whole header row: title over tagline, and the chevron. */
+    /* ---- signature topics: one expandable card per talk ---- */
     .tms-topics{ display: flex; flex-direction: column; gap: var(--space-4); }
     .tms-topic{ background: var(--pc-white); border: 1px solid var(--pc-light-blue);
       border-radius: var(--radius-md); transition: border-color .18s ease, background .18s ease; }
@@ -738,13 +520,7 @@
       color: rgba(7,22,44,.86); margin: 0 0 var(--space-5); }
 
     /* ---- videos ---- */
-    .tms-feat{ display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr);
-      gap: var(--space-6); align-items: center; margin: 0 0 var(--space-7); }
-    .tms-feat .tms-vidtitle{ font-family: var(--font-serif); font-weight: 500; font-size: 26px;
-      line-height: 1.25; color: var(--pc-black); margin: 6px 0 var(--space-3); }
-    .tms-feat p{ font-family: var(--font-sans); font-size: 15.5px; line-height: 1.65;
-      color: rgba(7,22,44,.82); margin: 0 0 var(--space-5); }
-    .tms-reel{ display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--space-6) var(--space-5); }
+    .tms-reel{ display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-6) var(--space-5); }
     .tms-vid{ display: block; text-decoration: none; color: inherit; }
     .tms-media{ position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden;
       border-radius: var(--radius-md); background: var(--pc-navy); }
@@ -758,14 +534,12 @@
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 18px rgba(7,22,44,.35); transition: transform .2s ease, background .2s ease; }
     .tms-play svg{ width: 20px; height: 20px; fill: var(--pc-navy); margin-left: 3px; }
-    .tms-feat .tms-play{ width: 76px; height: 76px; margin: -38px 0 0 -38px; }
-    .tms-feat .tms-play svg{ width: 26px; height: 26px; }
     .tms-dur{ position: absolute; z-index: 1; right: 10px; bottom: 10px;
       font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; color: var(--pc-white);
       background: rgba(7,22,44,.82); padding: 3px 8px; border-radius: var(--radius-sm);
       font-variant-numeric: tabular-nums; }
     .tms-vid:hover .tms-media img{ transform: scale(1.04); }
-    .tms-vid:hover .tms-play, .tms-feat:hover .tms-play{ background: var(--pc-blue); }
+    .tms-vid:hover .tms-play{ background: var(--pc-blue); }
     .tms-vid:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 4px; border-radius: var(--radius-md); }
     .tms-vidtype{ display: block; margin: var(--space-3) 0 4px; font-family: var(--font-sans);
       font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
@@ -790,10 +564,6 @@
       color: rgba(7,22,44,.55); margin-top: 3px; }
 
     /* ---- premium layer: responsive ---- */
-    @media (max-width: 1279px){
-      .tms-reel{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .tms-feat{ grid-template-columns: minmax(0,1fr); }
-    }
     @media (max-width: 767px){
       .tms-topicgrid, .tms-frow2{ grid-template-columns: minmax(0,1fr); }
       .tmd-frow{ grid-template-columns: minmax(0,1fr); }
@@ -804,6 +574,105 @@
     }
     @media (max-width: 639px){
       .tms-reel{ grid-template-columns: minmax(0,1fr); }
+    }
+    /* THE OVERVIEW LIST IS TWO COLUMNS WHEREVER THE PANEL IS UNDER 678px. */
+    @media (max-width: 767px), (min-width: 1024px) and (max-width: 1279px){
+      .tms-speaklist{ grid-template-columns: repeat(2, minmax(0,1fr)); grid-template-rows: repeat(4, auto);
+        grid-auto-flow: column; justify-content: normal; column-gap: var(--space-5); }
+      .tms-speaklist li:nth-child(n){ grid-column: auto; }
+    }
+    /* 768-1023: five icons are 222px under a 170px portrait, so they overhang 26px each side; the
+       gap to the copy goes 32 -> 58 so the last icon clears the phone list. */
+    @media (min-width: 768px) and (max-width: 1023px){
+      .tmd-id{ column-gap: 58px; }
+    }
+    /* 768-1023: THE KEYNOTE SPEAKER PILL GOES TO A BAND CORNER (display: contents hands it and the
+       icon row to the band's grid). 900-1023 lower right, level with the email line; 768-899 under
+       the title, where the email would meet a lower-right pill. */
+    @media (min-width: 768px) and (max-width: 1023px){
+      .tmd-idside{ display: contents; }
+      .tmd-idmain{ grid-column: 2; }
+      .tmd-social{ grid-column: 1; grid-row: 2; justify-self: center; }
+      .tms-badge{ grid-column: 2; grid-row: 2; margin-top: 0; justify-self: end; align-self: end; }
+    }
+    @media (min-width: 768px) and (max-width: 899px){
+      /* UNDER THE TITLE: the name and role block is 42-127px down the band at every width here, so
+         a 96px offset sits the pill 9px under the role. Assumes a one-line name. */
+      .tms-badge{ grid-row: 1; align-self: start; justify-self: start; margin-top: 96px; }
+    }
+    /* THE KEYNOTE SPEAKER PILL MOVES UP, 1024-1279: the address reaches into the icons' column
+       below 1280, so the pill sits under the icon row. */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .tms-badge{ margin-top: 0; }
+    }
+    /* ONE COLUMN BELOW 480: two tracks leave a 112px text measure at 320, which breaks
+       "Interest Rates & Cap Rates" onto three lines. */
+    @media (max-width: 479px){
+      .tms-speaklist{ grid-template-columns: minmax(0,1fr); grid-template-rows: none; grid-auto-flow: row; }
+    }
+    /* 520-767: THE ICONS WRAP, 3 + 2: five in one row are 222px under a 120px portrait; 130px holds
+       three. */
+    @media (min-width: 520px) and (max-width: 767px){
+      .tmd-social{ flex-wrap: wrap; width: 130px; }
+      .tmd-social:has(> :nth-child(4):last-child){ width: 84px; }
+      .tmd-social:not(:has(> :nth-child(4))){ width: auto; }
+      /* THE PILL GOES UNDER THE TITLE, as at 768-899: display: contents hands it to the band's
+         grid, where it takes the copy column's first row. */
+      .tmd-idside{ display: contents; }
+      .tmd-idmain{ grid-column: 2; }
+      .tmd-social{ grid-column: 1; grid-row: 2; }
+      /* 73px from the row top = 9px under the role line, which is at the same place from 520
+         to 767 (the name is 27px here). Assumes a one-line name. */
+      .tms-badge{ grid-column: 2; grid-row: 1; justify-self: start; align-self: start; margin-top: 73px; }
+    }
+    /* 640-767: THE ICONS STACK DOWN THE BAND'S RIGHT EDGE in a third, auto-width track, and the
+       pill sits under the headshot. Below 640 the copy would meet the icons. */
+    @media (min-width: 640px) and (max-width: 767px){
+      /* rows: auto 1fr, so the icon column's extra height lands under the pill, not between it and
+         the headshot. */
+      .tmd-id{ grid-template-columns: 120px minmax(0,1fr) auto; grid-template-rows: auto 1fr; }
+      .tmd-social{ flex-direction: column; flex-wrap: nowrap; width: auto;
+        grid-column: 3; grid-row: 1 / span 2; align-self: start; }
+      .tmd-social a{ order: 3; }
+      .tmd-social a[href^="mailto:"]{ order: 0; }
+      .tmd-social .tmd-pdf{ order: 1; }
+      .tmd-social .tmd-li{ order: 2; }
+      .tmd-idmain{ grid-row: 1 / span 2; }
+      .tms-badge{ grid-column: 1; grid-row: 2; margin-top: 0; }
+    }
+    /* 519 AND DOWN HOLDS THE TEMPLATE'S HEIGHT (355.3px): its three icons are a 130px rail, so the
+       five are laid out 3 + 2 (130 x 84) with the pill beneath (84 + 18 + 28 = 130). Needs 274px of
+       band, so 380 and up. Order: email, bio PDF, LinkedIn, X, Instagram. */
+    @media (min-width: 380px) and (max-width: 519px){
+      .tmd-idside{ gap: 18px; min-height: 130px; }
+      .tmd-social{ flex-direction: row; flex-wrap: wrap; width: 130px; }
+      .tmd-social a{ order: 3; }
+      .tmd-social a[href^="mailto:"]{ order: 0; }
+      .tmd-social .tmd-pdf{ order: 1; }
+      .tmd-social .tmd-li{ order: 2; }
+      /* FOUR LINKS ARE TWO ROWS OF TWO, right-aligned: the block narrows to two icons wide, so it
+         is not 3 + 1. Three or fewer are one row shrunk to fit; five or six are 3 wide. */
+      .tmd-social:has(> :nth-child(4):last-child){ width: 84px; }
+      .tmd-social:not(:has(> :nth-child(4))){ width: auto; }
+      .tms-badge{ width: 130px; box-sizing: border-box; margin-top: 0; padding: 4px 6px;
+        font-size: 10.5px; letter-spacing: .06em; white-space: nowrap; }
+    }
+    /* BELOW 380 the 130px rail no longer fits beside the portrait: the icons go to two columns (84
+       x 130) down the right edge and the pill goes under the headshot, one line, 120px wide. The
+       band is ~32px taller than the template here. */
+    @media (max-width: 379px){
+      .tmd-idside{ display: contents; }
+      .tmd-social{ display: grid; grid-template-columns: repeat(2, 38px); gap: 8px;
+        grid-column: 2; grid-row: 1 / span 2; align-self: start; justify-self: end; }
+      .tmd-social:not(:has(> :nth-child(4))){ display: flex; }
+      .tmd-social a{ order: 3; }
+      .tmd-social a[href^="mailto:"]{ order: 0; }
+      .tmd-social .tmd-pdf{ order: 1; }
+      .tmd-social .tmd-li{ order: 2; }
+      .tms-badge{ grid-column: 1; grid-row: 2; margin-top: 0; justify-self: start; align-self: start;
+        width: 120px; box-sizing: border-box; padding: 4px 4px; white-space: nowrap;
+        font-size: 10px; letter-spacing: .04em; }
+      .tmd-idmain{ grid-row: 3; }
     }
   </style>
 </head>
@@ -885,6 +754,10 @@
               <li>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>
                 <span class="tmd-tag">Office</span> <a href="tel:8558005263">855.800.LAND</a>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 1H7a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm-5 20.5a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6zM17 17H7V4h10z"/></svg>
+                <span class="tmd-tag">Mobile</span> <a href="tel:5155550100">515.555.0100</a>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.2L4.4 7H19.6L12 12.2zM4 8.5V17h16V8.5l-8 5.5-8-5.5z"/></svg>
@@ -1482,22 +1355,16 @@
           <!-- ===== 4. VIDEOS: past engagements ===== -->
           <section class="tmd-panel" data-label="Videos" id="tmdPanel-videos" role="tabpanel" tabindex="-1" hidden>
             <h2 class="tmd-h2">Past Engagements</h2>
-            <div class="tms-feat">
-              <a class="tms-vid" href="#" aria-label="Play 2025 Land Expo Main Stage">
+            <div class="tms-reel">
+              <a class="tms-vid" href="#">
                 <span class="tms-media">
                   <img src="../assets/pc-expo.webp" alt="" loading="lazy" decoding="async" />
                   <span class="tms-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span>
                   <span class="tms-dur"><span class="sr-only">Length </span>~27 min</span>
                 </span>
-              </a>
-              <div>
                 <span class="tms-vidtype">Live &middot; Main Stage</span>
-                <h3 class="tms-vidtitle">2025 Land Expo Main Stage</h3>
-                <p>The latest main-stage session from the Land Investment Expo.</p>
-                <a class="btn btn-primary" href="#">Watch Session</a>
-              </div>
-            </div>
-            <div class="tms-reel">
+                <span class="tms-vidtitle">2025 Land Expo Main Stage</span>
+              </a>
               <a class="tms-vid" href="#">
                 <span class="tms-media">
                   <img src="../assets/pc-hero2.jpg" alt="" loading="lazy" decoding="async" />
@@ -1700,9 +1567,7 @@
             </ul>
           </section>
 
-          <!-- White papers, not blogs: the papers Steve is credited on, newest first. Same
-               list treatment as the expanded page's Blogs card; the credit line takes the place
-               of the date, since papers are not dated. -->
+          <!-- White papers, not blogs: the papers the person is credited on, newest first. -->
           <section class="tmd-rcard" id="tmdPanel-research" data-tab-label="Research">
             <h2 class="tmd-rtitle">White Papers</h2>
             <ul class="tmd-posts">
@@ -1738,16 +1603,7 @@
 
   <script>
   (function(){
-    /* ---- SUB-NAV: one tab per panel that exists ------------------------------
-       The tablist ships empty and is written from the DOM. A CMS that outputs no
-       .tmd-panel for a section produces no tab for it, and the first panel that
-       survives is the one that opens. Nothing else needs to know which sections
-       an agent happens to have.
-
-       buildTabs() IS RE-CALLABLE, because the set of panels is no longer fixed for the
-       life of the page: at 1023 and down Licenses and Blogs migrate out of the rail and
-       become panels (see the migration block below), so the strip has to be written
-       again from whatever is in .tmd-main at the time. */
+    /* ---- SUB-NAV: one tab per panel that exists ------------------------------ */
     var tabsBox = document.getElementById("tmdTabs");
     var main    = document.querySelector(".tmd-main");
     var cols    = document.querySelector(".tmd-cols");
@@ -1766,9 +1622,7 @@
       if(focusPanel) panels[i].focus();
     }
 
-    /* Left/right arrow keys walk the tablist, which is what the tab pattern expects.
-       Bound ONCE - the listener reads the current tabs/panels through the closure, so a
-       rebuild needs no new listener and cannot stack duplicates. */
+    /* Left/right arrow keys walk the tablist, which is what the tab pattern expects. */
     function onKey(e){
       var i = tabs.indexOf(document.activeElement);
       if(i < 0) return;
@@ -1783,21 +1637,9 @@
       select(next);
     }
 
-    /* ONE PANEL MEANS NO TAB BAR. A tablist holding a single tab is 98px of sticky chrome
-       whose only offer is the panel already on screen, and it lies to a screen reader:
-       role="tablist" announces a choice that does not exist. So the bar is REMOVED from the
-       DOM, not hidden - .tmd-tabs sets display:flex, which beats the UA's [hidden] rule, so
-       hiding it by attribute would leave it on screen.
-       The lone panel then has to stop pretending to be a tab panel: role, tabindex and
-       aria-labelledby all come off, and `hidden` is cleared, so it reads as ordinary content
-       with its own h2. data-label stays - it is the CMS's field, not a tab artefact.
-       THE TAB LABEL AND THE HEADING ARE TWO DIFFERENT FIELDS. data-label is "Available" and
-       "Sold" while the panels' own h2 reads "Available Listings" and "Sold Listings": the tab
-       is a place in a strip that has to hold every section on one row, the heading is the
-       title of the section once you are in it.
-       No CSS needs changing. The bar's negative top margin exists to cancel .tmd-cols'
-       padding-top; with the bar gone that padding simply applies, which is the right gap
-       between the identity band and the panel. */
+    /* ONE PANEL MEANS NO TAB BAR: a lone tablist announces a choice that does not exist, so the bar
+       is REMOVED, not hidden (display:flex beats [hidden]), and the panel drops role, tabindex and
+       aria-labelledby. The tab label (data-label) and the panel's h2 are different CMS fields. */
     function buildTabs(keepLabel){
       if(!tabsBox.parentNode) return;
       panels = [].slice.call(main.querySelectorAll(".tmd-panel[data-label]"));
@@ -1831,59 +1673,26 @@
 
       if(!keyBound){ tabsBox.addEventListener("keydown", onKey); keyBound = true; }
 
-      /* KEEP THE SECTION THE READER WAS ON. A rebuild happens when the viewport crosses
-         1024 and the panel set changes, and dropping them back on Bio because the window
-         was dragged is a bug, not a reset. Matched by LABEL, not index: the set it is
-         being restored into is a different length. A label that no longer exists - only
-         Licenses and Blogs can vanish, by going back into the rail - falls back to the
-         first panel. */
+      /* KEEP THE SECTION THE READER WAS ON across a rebuild at 1024, matched by LABEL, not index; a
+         label that no longer exists falls back to the first panel. */
       var want = keepLabel ? panels.map(function(pn){
         return pn.getAttribute("data-label");
       }).indexOf(keepLabel) : -1;
       select(want < 0 ? 0 : want);
     }
 
-    /* ---- 1023 AND DOWN: LICENSES AND BLOGS ARE TABS, NOT RAIL CARDS ----------
-       At 1024 and up they are cards in the rail beside the panels. Below it the rail stacks
-       UNDER the panels, where two more cards read as a second page of content after the tabs
-       have already offered six - so they become the seventh and eighth panels instead, and
-       the rail, now empty, takes itself out.
-
-       THIS IS A DOM MOVE, NOT A COPY. CSS cannot re-parent an element, and the same content
-       must never exist twice on a page, so the sections are relocated and their heading swaps
-       class: .tmd-rtitle is a card's 12px eyebrow, .tmd-h2 is a panel's 27px heading. Nothing
-       else about them changes.
-
-       data-tab-label, not data-label: buildTabs() collects .tmd-panel[data-label], so the
-       label has to sit in an attribute the builder ignores until the section really is a
-       panel. It is the same CMS field either way. */
+    /* ---- 1023 AND DOWN: LICENSES AND BLOGS ARE TABS, NOT RAIL CARDS ---------- */
     var movers = [].slice.call(document.querySelectorAll("[data-tab-label]"));
     movers.forEach(function(s){
       s._railHome = s.parentNode;
       s._railNext = s.nextElementSibling;
     });
 
-    /* ---- THE STRIP READS IN A DIFFERENT ORDER BELOW 1024 ---------------------
-       At 1024 and up the five panels keep their markup order, so the wide order is
-       CAPTURED HERE - at load, before anything moves - rather than written out a second
-       time where it could drift from the markup.
-
-       Why the DOM is re-ordered and not just the tablist: the tab sequence should be the
-       panel sequence. Keeping them in step means a screen reader walking the document
-       and a reader walking the strip meet the sections in the same order, and it keeps
-       buildTabs() honest - it reads the DOM and nothing else.
-
-       A label not named below keeps its place at the end, so a CMS section nobody
-       thought about here still gets a tab. */
+    /* ---- THE STRIP READS IN A DIFFERENT ORDER BELOW 1024 --------------------- */
     var homeOrder = [].slice.call(main.querySelectorAll(".tmd-panel"));
 
-    /* THREE ORDERS, ONE PER STATE. "wide" is the markup order, captured above.
-       "mid" is 768-1023, a single row of seven.
-       "small" is 767 and down, where the strip is a 2 x 4 grid - so this list is read as
-       a matrix, four across then four across:
-           Bio        Licenses  Contact       Blogs
-           Available  Sold      Testimonials  Photos
-       Which means the order here is the READING order of that matrix, not a ranking. */
+    /* THREE ORDERS, ONE PER STATE: wide is the markup order, mid (768-1023) one row of seven, small
+       (767 and down) the 4 + 3 grid read across. */
     var midOrder   = ["Biography", "Real Estate", "Topics", "Videos", "Contact",
                       "Licenses", "Research"];
     var smallOrder = midOrder;
@@ -1900,9 +1709,8 @@
       } else {
         list = homeOrder.filter(function(pn){ return pn.parentNode === main; });
       }
-      /* appendChild MOVES a node that is already in the document, so walking the list in
-         order lands them in that order. The tablist is not in the list, so it stays put
-         at the top of the column. */
+      /* appendChild MOVES a node that is already in the document, so walking the list in order
+         lands them in that order. */
       list.forEach(function(pn){ main.appendChild(pn); });
     }
 
@@ -1929,19 +1737,14 @@
       var t = s.querySelector(".tmd-h2");
       if(t) t.className = "tmd-rtitle";
       if(!s._railHome) return;
-      /* The remembered sibling may itself still be out in .tmd-main, in which case it is not
-         a child of the rail and cannot be an insertion reference - appending is then correct,
-         since the movers are restored in document order. */
+      /* The remembered sibling may itself still be out in .tmd-main, in which case it is not a
+         child of the rail and cannot be an insertion reference - appending is then … */
       var ref = (s._railNext && s._railNext.parentNode === s._railHome) ? s._railNext : null;
       s._railHome.insertBefore(s, ref);
     }
 
-    /* AN EMPTY RAIL IS NO RAIL. The minimum record has no licenses and no posts, so the rail
-       can come out with zero cards - and a 320px column of nothing beside the panels reads as
-       a load failure rather than as a thin profile. Below 1024 it is empty for the other
-       reason: both its cards are tabs. Either way the track and the gap come off.
-       It is HIDDEN rather than detached, because the cards have to have somewhere to go back
-       to when the viewport crosses 1024 again. */
+    /* AN EMPTY RAIL IS NO RAIL: with zero cards, or below 1024 where both cards are tabs, the track
+       and gap come off. Hidden, not detached: the cards return to it above 1024. */
     function syncRail(){
       if(!cols || !rail) return;
       var empty = !rail.querySelector(".tmd-rcard");
@@ -1950,9 +1753,8 @@
       else      cols.classList.remove("is-norail");
     }
 
-    /* THREE STATES, AND THE TWO BREAKPOINTS THAT SEPARATE THEM. Both queries sit on the
-       ladder in pc.css - 1024 is where the rail exists, 768 is where the strip stops
-       being one row - so this reads the same two numbers the stylesheet does. */
+    /* THREE STATES, TWO BREAKPOINTS: 1024 is where the rail exists, 768 is where the strip stops
+       being one row; both are the ladder's in pc.css. */
     var mqNarrow = window.matchMedia("(max-width: 1023px)");
     var mqSmall  = window.matchMedia("(max-width: 767px)");
     var state = null;
@@ -1963,10 +1765,7 @@
            :                    "wide";
     }
 
-    /* GUARDED, so this is safe to call as often as anything wants to. It returns
-       immediately unless the STATE has actually changed, which is what makes the resize
-       listener below cheap and stops a drag across the middle of a range from rebuilding
-       the strip on every frame - or resetting the open tab. */
+    /* GUARDED, so this is safe to call as often as anything wants to. */
     function apply(){
       var now = stateNow();
       if(now === state) return;
@@ -1982,20 +1781,15 @@
 
     apply();
 
-    /* BOTH KINDS OF LISTENER ON PURPOSE. The MediaQueryList change event is the right
-       signal and the one that fires in a browser; resize is the belt-and-braces path for
-       anything that moves the viewport without dispatching it. The guard above makes the
-       overlap free - whichever arrives first does the work, the others return at once. */
+    /* BOTH KINDS OF LISTENER ON PURPOSE: the MediaQueryList change event is the signal; resize is
+       the fallback, and the guard makes the overlap free. */
     [mqNarrow, mqSmall].forEach(function(q){
       if(q.addEventListener)  q.addEventListener("change", apply);
       else if(q.addListener)  q.addListener(apply);
     });
     window.addEventListener("resize", apply);
 
-    /* ---- JUMP LINKS: [data-goto] opens the tab it names --------------------------
-       Used by Check Availability and every Request This Topic button. Matched by label,
-       so it works in whatever order the strip is in at the current width. data-topic
-       preselects that talk in the booking form. */
+    /* ---- JUMP LINKS: [data-goto] opens the tab it names -------------------------- */
     document.addEventListener("click", function(e){
       var g = e.target.closest ? e.target.closest("[data-goto]") : null;
       if(!g) return;
@@ -2035,16 +1829,14 @@
 
       <div class="pff-inner pff-grid">
         <div class="pff-brand pff-col">
-          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
-               design puts it between the rule and "Corporate Office". Exactly one footer
-               lockup is visible at any width. -->
+          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the design
+             puts it between the rule and "Corporate Office". -->
           <a class="pff-brand-logo" href="./index.html" aria-label="Peoples Company home">
             <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
           </a>
           <h3>Corporate Office</h3>
-          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
-               row separated by "|" (CSS can't attach a separator to a bare text node). The
-               <br>s are kept for every other width, where the block still stacks. -->
+          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one row
+             separated by "|" (CSS can't attach a separator to a bare text node). -->
           <p class="pff-contact">
             <span>1108 S. 44th Street, Suite 102</span><br />
             <span>Cumming, IA 50061</span><br />
@@ -2130,9 +1922,7 @@
     </div>
   </footer>
 
-  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
-       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
-       The open card carries the same alert icon as the handle. -->
+  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle). -->
   <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
     <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
     <div class="pc-toast-body">
@@ -2453,11 +2243,7 @@
       if(x){ x.addEventListener("click", minimize); }
       if(reopen){ reopen.addEventListener("click", restore); }
 
-      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
-         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
-         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
-         never auto-restores, so once the visitor opens the handle it stays open, and a
-         toast never pops itself back open mid-resize. */
+      /* Start minimized at <=1279px. */
       var TOAST_NARROW = 1279, userChose = false;
       function narrowCheck(){
         if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
