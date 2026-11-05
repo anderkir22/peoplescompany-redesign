@@ -27,8 +27,13 @@
     /* Real Estate, columns 3-4: four KPI values for the Available listings, side by
        side. The block spans two grid columns; the heading is not a link. */
     .pcf-mega .pcf-kpicol{ grid-column: span 2; }
-    .pcf-kpis{ display: flex; justify-content: space-between; gap: var(--space-5);
-      margin: 0; padding: 0; }
+    /* Each item is a zero-width box with its content centered on it, so space-between
+       spaces the item CENTERS evenly. The side padding is half of the first label
+       (FOR SALE, 33px) and half of the last (STATES, 26px), so the first label
+       starts on the left edge and the last ends on the right edge. */
+    .pcf-kpis{ display: flex; justify-content: space-between;
+      margin: 0; padding: 0 26px 0 33px; }
+    .pcf-kpis > div{ width: 0; white-space: nowrap; }
     .pcf-kpis > div{ display: flex; flex-direction: column-reverse; justify-content: flex-end; align-items: center;
       text-align: center; gap: 6px; }
     .pcf-kpis dd{ margin: 0; font-family: var(--font-serif); font-weight: 500;
@@ -37,13 +42,16 @@
     /* The ± after an acre count: 22px, part of the number's width, so the label centers
        under the whole "42,783±". */
     .pcf-kpis .pcf-pm{ font-size: 22px; }
+    /* The ± makes the number wider on the right only, so the digits sit left of the slot's
+       center. Half the ± width (6px) plus 4px, set by eye, moves the digits onto the same even rhythm. */
+    .pcf-kpis > div:has(.pcf-pm){ transform: translateX(10px); }
     .pcf-kpis dt{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
       letter-spacing: .1em; padding-left: .1em; text-transform: uppercase; color: var(--color-text-subtle); }
-    /* Insights & News: the same 1 : 1 : 2 : 2 split, with Latest Blogs on column 3 and
-       Latest Insights on column 4 (one headline per row). Replaces pc.css's two capped
+    /* Insights & News: a 1 : 2 : 2 split, with the single link column first, Latest Blogs on
+       column 2 and Latest Insights on column 3 (one headline per row). Replaces pc.css's two capped
        columns. */
     .pcf-mega[aria-label="Insights & News"] .pcf-mega-in{ justify-content: normal;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr); }
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr); }
     /* A headline that wraps keeps its first line on the shared row line: same 1lh box
        and 8px text offset as the sale rows. */
     .pcf-latest li{ display: grid; align-content: start; min-height: 1lh; padding-top: 8px;
@@ -51,9 +59,23 @@
     .pcf-latest a{ display: inline; }
     /* 899 and below (the drawer): no Prior Transactions, no Expo / AFO / IAA box, no
        Latest Blogs or Latest Insights. The drawer keeps the navigation links only. */
+    /* Placeholder where the affiliation logos go. */
+    /* Sized like the options below: two grid columns wide (columns 3-4, about 560-600px) and
+       about as tall as the stacked-row options (heading plus three rows, about 215px). */
+    .pcf-mega .pcf-notecol{ grid-column: span 2; }
+    .pcf-notecol p{ margin: 0; box-sizing: border-box; min-height: 215px; display: flex; align-items: center;
+      justify-content: center; text-align: center; padding: 20px; border: 1px dashed var(--pc-medium-blue);
+      font-family: var(--font-sans); font-size: 13px; line-height: 1.5; color: var(--color-text-subtle); }
+    /* The Company is now three columns (The Company | Our Clients | badges), not four, so
+       pc.css's drawer positions for columns 2-4 move up one. */
+    .sec-the-company .pcf-col:nth-child(1){ grid-column: 1; grid-row: 1; }
+    .sec-the-company .pcf-col:nth-child(2){ grid-column: 2; grid-row: 1; }
+    .sec-the-company .pcf-col:nth-child(3){ grid-column: 1 / -1; grid-row: 2; margin-top: var(--space-4); }
+    .sec-the-company .pcf-col:nth-child(2) ul{ margin-top: 0; }
     @media (max-width: 899px){
       .pcf-drawer-cols .pcf-kpicol,
       .pcf-drawer-cols .pcf-badgecol,
+      .pcf-drawer-cols .pcf-notecol,
       .pcf-drawer-cols .pcf-latestcol{ display: none; }
     }
   </style>
@@ -66,6 +88,45 @@
     .internal-wrap{ max-width: var(--site); margin: 0 auto; padding: var(--space-8) var(--rail); }
     /* No measure cap — the paragraph runs the full content width on purpose, so both
        margins are visible against the --rail. */
+    /* -- AFFILIATIONS OPTIONS (page content only, not part of the nav) -------------
+       Seven ways to lay out Land Investment Expo / American Farmland Owner / International
+       Ag Alliance in the space the dark box leaves (about 560px). The source logos are
+       white, so on white they are darkened with a filter (solid dark). */
+    .af-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 56px 48px; margin-top: var(--space-6); }
+    .af-opt > h2{ font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--color-text-subtle); margin: 0 0 6px; }
+    .af-opt > p{ font-size: 14px; line-height: 1.5; margin: 0 0 16px; }
+    .af-frame{ width: 560px; max-width: 100%; box-sizing: border-box; padding: 24px 0 28px; }
+    .af-frame h4{ margin: 0 24px 12px; padding-bottom: 8px; font-family: var(--font-sans); font-size: 12px;
+      font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text);
+      border-bottom: 1px solid var(--color-border); }
+    .af-logo{ display: block; height: 28px; width: auto; max-width: 100%; object-fit: contain;
+      filter: brightness(0); }
+    .af-frame a{ text-decoration: none; color: var(--color-text); }
+    .af-frame a:hover .af-t, .af-frame a:hover .af-go, .af-frame a.af-go:hover{ color: var(--color-accent); }
+    .af-t{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45; color: var(--color-text-subtle); transition: color .15s ease; }
+    .af-go{ font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--color-text); transition: color .15s ease; }
+    .af-a .af-row{ display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; justify-items: center;
+      padding: 24px 24px 0; }
+    .af-a .af-row a{ display: flex; align-items: center; justify-content: center; }
+    .af-a .af-row .af-logo{ height: 28px; }
+    .af-a .af-row .af-logo.af-vert{ height: 112px; margin: -20px 0; }
+    .af-b .af-rowb{ display: grid; grid-template-columns: 150px minmax(0,1fr) auto; column-gap: 20px; align-items: center;
+      padding: 14px 24px; border-bottom: 1px solid var(--color-border); }
+    .af-b .af-rowb:last-child{ border-bottom: 0; padding-bottom: 0; }
+    .af-b .af-logo{ height: 26px; object-position: left center; }
+    .af-bv .af-rowb{ grid-template-columns: 134px minmax(0,1fr) auto; }
+    .af-bv .af-t{ white-space: nowrap; }
+    .af-bv .af-logo.af-vert{ height: 96px; margin: -24px 0; object-position: left center; }
+    .af-bv.af-opt-c .af-rowb{ grid-template-columns: 134px minmax(0,1fr); }
+    .af-b.af-opt-d .af-rowb{ grid-template-columns: 150px minmax(0,1fr); }
+    .af-d .af-tiles{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 4px 24px 0; }
+    .af-d .af-tiles a{ display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+      gap: 14px; padding: 22px 12px 16px; background: var(--pc-light-blue); text-align: center; min-height: 118px; }
+    .af-d .af-tiles .af-logo{ height: 26px; }
+    .af-logo.af-vert{ mix-blend-mode: multiply; } /* the 900px square carries wide white margins, hence the large box and negative margin */
+    .af-d .af-tiles .af-logo.af-vert{ height: 72px; margin: -14px 0; }
+    .af-f .af-tiles a{ background: #fff; border: 1px solid var(--pc-medium-blue); }
     .internal-wrap p{ font-size: var(--body); line-height: 1.7; color: var(--color-text-muted);
       margin: var(--space-4) 0 0; }
     /* -- SIGN-IN MODALS (Create Account, Sign In, Recover) ---------------------
@@ -220,15 +281,59 @@
   <!-- ================= PAGE CONTENT — empty internal shell ================= -->
   <main class="internal-body" aria-label="Page content">
     <div class="internal-wrap reveal">
-      <h1>Headline Here</h1>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-        irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-        deserunt mollit anim id est laborum.
-      </p>
+      <h1>&ldquo;The Company&rdquo; Header Navigation Options</h1>
+      <div class="af-grid">
+
+        <section class="af-opt af-b af-bv"><h2>Option A: stacked rows, vertical IAA</h2><p>Logo, one plain line of what it is, and a link, with the vertical IAA logo.</p>
+          <div class="af-frame"><h4>Our Affiliations</h4>
+            <div class="af-rowb"><img class="af-logo" src="../assets/expo.png" alt="" /><span class="af-t">Annual farmland investment conference.</span><a class="af-go" href="./land-investment-expo.html">Visit &rsaquo;</a></div>
+            <div class="af-rowb"><img class="af-logo" src="../assets/afo.png" alt="" /><span class="af-t">Weekly landowner news and analysis.</span><a class="af-go" href="./american-farmland-owner.html">Visit &rsaquo;</a></div>
+            <div class="af-rowb"><img class="af-logo af-vert" src="../assets/iaa-vertical.png" alt="" /><span class="af-t">Global coalition of ag land firms.</span><a class="af-go" href="./international-ag-alliance.html">Visit &rsaquo;</a></div>
+          </div></section>
+
+        <section class="af-opt af-b"><h2>Option B: stacked rows</h2><p>Logo, one plain line of what it is, and a link.</p>
+          <div class="af-frame"><h4>Our Affiliations</h4>
+            <div class="af-rowb"><img class="af-logo" src="../assets/expo.png" alt="" /><span class="af-t">The annual farmland investment conference, in Iowa.</span><a class="af-go" href="./land-investment-expo.html">Visit &rsaquo;</a></div>
+            <div class="af-rowb"><img class="af-logo" src="../assets/afo.png" alt="" /><span class="af-t">Weekly news, analysis and interviews for landowners.</span><a class="af-go" href="./american-farmland-owner.html">Visit &rsaquo;</a></div>
+            <div class="af-rowb"><img class="af-logo" src="../assets/iaa.png" alt="" /><span class="af-t">A global coalition of agricultural land firms.</span><a class="af-go" href="./international-ag-alliance.html">Visit &rsaquo;</a></div>
+          </div></section>
+
+        <section class="af-opt af-b af-bv af-opt-c"><h2>Option C: stacked rows, vertical IAA</h2><p>Logo, one plain line of what it is, and a link, with the vertical IAA logo.</p>
+          <div class="af-frame"><h4>Our Affiliations</h4>
+            <a class="af-rowb" href="./land-investment-expo.html"><img class="af-logo" src="../assets/expo.png" alt="" /><span class="af-t">Annual farmland investment conference.</span></a>
+            <a class="af-rowb" href="./american-farmland-owner.html"><img class="af-logo" src="../assets/afo.png" alt="" /><span class="af-t">Weekly landowner news and analysis.</span></a>
+            <a class="af-rowb" href="./international-ag-alliance.html"><img class="af-logo af-vert" src="../assets/iaa-vertical.png" alt="" /><span class="af-t">Global coalition of ag land firms.</span></a>
+          </div></section>
+
+        <section class="af-opt af-b af-opt-d"><h2>Option D: stacked rows</h2><p>Logo, one plain line of what it is, and a link.</p>
+          <div class="af-frame"><h4>Our Affiliations</h4>
+            <a class="af-rowb" href="./land-investment-expo.html"><img class="af-logo" src="../assets/expo.png" alt="" /><span class="af-t">The annual farmland investment conference, in Iowa.</span></a>
+            <a class="af-rowb" href="./american-farmland-owner.html"><img class="af-logo" src="../assets/afo.png" alt="" /><span class="af-t">Weekly news, analysis and interviews for landowners.</span></a>
+            <a class="af-rowb" href="./international-ag-alliance.html"><img class="af-logo" src="../assets/iaa.png" alt="" /><span class="af-t">A global coalition of agricultural land firms.</span></a>
+          </div></section>
+
+        <section class="af-opt af-a"><h2>Option E: logo row</h2><p>The quietest: logos only, spaced like the KPI row.</p>
+          <div class="af-frame"><h4>Our Affiliations</h4><div class="af-row">
+            <a href="./land-investment-expo.html" aria-label="Land Investment Expo"><img class="af-logo" src="../assets/expo.png" alt="" /></a>
+            <a href="./american-farmland-owner.html" aria-label="American Farmland Owner"><img class="af-logo" src="../assets/afo.png" alt="" /></a>
+            <a href="./international-ag-alliance.html" aria-label="International Ag Alliance"><img class="af-logo af-vert" src="../assets/iaa-vertical.png" alt="" /></a>
+          </div></div></section>
+
+        <section class="af-opt af-d"><h2>Option F: light blue tiles</h2><p>Three equal PC Light Blue tiles. Reads as buttons and keeps the logos prominent.</p>
+          <div class="af-frame"><h4>Our Affiliations</h4><div class="af-tiles">
+            <a href="./land-investment-expo.html"><img class="af-logo" src="../assets/expo.png" alt="" /><span class="af-go">Visit &rsaquo;</span></a>
+            <a href="./american-farmland-owner.html"><img class="af-logo" src="../assets/afo.png" alt="" /><span class="af-go">Visit &rsaquo;</span></a>
+            <a href="./international-ag-alliance.html"><img class="af-logo af-vert" src="../assets/iaa-vertical.png" alt="" /><span class="af-go">Visit &rsaquo;</span></a>
+          </div></div></section>
+
+        <section class="af-opt af-d af-f"><h2>Option G: bordered white tiles</h2><p>Three equal white tiles with a 1px border, each with a logo and a Visit link.</p>
+          <div class="af-frame"><h4>Our Affiliations</h4><div class="af-tiles">
+            <a href="./land-investment-expo.html"><img class="af-logo" src="../assets/expo.png" alt="" /><span class="af-go">Visit &rsaquo;</span></a>
+            <a href="./american-farmland-owner.html"><img class="af-logo" src="../assets/afo.png" alt="" /><span class="af-go">Visit &rsaquo;</span></a>
+            <a href="./international-ag-alliance.html"><img class="af-logo af-vert" src="../assets/iaa-vertical.png" alt="" /><span class="af-go">Visit &rsaquo;</span></a>
+          </div></div></section>
+
+      </div>
     </div>
   </main>
 
@@ -424,7 +529,7 @@
             <li><a href="./internal.html">AI Search</a></li>
             <li><a href="./internal.html">Interactive Map</a></li>
             <li><a href="./internal.html">Auctions</a></li>
-            <li><a href="./internal.html">Prior Transactions</a></li>
+            <li><a href="./auction-results.html">Auction Results</a></li>
             <li><a href="./internal.html">Find An Agent</a></li>
           </ul>
         </nav>
@@ -433,7 +538,6 @@
           <h3>The Company</h3>
           <ul>
             <li><a href="./about.html">Overview</a></li>
-            <li><a href="./regions.html">Regions</a></li>
             <li><a href="./internal.html">Industry Collaboration</a></li>
             <li><a href="./team.html">Our Team</a></li>
             <li><a href="./contact.html">Offices</a></li>
@@ -509,31 +613,33 @@
           { h: "Auctions", items: ["Upcoming Auctions","Auction Results"] },
           // KPI values for the Available listings. Live, these come from the listings feed.
           { h: "Available Now", kpis: [
-            { v: "161", l: "Active Listings" },
+            { v: "161", l: "For Sale" },
             { v: "48", l: "Upcoming Auctions" },
             { v: "42,783±", l: "Total Acres" },
             { v: "15", l: "States" }
           ]}
         ]},
         { label: "The Company", cols: [
-          { h: "The Company", items: ["Overview","Regions"] },
-          { spacer: true, items: ["Our Team","Culture","Careers","Industry Collaboration"] },
+          { h: "The Company", items: [
+            { t: "Overview", href: "./about.html" },
+            "Industry Collaboration",
+            { t: "Our Team", href: "./team.html" },
+            { t: "Offices", href: "./contact.html" },
+            { t: "Culture", href: "./culture.html" },
+            { t: "Careers", href: "./careers.html" }
+          ] },
           { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High Net Worth Investors","Institutional Investors"] },
-          { badges: [
-            { type: "expo", label: "Land Investment Expo" },
-            { type: "afo",  label: "American Farmland Owner" },
-            { type: "iaa",  label: "International Ag Alliance" }
-          ]}
+          // Placeholder for the three affiliation logos until an option is chosen.
+          { note: "Insert the best option from below in this space." }
         ]},
         { label: "What We Do", cols: [
           { svc: [ { name: "Land Brokerage & Auctions", items: ["Buy","Sell","Find An Agent"] } ]},
           { svc: [ { name: "Land Management", items: ["Management Approach","Consulting","Request An Assessment"] } ]},
-          { svc: [ { name: "Agricultural Appraisal", items: ["Order An Appraisal"] } ]},
-          { svc: [ { name: "Energy Management" }, { name: "Crop Insurance" }, { name: "Capital Markets" }, { name: "Corporate Services" } ]}
+          { svc: [ { name: "Agricultural Appraisal", href: "./agricultural-appraisal.html", items: [{ t: "Order An Appraisal", href: "./agricultural-appraisal.html" }] } ]},
+          { svc: [ { name: "Energy Management", href: "./energy-management.html" }, { name: "Crop Insurance", href: "./crop-insurance.html" }, { name: "Capital Markets", href: "./capital-markets.html" }, { name: "Corporate Services", href: "./corporate-services.html" } ]}
         ]},
         { label: "Insights & News", cols: [
-          { h: "Insights", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog"] },
-          { h: "News", items: ["In the News","Press Releases","Industry Recognition"] },
+          { h: "Insights & News", items: ["Industry Research","National Land Values","Case Studies","Newsletters","Blog","Industry Recognition"] },
           // Latest Blogs / Latest Insights: the five newest of each, headline only, each
           // linking to its own page. Live, both lists come from the content feed.
           { h: "Latest Blogs", latest: [
@@ -574,14 +680,19 @@
           var k = c.kpis.map(function(r){ return '<div><dt>'+esc(r.l)+'</dt><dd>'+esc(r.v).replace("±", '<span class="pcf-pm">±</span>')+'</dd></div>'; }).join("");
           return '<div class="pcf-col pcf-kpicol"><h4>'+esc(c.h)+'</h4><dl class="pcf-kpis">'+k+'</dl></div>';
         }
+        if(c.note){
+          return '<div class="pcf-col pcf-notecol"><p>'+esc(c.note)+'</p></div>';
+        }
         if(c.badges){
           return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
         }
         if(c.svc){
           var blocks = c.svc.map(function(s){
-            var sub = (s.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+            var sub = (s.items || []).map(function(i){
+              var t = typeof i === "string" ? i : i.t, h = typeof i === "string" ? "./internal.html" : i.href;
+              return '<li><a href="'+h+'">'+esc(t)+'</a></li>'; }).join("");
             return '<div class="pcf-svcblock">'+
-              '<div class="pcf-svc"><a href="./internal.html">'+esc(s.name)+'</a></div>'+
+              '<div class="pcf-svc"><a href="'+(s.href || "./internal.html")+'">'+esc(s.name)+'</a></div>'+
               (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
             '</div>';
           }).join("");
@@ -590,7 +701,9 @@
         if(c.h && (!c.items || !c.items.length) && !c.note){
           return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
         }
-        var links = (c.items || []).map(function(i){ return '<li><a href="./internal.html">'+esc(i)+'</a></li>'; }).join("");
+        var links = (c.items || []).map(function(i){
+          var t = typeof i === "string" ? i : i.t, h = typeof i === "string" ? "./internal.html" : i.href;
+          return '<li><a href="'+h+'">'+esc(t)+'</a></li>'; }).join("");
         // spacer:true → an invisible h4 so a continuation column's first link lines up
         // with the neighboring column's first link (see .pcf-h4-ghost in pc.css).
         var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
