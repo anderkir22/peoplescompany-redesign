@@ -24,33 +24,21 @@
     .pcf-mega .pcf-col li a{ font-size: 13px; font-weight: 400; }
     /* Hover as in the footer: PC Navy to PC Medium Blue, 0.15s, no underline. */
     .pcf-mega .pcf-col li a{ transition: color .15s ease; }
-    .pcf-mega .pcf-sold time{ font-size: 13px; font-weight: 400; }
-    /* At 13px the text sits 5px into the shared line box, not 8px. The date slot fits the
-       widest date, "March 31" (61px). */
-    .pcf-mega .pcf-sold li, .pcf-mega .pcf-latest li{ padding-top: 5px; }
-    .pcf-mega .pcf-sold li{ grid-template-columns: 62px minmax(0, 1fr); }
-    /* Real Estate, columns 3-4: Prior Transactions. The latest 10 sold listings, newest
-       first, five down column 3 then five down column 4. The heading is not a link; each
-       row links to its listing. The block spans two grid columns and its inner grid uses
-       the panel's own gap, so the two lists sit exactly on columns 3 and 4. */
-    .pcf-mega .pcf-soldcol{ grid-column: span 2; }
-    /* Real Estate only: columns 1-2 hold short links, so they give width to the sale
-       list (1 : 1 : 2 : 2) and its rows stay on one line from 1280 up. */
-    .pcf-mega[aria-label="Real Estate"] .pcf-mega-in{
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr); }
-    .pcf-col ul.pcf-sold{ display: grid; grid-auto-flow: column;
-      grid-template-rows: repeat(5, auto); grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: var(--space-7); row-gap: 10px; }
-    /* Date in a fixed column so a long row wraps under its own text, not under the date. */
-    /* min-height 1lh = the line box every other mega link sits in, and 8px is where their
-       text sits inside it, so single-line rows keep columns 1-2's pitch and row one lines
-       up with their first link. A wrapped row grows by its extra line. */
-    .pcf-sold li{ display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 8px;
-      align-items: baseline; align-content: start; min-height: 1lh; padding-top: 8px;
-      box-sizing: border-box; }
-    .pcf-sold time{ font-family: var(--font-sans); font-size: 11px; font-weight: 600;
-      color: var(--color-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .pcf-sold a{ display: inline; }
+    /* Real Estate, columns 3-4: four KPI values for the Available listings, side by
+       side. The block spans two grid columns; the heading is not a link. */
+    .pcf-mega .pcf-kpicol{ grid-column: span 2; }
+    .pcf-kpis{ display: flex; justify-content: space-between; gap: var(--space-5);
+      margin: 0; padding: 0; }
+    .pcf-kpis > div{ display: flex; flex-direction: column-reverse; justify-content: flex-end; align-items: center;
+      text-align: center; gap: 6px; }
+    .pcf-kpis dd{ margin: 0; font-family: var(--font-serif); font-weight: 500;
+      font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: var(--color-text);
+      font-variant-numeric: lining-nums proportional-nums; }
+    /* The ± after an acre count: 22px, part of the number's width, so the label centers
+       under the whole "42,783±". */
+    .pcf-kpis .pcf-pm{ font-size: 22px; }
+    .pcf-kpis dt{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+      letter-spacing: .1em; padding-left: .1em; text-transform: uppercase; color: var(--color-text-subtle); }
     /* Insights & News: the same 1 : 1 : 2 : 2 split, with Latest Blogs on column 3 and
        Latest Insights on column 4 (one headline per row). Replaces pc.css's two capped
        columns. */
@@ -64,7 +52,7 @@
     /* 899 and below (the drawer): no Prior Transactions, no Expo / AFO / IAA box, no
        Latest Blogs or Latest Insights. The drawer keeps the navigation links only. */
     @media (max-width: 899px){
-      .pcf-drawer-cols .pcf-soldcol,
+      .pcf-drawer-cols .pcf-kpicol,
       .pcf-drawer-cols .pcf-badgecol,
       .pcf-drawer-cols .pcf-latestcol{ display: none; }
     }
@@ -519,19 +507,12 @@
         { label: "Real Estate", cols: [
           { h: "For Sale", items: ["Traditional Search","AI Search","Interactive Map"] },
           { h: "Auctions", items: ["Upcoming Auctions","Auction Results"] },
-          // Prior Transactions: the latest 10 listings marked Sold, any type, newest first.
-          // Live, this list comes from the listings feed; t = the card's location + size.
-          { h: "Prior Transactions", sold: [
-            { d: "2026-10-26", t: "Rock County, WI - 28± Acres" },
-            { d: "2026-10-24", t: "Wright County, IA - 40± Acres" },
-            { d: "2026-10-22", t: "804 E Ashland Avenue, Indianola, IA - 1,680 Sq Ft" },
-            { d: "2026-10-21", t: "Story County, IA - 152± Acres" },
-            { d: "2026-10-20", t: "Hall County, NE - 318± Acres" },
-            { d: "2026-10-17", t: "Walla Walla County, WA - 96± Acres" },
-            { d: "2026-10-16", t: "Sanilac County, MI - 74± Acres" },
-            { d: "2026-10-15", t: "Warren County, IA - 12± Acres" },
-            { d: "2026-10-14", t: "Fresno County, CA - 160± Acres" },
-            { d: "2026-10-10", t: "Iowa County, WI - 62± Acres" }
+          // KPI values for the Available listings. Live, these come from the listings feed.
+          { h: "Available Now", kpis: [
+            { v: "161", l: "Active Listings" },
+            { v: "48", l: "Upcoming Auctions" },
+            { v: "42,783±", l: "Total Acres" },
+            { v: "15", l: "States" }
           ]}
         ]},
         { label: "The Company", cols: [
@@ -582,8 +563,6 @@
         return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
       }
       // AP-style month: abbreviated with a period, except March-July, which are spelled out.
-      var MON = ["Jan.","Feb.","March","April","May","June","July","Aug.","Sept.","Oct.","Nov.","Dec."];
-      function soldDate(iso){ var p = iso.split("-"); return MON[+p[1] - 1]+" "+(+p[2]); }
       function colHTML(c){
         if(c.latest){
           var li = c.latest.map(function(r){
@@ -591,13 +570,9 @@
           }).join("");
           return '<div class="pcf-col pcf-latestcol"><h4>'+esc(c.h)+'</h4><ul class="pcf-latest">'+li+'</ul></div>';
         }
-        if(c.sold){
-          var rows = c.sold.slice().sort(function(a, b){ return a.d < b.d ? 1 : -1; }).slice(0, 10)
-            .map(function(r){
-              return '<li><time datetime="'+r.d+'">'+soldDate(r.d)+'</time>'+
-                '<a href="./internal.html">'+esc(r.t)+'</a></li>';
-            }).join("");
-          return '<div class="pcf-col pcf-soldcol"><h4>'+esc(c.h)+'</h4><ul class="pcf-sold">'+rows+'</ul></div>';
+        if(c.kpis){
+          var k = c.kpis.map(function(r){ return '<div><dt>'+esc(r.l)+'</dt><dd>'+esc(r.v).replace("±", '<span class="pcf-pm">±</span>')+'</dd></div>'; }).join("");
+          return '<div class="pcf-col pcf-kpicol"><h4>'+esc(c.h)+'</h4><dl class="pcf-kpis">'+k+'</dl></div>';
         }
         if(c.badges){
           return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
