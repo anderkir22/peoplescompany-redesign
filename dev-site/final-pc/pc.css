@@ -1,6 +1,6 @@
 /* =============================================================================
    Peoples Company — FINAL PC Design System  (pc.css)
-   Last edit: 2026-10-29 17:50 UTC
+   Last edit: 2026-11-06 17:47 UTC
    -----------------------------------------------------------------------------
    Single source of truth for every page in final-pc/. Self-contained and
    dependency-free: these pages link ONLY this file. Do not fork it, and do not
@@ -436,12 +436,6 @@ p { margin: 0 0 1em; }
   /* All mega-menus share a fixed 4-column structure (a panel may leave columns
      empty). Real Estate + What We Do have 3 groups → 4th column stays empty. */
   display: grid; gap: var(--space-7); grid-template-columns: repeat(4, 1fr);
-}
-/* Insights & News has only two columns — cap + left-align them so they match the
-   column width on the other tabs instead of stretching across the full header. */
-.pcf-mega[aria-label="Insights & News"] .pcf-mega-in{
-  grid-template-columns: repeat(2, minmax(200px, 300px));
-  justify-content: start;
 }
 .pcf-col h4{
   font-family: var(--font-sans); font-weight: 600; font-size: 12px; letter-spacing: .1em;
@@ -1774,7 +1768,7 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
     max-width: var(--site); margin: 0 auto; padding: 0 var(--rail);
     /* Fixed 2 columns, not auto-fit: the wide mega panel gives each nav window 4 columns,
        and this keeps that same structure folded into 2x2. Sections with fewer than 4
-       columns simply fill what they have (Real Estate 3, Insights & News 2). */
+       columns simply fill what they have (Real Estate 3, Data & Insights 3). */
     display: grid; grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4) var(--space-5);
   }
@@ -2484,3 +2478,100 @@ body:has(dialog.rg-dialog[open]){ overflow: hidden; }
 /* Pop-up only: 30% smaller than on the region's own page (221px to 155px). */
 .rg-dialog .rg-map{ height: 155px; }
 .rg-map path{ fill: none; stroke: var(--pc-navy); stroke-width: 1.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+/* =============================================================================
+ HEADER / FOOTER v2: Real Estate KPIs, The Company affiliations, Data & Insights
+ Latest headlines, 13px panel links, and the 1279 / 1023 / 899 / 639 responsive rules.
+ ============================================================================= */
+.af-frame{ width: 560px; max-width: 100%; box-sizing: border-box; padding: 24px 0 28px; }
+.af-logo{ display: block; height: 28px; width: auto; max-width: 100%; object-fit: contain;
+  filter: brightness(0); }
+.af-frame a{ text-decoration: none; color: var(--color-text); }
+.af-frame a:hover .af-t, .af-frame a:hover .af-go, .af-frame a.af-go:hover{ color: var(--color-accent); }
+.af-t{ font-family: var(--font-sans); font-size: 13px; line-height: 1.45; color: var(--color-text-subtle); transition: color .15s ease; }
+.af-go{ font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--color-text); transition: color .15s ease; }
+.af-b .af-rowb{ display: grid; grid-template-columns: 150px minmax(0,1fr) auto; column-gap: 20px; align-items: center;
+  padding: 14px 24px; border-bottom: 1px solid var(--color-border); }
+.af-b .af-rowb:last-child{ border-bottom: 0; padding-bottom: 0; }
+.af-b .af-logo{ height: 26px; object-position: left center; }
+.af-bv .af-rowb{ grid-template-columns: 134px minmax(0,1fr) auto; }
+.af-bv .af-t{ white-space: nowrap; }
+.af-bv .af-logo.af-vert{ height: 96px; margin: -24px 0; object-position: left center; }
+.af-logo.af-vert{ mix-blend-mode: multiply; }
+
+.pcf-mega .pcf-col li a{ font-size: 13px; font-weight: 400; }
+.pcf-mega .pcf-col li a{ transition: color .15s ease; }
+.pcf-mega .pcf-kpicol{ grid-column: span 2; }
+.pcf-kpis{ display: flex; justify-content: space-between;
+  margin: 0; padding: 0 26px 0 33px; }
+.pcf-kpis > div{ width: 0; white-space: nowrap; }
+.pcf-kpis > div{ display: flex; flex-direction: column-reverse; justify-content: flex-end; align-items: center;
+  text-align: center; gap: 6px; }
+.pcf-kpis dd{ margin: 0; font-family: var(--font-serif); font-weight: 500;
+  font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: var(--color-text);
+  font-variant-numeric: lining-nums proportional-nums; }
+.pcf-kpis .pcf-pm{ font-size: 22px; }
+.pcf-kpis > div:has(.pcf-pm){ transform: translateX(10px); }
+.pcf-kpis dt{ font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+  letter-spacing: .1em; padding-left: .1em; text-transform: uppercase; color: var(--color-text-subtle); }
+.pcf-mega[aria-label="Data & Insights"] .pcf-mega-in{ justify-content: normal;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr); }
+.pcf-latest li{ display: grid; align-content: start; min-height: 1lh; padding-top: 8px;
+  box-sizing: border-box; }
+.pcf-latest a{ display: inline; }
+.pcf-mega .pcf-notecol{ grid-column: span 2; }
+.pcf-affil .af-frame{ width: auto; padding: 0; }
+.pcf-affil .af-frame h4{ position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pcf-affil .af-rowb{ padding-left: 0; padding-right: 0; }
+.pcf-affil .af-logo{ justify-self: center; margin-left: auto; margin-right: auto; object-position: center; }
+.pcf-affil .af-bv .af-logo.af-vert, .pcf-affil .af-logo.af-vert{ object-position: center; }
+@media (max-width: 1279px){
+  .pcf-kpis{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; padding: 0; }
+  .pcf-kpis > div{ width: auto; }
+  .pcf-kpis > div:has(.pcf-pm){ transform: none; }
+  .pcf-kpis dd{ font-size: 32px; }
+  .pcf-kpis .pcf-pm{ font-size: 18px; }
+  .pcf-kpis dt{ font-size: 11px; }
+  .pcf-affil .af-b .af-rowb{ grid-template-columns: 134px minmax(0, 1fr); grid-template-rows: 1fr auto auto 1fr;
+    column-gap: 12px; row-gap: 10px; align-items: center; }
+  .pcf-affil .af-b .af-rowb .af-logo{ grid-row: 1 / span 4; }
+  .pcf-affil .af-b .af-t{ white-space: nowrap; font-size: 11.5px; grid-column: 2; grid-row: 2; }
+  .pcf-affil .af-b .af-go{ grid-column: 2; grid-row: 3; justify-self: center; }
+}
+@media (max-width: 1023px){
+  .pcf-affil .af-b .af-rowb{ grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto;
+    column-gap: 16px; row-gap: 0; padding-top: 14px; padding-bottom: 14px; }
+  .pcf-affil .af-b .af-rowb:last-child{ padding-bottom: 0; }
+  .pcf-affil .af-b .af-rowb .af-logo{ grid-column: 1; grid-row: 1; justify-self: center; }
+  .pcf-affil .af-b .af-t{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pcf-affil .af-b .af-go{ grid-column: 2; grid-row: 1; justify-self: end; }
+  .pcf-latest li:nth-child(n+5){ display: none; }
+  .pcf-mega .pcf-latest li a{ font-size: 12px; }
+}
+.sec-the-company .pcf-col:nth-child(1){ grid-column: 1; grid-row: 1; }
+.sec-the-company .pcf-col:nth-child(2){ grid-column: 2; grid-row: 1; }
+.sec-the-company .pcf-col:nth-child(3){ grid-column: 1 / -1; grid-row: 2; margin-top: var(--space-4); }
+.sec-the-company .pcf-col:nth-child(2) ul{ margin-top: 0; }
+@media (max-width: 899px){
+  .pcf-drawer-cols .pcf-kpicol,
+  .pcf-drawer-cols .pcf-badgecol,
+  .pcf-drawer-cols .pcf-notecol{ display: none; }
+  .sec-data-insights .pcf-drawer-cols{ grid-template-columns: minmax(130px, 1fr) minmax(0, 2.5fr); }
+  .sec-data-insights .pcf-col:nth-child(1){ grid-column: 1; grid-row: 1 / span 2; }
+  .sec-data-insights .pcf-col:nth-child(2){ grid-column: 2; grid-row: 1; }
+  .sec-data-insights .pcf-col:nth-child(3){ grid-column: 2; grid-row: 2; }
+  .sec-data-insights .pcf-latest li:nth-child(n+4){ display: none; }
+  .sec-data-insights .pcf-latest li{ padding-top: 0; }
+  .sec-data-insights .pcf-latest a{ font-size: 12px; }
+  .sec-what-we-do .pcf-drawer-cols{ display: block; column-count: 2; column-gap: var(--space-5); }
+  .sec-what-we-do .pcf-col{ break-inside: avoid; margin: 0 0 22px; }
+  .sec-what-we-do .pcf-col:nth-child(2){ break-after: column; }
+  .sec-what-we-do .pcf-col .pcf-svcblock{ margin-bottom: 14px; }
+  .sec-what-we-do .pcf-col .pcf-svc{ margin-bottom: 6px; padding-bottom: 0; border-bottom: 0; }
+  .sec-what-we-do .pcf-col .pcf-sublist{ margin-top: 0; gap: 5px; line-height: 1.3; }
+}
+@media (max-width: 639px){
+  .pcf-drawer-cols .pcf-latestcol{ display: none; }
+  .sec-data-insights .pcf-drawer-cols{ grid-template-columns: repeat(2, 1fr); }
+}
