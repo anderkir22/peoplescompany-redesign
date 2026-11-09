@@ -346,6 +346,12 @@
     .ea-sec--black .ea-duo-list li{ color: rgba(255,255,255,.86); }
     .ea-sec--black .ea-duo-list li::before{ border-color: var(--pc-blue); }
     .ea-duo-card .ea-eyebrow{ color: var(--pc-medium-blue); }
+    /* Live auction snapshot inside the Auction Results card. */
+    .ap-snap{ margin: var(--space-4) 0; padding: var(--space-5) var(--space-4); background: var(--pc-light-blue); border-radius: var(--radius-lg); text-align: center; }
+    .ap-snap-h{ margin: 0 0 var(--space-3); font-family: var(--font-sans); font-weight: 600; font-size: 16px; color: var(--pc-navy); }
+    .ap-snap-g{ display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin: 0; }
+    .ap-snap-g dt{ font-size: 14px; line-height: 1.3; color: var(--pc-black); }
+    .ap-snap-g dd{ margin: 2px 0 0; font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1.1; color: var(--pc-navy); }
     .ea-duo-card .ea-p{ color: var(--pc-black); }
     .ea-sec--black .ea-duo-card .ea-duo-list li{ color: var(--pc-black); }
     .ea-sec--black .ea-duo-card .ea-duo-list li::before{ border-color: var(--pc-medium-blue); }
@@ -487,6 +493,8 @@
     .ea-head--stack{ grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
     .ea-tiles--six{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .ea-tiles--six .ea-tile{ aspect-ratio: 4 / 3; }
+    /* Two lines reserved for each card's sentence, so the titles sit on one line across the row whether a sentence wraps or not. (The sentence is hidden at 1279 and below.) */
+    @media (min-width: 1280px){ .ea-tiles--six .ea-tile p{ min-height: calc(2em * 1.55); } }
     .ea-map{ margin: 0; }
     .ea-map img{ display: block; width: 100%; height: auto; border-radius: var(--radius-sm); }
     /* Placeholder for the team photo (Global AgInvesting). Replace with the real photo when it arrives. */
@@ -675,6 +683,12 @@
     .ap-type .ea-h3{ margin-top: 0; }
     .ap-type .btn{ align-self: flex-start; margin-top: auto; }
     .ap-type > .btn{ margin-top: var(--space-5); }
+    /* Staggered reveal: a longer, slower rise than the base .reveal; the right-hand cards trail the left by .2s (set inline as --rd). Reduced motion is handled by .reveal in pc.css. */
+    .ap-type.reveal{ transform: translateY(40px); transition: opacity .8s ease var(--rd, 0s), transform .8s cubic-bezier(.2,.7,.2,1) var(--rd, 0s), translate .25s ease, border-color .25s ease, box-shadow .25s ease; }
+    .ap-type.reveal.in{ transform: none; }
+    /* Hover lift, identical on all four cards: rises 2px (via `translate`, so it does not fight the reveal`s `transform`), border deepens to PC Medium Blue, soft navy shadow. */
+    .ap-type.reveal.in:hover{ translate: 0 -2px; border-color: var(--pc-medium-blue); box-shadow: 0 18px 40px rgba(7,22,44,.12); }
+    @media (prefers-reduced-motion: reduce){ .ap-type.reveal, .ap-type.reveal.in:hover{ opacity: 1; transform: none; translate: none; transition: none; } }
     .ap-when{ width: 100%; margin-top: var(--space-6); border-collapse: collapse; text-align: left; }
     .ap-when th, .ap-when td{ padding: var(--space-4) var(--space-5); vertical-align: top; text-align: left;
       border-top: 1px solid rgba(18,64,106,.22); }
@@ -815,25 +829,25 @@
     </section>
 
     <!-- SERVICE SUMMARY: four teasers under the hero. Names are plain text, not headings: each one is a real H3 in
-         "Types of Appraisals and Valuation Services" below, so they are not repeated as headings here. -->
+         "Types of Appraisals &amp; Valuation Services" below, so they are not repeated as headings here. -->
     <div class="ea-sec ea-sec--black" id="audience">
       <div class="ea-wrap reveal">
         <div class="ea-hold">
           <div class="hp-card">
-            <strong class="ea-hold-t">Comprehensive Property Appraisals</strong>
-            <p>Full appraisals of single agricultural properties, including partial interests.</p>
+            <strong class="ea-hold-t">Property Appraisals</strong>
+            <p>Appraisals for agricultural assets.</p>
           </div>
           <div class="hp-card">
-            <strong class="ea-hold-t">Portfolio &amp; Institutional Valuations</strong>
-            <p>Valuations and annual updates for expansive portfolios</p>
+            <strong class="ea-hold-t">Portfolio Valuations</strong>
+            <p>Valuations for expansive portfolios.</p>
           </div>
           <div class="hp-card">
             <strong class="ea-hold-t">Valuation Consulting</strong>
-            <p>Appraisal review, market analysis, and expert witness testimony.</p>
+            <p>Review, analysis, and testimony.</p>
           </div>
           <div class="hp-card">
-            <strong class="ea-hold-t">Restricted Appraisal Reports</strong>
-            <p>Concise quick-turn, single asset reports.</p>
+            <strong class="ea-hold-t">Restricted Appraisals</strong>
+            <p>Concise quick-turn valuations.</p>
           </div>
         </div>
       </div>
@@ -845,21 +859,37 @@
         <div>
           <p class="ea-eyebrow">Our Approach</p>
           <h2 class="ea-h2" id="ea-app-h" style="margin-bottom: var(--space-5);">Specialized Property Valuations</h2>
-          <p class="ea-p">Peoples Company employs a network of real estate appraisal professionals and consultants who are licensed in all the major agricultural markets. Our team uses current technology and a comprehensive, proprietary real estate sales database to stay on top of market trends.</p>
-          <p class="ea-p">The value of farmland is shaped by factors that a specialist understands well: soil productivity ratings, water rights, drainage infrastructure, regional market dynamics, the local tenant market, lease structures, crop insurance program coverage, and the production history of the ground itself. Our appraisers are in the field, tracking land sales, attending auctions, and building market and agronomic awareness to ensure they have the specialized knowledge to value agricultural assets.</p>
-        </div>
-        <div class="ea-duo ea-duo--wide" style="margin-top: var(--space-7);">
-          <div>
-            <h3 class="ea-h3">The Data Advantage</h3>
-            <p class="ea-p">Accurate appraisals begin with accurate data. Peoples Company’s appraisal team tracks active listings, pending sales, auction results, and sold properties across the major agricultural markets in the country. Through this effort, we have built a comprehensive proprietary farmland sales database.</p>
-            <p class="ea-p">That database is integrated with <strong>FarmWorth™</strong>, Peoples Company’s proprietary land analysis platform, which provides soil productivity data, historical returns, USDA benchmarks, and comparable sales analysis at the parcel level.</p>
-            <p class="ea-p">A team focused on agricultural markets, paired with technology built to analyze them, produces appraisals that are accurate and defensible. When a valuation is reviewed by an institutional compliance team or scrutinized by a lender’s underwriting department, the data behind it matters.</p>
-            <p class="ea-p">Our team also publishes regular market analyses and the annual National Land Values report, a widely cited source of farmland market intelligence. This ongoing research keeps our appraisers’ market knowledge current, so our valuations reflect today’s conditions.</p>
-          </div>
-          <div class="ea-duo-card reveal" style="--rd:.15s; margin-top: calc(28px * 1.2 + var(--space-4));">
-            <h3 class="ea-eyebrow">Auction Results</h3>
-            <p class="ea-p">Auction results are some of the best sales evidence available for land values. Peoples Company tracks land auction results across the Midwest to stay current on the state of the market. View auction results at the link below or create an account to subscribe to our monthly auction results and insights.</p>
-            <a class="btn btn-primary" href="./auction-results.html">View Auction Results</a>
+          <div class="ea-duo ea-duo--wide">
+            <div>
+            <p class="ea-p">Peoples Company employs a network of real estate appraisal professionals and consultants who are licensed in all the major agricultural markets. Our team uses current technology and a comprehensive, proprietary real estate sales database to stay on top of market trends.</p>
+            <p class="ea-p">The value of farmland is shaped by factors that a specialist understands well: soil productivity ratings, water rights, drainage infrastructure, regional market dynamics, the local tenant market, lease structures, crop insurance program coverage, and the production history of the ground itself. Our appraisers are in the field, tracking land sales, attending auctions, and building market and agronomic awareness to ensure they have the specialized knowledge to value agricultural assets.</p>
+            <div style="margin-top: var(--space-7);">
+              <h3 class="ea-h3">The Data Advantage</h3>
+              <p class="ea-p">Accurate appraisals begin with accurate data. Peoples Company’s appraisal team tracks active listings, pending sales, auction results, and sold properties across the major agricultural markets in the country. Through this effort, we have built a comprehensive proprietary farmland sales database.</p>
+              <p class="ea-p">That database is integrated with <strong>FarmWorth™</strong>, Peoples Company’s proprietary land analysis platform, which provides the following:</p>
+              <ul class="ea-p" style="padding-left: 1.25em;">
+                <li>soil productivity data</li>
+                <li>historical returns</li>
+                <li>USDA benchmarks</li>
+                <li>comparable sales analysis at the parcel level.</li>
+              </ul>
+              <p class="ea-p">A team focused on agricultural markets, paired with technology built to analyze them, produces appraisals that are accurate and defensible. When a valuation is reviewed by an institutional compliance team or scrutinized by a lender’s underwriting department, the data behind it matters.</p>            </div>
+            </div>
+            <div class="ea-duo-card reveal" style="--rd:.15s;">
+              <h3 class="ea-eyebrow">Auction Results</h3>
+              <p class="ea-p">Auction results are some of the best sales evidence available for land values. Peoples Company tracks land auction results across the Midwest to stay current on the state of the market. View auction results at the link below or create an account to subscribe to our monthly auction results and insights.</p>
+              <!-- SNAPSHOT: placeholder figures for a rolling 6-month window. The developer wires these to the same data that feeds auction-results.html. -->
+              <div class="ap-snap" id="ap-snap">
+                <p class="ap-snap-h">Last 6 months at a glance</p>
+                <dl class="ap-snap-g">
+                  <div><dt>Total Auctions</dt><dd>594</dd></div>
+                  <div><dt>Total Tracts</dt><dd>1,186</dd></div>
+                  <div><dt>Acres Offered</dt><dd>127,866<span style="font-size: 0.6em;" aria-label="plus or minus">&plusmn;</span></dd></div>
+                  <div><dt>Median $/Acre, Sold Tracts</dt><dd>$9,400</dd></div>
+                </dl>
+              </div>
+              <a class="btn btn-primary" style="display: flex; width: 100%; justify-content: center;" href="./auction-results.html">View Auction Results</a>
+            </div>
           </div>
         </div>
       </div>
@@ -883,7 +913,7 @@
               <td>Settling an estate, transferring farmland between generations, funding a trust, or establishing the value of agricultural land for probate all require a credible, defensible appraisal prepared by a qualified professional.</td>
             </tr>
             <tr>
-              <th scope="row">Purchase, Sale &amp; Listing</th>
+              <th scope="row">Purchase, Sale, &amp; Listing</th>
               <td>Before buying or selling farmland, a current, independent appraisal gives buyers a reliable benchmark for offers and gives sellers confidence that the asking price is grounded in market reality.</td>
             </tr>
             <tr>
@@ -924,13 +954,13 @@
     </section>
 
     <!-- TYPES OF APPRAISALS: four cards, 2 x 2. -->
-    <section class="ea-sec" id="types" aria-labelledby="ea-typ-h">
+    <section class="ea-sec ea-sec--soft" id="types" aria-labelledby="ea-typ-h">
       <div class="ea-wrap reveal">
-        <h2 class="ea-h2" id="ea-typ-h">Types of Appraisals and Valuation Services</h2>
+        <h2 class="ea-h2" id="ea-typ-h">Types of Appraisals &amp; Valuation Services</h2>
         <div class="ap-types">
-            <div class="ea-duo-card ap-type reveal">
+            <div class="ea-duo-card ap-type reveal" style="--rd:0s;">
               <h3 class="ea-h3">Comprehensive Property Appraisals</h3>
-              <p class="ea-p">A Comprehensive Property Appraisal is a full, USPAP-compliant report on a single farm, ranch, or agribusiness property, including partial interests such as easements, mineral or water rights, and undivided interests. It documents the market data, analysis, and reasoning behind the appraiser’s conclusion of value, so lenders, courts, and other third parties can rely on it. For transactions and proceedings where the value must stand up to scrutiny, it is the most thorough option.</p>
+              <p class="ea-p">A comprehensive property appraisal is a full, USPAP-compliant report on a single farm, ranch, or agribusiness property, including partial interests such as easements, mineral or water rights, and undivided interests. It documents the market data, analysis, and reasoning behind the appraiser’s conclusion of value, so lenders, courts, and other third parties can rely on it. For transactions and proceedings where the value must stand up to scrutiny, it is the most thorough option.</p>
               <ul class="ea-duo-list">
                 <li>Purchases, sales, and mortgage financing</li>
                 <li>Estate settlement, divorce, and equitable distribution</li>
@@ -938,9 +968,9 @@
                 <li>Eminent domain, condemnation, and litigation</li>
               </ul>
             </div>
-            <div class="ea-duo-card ap-type reveal">
+            <div class="ea-duo-card ap-type reveal" style="--rd:.2s;">
               <h3 class="ea-h3">Portfolio &amp; Institutional Valuations</h3>
-              <p class="ea-p">Portfolio &amp; Institutional Valuations cover multiple farmland properties valued consistently under a common set of standards, including NCREIF-compliant valuations. Peoples Company appraises the portfolio and refreshes values on a recurring schedule, so owners get comparable, defensible figures from one reporting period to the next. For investors who answer to partners, auditors, or compliance teams, consistent methodology and a documented data trail matter.</p>
+              <p class="ea-p">Portfolio and institutional valuations cover multiple farmland properties valued consistently under a common set of standards, including NCREIF-compliant valuations. Peoples Company appraises the portfolio and refreshes values on a recurring schedule, so owners get comparable, defensible figures from one reporting period to the next. For investors who answer to partners, auditors, or compliance teams, consistent methodology and a documented data trail matter.</p>
               <ul class="ea-duo-list">
                 <li>Institutional investors and asset managers reporting farmland performance</li>
                 <li>Family offices managing multi-property farmland holdings</li>
@@ -948,9 +978,9 @@
                 <li>Investor reporting, audit, and compliance requirements</li>
               </ul>
             </div>
-            <div class="ea-duo-card ap-type reveal">
-              <h3 class="ea-h3">Review, Consulting &amp; Expert Services</h3>
-              <p class="ea-p">Review, Consulting &amp; Expert Services support clients who need valuation guidance beyond a single appraisal report. Our appraisers review appraisals prepared by others, manage the appraisal process across multi-property assignments, analyze area-wide and statewide markets, provide economic consulting, and testify as expert witnesses. For clients who need an independent, qualified opinion on value or market conditions, our team will help define the right scope.</p>
+            <div class="ea-duo-card ap-type reveal" style="--rd:0s;">
+              <h3 class="ea-h3">Review, Consulting, &amp; Expert Services</h3>
+              <p class="ea-p">Review, consulting, and expert services support clients who need valuation guidance beyond a single appraisal report. Our appraisers review appraisals prepared by others, manage the appraisal process across multi-property assignments, analyze area-wide and statewide markets, provide economic consulting, and testify as expert witnesses. For clients who need an independent, qualified opinion on value or market conditions, our team will help define the right scope.</p>
               <ul class="ea-duo-list">
                 <li>Reviewing an existing appraisal for quality and compliance</li>
                 <li>Managing appraisal assignments across multiple properties or markets</li>
@@ -958,16 +988,15 @@
                 <li>Expert testimony in litigation, partnership disputes, and condemnation</li>
               </ul>
             </div>
-            <div class="ea-duo-card ap-type reveal">
+            <div class="ea-duo-card ap-type reveal" style="--rd:.2s;">
               <h3 class="ea-h3">Restricted Appraisal Reports: Order Online</h3>
-              <p class="ea-p">A Restricted Appraisal Report is a concise, USPAP-compliant report prepared for a single client who is the only intended user. It states the appraiser’s conclusion of value with limited discussion of the supporting data, while the full analysis is retained in the appraiser’s work file. For clients who know their property and need a reliable value opinion, it is an efficient, focused option.</p>
+              <p class="ea-p">A restricted appraisal report is a concise, USPAP-compliant report prepared for a single client who is the only intended user. It states the appraiser’s conclusion of value with limited discussion of the supporting data, while the full analysis is retained in the appraiser’s work file. For clients who know their property and need a reliable value opinion, it is an efficient, focused option.</p>
               <ul class="ea-duo-list">
                 <li>Estate and succession planning</li>
                 <li>Buy-or-sell decisions and negotiation planning</li>
                 <li>Internal asset valuation and portfolio monitoring</li>
                 <li>Annual value updates for properties previously appraised</li>
               </ul>
-              <p class="ea-p" style="margin-top: var(--space-5);">If the report will be shared with lenders, courts, or other third parties who need to see the supporting analysis, this report style may not meet those requirements. If you are not sure, contact us and we will help you choose the right format.</p>
                 <button class="btn btn-primary" type="button" aria-haspopup="dialog" data-order-open>Order Now</button>
             </div>
         </div>
@@ -982,7 +1011,7 @@
             <p class="ea-eyebrow">Full-Service Platform</p>
             <h2 class="ea-h2" id="ea-why-h">Valuation Backed by Every Peoples Company Service</h2>
           </div>
-          <p class="ea-p">Appraisal works alongside the full Peoples Company platform, so the value behind every decision comes from the same team that lists, manages, and finances the land.</p>
+          <p class="ea-p">An appraisal is often the start of farmland ownership, Peoples Company’s other services address additional client needs including ongoing management and property dispositions.</p>
         </div>
         <div class="ea-tiles ea-tiles--six">
           <a class="ea-tile reveal" href="./internal.html" style="--rd:.1s">
@@ -990,7 +1019,7 @@
             <span class="ea-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/auction26.jpg/f733fb2fe0b9015ea27ca1e8191eefe7.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <div class="ea-tile-body">
               <h3>Land Brokerage &amp; Auctions</h3>
-              <p>Valuations that inform listing strategy and auction reserves.</p>
+              <p>Valuations that inform listing strategy, auction reserves, and pricing for farmland sales.</p>
             </div>
           </a>
           <a class="ea-tile reveal" href="./internal.html" style="--rd:.2s">
