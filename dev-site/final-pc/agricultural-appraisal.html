@@ -19,10 +19,7 @@
        the header lockup and footer columns. -->
   <style>
     .internal-body{ background:#fff; }
-    /* AGRICULTURAL APPRAISAL: the service-page template (shared with corporate-services.html,
-       crop-insurance.html, capital-markets.html and energy-management.html). Photo hero, clients
-       row, approach, appraisal and property types, licensed appraisers,
-       affiliations, Full-Service Platform tiles, articles, Get Started. */
+    /* AGRICULTURAL APPRAISAL: the service-page template shared with the other service pages. */
     .ea-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
     .ea-sec{ padding: var(--space-9) 0; background: var(--pc-white); }
     .ea-sec--soft{ background: var(--pc-soft-white); }
@@ -80,6 +77,11 @@
     /* Two lines reserved whether the line wraps or not, so the PC Black band is the same height on
        every service page. */
     .ea-hold .hp-card p{ min-height: calc(3em * 1.35); }
+    /* 1024-1279: two of the four titles wrap, so every title reserves two lines and the
+       descriptions start on one shared line. */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .ea-hold .hp-card h3, .ea-hold .hp-card .ea-hold-t{ min-height: calc(2em * 1.15); }
+    }
 
     /* CTA BAR: hidden while the hero's buttons show; once they pass under the header a slim PC
        Black bar slides down from under it and stays to the end of the page. The script toggles
@@ -153,6 +155,16 @@
       border: 1px solid var(--color-border); box-shadow: 0 18px 48px rgba(7,22,44,.06); }
     /* Below 1024 the copy stacks over the form and the form takes the full card width. */
     @media (max-width: 1023px){ .ea-contact{ grid-template-columns: minmax(0, 1fr); gap: var(--space-6); } }
+    /* 1024-1279: same stack, and the full-width form runs two fields across (six rows). */
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .ea-contact{ grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+    }
+    /* 767 and below: the fields run one column. */
+    @media (max-width: 767px){
+      .ea-form .ea-c3{ grid-column: 1 / -1; }
+    }
+    /* Wherever the form stacks under the text (1279 and below) the heading is one line. */
+    @media (max-width: 1279px){ .ea-contact .ea-br{ display: none; } }
     .ea-form{ display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-4); }
     .ea-c2{ grid-column: span 2; }
     .ea-c6{ grid-column: 1 / -1; }
@@ -269,12 +281,9 @@
        H2, 16px body. */
     .ea-duo{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
     .ea-duo .ea-h2{ margin-bottom: var(--space-5); }
-    /* 900-1023: the columns are 7/3 with a 24px gutter, the card inset is 16 and the H2 is 34px,
-       so the service H2 holds one line. */
+    /* 900-1023: the card stacks under the text at full width (as below 900). */
     @media (min-width: 900px) and (max-width: 1023px){
-      .ea-duo.ea-duo--wide{ grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); column-gap: var(--space-5); }
-      .ea-duo--wide .ea-h2{ font-size: 34px; }
-      .ea-duo.ea-duo--wide .ea-duo-card{ padding: var(--space-4); }
+      .ea-duo.ea-duo--wide{ grid-template-columns: minmax(0, 1fr); row-gap: var(--space-6); }
     }
     /* Below 900 the partner card drops under the checklist at full width. */
     @media (max-width: 899px){
@@ -327,7 +336,6 @@
     .ea-duo-logolink:hover .ea-duo-logo, .ea-duo-logolink:focus-visible .ea-duo-logo{ transform: scale(1.1); }
     .ea-duo-logolink:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 4px; }
     @media (prefers-reduced-motion: reduce){ .ea-duo-logolink .ea-duo-logo{ transition: none; } }
-    /* Placeholder until the partner's logo arrives: a 1:1 box at the logo height. */
     .ea-duo-logo--ph{ display: grid; place-items: center; width: 56px; box-sizing: border-box;
       border: 1px dashed rgba(18,64,106,.4); border-radius: var(--radius-sm); background: var(--pc-soft-white);
       font: 600 10px/1 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
@@ -353,6 +361,18 @@
     .ap-snap-g{ display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin: 0; }
     .ap-snap-g dt{ font-size: 14px; line-height: 1.3; color: var(--pc-black); }
     .ap-snap-g dd{ margin: 2px 0 0; font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1.1; color: var(--pc-navy); }
+    /* 899 and below: the four figures go 2 x 2. */
+    @media (max-width: 899px){
+      .ap-snap-g{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5) var(--space-4); }
+    }
+    /* 479 and below: the four figures stack in one column. */
+    @media (max-width: 479px){
+      .ap-snap-g{ grid-template-columns: minmax(0, 1fr); }
+    }
+    /* 900-1023: the four figures run one row. */
+    @media (min-width: 900px) and (max-width: 1023px){
+      .ap-snap-g{ grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+    }
     .ea-duo-card .ea-p{ color: var(--pc-black); }
     .ea-sec--black .ea-duo-card .ea-duo-list li{ color: var(--pc-black); }
     .ea-sec--black .ea-duo-card .ea-duo-list li::before{ border-color: var(--pc-medium-blue); }
@@ -488,22 +508,13 @@
     .ea-link:hover{ color: var(--pc-navy); }
     .ea-c3{ grid-column: span 3; }
 
-    /* CORPORATE SERVICES: six service tiles run three across (two rows). The licensing map sits in the
-       partner-card frame. */
+    /* SIX-TILE PLATFORM: six service tiles run three across (two rows). */
     /* Platform header: the H2 full width, the paragraph full width beneath it. */
     .ea-head--stack{ grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
     .ea-tiles--six{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .ea-tiles--six .ea-tile{ aspect-ratio: 4 / 3; }
     /* Two lines reserved for each card's sentence, so the titles sit on one line across the row whether a sentence wraps or not. (The sentence is hidden at 1279 and below.) */
     @media (min-width: 1280px){ .ea-tiles--six .ea-tile p{ min-height: calc(2em * 1.55); } }
-    .ea-map{ margin: 0; }
-    .ea-map img{ display: block; width: 100%; height: auto; border-radius: var(--radius-sm); }
-    /* Placeholder for the team photo (Global AgInvesting). Replace with the real photo when it arrives. */
-    .ea-map-ph{ display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2);
-      width: 100%; aspect-ratio: 4 / 3; background: var(--pc-light-blue); border-radius: var(--radius-sm); text-align: center; }
-    .ea-map-ph span{ font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
-    .ea-map-ph strong{ font-family: var(--font-serif); font-weight: 500; font-size: 28px; line-height: 1.15; color: var(--pc-black); }
-    @media (min-width: 900px) and (max-width: 1279px){ .ea-duo--int .ea-duo-card.ea-map{ grid-row: 2 / span 2; } }
     @media (max-width: 639px){ .ea-tiles--six .ea-tile{ aspect-ratio: auto; } }
     @media (max-width: 399px){ .ea-c3{ grid-column: 1 / -1; } }
     /* Site-wide small-width type scale; kept last so it wins */
@@ -511,6 +522,8 @@
       .ca-title{ font-size: 26px; line-height: 1.18; }
       .ea-hero h1{ font-size: 34px; line-height: 1.12; }
       .ea-h2, .ea-blog-h{ font-size: 26px; line-height: 1.18; }
+      /* Subheads step down with the H2 so they never outsize it. */
+      .ea-h3{ font-size: 20px; line-height: 1.2; }
       .ea-p, .ea-lead, .ea-duo-list li{ font-size: 15px; line-height: 1.6; }
       .ea-p{ margin-bottom: var(--space-4); }
       /* Clients row: type steps down so each heading holds one line. */
@@ -521,7 +534,7 @@
       /* Full-Service Platform: names step down to 15px over the photo. */
       .ea-tile h3{ font-size: 15px; line-height: 1.2; }
       .ea-tile-body{ padding: var(--space-3); }
-      /* Get Started: the six fields go two across, three rows. */
+      /* Get Started: the form fields run one column at 767 and below (see .ea-form .ea-c3 above). */
       .ea-c2{ grid-column: span 3; }
       /* Sticky CTA bar: one line. The name loses its dash; type, gaps and button tighten. */
       .ea-cta-in{ gap: var(--space-3); }
@@ -530,6 +543,10 @@
       .ea-cta-go{ gap: var(--space-3); }
       .ea-cta-watch{ white-space: nowrap; font-size: 13px; gap: 6px; }
       .ea-cta .btn{ white-space: nowrap; padding: 9px 14px; font-size: 13px; }
+    }
+    /* 768-899: the bar holds one line; nothing in it wraps. */
+    @media (min-width: 768px) and (max-width: 899px){
+      .ea-cta-name, .ea-cta-watch, .ea-cta .btn{ white-space: nowrap; }
     }
     /* Below 640 the bar drops the service name (kept for screen readers): Watch the Video left,
        the button right, full width. */
@@ -593,9 +610,8 @@
       .ea-tile-ic .hp-svcimg{ width: 27px; height: 27px; display: block; object-fit: contain; }
       .ea-tile-body{ position: static; flex: 1; min-width: 0; padding: 0; }
     }
-    /* 399 and below: the clients row stacks, the form is one column and the sticky bar stacks. */
+    /* 399 and below: the clients row stacks and the sticky bar stacks. */
     @media (max-width: 399px){
-      /* Get Started: one column of fields. */
       .ea-c2{ grid-column: 1 / -1; }
       /* Clients row: three stacked, each its own line under the PC Blue rule. */
       .ea-hold{ grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
@@ -615,7 +631,7 @@
       .ca-title{ font-size: 24px; }
       .ca-intro, .ca-switch{ font-size: 14px; }
     }
-    /* APPRAISAL-ONLY: market cards, the two checklists, the licensing map. */
+    /* APPRAISAL-ONLY: check-mark list, columns and market cards. */
     /* Check-mark list (Data Advantage). Mark is PC Medium Blue (5.5:1 on white), decorative only. */
     .ap-checks{ list-style: none; padding-left: 0; margin-left: 0; }
     .ap-checks li{ position: relative; padding-left: 1.75em; }
@@ -642,7 +658,6 @@
     .ap-flow--2{ column-count: 2; }
     .ap-flow--3{ column-count: 3; }
     .ap-flow li{ break-inside: avoid; }
-    #licensed[hidden]{ display: none; }
     /* PROFESSIONAL AFFILIATIONS */
     #affiliations .ea-h2{ margin-bottom: var(--space-5); }
     .af-logo{ display: block; height: 100px; width: auto; }
@@ -710,42 +725,38 @@
     .ap-when td{ font-size: var(--body); line-height: 1.7; color: var(--pc-black); }
     .ap-photo{ margin: 0; }
     .ap-photo img{ display: block; width: 100%; height: 100%; min-height: 320px; object-fit: cover; }
-    .ap-lic-map .ea-map-ph{ aspect-ratio: 16 / 10; }
     .ap-aff strong{ display: block; font-weight: 600; color: var(--pc-black); }
     @media (max-width: 1279px){ .ap-cols{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 899px){ .ap-mkts{ grid-template-columns: minmax(0, 1fr); } }
     @media (max-width: 639px){ .ap-cols, .ap-cols--2{ grid-template-columns: minmax(0, 1fr); } .ap-mkt.ea-duo-card{ padding: var(--space-5); } }
 
-    /* LICENSING: interactive US map. Licensed states are PC Blue and respond; the rest are a quiet tint. */
-    .ap2-mapdir{ display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-7); align-items: start; }
-    .ap2-svg{ display: block; width: 100%; height: auto; }
-    .ap2-svg path{ fill: var(--pc-soft-white); stroke: var(--pc-navy); stroke-width: 1; stroke-linejoin: round; }
-    .ap2-svg path.ap2-lic{ fill: var(--pc-blue); cursor: pointer; transition: fill .15s ease; }
-    /* is-on is set by the script: the pinned state if there is one, otherwise the hovered or focused state. */
-    .ap2-svg path.ap2-lic.is-on{ fill: var(--pc-medium-blue); }
-    .ap2-svg path.ap2-lic:focus{ outline: none; }
-    .ap2-svg path.ap2-lic:focus-visible{ stroke: var(--pc-black); stroke-width: 2; }
-    .ap2-mapkey{ display: flex; flex-wrap: wrap; gap: var(--space-5); margin: var(--space-4) 0 0; padding: 0; list-style: none; font-size: 14px; color: var(--pc-black); }
-    .ap2-mapkey li{ display: inline-flex; align-items: center; gap: var(--space-2); }
-    .ap2-sw{ width: 14px; height: 14px; border-radius: 3px; background: var(--pc-blue); }
-    .ap2-sw--off{ background: var(--pc-soft-white); border: 1px solid var(--pc-navy); }
-    /* Fixed height, sized for four rows of two (8 names) so the box never changes size between states:
-       border 2 + padding 64 + title 40 + gap 4 + count 22 + gap 24 + 4 x 48 rows + 3 x 16 gaps = 396px. */
-    .ap2-mpanel{ height: calc(2px + var(--space-6) * 2 + 40px + var(--space-1) + 22px + var(--space-5) + 4 * 48px + 3 * var(--space-4)); overflow-y: auto; padding: var(--space-6); background: var(--pc-navy); color: var(--pc-white); border-radius: var(--radius-sm); }
-    .ap2-mpanel h3{ margin: 0 0 var(--space-1); font-family: var(--font-serif); font-weight: 500; font-size: 36px; line-height: 40px; color: var(--pc-white); }
-    .ap2-mpanel .ap2-n{ margin: 0 0 var(--space-5); font-size: 14px; line-height: 22px; color: rgba(255,255,255,.86); }
-    .ap2-mpanel .ap2-hint{ margin: 0; font-size: 17px; line-height: 1.6; color: rgba(255,255,255,.9); }
-    .ap2-mpanel .ap2-hint2{ margin-top: var(--space-5); padding-top: var(--space-5); border-top: 1px solid rgba(255,255,255,.22); font-size: 15px; }
-    .ap2-mlist{ margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4) var(--space-4); }
-    .ap2-mlist li{ display: flex; align-items: center; gap: var(--space-3); }
-    .ap2-av{ position: relative; flex: none; width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,.12);
-      display: flex; align-items: center; justify-content: center; font-family: var(--font-serif); font-size: 18px; color: var(--pc-light-blue); }
-    .ap2-av img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .ap2-mlist a{ font-family: var(--font-serif); font-size: 16px; line-height: 1.25; color: var(--pc-white); text-decoration: none; }
-    .ap2-mlist a:hover{ color: var(--pc-light-blue); text-decoration: underline; text-underline-offset: 4px; }
-    .ap2-mlist a:focus-visible{ outline: 2px solid var(--pc-light-blue); outline-offset: 2px; border-radius: 2px; }
-    @media (max-width: 1023px){ .ap2-mapdir{ grid-template-columns: minmax(0, 1fr); } }
-    @media (max-width: 479px){ .ap2-mlist{ grid-template-columns: minmax(0, 1fr); } .ap2-mpanel{ height: auto; min-height: 340px; } }
+    /* RESPONSIVE LADDER, appraisal-only elements. Kept last so they win; each query is max-width only. */
+    /* 899 and below: the four service teasers go two across, the appraisal-type cards one column. */
+    @media (max-width: 899px){
+      .ea-hold{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); }
+      .ap-types{ grid-template-columns: minmax(0, 1fr); }
+    }
+    /* 767 and below: card headings (H3, 20px) and the table's row heads step down with the type scale. */
+    @media (max-width: 767px){
+      .ap-type .ea-h3{ font-size: 20px; line-height: 1.2; }
+      .ap-when tbody th{ font-size: 18px; }
+      .ap-when th, .ap-when td{ padding: var(--space-4) var(--space-4); }
+      .ap-when td{ font-size: 15px; line-height: 1.6; }
+    }
+    /* 639 and below: the When table stacks, each situation a heading over its explanation. */
+    @media (max-width: 639px){
+      .ap-when thead{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+        clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+      .ap-when, .ap-when tbody, .ap-when tr, .ap-when th, .ap-when td{ display: block; width: 100%; box-sizing: border-box; }
+      .ap-when tbody th{ width: 100%; padding: var(--space-5) 0 var(--space-2); border-top: 1px solid rgba(18,64,106,.22); }
+      .ap-when tbody tr:first-child th{ border-top: 0; padding-top: 0; }
+      .ap-when td{ padding: 0 0 var(--space-2); border-top: 0; }
+    }
+    /* 399 and below: the teasers stack (the crop-insurance clients rule) and the snapshot figures tighten. */
+    @media (max-width: 399px){
+      .ea-hold{ grid-template-columns: minmax(0, 1fr); }
+      .ap-snap-g dd{ font-size: 30px; }
+    }
   </style>
 </head>
 
@@ -889,14 +900,14 @@
             <div class="ea-duo-card reveal" style="--rd:.15s;">
               <h3 class="ea-eyebrow">Auction Results</h3>
               <p class="ea-p">Auction results are some of the best sales evidence available for land values. Peoples Company tracks land auction results across the Midwest to stay current on the state of the market. View auction results at the link below or create an account to subscribe to our monthly auction results and insights.</p>
-              <!-- SNAPSHOT: placeholder figures for a rolling 6-month window. The developer wires these to the same data that feeds auction-results.html. -->
+              <!-- SNAPSHOT: a rolling 6-month window. Wire to the same data as auction-results.html. -->
               <div class="ap-snap" id="ap-snap">
                 <p class="ap-snap-h">Last 6 months at a glance</p>
                 <dl class="ap-snap-g">
                   <div><dt>Total Auctions</dt><dd>594</dd></div>
                   <div><dt>Total Tracts</dt><dd>1,186</dd></div>
                   <div><dt>Acres Offered</dt><dd>127,866<span style="font-size: 0.6em;" aria-label="plus or minus">&plusmn;</span></dd></div>
-                  <div><dt>Median $/Acre, Sold Tracts</dt><dd>$9,400</dd></div>
+                  <div><dt>Median $/Acre</dt><dd>$9,400</dd></div>
                 </dl>
               </div>
               <a class="btn btn-primary" style="display: flex; width: 100%; justify-content: center;" href="./auction-results.html">View Auction Results</a>
@@ -1122,7 +1133,7 @@
         <div class="ea-contact">
           <div>
             <p class="ea-eyebrow">Getting Started</p>
-            <h2 class="ea-h2" id="ea-go-h">Connect with a<br><em>land valuation expert.</em></h2>
+            <h2 class="ea-h2" id="ea-go-h">Connect with a <br class="ea-br"><em>land valuation expert.</em></h2>
             <p class="ea-p" style="margin-top:var(--space-5)">Fill out the form to request a bid or communicate with a Peoples Company appraiser.</p>
           </div>
           <form class="ea-form" action="#" onsubmit="return false;" aria-labelledby="ea-go-h">
@@ -1504,8 +1515,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@vimeo/player@2.20.1/dist/player.min.js"></script>
   <script>
-    // Mega-menu nav built from the real IA. "The Company" panel carries three
-    // affiliation badges on the right (this tab only).
+    // Mega-menu nav. "The Company" panel carries three affiliation badges on the right.
     (function(){
       var IAA_SVG = '<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.6"/><ellipse cx="32" cy="26" rx="6" ry="14" fill="none" stroke="currentColor" stroke-width="1.1"/><line x1="18" y1="26" x2="46" y2="26" stroke="currentColor" stroke-width="1.1"/><path d="M20 19 Q32 23 44 19" fill="none" stroke="currentColor" stroke-width="1"/><path d="M20 33 Q32 29 44 33" fill="none" stroke="currentColor" stroke-width="1"/><path d="M32 45 C24 43 18 47 15 55 C24 55 30 52 32 45Z" fill="currentColor"/><path d="M32 45 C40 43 46 47 49 55 C40 55 34 52 32 45Z" fill="currentColor"/><line x1="32" y1="43" x2="32" y2="55" stroke="currentColor" stroke-width="1.3"/></svg>';
       var EXPO_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5"/><circle cx="12" cy="10" r="2.6"/><path d="M7.5 19c0-2.5 2-4.4 4.5-4.4s4.5 1.9 4.5 4.4"/><path d="M4.5 8l2 1M19.5 8l-2 1"/></svg>';
@@ -1562,7 +1572,7 @@
         var emb;
         if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="./internal.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
         if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="./internal.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
-        // american farmland owner — real horizontal logo (assets/afo.png)
+        // American Farmland Owner: horizontal logo (assets/afo.png)
         return '<a class="pcf-badge pcf-badge-logo afo" href="./internal.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
       }
       function colHTML(c){
@@ -1809,9 +1819,7 @@
       });
     })();
 
-    // Insights & Research — tabbed, varied-tile grid. Content model: Blog = 16:9
-    // photo + headline + teaser + date; Insights = digital documents, cover
-    // art 850x1100 portrait, often no date. Themed via the .io-scope vars.
+    // Insights & Research: tabbed grid (Blog 16:9 photo cards; Insights portrait covers). Themed via the .io-scope vars.
     (function(){
       function hrow(title, date){
         return '<a class="io-hrow" href="./internal.html"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
@@ -1872,8 +1880,7 @@
         });
       }
 
-      // Industry Research — horizontal 16:9 cards (no portrait cover, no
-      // "Report · PDF" tag), then a "More research" headline stack.
+      // Industry Research: horizontal 16:9 cards, then a "More research" headline stack.
       function researchCard(x){
         return '<a class="io-card" href="./internal.html">'+
           '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
@@ -1898,7 +1905,7 @@
         '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
     })();
 
-    // // Video: theater mode with the PC control bar.
+    // Video: theater mode with the PC control bar.
     (function(){
       var dlg = document.getElementById("ea-theater");
       var opens = document.querySelectorAll("[data-theater-open]");
@@ -1906,7 +1913,7 @@
       var VID = dlg.getAttribute("data-vimeo");
       var TITLE = "Agricultural Appraisal at Peoples Company";
       var LEN = 181;
-      // Sample chapter times: the real ones come from the video.
+      // Chapter markers.
       var CHAPTERS = [
         { t: 0, l: "Agricultural Appraisal" }
       ];
@@ -2098,7 +2105,7 @@
       });
     })();
 
-    // Scroll-reveal (must-have) — reduced-motion safe
+    // Scroll-reveal; reduced-motion safe
     (function(){
       var els = document.querySelectorAll(".reveal");
       var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2134,11 +2141,7 @@
       if(x){ x.addEventListener("click", minimize); }
       if(reopen){ reopen.addEventListener("click", restore); }
 
-      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
-         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
-         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
-         never auto-restores, so once the visitor opens the handle it stays open, and a
-         toast never pops itself back open mid-resize. */
+      /* Start minimized at <=1279px, where the card would cover the footer's right-hand columns. Auto-minimize only: it never reopens itself. */
       var TOAST_NARROW = 1279, userChose = false;
       function narrowCheck(){
         if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }

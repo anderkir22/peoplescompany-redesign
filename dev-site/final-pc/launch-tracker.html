@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launch Tracker</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Palette and fonts come from the shared stylesheet; nothing here defines a color of its own. -->
+  <link href="pc.css" rel="stylesheet" />
+
+  <style>
+    /* LAUNCH TRACKER: an internal, deliberately plain page laid out like a spreadsheet. No site header or footer.
+       STATUS and PRIORITY colors use only the style-guide palette, so each value is told apart by three things at
+       once: the fill, an icon, and the written label. Color is never the only signal. Statuses run light to dark as
+       work moves toward launch. */
+    body{ margin: 0; background: var(--pc-white); color: var(--pc-black); font-family: var(--font-sans); }
+    .lt{ max-width: 1700px; margin: 0 auto; padding: var(--space-6) var(--space-5) var(--space-8); }
+    .lt h1{ margin: 0 0 var(--space-2); font-family: var(--font-serif); font-weight: 500; font-size: 40px; line-height: 1.1; color: var(--pc-black); }
+    .lt-sub{ margin: 0 0 var(--space-4); font-size: 15px; line-height: 1.5; }
+
+    /* badges */
+    .lt-badge{ display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border: 1px solid var(--pc-navy);
+      border-radius: var(--radius-pill); font-size: 12.5px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+    .lt-badge i{ font-style: normal; font-size: 12px; line-height: 1; }
+    .st-not-started{    background: var(--pc-white);       color: var(--pc-navy); }
+    .st-in-process{     background: var(--pc-light-blue);  color: var(--pc-navy); }
+    .st-approved{       background: var(--pc-medium-blue); color: var(--pc-white); border-color: var(--pc-medium-blue); }
+    .st-submitted{      background: var(--pc-navy);        color: var(--pc-white); }
+    .st-live-on-preview{ background: var(--pc-black);      color: var(--pc-white); border-color: var(--pc-black); }
+    .lt-badge.pr{ border-radius: var(--radius-sm); }
+    .pr-high{   background: var(--pc-black);       color: var(--pc-white); border-color: var(--pc-black); }
+    .pr-medium{ background: var(--pc-medium-blue); color: var(--pc-white); border-color: var(--pc-medium-blue); }
+    .pr-low{    background: var(--pc-soft-white);  color: var(--pc-navy); }
+
+    .lt-bar{ display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin: 0 0 var(--space-3); font-size: 14px; }
+    .lt-count{ margin: 0; font-weight: 600; }
+    .lt-clear{ font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; color: var(--pc-navy); background: var(--pc-white);
+      border: 1px solid var(--pc-navy); border-radius: var(--radius-pill); cursor: pointer; }
+    .lt-clear:hover{ background: var(--pc-light-blue); }
+    .lt-clear:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    /* the grid */
+    .lt-wrap{ }
+    .lt-table{ width: 100%; min-width: 1180px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    .lt-table th, .lt-table td{ padding: 8px 10px; text-align: left; vertical-align: top; font-size: 14px; line-height: 1.45;
+      border-bottom: 1px solid rgba(18,64,106,.22); }
+    .lt-table tbody tr:nth-child(even) td{ background: var(--pc-soft-white); }
+    .lt-table tbody tr:hover td{ background: var(--pc-light-blue); }
+    .lt-table thead th{ position: sticky; z-index: 2; background: var(--pc-navy); color: var(--pc-white); }
+    .lt-table thead tr.lt-h th{ top: 0; height: 40px; padding: 0; border-bottom-color: rgba(255,255,255,.25); }
+    .lt-table thead tr.lt-f th{ top: 40px; padding: 6px; background: var(--pc-light-blue); border-bottom: 2px solid var(--pc-navy); }
+    .lt-sort{ display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; height: 40px; padding: 0 10px;
+      font: inherit; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; text-align: left;
+      color: inherit; background: transparent; border: 0; cursor: pointer; }
+    .lt-sort:hover{ background: rgba(255,255,255,.12); }
+    .lt-sort:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: -3px; }
+    .lt-arrow{ font-size: 11px; letter-spacing: 0; }
+    .lt-f input, .lt-f select{ width: 100%; box-sizing: border-box; font: 400 13px/1.3 var(--font-sans); padding: 6px 8px;
+      color: var(--pc-black); background: var(--pc-white); border: 1px solid rgba(18,64,106,.45); border-radius: var(--radius-sm); }
+    .lt-f input:focus, .lt-f select:focus{ outline: none; border-color: var(--pc-navy); box-shadow: 0 0 0 3px var(--pc-white); }
+    .lt-pg{ font-weight: 600; }
+    .lt-url{ font-size: 13px; word-break: break-all; }
+    .lt-empty{ padding: var(--space-6) 0; font-size: 15px; }
+    .lt-table .c-page{ width: 17%; } .lt-table .c-url{ width: 14%; } .lt-table .c-pst{ width: 150px; }
+    .lt-table .c-nst{ width: 150px; } .lt-table .c-pri{ width: 110px; } .lt-table .c-cmp{ width: 112px; }
+    .lt-done{ display: inline-block; font-size: 18px; font-weight: 700; line-height: 1; color: var(--pc-navy); }
+    .lt-table td.c-cmp, .lt-table td.c-pst{ text-align: center; }
+    .lt-table thead th.c-cmp .lt-sort, .lt-table thead th.c-pst .lt-sort{ justify-content: center; }
+  </style>
+</head>
+<body>
+  <main class="lt" id="top">
+    <h1>Launch Tracker</h1>
+    <p class="lt-sub">Every page and every open task. Select a column heading to sort, and use the boxes under the headings to filter.</p>
+
+    <noscript><p>This page needs JavaScript to show the list.</p></noscript>
+
+    <div class="lt-bar">
+      <p class="lt-count" id="lt-count" role="status" aria-live="polite"></p>
+      <button class="lt-clear" id="lt-clear" type="button">Clear sort and filters</button>
+    </div>
+
+    <div id="lt-list"></div>
+  </main>
+
+  <script>
+  /* ======================================================================================================
+     HOW TO ADD OR CHANGE A PAGE OR TASK
+     Everything on the page is drawn from the DATA list below. Add a block, change a value, save.
+
+       { name: "Page name", url: "/page-url", tasks: [
+         "A task with no extras",
+         { text: "A task with its own status and priority", status: "in-process", priority: "high" }
+       ]},
+
+     name      the page's common name.
+     url       optional. The page's address. Leave "" if it has none yet.
+     status    optional, and only ever "live-on-preview". It marks a finished page: its row gets the On Preview and
+               Complete check marks. No other page-level status is read or shown; task statuses live on the tasks.
+     tasks     optional. Each task is one row of its own. A task is plain text, or { text, status, priority }.
+               A plain-text task starts as Not Started with no priority. A page with no tasks still shows one row.
+     priority  optional, on a task. One of: high, medium, low (the PRIORITIES list below).
+     onPreview optional, on a task. true puts a check mark in the On Preview column for that task.
+     complete  optional. true puts a check mark in the Complete column. Set it on the page when the page has no tasks,
+               or on a task as { text: "...", complete: true }.
+
+     To add a new kind of status or priority, add it to STATUSES or PRIORITIES and give it a matching .st-... or .pr-...
+     rule in the styles above.
+     ====================================================================================================== */
+  var STATUSES = {
+    "not-started":     { label: "Not Started",     icon: "○" },
+    "in-process":      { label: "In Process",      icon: "◐" },
+    "approved":        { label: "Approved",        icon: "✓" },
+    "submitted":       { label: "Submitted",       icon: "▲" },
+    "live-on-preview": { label: "Live on Preview", icon: "●" }
+  };
+  var PRIORITIES = {
+    "high":   { label: "High",   icon: "▲" },
+    "medium": { label: "Medium", icon: "■" },
+    "low":    { label: "Low",    icon: "▼" }
+  };
+
+  var DATA = [
+    { name: "Homepage", url: "peoplescompany.com", status: "live-on-preview", tasks: [
+      "Update look to match service pages",
+      "Change Farmland Valuations Annually to 3B+",
+      "Do something to spice up the Who We Serve section",
+      "Change button on FarmWorth section to Discover FarmWorth",
+      "Create a video/demo for FarmWorth section",
+      "Remove regional map. Let's have this section have the connect with a land professional and then add another box for the careers page.",
+      "Adjust whitepaper images so they fit the container, with no blue on the sides"
+    ]},
+    { name: "Traditional Search", url: "/real-estate", status: "live-on-preview", tasks: [] },
+    { name: "AI Search", url: "/real-estate/ai-search", tasks: [
+      "When will this page go live?"
+    ]},
+    { name: "Individual Listing Page", url: "", status: "live-on-preview", tasks: [] },
+    { name: "Our Team", url: "/team", status: "live-on-preview", tasks: [
+      "Need to think through the State filter because we will want people to come up even if they do not have a RE license.",
+      "Do we have the licenses uploaded and formatted for each person?",
+      "Quality control the licenses: see Bryan Berdale with a license in his bio. Also Tyler Weaver."
+    ]},
+    { name: "Individual Team Page", url: "", status: "live-on-preview", tasks: [
+      "Remove Instagram and LinkedIn icons. Add icon for downloading resume.",
+      "There are random categories showing up (boards, publications, references, experience, etc.) that were not in the requirements. I would like to eliminate them.",
+      "Add a little cushion between the blue container and the Bio header",
+      "Make the stat lines in the bio PC Medium Blue and get rid of the PC Blue bullets (only use PC Blue on dark backgrounds)"
+    ]},
+    { name: "Blog", url: "/blog", status: "live-on-preview", tasks: [
+      "Rename Growing Together to Riding for the Brand, if we want to update the blog categories"
+    ]},
+    { name: "Individual Blog Page", url: "", status: "live-on-preview", tasks: [] },
+    { name: "Contact", url: "/contact", status: "live-on-preview", tasks: [
+      "Picture for Corporate Office needs to be updated to the best images that we have of the office.",
+      "Reorder the social icons to be LinkedIn, YouTube, Facebook, Twitter (remove Instagram).",
+      "Replace the old team picture with a great picture of the new office",
+      "Remove the automation on offices so they are not clickable, since we eliminated the regional pages",
+      "Update the format of addresses to match brand standards"
+    ]},
+    { name: "Search", url: "/search", status: "live-on-preview", complete: true, tasks: [] },
+    { name: "Forgot Password", url: "/auth/forgot-password", status: "live-on-preview", complete: true, tasks: [] },
+    { name: "Login", url: "/auth/login", status: "live-on-preview", complete: true, tasks: [] },
+    { name: "Create an Account", url: "/auth/create-an-account", status: "live-on-preview", complete: true, tasks: [] },
+    { name: "Disclaimer", url: "/disclaimer", status: "live-on-preview", complete: true, tasks: [] },
+    { name: "Privacy Policy", url: "/privacy-policy", status: "live-on-preview", complete: true, tasks: [] },
+    { name: "Equal Opportunity", url: "/equal-opportunity", status: "live-on-preview", complete: true, tasks: [] },
+    { name: "About (Overview)", url: "/about", status: "live-on-preview", tasks: [
+      "Update imagery",
+      "Need better pictures for The PC Difference",
+      "Do we make this page more like the service pages, with the Watch the Video button?"
+    ]},
+    { name: "Culture", url: "/culture", status: "live-on-preview", tasks: [
+      "Update imagery",
+      "Need a picture to replace the office picture (it needs to have people) and one for Forging a Legacy"
+    ]},
+    { name: "Job Description", url: "", status: "live-on-preview", tasks: [
+      "Get qualifications and expectations added to job descriptions"
+    ]},
+    { name: "Careers", url: "/careers", status: "live-on-preview", tasks: [
+      "Update imagery",
+      "Need 3 new pictures with people",
+      "We could update Growing Together to Riding for the Brand here as well"
+    ]},
+    { name: "Industry Research", url: "/industry-research", status: "live-on-preview", tasks: [
+      "Update text in right rail",
+      "Get the copy updated for NLV",
+      "Get the images fitting correctly",
+      "Do you think we should eliminate the teaser text?"
+    ]},
+    { name: "National Land Values", url: "/national-land-values", status: "live-on-preview", tasks: [
+      "Missing lead paragraph text",
+      "Replace the Corn Belt picture with a picture of corn or soybeans"
+    ]},
+    { name: "Newsletters", url: "/newsletters", status: "live-on-preview", tasks: [
+      "Remove and redirect to the blog (redirect /newsletter to the blog)"
+    ]},
+    { name: "Land Investment Expo", url: "/land-investment-expo", status: "live-on-preview", tasks: [] },
+    { name: "American Farmland Owner", url: "/american-farmland-owner", status: "live-on-preview", tasks: [] },
+    { name: "International Ag Alliance", url: "/international-ag-alliance", status: "live-on-preview", tasks: [] },
+    { name: "Industry Recognition", url: "/industry-recognition", tasks: [{ text: "Build page", status: "in-process" }] },
+    { name: "Energy Management", url: "/energy-management", status: "live-on-preview", tasks: [
+      "Finalize Lease Gen logo & division pictures"
+    ]},
+    { name: "Crop Insurance", url: "/crop-insurance", status: "live-on-preview", tasks: [
+      "Finalize division pictures & missing graphic"
+    ]},
+    { name: "Corporate Services", url: "/corporate-services", tasks: [{ text: "Build page", status: "in-process" }] },
+    { name: "Capital Markets", url: "/capital-markets", tasks: [
+      { text: "Build page", status: "in-process" },
+      "Set up the Capital Markets data room"
+    ]},
+    { name: "Operators", url: "/farm-operators", tasks: [{ text: "Build page", status: "in-process" }] },
+    { name: "Agricultural Appraisal", url: "/agricultural-appraisal", tasks: [{ text: "Build page", status: "approved" }] },
+    { name: "Order an Appraisal", url: "", tasks: ["Build page"] },
+    { name: "Auction Results", url: "/auction-results", status: "live-on-preview", tasks: [] },
+    { name: "Upcoming Auctions", url: "/real-estate/auctions", tasks: ["Build page"] },
+    { name: "Industry Collaboration", url: "/industry-collaboration", tasks: ["Build page"] },
+    { name: "Landowners", url: "/landowners", tasks: ["Build page"] },
+    { name: "Professional Advisors", url: "/professional-advisors", tasks: ["Build page"] },
+    { name: "Financial Advisors", url: "/financial-advisors", tasks: ["Build page"] },
+    { name: "High Net Worth Investors", url: "/high-net-worth-investors", tasks: ["Build page"] },
+    { name: "Institutional Investors", url: "/instituational-investors", tasks: ["Build page"] },
+    { name: "FarmWorth", url: "/farmworth", tasks: ["Build page"] },
+    { name: "Land Brokerage & Auctions", url: "/land-brokerage-and-auctions", tasks: ["Build page"] },
+    { name: "Buy", url: "/buy", tasks: ["Build page"] },
+    { name: "Sell", url: "/sell", tasks: ["Build page"] },
+    { name: "Find An Agent", url: "", tasks: ["Build page"] },
+    { name: "Land Management", url: "/land-management", tasks: ["Build page"] },
+    { name: "Management Approach", url: "", tasks: ["Build page"] },
+    { name: "Sustainability", url: "/sustainability", tasks: ["Build page"] },
+    { name: "Consulting", url: "/consulting", tasks: ["Build page"] },
+    { name: "Succession Planning", url: "/succession-planning", tasks: ["Build page"] },
+    { name: "Order an Assessment", url: "/assessment", tasks: ["Build page"] },
+    { name: "Case Studies", url: "/case-studies", tasks: ["Build page"] },
+    { name: "Husker Tailgate", url: "/husker-tailgate", tasks: ["Build page"] },
+    { name: "Map of My Kingdom", url: "/map-of-my-kingdom", tasks: ["Build page"] },
+    { name: "Fall Seminar", url: "/fall-seminar", tasks: ["Build page"] },
+    { name: "Form Submission Error", url: "/form-submission-failed", status: "live-on-preview", tasks: [] },
+    { name: "Navigation", url: "", tasks: [
+      "In the nav, update the order to Traditional Search, Map Search, AI Search",
+      "In the nav, rename Interactive Map to Map Search and have it go straight to the map view",
+      "I don't think we need the /interactive-map URL",
+      "Everything under the company should go to the first column rather than being split into two.",
+      "Under Insights & News, we will want one more column for Data, which will have categories for FarmWorth and Returns & Values."
+    ]},
+    { name: "Stats (site-wide)", url: "", tasks: [
+      "Get the number of states, team members, and offices right and consistent across the website"
+    ]},
+    { name: "Farmland Insights / Farmland Data Widget", url: "", status: "live-on-preview", tasks: [
+      "Review this page (please send me the link when you get it)"
+    ]},
+    { name: "CMS", url: "", tasks: [
+      { text: "Job Descriptions", status: "in-process", onPreview: true },
+      { text: "Forms", status: "in-process", onPreview: true },
+      { text: "Publish fields/SEO block/preview/cache purge", status: "in-process" },
+      { text: "Bios", status: "in-process", onPreview: true },
+      { text: "Announcements", status: "in-process", onPreview: true },
+      { text: "Pages and blocks", status: "not-started" },
+      { text: "Navigation and site settings", status: "not-started" },
+      { text: "White papers and newsletters", status: "not-started" },
+      { text: "Redirects and error watch", status: "not-started" },
+      { text: "Blog and categories", status: "not-started" }
+    ]}
+  ];
+
+  (function(){
+    var listEl = document.getElementById("lt-list"), countEl = document.getElementById("lt-count"),
+        clearBtn = document.getElementById("lt-clear");
+    var statusKeys = Object.keys(STATUSES), prioKeys = Object.keys(PRIORITIES);
+
+    /* one row per task; a page with no tasks gets one row of its own */
+    var ROWS = [];
+    DATA.forEach(function(d){
+      var notes = (d.tasks && d.tasks.length) ? d.tasks : [null];
+      notes.forEach(function(n){
+        var o = (n && typeof n === "object") ? n : { text: n };
+        ROWS.push({
+          page: d.name, url: d.url || "", pageStatus: d.status,
+          note: o.text || "", noteStatus: o.text ? (o.status || "not-started") : "", priority: o.text ? (o.priority || "") : "",
+          /* checked only for a live page's own row; a row that carries a task stays unchecked */
+          preview: (d.status === "live-on-preview" && !o.text) || !!o.onPreview,
+          complete: (o.text ? !!o.complete : !!d.complete) || (d.status === "live-on-preview" && !o.text),
+          idx: ROWS.length
+        });
+      });
+    });
+
+    var COLS = [
+      { key: "page",       label: "Page",        cls: "c-page", type: "text", nofilter: true },
+      { key: "url",        label: "URL",         cls: "c-url",  type: "text", nofilter: true },
+      { key: "note",       label: "Task",        cls: "c-note", type: "text" },
+      { key: "noteStatus", label: "Task Status", cls: "c-nst",  type: "status" },
+      /* PRIORITY column hidden for now. To bring it back, restore this line:
+         { key: "priority", label: "Priority", cls: "c-pri", type: "prio" },
+         and re-add the Priority cell (c6) to the row in draw(). The data and PRIORITIES list are kept. */
+      { key: "preview",    label: "On Preview", cls: "c-pst",  type: "preview" },
+      { key: "complete",   label: "Complete",    cls: "c-cmp",  type: "check" }
+    ];
+    var state = { sortKey: null, sortDir: 1, f: { complete: "no" } };   /* opens showing Complete = no (open work) */
+
+    function el(tag, cls, text){
+      var n = document.createElement(tag);
+      if(cls) n.className = cls;
+      if(text != null) n.textContent = text;
+      return n;
+    }
+    function badge(kind, key){
+      var map = kind === "pr" ? PRIORITIES : STATUSES;
+      var s = map[key] || { label: key, icon: "" };
+      var b = el("span", "lt-badge " + (kind === "pr" ? "pr pr-" : "st-") + key);
+      var i = el("i", null, s.icon); i.setAttribute("aria-hidden", "true");
+      b.appendChild(i); b.appendChild(document.createTextNode(s.label));
+      return b;
+    }
+    function rank(col, v){
+      if(col.type === "status") return v ? statusKeys.indexOf(v) : 99;
+      if(col.type === "prio") return v ? prioKeys.indexOf(v) : 99;   /* high first */
+      if(col.type === "check") return v ? 0 : 1;                      /* complete first */
+      if(col.type === "preview") return v ? 0 : 1;                    /* on preview first */
+      return (v || "").toLowerCase();
+    }
+
+    function passes(r){
+      for(var i = 0; i < COLS.length; i++){
+        var c = COLS[i], f = state.f[c.key];
+        if(!f) continue;
+        var v = r[c.key];
+        if(c.type === "text"){ if(v.toLowerCase().indexOf(f.toLowerCase()) < 0) return false; }
+        else if(c.type === "check"){ if((f === "yes") !== !!v) return false; }
+        else if(c.type === "preview"){ if((f === "yes") !== !!v) return false; }
+        else if(f === "__none"){ if(v) return false; }
+        else if(v !== f) return false;
+      }
+      return true;
+    }
+
+    function visible(){
+      var rows = ROWS.filter(passes);
+      if(state.sortKey){
+        var c = COLS.filter(function(x){ return x.key === state.sortKey; })[0];
+        rows.sort(function(a, b){
+          var x = rank(c, a[c.key]), y = rank(c, b[c.key]);
+          if(x < y) return -1 * state.sortDir;
+          if(x > y) return 1 * state.sortDir;
+          return a.idx - b.idx;
+        });
+      }
+      return rows;
+    }
+
+    /* header and filter row are built once so typing in a filter never loses focus */
+    var table = el("table", "lt-table"), tbody = el("tbody"), sortBtns = {};
+    (function build(){
+      var thead = el("thead"), h = el("tr", "lt-h"), f = el("tr", "lt-f");
+      COLS.forEach(function(c){
+        var th = el("th", c.cls); th.scope = "col"; th.setAttribute("aria-sort", "none");
+        var b = el("button", "lt-sort"); b.type = "button";
+        b.appendChild(el("span", null, c.label));
+        var ar = el("span", "lt-arrow", "⇅"); ar.setAttribute("aria-hidden", "true"); b.appendChild(ar);
+        b.addEventListener("click", function(){
+          if(state.sortKey !== c.key){ state.sortKey = c.key; state.sortDir = 1; }
+          else if(state.sortDir === 1){ state.sortDir = -1; }
+          else { state.sortKey = null; state.sortDir = 1; }
+          draw();
+        });
+        th.appendChild(b); h.appendChild(th); sortBtns[c.key] = { th: th, arrow: ar };
+
+        var fh = el("th"); var ctl;
+        if(c.nofilter){
+          f.appendChild(fh); return;
+        }
+        if(c.type === "text"){
+          ctl = el("input"); ctl.type = "search"; ctl.placeholder = "Filter";
+          ctl.addEventListener("input", function(){ state.f[c.key] = ctl.value.trim(); draw(); });
+        } else if(c.type === "check" || c.type === "preview"){
+          ctl = el("select");
+          (c.type === "check" ? [["", "All"], ["yes", "Yes"], ["no", "No"]] : [["", "All"], ["yes", "Yes"], ["no", "No"]]).forEach(function(o){
+            var op = el("option", null, o[1]); op.value = o[0]; ctl.appendChild(op);
+          });
+          ctl.addEventListener("change", function(){ state.f[c.key] = ctl.value; draw(); });
+        } else {
+          ctl = el("select");
+          var opts = [["", "All"]];
+          (c.type === "status" ? statusKeys : prioKeys).forEach(function(k){
+            opts.push([k, (c.type === "status" ? STATUSES : PRIORITIES)[k].label]);
+          });
+          opts.push(["__none", "None"]);
+          opts.forEach(function(o){ var op = el("option", null, o[1]); op.value = o[0]; ctl.appendChild(op); });
+          ctl.addEventListener("change", function(){ state.f[c.key] = ctl.value; draw(); });
+        }
+        ctl.setAttribute("aria-label", "Filter " + c.label);
+        ctl.dataset.key = c.key;
+        fh.appendChild(ctl); f.appendChild(fh);
+      });
+      thead.appendChild(h); thead.appendChild(f); table.appendChild(thead); table.appendChild(tbody);
+    })();
+
+    var wrap = el("div", "lt-wrap"); wrap.appendChild(table);
+    var emptyEl = el("p", "lt-empty", "Nothing matches these filters."); emptyEl.hidden = true;
+    listEl.appendChild(wrap); listEl.appendChild(emptyEl);
+
+    function draw(){
+      var rows = visible();
+      tbody.textContent = "";
+      rows.forEach(function(r){
+        var tr = el("tr");
+        var c1 = el("td"); c1.appendChild(el("span", "lt-pg", r.page));
+        var c2 = el("td"); if(r.url) c2.appendChild(el("span", "lt-url", r.url));
+        var c3 = el("td", "c-pst");
+        if(r.preview){
+          var lk = el("span", "lt-done", "✓"); lk.setAttribute("aria-hidden", "true");
+          c3.appendChild(lk); c3.appendChild(el("span", "sr-only", "On preview"));
+        }
+        var c4 = el("td", null, r.note);
+        var c5 = el("td"); if(r.noteStatus) c5.appendChild(badge("st", r.noteStatus));
+        var c7 = el("td", "c-cmp");
+        if(r.complete){
+          var ck = el("span", "lt-done", "✓"); ck.setAttribute("aria-hidden", "true");
+          c7.appendChild(ck); c7.appendChild(el("span", "sr-only", "Complete"));
+        }
+        [c1, c2, c4, c5, c3, c7].forEach(function(c){ tr.appendChild(c); });
+        tbody.appendChild(tr);
+      });
+      emptyEl.hidden = rows.length > 0;
+      COLS.forEach(function(c){
+        var s = sortBtns[c.key], on = state.sortKey === c.key;
+        s.th.setAttribute("aria-sort", on ? (state.sortDir === 1 ? "ascending" : "descending") : "none");
+        s.arrow.textContent = on ? (state.sortDir === 1 ? "▲" : "▼") : "⇅";
+      });
+      countEl.textContent = "Showing " + rows.length + " of " + ROWS.length + " rows";
+    }
+
+    table.querySelector('.lt-f select[data-key="complete"]').value = "no";
+
+    clearBtn.addEventListener("click", function(){
+      state = { sortKey: null, sortDir: 1, f: {} };
+      table.querySelectorAll(".lt-f input").forEach(function(i){ i.value = ""; });
+      table.querySelectorAll(".lt-f select").forEach(function(s){ s.value = ""; });
+      draw();
+    });
+    draw();
+  })();
+  </script>
+</body>
+</html>
