@@ -329,7 +329,7 @@
 
     var COLS = [
       { key: "num",        label: "Task #",      cls: "c-num",  type: "text", nofilter: true },
-      { key: "page",      label: "Page",        cls: "c-page", type: "text", nofilter: true },
+      { key: "page",      label: "Page",        cls: "c-page", type: "page" },
       { key: "url",        label: "URL",         cls: "c-url",  type: "text", nofilter: true },
       { key: "note",       label: "Task",        cls: "c-note", type: "text" },
       { key: "noteStatus", label: "Task Status", cls: "c-nst",  type: "status" },
@@ -418,6 +418,12 @@
         if(c.type === "text"){
           ctl = el("input"); ctl.type = "search"; ctl.placeholder = "Filter";
           ctl.addEventListener("input", function(){ state.f[c.key] = ctl.value.trim(); draw(); });
+        } else if(c.type === "page"){
+          ctl = el("select");
+          var seenPg = {}, pgOpts = [["", "All"]];
+          ROWS.forEach(function(r){ if(!seenPg[r.page]){ seenPg[r.page] = 1; pgOpts.push([r.page, r.page]); } });
+          pgOpts.forEach(function(o){ var op = el("option", null, o[1]); op.value = o[0]; ctl.appendChild(op); });
+          ctl.addEventListener("change", function(){ state.f[c.key] = ctl.value; draw(); });
         } else if(c.type === "cms"){
           ctl = el("select");
           [["", "All"], ["yes", "Yes"], ["no", "No"], ["unsure", "?"]].forEach(function(o){
