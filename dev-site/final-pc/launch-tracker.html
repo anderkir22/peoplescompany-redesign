@@ -28,12 +28,10 @@
     .lt-badge i{ font-style: normal; font-size: 12px; line-height: 1; }
     .st-not-started{    background: var(--pc-white);       color: var(--pc-navy); }
     .st-in-process{     background: var(--pc-light-blue);  color: var(--pc-navy); }
-    .st-approved{       background: var(--pc-medium-blue); color: var(--pc-white); border-color: var(--pc-medium-blue); }
-    .st-submitted{      background: var(--pc-navy);        color: var(--pc-white); }
-    .st-on-staging{     background: var(--pc-navy);        color: var(--pc-white); border: 2px solid var(--pc-light-blue); padding: 1px 8px; }
-    .st-in-preview{     background: var(--pc-black);       color: var(--pc-white); border-color: var(--pc-black); }
-    .st-live-on-preview{ background: var(--pc-black);      color: var(--pc-white); border-color: var(--pc-black); }
-    .st-n-a{            background: var(--pc-white);       color: var(--pc-navy); border-style: dashed; }
+    .st-approved{       background: var(--pc-blue);        color: var(--pc-black); border-color: var(--pc-blue); }
+    .st-submitted{      background: var(--pc-medium-blue); color: var(--pc-white); border-color: var(--pc-medium-blue); }
+    .st-on-staging{     background: var(--pc-navy);        color: var(--pc-white); }
+    .st-phase-two{      background: var(--pc-soft-white);  color: var(--pc-black); border: 2px solid var(--pc-black); padding: 1px 8px; }
     .lt-badge.pr{ border-radius: var(--radius-sm); }
     .pr-high{   background: var(--pc-black);       color: var(--pc-white); border-color: var(--pc-black); }
     .pr-medium{ background: var(--pc-medium-blue); color: var(--pc-white); border-color: var(--pc-medium-blue); }
@@ -77,9 +75,9 @@
     .lt-table .c-page{ width: 17%; } .lt-table .c-url{ width: 14%; }
     .lt-table .c-nst{ width: 150px; } .lt-table .c-pri{ width: 110px; } .lt-table .c-cmp{ width: 112px; }
     .lt-done{ display: inline-block; font-size: 18px; font-weight: 700; line-height: 1; color: var(--pc-navy); }
-    .lt-table .c-cms{ width: 80px; } .lt-table .c-notes{ width: 17%; }
-    .lt-table td.c-cmp, .lt-table td.c-cms{ text-align: center; }
-    .lt-table thead th.c-cmp .lt-sort, .lt-table thead th.c-cms .lt-sort{ justify-content: center; }
+    .lt-table .c-notes{ width: 17%; }
+    .lt-table td.c-cmp{ text-align: center; }
+    .lt-table thead th.c-cmp .lt-sort{ justify-content: center; }
   </style>
 </head>
 <body>
@@ -116,17 +114,15 @@
                (after the highest id in this list). On a page with no tasks, put the id on the page itself:
                { id: "111", name: "Page name", url: "", tasks: [] }. Never delete a task to free its number: mark it
                Complete instead. A task or page with no id still shows, with a temporary number above the highest one.
-     cms       optional, on a task (or on a page, for every row of it). true = a check mark: the change is made in the
-               CMS. "?" = a question mark: not sure yet. false or left out = blank: the change is made in the site's code.
      notes     optional, free text, on a task (or on a page with no tasks). Shows in the Notes column after Task.
      name      the page's common name.
      url       optional. The page's address. Leave "" if it has none yet.
-     status    optional, and only ever "live-on-preview". It marks a finished page: its row gets the Complete check mark. No other page-level status is read or shown; task statuses live on the tasks.
+     status    not used on a page. Task statuses live on the tasks.
      tasks     optional. Each task is one row of its own. A task is plain text, or { text, status, priority }.
                A plain-text task starts as Not Started with no priority. A page with no tasks still shows one row.
      priority  optional, on a task. One of: high, medium, low (the PRIORITIES list below).
-     complete  optional. true puts a check mark in the Complete column. Set it on the page when the page has no tasks,
-               or on a task as { text: "...", complete: true }.
+     complete  optional. true puts a check mark in the Complete column and blanks the Task Status. Set it on the page when
+               the page has no tasks, or on a task as { text: "...", complete: true }.
 
      To add a new kind of status or priority, add it to STATUSES or PRIORITIES and give it a matching .st-... or .pr-...
      rule in the styles above.
@@ -137,9 +133,7 @@
     "approved":        { label: "Approved",        icon: "✓" },
     "submitted":       { label: "Submitted",       icon: "▲" },
     "on-staging":      { label: "On Staging",      icon: "◆" },
-    "in-preview":      { label: "In Preview",      icon: "●" },
-    "live-on-preview": { label: "Live on Preview", icon: "●" },
-    "n-a":             { label: "n/a",             icon: "–" }
+    "phase-two":       { label: "Phase Two",       icon: "◇" }
   };
   var PRIORITIES = {
     "high":   { label: "High",   icon: "▲" },
@@ -148,160 +142,160 @@
   };
 
   var DATA = [
-    { name: "Homepage", url: "peoplescompany.com", status: "live-on-preview", tasks: [
-      { id: "001", notes: "Molli - Specifically what are you looking to bring over from the service pages?", cms: false, text: "Update look to match service pages" },
-      { id: "002", cms: false, text: "Hero stats: update to \"$2B+ Farmland Valuations Annually\"", status: "submitted" },
-      { id: "003", cms: false, text: "Hero stats: update to \"150+ Land Professionals\"", status: "submitted" },
-      { id: "004", notes: "Kiron - Develop some ideas", cms: false, text: "Do something to spice up the Who We Serve section" },
-      { id: "005", cms: false, text: "Change button on FarmWorth section to Discover FarmWorth", status: "submitted" },
-      { id: "006", notes: "Who leads this charge", cms: false, text: "Create a video/demo for FarmWorth section" },
-      { id: "007", notes: "Kiron to develop", cms: false, text: "Remove regional map. Let's have this section have the connect with a land professional and then add another box for the careers page." },
-      { id: "008", notes: "Chase - Covers are being designed, and will be switched out once available in CMS", cms: false, text: "Adjust whitepaper images so they fit the container, with no blue on the sides" },
-      { id: "009", cms: false, text: "National Footprint section: update the land professional count to 150+", status: "submitted" }
+    { name: "Homepage", url: "peoplescompany.com", tasks: [
+      { id: "001", notes: "Molli - Specifically what are you looking to bring over from the service pages?", text: "Update look to match service pages" },
+      { id: "002", text: "Hero stats: update to \"$2B+ Farmland Valuations Annually\"", status: "submitted" },
+      { id: "003", text: "Hero stats: update to \"150+ Land Professionals\"", status: "submitted" },
+      { id: "004", notes: "Kiron - Develop some ideas", text: "Do something to spice up the Who We Serve section" },
+      { id: "005", text: "Change button on FarmWorth section to Discover FarmWorth", status: "submitted" },
+      { id: "006", notes: "Who leads this charge", text: "Create a video/demo for FarmWorth section" },
+      { id: "007", notes: "Kiron to develop", text: "Remove regional map. Let's have this section have the connect with a land professional and then add another box for the careers page." },
+      { id: "008", notes: "Chase - Covers are being designed, and will be switched out once available in CMS", text: "Adjust whitepaper images so they fit the container, with no blue on the sides" },
+      { id: "009", text: "National Footprint section: update the land professional count to 150+", status: "submitted" }
     ]},
-    { id: "010", name: "Traditional Search", url: "/real-estate", status: "live-on-preview", tasks: [] },
+    { id: "010", name: "Traditional Search", url: "/real-estate", complete: true, tasks: [] },
     { name: "AI Search", url: "/real-estate/ai-search", tasks: [
-      { id: "011", cms: false, text: "When will this page go live?" }
+      { id: "011", text: "When will this page go live?", status: "phase-two" }
     ]},
-    { id: "012", name: "Individual Listing Page", url: "", status: "live-on-preview", tasks: [] },
-    { name: "Our Team", url: "/team", status: "live-on-preview", tasks: [
-      { id: "013", notes: "up for discussion", cms: false, text: "Need to think through the State filter because we will want people to come up even if they do not have a RE license." },
-      { id: "014", notes: "No, do not have licenses in database.  Everything is hard coded.", cms: true, text: "Do we have the licenses uploaded and formatted for each person?" },
-      { id: "015", notes: "License upload is not complete", cms: true, text: "Quality control the licenses: see Bryan Berdale with a license in his bio. Also Tyler Weaver." }
+    { id: "012", name: "Individual Listing Page", url: "", complete: true, tasks: [] },
+    { name: "Our Team", url: "/team", tasks: [
+      { id: "013", notes: "up for discussion", text: "Need to think through the State filter because we will want people to come up even if they do not have a RE license." },
+      { id: "014", notes: "No, do not have licenses in database.  Everything is hard coded.", text: "Do we have the licenses uploaded and formatted for each person?" },
+      { id: "015", notes: "License upload is not complete", text: "Quality control the licenses: see Bryan Berdale with a license in his bio. Also Tyler Weaver." }
     ]},
-    { name: "Bio Page", url: "", status: "live-on-preview", tasks: [
-      { id: "016", cms: false, text: "Remove Instagram and LinkedIn icons. Add icon for downloading resume." },
-      { id: "017", notes: "Molli - Clarify what can be kept and what to remove", cms: false, text: "There are random categories showing up (boards, publications, references, experience, etc.) that were not in the requirements. I would like to eliminate them." },
-      { id: "018",cms: false, text: "Add a little cushion between the blue container and the Bio header", status: "submitted" },
-      { id: "019", notes: "Kiron - will submit to developers to fix", cms: false, text: "Make the stat lines in the bio PC Medium Blue and get rid of the PC Blue bullets (only use PC Blue on dark backgrounds)" }
+    { name: "Bio Page", url: "", tasks: [
+      { id: "016", text: "Remove Instagram and LinkedIn icons. Add icon for downloading resume." },
+      { id: "017", notes: "Molli - Clarify what can be kept and what to remove", text: "There are random categories showing up (boards, publications, references, experience, etc.) that were not in the requirements. I would like to eliminate them." },
+      { id: "018",text: "Add a little cushion between the blue container and the Bio header", status: "submitted" },
+      { id: "019", notes: "Kiron - will submit to developers to fix", text: "Make the stat lines in the bio PC Medium Blue and get rid of the PC Blue bullets (only use PC Blue on dark backgrounds)" }
     ]},
-    { name: "Blog", url: "/blog", status: "live-on-preview", tasks: [
-      { id: "020", notes: "Kiron - waiting for CMS build to make switch", cms: true, text: "Rename Growing Together to Riding for the Brand, if we want to update the blog categories" }
+    { name: "Blog", url: "/blog", tasks: [
+      { id: "020", notes: "Kiron - waiting for CMS build to make switch", text: "Rename Growing Together to Riding for the Brand, if we want to update the blog categories" }
     ]},
-    { id: "021", name: "Individual Blog Page", url: "", status: "live-on-preview", tasks: [] },
-    { name: "Contact", url: "/contact", status: "live-on-preview", tasks: [
-      { id: "022", notes: "Need to identify what images we plan to use here", cms: true, text: "Picture for Corporate Office needs to be updated to the best images that we have of the office." },
-      { id: "023", cms: false, text: "Reorder the social icons to be LinkedIn, YouTube, Facebook, Twitter (remove Instagram)." },
-      { id: "024", notes: "Need to identify what image", cms: true, text: "Replace the old team picture with a great picture of the new office" },
-      { id: "025", notes: "kiron to complete", cms: false, text: "Remove the automation on offices so they are not clickable, since we eliminated the regional pages" },
-      { id: "026", notes: "kiron to complete", cms: false, text: "Update the format of addresses to match brand standards" }
+    { id: "021", name: "Individual Blog Page", url: "", complete: true, tasks: [] },
+    { name: "Contact", url: "/contact", tasks: [
+      { id: "022", notes: "Need to identify what images we plan to use here", text: "Picture for Corporate Office needs to be updated to the best images that we have of the office." },
+      { id: "023", text: "Reorder the social icons to be LinkedIn, YouTube, Facebook, Twitter (remove Instagram)." },
+      { id: "024", notes: "Need to identify what image", text: "Replace the old team picture with a great picture of the new office" },
+      { id: "025", notes: "kiron to complete", text: "Remove the automation on offices so they are not clickable, since we eliminated the regional pages" },
+      { id: "026", notes: "kiron to complete", text: "Update the format of addresses to match brand standards" }
     ]},
-    { id: "027", name: "Search", url: "/search", status: "live-on-preview", complete: true, tasks: [] },
-    { name: "Forgot Password", url: "/auth/forgot-password", status: "live-on-preview", tasks: [
-      { id: "028", notes: "Emma managing", cms: false, text: "User experience for the Forgot Password email" }
+    { id: "027", name: "Search", url: "/search", complete: true, tasks: [] },
+    { name: "Forgot Password", url: "/auth/forgot-password", tasks: [
+      { id: "028", notes: "Emma managing", text: "User experience for the Forgot Password email" }
     ]},
-    { id: "029", name: "Login", url: "/auth/login", status: "live-on-preview", complete: true, tasks: [] },
-    { name: "Create an Account", url: "/auth/create-an-account", status: "live-on-preview", tasks: [
-      { id: "030", notes: "Emma managing", cms: false, text: "User experience for the Sign Up email" }
+    { id: "029", name: "Login", url: "/auth/login", complete: true, tasks: [] },
+    { name: "Create an Account", url: "/auth/create-an-account", tasks: [
+      { id: "030", notes: "Emma managing", text: "User experience for the Sign Up email" }
     ]},
-    { id: "031", name: "Disclaimer", url: "/disclaimer", status: "live-on-preview", complete: true, tasks: [] },
-    { id: "032", name: "Privacy Policy", url: "/privacy-policy", status: "live-on-preview", complete: true, tasks: [] },
-    { id: "033", name: "Equal Opportunity", url: "/equal-opportunity", status: "live-on-preview", complete: true, tasks: [] },
-    { name: "About (Overview)", url: "/about", status: "live-on-preview", tasks: [
-      { id: "034", notes: "find images", cms: false, text: "Update imagery" },
-      { id: "035", notes: "find images", cms: false, text: "Need better pictures for The PC Difference" },
-      { id: "036", notes: "waiting for CMS to update text", cms: true, text: "First section, last paragraph: update to \"Through several strategic partnerships and the acquisition of numerous respected firms, we have woven together decades of local expertise into a single, integrated platform. When landowners work with Peoples Company, they receive the full depth of over 50 years of history, the breadth of our national network and technology assets, and the expertise that only comes from professionals who have dedicated their careers to the land.\"" },
-      { id: "037", notes: "up for discussion", cms: false, text: "Do we make this page more like the service pages, with the Watch the Video button?" }
+    { id: "031", name: "Disclaimer", url: "/disclaimer", complete: true, tasks: [] },
+    { id: "032", name: "Privacy Policy", url: "/privacy-policy", complete: true, tasks: [] },
+    { id: "033", name: "Equal Opportunity", url: "/equal-opportunity", complete: true, tasks: [] },
+    { name: "About (Overview)", url: "/about", tasks: [
+      { id: "034", notes: "find images", text: "Update imagery" },
+      { id: "035", notes: "find images", text: "Need better pictures for The PC Difference" },
+      { id: "036", notes: "waiting for CMS to update text", text: "First section, last paragraph: update to \"Through several strategic partnerships and the acquisition of numerous respected firms, we have woven together decades of local expertise into a single, integrated platform. When landowners work with Peoples Company, they receive the full depth of over 50 years of history, the breadth of our national network and technology assets, and the expertise that only comes from professionals who have dedicated their careers to the land.\"" },
+      { id: "037", notes: "up for discussion", text: "Do we make this page more like the service pages, with the Watch the Video button?" }
     ]},
-    { name: "Culture", url: "/culture", status: "live-on-preview", tasks: [
-      { id: "038", notes: "find images", cms: false, text: "Update imagery" },
-      { id: "039", notes: "find images", cms: false, text: "Need a picture to replace the office picture (it needs to have people) and one for Forging a Legacy" }
+    { name: "Culture", url: "/culture", tasks: [
+      { id: "038", notes: "find images", text: "Update imagery" },
+      { id: "039", notes: "find images", text: "Need a picture to replace the office picture (it needs to have people) and one for Forging a Legacy" }
     ]},
-    { name: "Job Description", url: "", status: "live-on-preview", tasks: [
-      { id: "040", notes: "waiting for CMS to update text", cms: true, text: "Get qualifications and expectations added to job descriptions" },
-      { id: "041", cms: false, text: "Change \"Six decades of expertise\" to \"50-plus years of experience\"", status: "in-preview", complete: true },
-      { id: "042", cms: false, text: "Update the Why Work With Us section with updated details", status: "in-preview", complete: true }
+    { name: "Job Description", url: "", tasks: [
+      { id: "040", notes: "waiting for CMS to update text", text: "Get qualifications and expectations added to job descriptions" },
+      { id: "041", text: "Change \"Six decades of expertise\" to \"50-plus years of experience\"", complete: true },
+      { id: "042", text: "Update the Why Work With Us section with updated details", complete: true }
     ]},
-    { name: "Careers", url: "/careers", status: "live-on-preview", tasks: [
-      { id: "043", notes: "find images", cms: false, text: "Update imagery" },
-      { id: "044", notes: "find images", cms: false, text: "Need 3 new pictures with people" },
-      { id: "045", notes: "will happen when category is changed in CMS", cms: false, text: "We could update Growing Together to Riding for the Brand here as well" },
-      { id: "046", cms: false, text: "Change \"Six decades of expertise\" to \"50-plus years of experience\"", status: "in-preview", complete: true },
-      { id: "047", cms: false, text: "Update the Why Work With Us section with updated details", status: "in-preview", complete: true }
+    { name: "Careers", url: "/careers", tasks: [
+      { id: "043", notes: "find images", text: "Update imagery" },
+      { id: "044", notes: "find images", text: "Need 3 new pictures with people" },
+      { id: "045", notes: "will happen when category is changed in CMS", text: "We could update Growing Together to Riding for the Brand here as well" },
+      { id: "046", text: "Change \"Six decades of expertise\" to \"50-plus years of experience\"", complete: true },
+      { id: "047", text: "Update the Why Work With Us section with updated details", complete: true }
     ]},
-    { name: "Industry Research", url: "/industry-research", status: "live-on-preview", tasks: [
-      { id: "048", notes: "awaiting new NLV", cms: false, text: "Update text in right rail" },
-      { id: "049", notes: "awaiting new NLV", cms: false, text: "Get the copy updated for NLV", status: "n-a" },
-      { id: "050", notes: "Chase - Covers are being designed, and will be switched out once available in CMS", cms: false, text: "Get the images fitting correctly" },
-      { id: "051", notes: "up for discussion", cms: false, text: "Do you think we should eliminate the teaser text?" }
+    { name: "Industry Research", url: "/industry-research", tasks: [
+      { id: "048", notes: "awaiting new NLV", text: "Update text in right rail" },
+      { id: "049", notes: "awaiting new NLV", text: "Get the copy updated for NLV" },
+      { id: "050", notes: "Chase - Covers are being designed, and will be switched out once available in CMS", text: "Get the images fitting correctly" },
+      { id: "051", notes: "up for discussion", text: "Do you think we should eliminate the teaser text?" }
     ]},
-    { name: "National Land Values", url: "/national-land-values", status: "live-on-preview", tasks: [
-      { id: "052", notes: "awaiting new NLV", cms: false, text: "Missing lead paragraph text" },
-      { id: "053", notes: "find images", cms: false, text: "Replace the Corn Belt picture with a picture of corn or soybeans" }
+    { name: "National Land Values", url: "/national-land-values", tasks: [
+      { id: "052", notes: "awaiting new NLV", text: "Missing lead paragraph text" },
+      { id: "053", notes: "find images", text: "Replace the Corn Belt picture with a picture of corn or soybeans" }
     ]},
-    { name: "Newsletters", url: "/newsletters", status: "live-on-preview", tasks: [
-      { id: "054", notes: "awaiting CMS", cms: false, text: "Remove and redirect to the blog (redirect /newsletter to the blog)" }
+    { name: "Newsletters", url: "/newsletters", tasks: [
+      { id: "054", notes: "awaiting CMS", text: "Remove and redirect to the blog (redirect /newsletter to the blog)" }
     ]},
-    { id: "055", name: "Land Investment Expo", url: "/land-investment-expo", status: "live-on-preview", tasks: [] },
-    { id: "056", name: "American Farmland Owner", url: "/american-farmland-owner", status: "live-on-preview", tasks: [] },
-    { id: "057", name: "International Ag Alliance", url: "/international-ag-alliance", status: "live-on-preview", tasks: [] },
-    { name: "Industry Recognition", url: "/industry-recognition", tasks: [{ id: "058", notes: "awaiting updated content", cms: false, text: "Build page", status: "in-process" }] },
-    { name: "Energy Management", url: "/energy-management", status: "live-on-preview", tasks: [
-      { id: "059", notes: "kiron to do", cms: false, text: "Finalize Lease Gen logo & division pictures" }
+    { id: "055", name: "Land Investment Expo", url: "/land-investment-expo", complete: true, tasks: [] },
+    { id: "056", name: "American Farmland Owner", url: "/american-farmland-owner", complete: true, tasks: [] },
+    { id: "057", name: "International Ag Alliance", url: "/international-ag-alliance", complete: true, tasks: [] },
+    { name: "Industry Recognition", url: "/industry-recognition", tasks: [{ id: "058", notes: "awaiting updated content", text: "Build page", status: "in-process" }] },
+    { name: "Energy Management", url: "/energy-management", tasks: [
+      { id: "059", notes: "kiron to do", text: "Finalize Lease Gen logo & division pictures" }
     ]},
-    { name: "Crop Insurance", url: "/crop-insurance", status: "live-on-preview", tasks: [
-      { id: "060", notes: "find images", cms: false, text: "Finalize division pictures & missing graphic" }
+    { name: "Crop Insurance", url: "/crop-insurance", tasks: [
+      { id: "060", notes: "find images", text: "Finalize division pictures & missing graphic" }
     ]},
-    { name: "Corporate Services", url: "/corporate-services", tasks: [{ id: "061", cms: false, text: "Build page", status: "in-process" }] },
+    { name: "Corporate Services", url: "/corporate-services", tasks: [{ id: "061", text: "Build page", status: "in-process" }] },
     { name: "Capital Markets", url: "/capital-markets", tasks: [
-      { id: "062", cms: false, text: "Build page", status: "in-process" },
-      { id: "063", notes: "awaiting content and structure", cms: false, text: "Set up the Capital Markets data room" }
+      { id: "062", text: "Build page", status: "in-process" },
+      { id: "063", notes: "awaiting content and structure", text: "Set up the Capital Markets data room", status: "phase-two" }
     ]},
-    { name: "Operators", url: "/farm-operators", tasks: [{ id: "064", cms: false, text: "Build page", status: "in-process" }] },
+    { name: "Operators", url: "/farm-operators", tasks: [{ id: "064", text: "Build page", status: "in-process" }] },
     { name: "Agricultural Appraisal", url: "/agricultural-appraisal", tasks: [
-      { id: "065", cms: false, text: "Build page", status: "submitted" },
-      { id: "109", notes: "waiting for feedback from Molli/Erin on what fields to use", cms: false, text: "Identify what fields should be used in the Restricted Appraisal Report form" }
+      { id: "065", text: "Build page", status: "submitted" },
+      { id: "109", notes: "waiting for feedback from Molli/Erin on what fields to use", text: "Identify what fields should be used in the Restricted Appraisal Report form" }
     ]},
-    { name: "Order an Appraisal", url: "", tasks: [{ id: "066", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { id: "067", name: "Auction Results", url: "/auction-results", status: "live-on-preview", tasks: [] },
-    { name: "Upcoming Auctions", url: "/real-estate/auctions", tasks: [{ id: "068", notes: "Kiron will submit to developers with proper URL", cms: false, text: "Build page" }] },
-    { name: "Industry Collaboration", url: "/industry-collaboration", tasks: [{ id: "069", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Landowners", url: "/landowners", tasks: [{ id: "070", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Professional Advisors", url: "/professional-advisors", tasks: [{ id: "071", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Financial Advisors", url: "/financial-advisors", tasks: [{ id: "072", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "High Net Worth Investors", url: "/high-net-worth-investors", tasks: [{ id: "073", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Institutional Investors", url: "/instituational-investors", tasks: [{ id: "074", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "FarmWorth", url: "/farmworth", tasks: [{ id: "075", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Land Brokerage & Auctions", url: "/land-brokerage-and-auctions", tasks: [{ id: "076", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Buy", url: "/buy", tasks: [{ id: "077", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Sell", url: "/sell", tasks: [{ id: "078", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Find An Agent", url: "", tasks: [{ id: "079", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Land Management", url: "/land-management", tasks: [{ id: "080", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Management Approach", url: "", tasks: [{ id: "081", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Sustainability", url: "/sustainability", tasks: [{ id: "082", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Consulting", url: "/consulting", tasks: [{ id: "083", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Succession Planning", url: "/succession-planning", tasks: [{ id: "084", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Order an Assessment", url: "/assessment", tasks: [{ id: "085", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Case Studies", url: "/case-studies", tasks: [{ id: "086", notes: "Molli - content", cms: false, text: "Build page" }] },
-    { name: "Husker Tailgate", url: "/husker-tailgate", tasks: [{ id: "087", notes: "kiron - build", cms: false, text: "Build page" }] },
-    { name: "Map of My Kingdom", url: "/map-of-my-kingdom", tasks: [{ id: "088", notes: "kiron - build", cms: false, text: "Build page" }] },
-    { name: "Fall Seminar", url: "/fall-seminar", tasks: [{ id: "089", notes: "kiron - build", cms: false, text: "Build page" }] },
-    { id: "090", name: "Form Submission Error", url: "/form-submission-failed", status: "live-on-preview", tasks: [] },
+    { name: "Order an Appraisal", url: "", tasks: [{ id: "066", notes: "Molli - content", text: "Build page" }] },
+    { id: "067", name: "Auction Results", url: "/auction-results", complete: true, tasks: [] },
+    { name: "Upcoming Auctions", url: "/real-estate/auctions", tasks: [{ id: "068", notes: "Kiron will submit to developers with proper URL", text: "Build page" }] },
+    { name: "Industry Collaboration", url: "/industry-collaboration", tasks: [{ id: "069", notes: "Molli - content", text: "Build page" }] },
+    { name: "Landowners", url: "/landowners", tasks: [{ id: "070", notes: "Molli - content", text: "Build page" }] },
+    { name: "Professional Advisors", url: "/professional-advisors", tasks: [{ id: "071", notes: "Molli - content", text: "Build page" }] },
+    { name: "Financial Advisors", url: "/financial-advisors", tasks: [{ id: "072", notes: "Molli - content", text: "Build page" }] },
+    { name: "High Net Worth Investors", url: "/high-net-worth-investors", tasks: [{ id: "073", notes: "Molli - content", text: "Build page" }] },
+    { name: "Institutional Investors", url: "/instituational-investors", tasks: [{ id: "074", notes: "Molli - content", text: "Build page" }] },
+    { name: "FarmWorth", url: "/farmworth", tasks: [{ id: "075", notes: "Molli - content", text: "Build page" }] },
+    { name: "Land Brokerage & Auctions", url: "/land-brokerage-and-auctions", tasks: [{ id: "076", notes: "Molli - content", text: "Build page" }] },
+    { name: "Buy", url: "/buy", tasks: [{ id: "077", notes: "Molli - content", text: "Build page" }] },
+    { name: "Sell", url: "/sell", tasks: [{ id: "078", notes: "Molli - content", text: "Build page" }] },
+    { name: "Find An Agent", url: "", tasks: [{ id: "079", notes: "Molli - content", text: "Build page" }] },
+    { name: "Land Management", url: "/land-management", tasks: [{ id: "080", notes: "Molli - content", text: "Build page" }] },
+    { name: "Management Approach", url: "", tasks: [{ id: "081", notes: "Molli - content", text: "Build page" }] },
+    { name: "Sustainability", url: "/sustainability", tasks: [{ id: "082", notes: "Molli - content", text: "Build page" }] },
+    { name: "Consulting", url: "/consulting", tasks: [{ id: "083", notes: "Molli - content", text: "Build page" }] },
+    { name: "Succession Planning", url: "/succession-planning", tasks: [{ id: "084", notes: "Molli - content", text: "Build page" }] },
+    { name: "Order an Assessment", url: "/assessment", tasks: [{ id: "085", notes: "Molli - content", text: "Build page" }] },
+    { name: "Case Studies", url: "/case-studies", tasks: [{ id: "086", notes: "Molli - content", text: "Build page" }] },
+    { name: "Husker Tailgate", url: "/husker-tailgate", tasks: [{ id: "087", notes: "kiron - build", text: "Build page", status: "phase-two" }] },
+    { name: "Map of My Kingdom", url: "/map-of-my-kingdom", tasks: [{ id: "088", notes: "kiron - build", text: "Build page", status: "phase-two" }] },
+    { name: "Fall Seminar", url: "/fall-seminar", tasks: [{ id: "089", notes: "kiron - build", text: "Build page", status: "phase-two" }] },
+    { id: "090", name: "Form Submission Error", url: "/form-submission-failed", complete: true, tasks: [] },
     { name: "Navigation", url: "", tasks: [
-      { id: "091", notes: "waiting for cms to make this adjustment", cms: true, text: "In the nav, update the order to Traditional Search, Map Search, AI Search" },
-      { id: "092", notes: "waiting for cms to make this fix", cms: true, text: "In the nav, rename Interactive Map to Map Search and have it go straight to the map view" },
-      { id: "093", notes: "waiting on cms to apply this fix", cms: true, text: "I don't think we need the /interactive-map URL" },
-      { id: "094", cms: false, text: "Everything under the company should go to the first column rather than being split into two.", status: "n-a", complete: true },
-      { id: "095", cms: false, text: "Under Insights & News, we will want one more column for Data, which will have categories for FarmWorth and Returns & Values." }
+      { id: "091", notes: "waiting for cms to make this adjustment", text: "In the nav, update the order to Traditional Search, Map Search, AI Search", status: "submitted" },
+      { id: "092", notes: "waiting for cms to make this fix", text: "In the nav, rename Interactive Map to Map Search and have it go straight to the map view", status: "submitted" },
+      { id: "093", notes: "waiting on cms to apply this fix", text: "I don't think we need the /interactive-map URL", status: "submitted" },
+      { id: "094", notes: "no longer applicable", text: "Everything under the company should go to the first column rather than being split into two.", complete: true },
+      { id: "095", text: "Under Insights & News, we will want one more column for Data, which will have categories for FarmWorth and Returns & Values.", status: "phase-two" }
     ]},
     { name: "Stats (site-wide)", url: "", tasks: [
-      { id: "096", cms: false, text: "Get the number of states, team members, and offices right and consistent across the website", status: "in-preview", complete: true },
-      { id: "097", notes: "kiron - will do full metadata audit before launch", cms: false, text: "Confirm all metadata is accurate" }
+      { id: "096", text: "Get the number of states, team members, and offices right and consistent across the website", complete: true },
+      { id: "097", notes: "kiron - will do full metadata audit before launch", text: "Confirm all metadata is accurate" }
     ]},
-    { name: "Farmland Insights / Farmland Data Widget", url: "", status: "live-on-preview", tasks: [
-      { id: "098", cms: false, text: "Review this page (please send me the link when you get it)" }
+    { name: "Farmland Insights / Farmland Data Widget", url: "/farmland-data", tasks: [
+      { id: "098", notes: "data is placed, now developing content around it", text: "Review this page (please send me the link when you get it)", status: "in-process" }
     ]},
     { name: "CMS", url: "", tasks: [
-      { id: "099", cms: true, text: "Job Descriptions", status: "on-staging" },
-      { id: "100", cms: true, text: "Forms", status: "on-staging" },
-      { id: "101", cms: true, text: "Publish fields/SEO block/preview/cache purge", status: "in-process" },
-      { id: "102", cms: true, text: "Bios", status: "on-staging" },
-      { id: "103", cms: true, text: "Announcements", status: "on-staging" },
-      { id: "104", cms: true, text: "Pages and blocks", status: "not-started" },
-      { id: "105", cms: true, text: "Navigation and site settings", status: "not-started" },
-      { id: "106", cms: true, text: "White papers and newsletters", status: "not-started" },
-      { id: "107", cms: true, text: "Redirects and error watch", status: "not-started" },
-      { id: "108", cms: true, text: "Blog and categories", status: "not-started" }
+      { id: "099", text: "Job Descriptions", status: "on-staging" },
+      { id: "100", text: "Forms", status: "on-staging" },
+      { id: "101", text: "Publish fields/SEO block/preview/cache purge", status: "in-process" },
+      { id: "102", text: "Bios", status: "on-staging" },
+      { id: "103", text: "Announcements", status: "on-staging" },
+      { id: "104", text: "Pages and blocks", status: "not-started" },
+      { id: "105", text: "Navigation and site settings", status: "not-started" },
+      { id: "106", text: "White papers and newsletters", status: "not-started" },
+      { id: "107", text: "Redirects and error watch", status: "not-started" },
+      { id: "108", text: "Blog and categories", status: "not-started" }
     ]}
   ];
 
@@ -318,11 +312,8 @@
         var o = (n && typeof n === "object") ? n : { text: n };
         ROWS.push({
           page: d.name, url: d.url || "", pageStatus: d.status,
-          note: o.text || "", notes: (o.text ? o.notes : d.notes) || "", noteStatus: o.text ? (o.status || "not-started") : "", priority: o.text ? (o.priority || "") : "",
-          /* CMS column: true = CMS-driven, "?" = not sure, false = changed in the site's code. A task's own value wins
-             over its page's. */
-          cms: (o.text && o.cms !== undefined) ? o.cms : (d.cms || false),
-          complete: (o.text ? !!o.complete : !!d.complete) || (d.status === "live-on-preview" && !o.text),
+          note: o.text || "", notes: (o.text ? o.notes : d.notes) || "", noteStatus: (o.text && !o.complete) ? (o.status || "not-started") : "", priority: o.text ? (o.priority || "") : "",
+          complete: (o.text ? !!o.complete : !!d.complete),
           idx: ROWS.length,
           /* Task #: the permanent id written in DATA. It belongs to the task, not to its position. */
           num: String((o.text ? o.id : d.id) || "")
@@ -347,7 +338,6 @@
       /* PRIORITY column hidden for now. To bring it back, restore this line:
          { key: "priority", label: "Priority", cls: "c-pri", type: "prio" },
          and re-add the Priority cell (c6) to the row in draw(). The data and PRIORITIES list are kept. */
-      { key: "cms",        label: "CMS",         cls: "c-cms",  type: "cms" },
       { key: "complete",   label: "Complete",    cls: "c-cmp",  type: "check" }
     ];
     var state = { sortKey: null, sortDir: 1, f: { complete: "no" } };   /* opens showing Complete = no (open work) */
@@ -369,7 +359,6 @@
     function rank(col, v){
       if(col.type === "status") return v ? statusKeys.indexOf(v) : 99;
       if(col.type === "prio") return v ? prioKeys.indexOf(v) : 99;   /* high first */
-      if(col.type === "cms") return v === true ? 0 : (v === "?" ? 1 : 2);   /* CMS first, then unsure */
       if(col.type === "check") return v ? 0 : 1;                      /* complete first */
       return (v || "").toLowerCase();
     }
@@ -380,7 +369,6 @@
         if(!f) continue;
         var v = r[c.key];
         if(c.type === "text"){ if(v.toLowerCase().indexOf(f.toLowerCase()) < 0) return false; }
-        else if(c.type === "cms"){ if(f === "yes" ? v !== true : (f === "unsure" ? v !== "?" : v !== false)) return false; }
         else if(c.type === "check"){ if((f === "yes") !== !!v) return false; }
         else if(f === "__none"){ if(v) return false; }
         else if(v !== f) return false;
@@ -435,12 +423,6 @@
           pgOpts.unshift(pgAll);
           pgOpts.forEach(function(o){ var op = el("option", null, o[1]); op.value = o[0]; ctl.appendChild(op); });
           ctl.addEventListener("change", function(){ state.f[c.key] = ctl.value; draw(); });
-        } else if(c.type === "cms"){
-          ctl = el("select");
-          [["", "All"], ["yes", "Yes"], ["no", "No"], ["unsure", "?"]].forEach(function(o){
-            var op = el("option", null, o[1]); op.value = o[0]; ctl.appendChild(op);
-          });
-          ctl.addEventListener("change", function(){ state.f[c.key] = ctl.value; draw(); });
         } else if(c.type === "check"){
           ctl = el("select");
           [["", "All"], ["yes", "Yes"], ["no", "No"]].forEach(function(o){
@@ -476,14 +458,6 @@
         var c1 = el("td"); c1.appendChild(el("span", "lt-pg", r.page));
         var c2 = el("td"); if(r.url) c2.appendChild(el("span", "lt-url", r.url));
         var c4 = el("td", null, r.note);
-        var c8 = el("td", "c-cms");
-        if(r.cms === true){
-          var cm = el("span", "lt-done", "✓"); cm.setAttribute("aria-hidden", "true");
-          c8.appendChild(cm); c8.appendChild(el("span", "sr-only", "CMS-driven"));
-        } else if(r.cms === "?"){
-          var cq = el("span", "lt-done", "?"); cq.setAttribute("aria-hidden", "true");
-          c8.appendChild(cq); c8.appendChild(el("span", "sr-only", "Not sure if CMS-driven"));
-        }
         var c5 = el("td"); if(r.noteStatus) c5.appendChild(badge("st", r.noteStatus));
         var c7 = el("td", "c-cmp");
         if(r.complete){
@@ -491,7 +465,7 @@
           c7.appendChild(ck); c7.appendChild(el("span", "sr-only", "Complete"));
         }
         var c4n = el("td", null, r.notes);
-        [c0, c1, c2, c4, c4n, c5, c8, c7].forEach(function(c){ tr.appendChild(c); });
+        [c0, c1, c2, c4, c4n, c5, c7].forEach(function(c){ tr.appendChild(c); });
         tbody.appendChild(tr);
       });
       emptyEl.hidden = rows.length > 0;
