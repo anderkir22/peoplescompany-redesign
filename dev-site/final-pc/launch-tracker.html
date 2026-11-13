@@ -41,6 +41,10 @@
 
     .lt-bar{ display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin: 0 0 var(--space-3); font-size: 14px; }
     .lt-count{ margin: 0; font-weight: 600; }
+    .lt-prog{ display: flex; align-items: center; gap: var(--space-2); flex: 1 1 200px; max-width: 360px; font-weight: 600; }
+    .lt-prog-track{ flex: 1; height: 12px; background: var(--pc-soft-white); border: 1px solid var(--pc-navy); border-radius: var(--radius-pill); overflow: hidden; }
+    .lt-prog-fill{ height: 100%; width: 0; background: var(--pc-navy); }
+    .lt-prog-txt{ white-space: nowrap; }
     .lt-clear{ font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; color: var(--pc-navy); background: var(--pc-white);
       border: 1px solid var(--pc-navy); border-radius: var(--radius-pill); cursor: pointer; }
     .lt-clear:hover{ background: var(--pc-light-blue); }
@@ -87,6 +91,10 @@
 
     <div class="lt-bar">
       <p class="lt-count" id="lt-count" role="status" aria-live="polite"></p>
+      <div class="lt-prog" id="lt-prog">
+        <div class="lt-prog-track" id="lt-prog-track" role="progressbar" aria-label="Rows complete" aria-valuemin="0" aria-valuemax="100"><div class="lt-prog-fill" id="lt-prog-fill"></div></div>
+        <span class="lt-prog-txt" id="lt-prog-txt"></span>
+      </div>
       <button class="lt-clear" id="lt-clear" type="button">Clear sort and filters</button>
     </div>
 
@@ -201,15 +209,15 @@
     ]},
     { name: "Job Description", url: "", status: "live-on-preview", tasks: [
       { id: "040", notes: "waiting for CMS to update text", cms: true, text: "Get qualifications and expectations added to job descriptions" },
-      { id: "041", cms: false, text: "Change \"Six decades of expertise\" to \"50-plus years of experience\"", status: "submitted" },
-      { id: "042", cms: false, text: "Update the Why Work With Us section with updated details", status: "submitted" }
+      { id: "041", cms: false, text: "Change \"Six decades of expertise\" to \"50-plus years of experience\"", status: "in-preview", complete: true },
+      { id: "042", cms: false, text: "Update the Why Work With Us section with updated details", status: "in-preview", complete: true }
     ]},
     { name: "Careers", url: "/careers", status: "live-on-preview", tasks: [
       { id: "043", notes: "find images", cms: false, text: "Update imagery" },
       { id: "044", notes: "find images", cms: false, text: "Need 3 new pictures with people" },
       { id: "045", notes: "will happen when category is changed in CMS", cms: false, text: "We could update Growing Together to Riding for the Brand here as well" },
-      { id: "046", cms: false, text: "Change \"Six decades of expertise\" to \"50-plus years of experience\"", status: "submitted" },
-      { id: "047", cms: false, text: "Update the Why Work With Us section with updated details", status: "submitted" }
+      { id: "046", cms: false, text: "Change \"Six decades of expertise\" to \"50-plus years of experience\"", status: "in-preview", complete: true },
+      { id: "047", cms: false, text: "Update the Why Work With Us section with updated details", status: "in-preview", complete: true }
     ]},
     { name: "Industry Research", url: "/industry-research", status: "live-on-preview", tasks: [
       { id: "048", notes: "awaiting new NLV", cms: false, text: "Update text in right rail" },
@@ -493,6 +501,14 @@
         s.arrow.textContent = on ? (state.sortDir === 1 ? "▲" : "▼") : "⇅";
       });
       countEl.textContent = "Showing " + rows.length + " of " + ROWS.length + " rows";
+      /* progress: Complete rows over all rows (ignores filters) */
+      var doneN = ROWS.filter(function(r){ return r.complete; }).length,
+          pct = ROWS.length ? Math.round(doneN / ROWS.length * 100) : 0;
+      document.getElementById("lt-prog-fill").style.width = pct + "%";
+      var pt = document.getElementById("lt-prog-track");
+      pt.setAttribute("aria-valuenow", pct);
+      pt.setAttribute("aria-valuetext", doneN + " of " + ROWS.length + " rows complete");
+      document.getElementById("lt-prog-txt").textContent = pct + "% complete";
     }
 
     table.querySelector('.lt-f select[data-key="complete"]').value = "no";
