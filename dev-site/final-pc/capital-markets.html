@@ -35,6 +35,11 @@
     .ea-sec--navy .ea-eyebrow{ color: var(--pc-light-blue); }
     .ea-h2{ margin: 0; font-family: var(--font-serif); font-weight: 500; font-size: 36px; line-height: 1.14;
       letter-spacing: -.01em; color: var(--pc-black); }
+    /* Insights header uses the homepage block; its H2 and eyebrow are matched to the .ea-h2 / .ea-eyebrow of the other sections. */
+    #insights .io-scope .io-h2{ font-size: 36px; line-height: 1.14; letter-spacing: -.01em; }
+    #insights .io-scope .io-eyebrow{ display: block; gap: 0; margin: 0 0 var(--space-4); font-family: var(--font-sans);
+      font-size: var(--label); font-weight: 700; letter-spacing: .14em; color: var(--pc-medium-blue); }
+    #insights .io-scope .io-eyebrow::before{ display: none; }
     .ea-h2 em{ font-style: italic; color: var(--pc-medium-blue); }
     .ea-sec--black .ea-h2, .ea-sec--navy .ea-h2{ color: var(--pc-white); }
     .ea-sec--black .ea-h2 em, .ea-sec--navy .ea-h2 em{ color: var(--pc-blue); }
@@ -48,7 +53,12 @@
        closing it. */
     .ea-hero{ position: relative; height: 620px; display: flex; align-items: flex-end;
       overflow: hidden; background: var(--pc-black); color: var(--pc-white); }
-    .ea-hero-img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    /* Horizon pinned 320px from the top of the hero at every width. The photo is 4:3 and its horizon is
+       27.4% down the image (0.2049 x image width). Width = max(viewport, 1561px) so it always covers;
+       top shifts the image up by however far the horizon falls past 320px. Centered horizontally. */
+    .ea-hero-img{ position: absolute; left: 50%; transform: translateX(-50%);
+      width: max(100vw, 1561px); height: auto; max-width: none;
+      top: calc(320px - 0.2049 * max(100vw, 1561px)); }
     .ea-hero::before{ content: ""; position: absolute; inset: 0; z-index: 1;
       background: linear-gradient(90deg, rgba(7,22,44,.92) 0%, rgba(7,22,44,.72) 42%, rgba(7,22,44,.12) 78%),
                   linear-gradient(0deg, rgba(7,22,44,1) 0%, rgba(7,22,44,0) 45%); }
@@ -512,6 +522,9 @@
     .cm-pan[hidden]{ display: grid; visibility: hidden; }
     .cm-pan-ph{ position: relative; min-height: 240px; background: var(--pc-navy); }
     .cm-pan-ph img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cm-pan-ph-tag{ position: absolute; top: var(--space-4); left: var(--space-4); z-index: 1; padding: 6px 10px; box-sizing: border-box;
+      border: 1px dashed rgba(255,255,255,.55); border-radius: var(--radius-sm); font: 600 10px/1 var(--font-sans);
+      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-white); }
     .cm-pan-ph::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,22,44,.88) 0%, rgba(7,22,44,.35) 45%, rgba(7,22,44,0) 75%); }
     .cm-pan-cap{ position: absolute; left: var(--space-6); right: var(--space-6); bottom: var(--space-5); z-index: 1; margin: 0;
       font-family: var(--font-serif); font-weight: 500; font-size: 28px; line-height: 1.15; color: var(--pc-white); }
@@ -523,7 +536,10 @@
     /* Four cards, two across. Each intro is cut to three lines at a whole word with an ellipsis, so every card is
        the same height at rest and the parts line up. Read More opens that one paragraph in place and
        grows only its own card (align-items: start keeps the neighbour as it was). */
-    .cm-structs{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); margin-top: var(--space-7); align-items: start; }
+    .cm-structs{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); margin-top: var(--space-7); align-items: stretch; }
+    .cm-chart{ margin: var(--space-4) 0; padding: var(--space-3); background: var(--pc-white); border: 1px solid var(--color-border); }
+    .cm-chart svg{ display: block; width: 100%; height: auto; }
+    .cm-chart figcaption{ margin-top: var(--space-2); font-size: 12px; color: var(--pc-black); }
     .cm-struct.ea-duo-card{ padding: 0; overflow: hidden; }
     .cm-struct-ph{ position: relative; height: 150px; background: var(--pc-navy); }
     .cm-struct-ph img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -581,6 +597,7 @@
       .ca-title{ font-size: 26px; line-height: 1.18; }
       .ea-hero h1{ font-size: 34px; line-height: 1.12; }
       .ea-h2, .ea-blog-h{ font-size: 26px; line-height: 1.18; }
+      #insights .io-scope .io-h2{ font-size: 26px; line-height: 1.18; }
       .ea-p, .ea-lead, .ea-duo-list li{ font-size: 15px; line-height: 1.6; }
       .ea-p{ margin-bottom: var(--space-4); }
       /* Clients row: type steps down so each heading holds one line. */
@@ -680,6 +697,7 @@
     @media (max-width: 359px){
       .ea-hero h1{ font-size: 30px; }
       .ea-h2, .ea-blog-h{ font-size: 24px; }
+      #insights .io-scope .io-h2{ font-size: 24px; }
       .ea-p, .ea-lead, .ea-duo-list li{ font-size: 14px; }
       .ca-inner{ padding-left: var(--space-4); padding-right: var(--space-4); }
       .ca-title{ font-size: 24px; }
@@ -764,12 +782,12 @@
 
     <!-- HERO -->
     <section class="ea-hero" id="overview" aria-labelledby="ea-h1">
-      <img class="ea-hero-img" src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_91886132.jpeg/9b3b68925b460417a55e542eb3a0252b.webp" alt="Center-pivot irrigation watering a young corn field at sunset" decoding="async" onerror="this.style.display='none'" />
+      <img class="ea-hero-img" src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/19357-DJI_0325.jpeg" alt="Wheat field stretching to the horizon at sunset" decoding="async" onerror="this.style.display='none'" />
       <div class="ea-hero-in">
         <div class="ea-wrap">
           <p class="hp-eyebrow on-dark">Capital Markets</p>
           <h1 id="ea-h1">Clarity for every <em>land decision.</em></h1>
-          <p class="ea-lead">Separately managed farmland portfolios for institutional investors, family offices, and high-net-worth individuals, backed by the most comprehensive farmland services platform in the country.</p>
+          <p class="ea-lead">Separately managed farmland portfolios for institutional investors, family offices, and high-net-worth individuals, backed by a comprehensive farmland services platform.</p>
           <div class="ea-actions">
             <button class="btn ea-btn-line ea-btn-ic" type="button" id="ea-theater-src" data-theater-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="ea-len">3:15</span></button>
             <a class="btn btn-primary" href="#connect">Connect with an Expert</a>
@@ -784,16 +802,16 @@
         <h2 class="sr-only" id="ea-aud-h">Who We Serve</h2>
         <div class="ea-hold">
           <div class="hp-card">
-            <h3>Institutional Investors</h3>
-            <p>Joint ventures from $100 million.</p>
-          </div>
-          <div class="hp-card">
-            <h3>Family Offices</h3>
+            <h3>Separately Managed Accounts</h3>
             <p>Direct ownership from $20 million.</p>
           </div>
           <div class="hp-card">
-            <h3>Wealth Managers</h3>
-            <p>Sub advisor offerings from $10 million.</p>
+            <h3>Sub Advisor Relationships</h3>
+            <p>Syndicated offerings from $10 million.</p>
+          </div>
+          <div class="hp-card">
+            <h3>Portfolio Advisory</h3>
+            <p>Portfolio evaluation and recommendations.</p>
           </div>
         </div>
       </div>
@@ -804,15 +822,28 @@
       <div class="ea-wrap reveal">
         <div class="ea-duo ea-duo--wide">
           <div>
-            <p class="ea-eyebrow">Farmland Investing</p>
+            <p class="ea-eyebrow">Our Approach</p>
             <h2 class="ea-h2" id="ea-app-h">Farmland as an Asset Class, Built to Last</h2>
             <p class="ea-p">Farmland is among the most stable and resilient asset classes available to investors, offering consistent income, long-term appreciation, and a hedge against inflation that acts independently of traditional markets. With rising global food demand and a fundamentally constrained land supply, the structural case for farmland as a long-term investment has never been stronger. Peoples Company Capital Markets connects capital with distinctive farmland opportunities across the country&rsquo;s most productive agricultural regions, delivering outcomes built around capital preservation, portfolio diversification, and sustainable long-term value creation.</p>
             <p class="ea-p">Our approach to farmland investment is grounded in acquiring high-quality assets in strong agricultural production regions where professional operators, productive soils, and long-term appreciation create distinct opportunities. By adhering to disciplined acquisition criteria and a focus on long-term performance, our team builds portfolios designed to deliver consistent income and durable appreciation across market cycles.</p>
           </div>
           <div class="ea-duo-card reveal" style="--rd:.15s">
-            <p class="ea-eyebrow">Market Intelligence</p>
-            <p class="ea-p">Our Capital Markets team publishes the annual National Land Values report and a growing library of farmland market research, establishing Peoples Company as one of the leading voices in farmland market intelligence.</p>
-            <p class="ea-p">Explore our <a class="ea-link" href="./industry-research.html">industry research</a> to learn more about the farmland asset class.</p>
+            <p class="ea-eyebrow">Farmland Data</p>
+            <p class="ea-p">Explore farmland values, cash rent, and returns by state with the FarmWorth&trade; data toolkit.</p>
+            <figure class="cm-chart" role="img" aria-label="Sample chart: farmland values rising from 2016 to 2026 (illustrative only)">
+              <svg viewBox="0 0 240 110" aria-hidden="true" focusable="false">
+                <line x1="8" y1="100" x2="232" y2="100" stroke="#07162C" stroke-opacity=".25"/>
+                <rect x="14" y="70" width="22" height="30" fill="#AEDDF3"/>
+                <rect x="46" y="62" width="22" height="38" fill="#AEDDF3"/>
+                <rect x="78" y="54" width="22" height="46" fill="#AEDDF3"/>
+                <rect x="110" y="46" width="22" height="54" fill="#AEDDF3"/>
+                <rect x="142" y="36" width="22" height="64" fill="#AEDDF3"/>
+                <rect x="174" y="26" width="22" height="74" fill="#AEDDF3"/>
+                <rect x="206" y="14" width="22" height="86" fill="#00AEEF"/>
+                <polyline points="25,66 57,58 89,50 121,42 153,32 185,22 217,10" fill="none" stroke="#07162C" stroke-width="2"/>
+              </svg>
+            </figure>
+            <p class="ea-p" style="text-align:center"><a class="btn btn-primary" href="./farmland-data.html">Explore Farmland Data</a></p>
           </div>
         </div>
         <div class="ea-duo-more">
@@ -834,19 +865,19 @@
             <p class="ea-eyebrow">Our Process</p>
             <h2 class="ea-h2" id="ea-proc-h">Our Process to Support Your Portfolio</h2>
           </div>
-          <p class="ea-p">With over $4 billion in farmland under management across more than 25 states, Peoples Company brings national market intelligence paired with deep local sourcing expertise across every major agricultural region. Our proprietary tools, including FarmWorth&trade; and our real-time asset database, enable our team to identify high-quality opportunities, stress-test assumptions, and provide clients with optionality at every stage of the investment.</p>
+          <p class="ea-p">With over $4 billion in farmland under management, Peoples Company brings national market intelligence paired with deep local sourcing expertise across every major agricultural region. Our proprietary tools, including FarmWorth&trade; and our real-time asset database, enable our team to identify high-quality opportunities, stress-test assumptions, and provide clients with optionality at every stage of the investment.</p>
         </div>
         <div>
           <div class="cm-tabs" role="tablist" aria-label="Process steps">
             <button class="cm-tab" type="button" role="tab" id="cm-tab-1" aria-controls="cm-pan-1" aria-selected="true"><span class="cm-step-n" aria-hidden="true">01</span>Asset Sourcing</button>
             <button class="cm-tab" type="button" role="tab" id="cm-tab-2" aria-controls="cm-pan-2" aria-selected="false" tabindex="-1"><span class="cm-step-n" aria-hidden="true">02</span>Asset Analysis</button>
             <button class="cm-tab" type="button" role="tab" id="cm-tab-3" aria-controls="cm-pan-3" aria-selected="false" tabindex="-1"><span class="cm-step-n" aria-hidden="true">03</span>Due Diligence &amp; Business Planning</button>
-            <button class="cm-tab" type="button" role="tab" id="cm-tab-4" aria-controls="cm-pan-4" aria-selected="false" tabindex="-1"><span class="cm-step-n" aria-hidden="true">04</span>Land Management</button>
+            <button class="cm-tab" type="button" role="tab" id="cm-tab-4" aria-controls="cm-pan-4" aria-selected="false" tabindex="-1"><span class="cm-step-n" aria-hidden="true">04</span>Farm Management</button>
             <button class="cm-tab" type="button" role="tab" id="cm-tab-5" aria-controls="cm-pan-5" aria-selected="false" tabindex="-1"><span class="cm-step-n" aria-hidden="true">05</span>Asset Management &amp; Portfolio Reporting</button>
           </div>
           <div class="cm-pans">
           <div class="cm-pan" role="tabpanel" id="cm-pan-1" aria-labelledby="cm-tab-1">
-            <div class="cm-pan-ph" aria-hidden="true"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_91886132.jpeg/9b3b68925b460417a55e542eb3a0252b.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-pan-cap">Asset Sourcing</p></div>
+            <div class="cm-pan-ph" aria-hidden="true"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-pan-cap">Asset Sourcing</p></div>
             <div class="cm-items">
               <div><h4>Unmatched Deal Flow</h4><p>Our team&rsquo;s asset database has over $4 billion in active and off-market farmland listings nationwide that we are tracking at any given time, including assets in opportunity zones, organics, permanent crops, row crops, and specialty crops. In addition, our team leverages our operator relationships across our management portfolio to source opportunities.</p></div>
               <div><h4>Industry-Leading Data Advantage</h4><p>Our team leverages our proprietary FarmWorth&trade; and Farmland Insights tools, integrating historical returns, USDA and NCREIF data, crop insurance, rents, and comp data for precise acquisition and due diligence.</p></div>
@@ -854,7 +885,7 @@
             </div>
           </div>
           <div class="cm-pan" role="tabpanel" id="cm-pan-2" aria-labelledby="cm-tab-2" hidden>
-            <div class="cm-pan-ph" aria-hidden="true"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/appraisal26.jpg/6a3bff544b4d428c10f180cebddadf3a.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-pan-cap">Asset Analysis</p></div>
+            <div class="cm-pan-ph" aria-hidden="true"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-pan-cap">Asset Analysis</p></div>
             <div class="cm-items">
               <div><h4>Rigorous Underwriting</h4><p>Our team evaluates assets against predefined acquisition guidelines according to our internal proven process and client parameters.</p></div>
               <div><h4>Comprehensive Opportunity Memos</h4><p>We present asset characteristics, value analysis, deal terms, and acquisition thesis in a concise summary document, called an asset opportunity memo (AOM).</p></div>
@@ -862,7 +893,7 @@
             </div>
           </div>
           <div class="cm-pan" role="tabpanel" id="cm-pan-3" aria-labelledby="cm-tab-3" hidden>
-            <div class="cm-pan-ph" aria-hidden="true"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/capital26.jpg/48d4d5df6f85f3935ca664fc672ac4f5.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-pan-cap">Due Diligence &amp; Business Planning</p></div>
+            <div class="cm-pan-ph" aria-hidden="true"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-pan-cap">Due Diligence &amp; Business Planning</p></div>
             <div class="cm-items">
               <div><h4>Thorough Due Diligence</h4><p>Our team assesses historical performance, comparable sales, expert reports, and financial models.</p></div>
               <div><h4>Value Optimization</h4><p>Our acquisition and management teams collaborate to enhance annual cash yield, maximize long-term appreciation, and plan capital improvements.</p></div>
@@ -870,7 +901,7 @@
             </div>
           </div>
           <div class="cm-pan" role="tabpanel" id="cm-pan-4" aria-labelledby="cm-tab-4" hidden>
-            <div class="cm-pan-ph" aria-hidden="true"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/management26.jpg/6115f754ad4c501d00c605b11eb316f9.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-pan-cap">Land Management</p></div>
+            <div class="cm-pan-ph" aria-hidden="true"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-pan-cap">Farm Management</p></div>
             <div class="cm-items">
               <div><h4>Sustainable Operations</h4><p>Our team employs advanced technology and conservation practices to enhance yields, boost income, and improve soil health according to the Leading Harvest Sustainability Standard.</p></div>
               <div><h4>Precision Management</h4><p>We aim to maximize return on top-producing acres while preserving environmentally sensitive areas, as well as exploring value added opportunities such as renewable energy.</p></div>
@@ -878,7 +909,7 @@
             </div>
           </div>
           <div class="cm-pan" role="tabpanel" id="cm-pan-5" aria-labelledby="cm-tab-5" hidden>
-            <div class="cm-pan-ph" aria-hidden="true"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_418012143.jpeg/2cbc796052f849c8a97f03f56296ef2f.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-pan-cap">Asset Management &amp; Portfolio Reporting</p></div>
+            <div class="cm-pan-ph" aria-hidden="true"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-pan-cap">Asset Management &amp; Portfolio Reporting</p></div>
             <div class="cm-items">
               <div><h4>Annual Strategic Planning</h4><p>Our team prepares detailed business plans and portfolio reviews covering production, improvements, soil health, lease terms, acquisitions, dispositions, and market insights.</p></div>
               <div><h4>Mid-Year Performance Check</h4><p>We supply budget-to-actual analysis, acquisition updates, capital deployment plans, and crop progress reports.</p></div>
@@ -902,9 +933,9 @@
         </div>
         <div class="cm-structs">
           <div class="ea-duo-card cm-struct reveal" style="--rd:.1s">
-            <div class="cm-struct-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_569249757.jpg/a2595ff8a336b929811b2b4090613307.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-min"><span class="cm-min-fig">$20M+</span><span class="cm-min-l">Capital to deploy</span></p></div>
+            <div class="cm-struct-ph"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-min"><span class="cm-min-fig">$20M+</span><span class="cm-min-l">Capital to deploy</span></p></div>
             <div class="cm-struct-body">
-              <h3 class="ea-h3">Separate Account</h3>
+              <h3 class="ea-h3">Separately Managed Account</h3>
               <p class="ea-p cm-clamp" id="cm-s1">Peoples Company Capital Markets provides separate account asset acquisition and management for investors seeking to deploy capital of $20 million or more into U.S. farmland. Our team implements investment strategies by sourcing, acquiring, and managing investable farmland assets on behalf of the client. The separate account structure provides investors with direct ownership, where they control which assets to acquire, how they are managed, and when to divest them with the expert advice and assistance of the Capital Markets team throughout the life of the investment.</p>
               <button type="button" class="cm-more" aria-expanded="false" aria-controls="cm-s1">Read More</button>
               <div class="cm-src">
@@ -913,32 +944,20 @@
               </div>
             </div>
           </div>
-          <div class="ea-duo-card cm-struct reveal" style="--rd:.2s">
-            <div class="cm-struct-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_91886132.jpeg/9b3b68925b460417a55e542eb3a0252b.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-min"><span class="cm-min-fig">$100M+</span><span class="cm-min-l">Capital to deploy</span></p></div>
-            <div class="cm-struct-body">
-              <h3 class="ea-h3">Joint Venture Partnership</h3>
-              <p class="ea-p cm-clamp" id="cm-s2">Peoples Company Capital Markets structures joint venture partnerships with institutions with $100 million or more of capital to deploy in the farmland asset class. Our team provides market analysis, sourcing, diligence and management on behalf of the client as well as co-invests in all acquisitions.</p>
-              <button type="button" class="cm-more" aria-expanded="false" aria-controls="cm-s2">Read More</button>
-              <div class="cm-src">
-                <p class="ea-eyebrow">Capital Sources</p>
-                <ul class="cm-chips"><li>Institutional Investors</li></ul>
-              </div>
-            </div>
-          </div>
           <div class="ea-duo-card cm-struct reveal" style="--rd:.1s">
-            <div class="cm-struct-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_418012143.jpeg/2cbc796052f849c8a97f03f56296ef2f.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-min"><span class="cm-min-fig">$10M</span><span class="cm-min-l">Of client capital</span></p></div>
+            <div class="cm-struct-ph"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-min"><span class="cm-min-fig">$10M</span><span class="cm-min-l">Of client capital</span></p></div>
             <div class="cm-struct-body">
               <h3 class="ea-h3">Sub Advisor Relationships</h3>
               <p class="ea-p cm-clamp" id="cm-s3">Capital Markets creates and manages private structured offerings for wealth managers, trust departments, RIAs, and other asset aggregators with $10 million of client capital to deploy. Traditional wealth managers can leverage the benefits of farmland investing on behalf of their clients by partnering with Capital Markets to structure, diligence, acquire, and manage farmland assets on their behalf.</p>
               <button type="button" class="cm-more" aria-expanded="false" aria-controls="cm-s3">Read More</button>
               <div class="cm-src">
                 <p class="ea-eyebrow">Capital Sources</p>
-                <ul class="cm-chips"><li>Wealth Managers</li><li>Trust Departments</li><li>RIAs</li></ul>
+                <ul class="cm-chips"><li>Wealth Managers</li><li>Trust Departments</li><li>RIAs</li><li>Asset Managers</li></ul>
               </div>
             </div>
           </div>
           <div class="ea-duo-card cm-struct reveal" style="--rd:.2s">
-            <div class="cm-struct-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/auction26.jpg/f733fb2fe0b9015ea27ca1e8191eefe7.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /><p class="cm-min"><span class="cm-min-fig">Advisory</span><span class="cm-min-l">Transaction services</span></p></div>
+            <div class="cm-struct-ph"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-min"><span class="cm-min-fig">Advisory</span><span class="cm-min-l">Transaction services</span></p></div>
             <div class="cm-struct-body">
               <h3 class="ea-h3">Portfolio Advisory</h3>
               <p class="ea-p cm-clamp" id="cm-s4">Capital Markets provides advisory-based transaction services on behalf of institutions. These services include evaluating a portfolio as well as creating and implementing a disposition plan while marketing the property to a vast buyer pool consisting of large farm operators, individuals utilizing 1031 exchanges, institutional investors, family offices, and high-net-worth individuals.</p>
@@ -1004,7 +1023,7 @@
             <span class="ea-tile-ic" aria-hidden="true"><img class="hp-svcimg" alt="" src="https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/icons/white_nocircle_agricultural_appraisal.svg" /></span>
             <span class="ea-tile-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/appraisal26.jpg/6a3bff544b4d428c10f180cebddadf3a.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
             <div class="ea-tile-body">
-              <h3>Appraisal &amp; Valuation</h3>
+              <h3>Agricultural Appraisal</h3>
               <p>Comparable sales analysis and valuation support for rigorous underwriting and due diligence.</p>
             </div>
           </a>
@@ -1020,41 +1039,34 @@
       </div>
     </section>
 
-    <!-- ARTICLES -->
-    <section class="ea-sec ea-sec--soft" id="insights" aria-labelledby="ea-blog-h">
+    <!-- INSIGHTS & RESEARCH: same block as the homepage, research only (no blog tab) -->
+    <section class="ea-sec ea-sec--soft" id="insights" aria-labelledby="hp-ins-h">
       <div class="ea-wrap reveal">
-        <div class="ea-blog-head">
-          <h2 class="ea-blog-h" id="ea-blog-h">Capital Markets Blog Articles</h2>
-          <a class="ea-viewall" href="./blog.html">View all articles &rarr;</a>
-        </div>
-        <div class="ea-posts">
-          <a class="ea-post reveal" style="--rd:.1s" href="./blog-story.html">
-            <span class="ea-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---2026-bankruptcies-%28website%29.jpg/ed228128c518efd0ea64f61a031587ff.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <span class="ea-post-body">
-              <span class="ea-post-meta"><span class="ea-chip">Land Values</span><span class="ea-chip">Industry Insights</span><span>June 12, 2026</span></span>
-              <h3>Farm Bankruptcies in 2026: Headlines vs. Reality</h3>
-              <p>Farm bankruptcies are rising, but the numbers need context. Peoples Company breaks down Chapter 12 trends, and which ag sectors face real stress in 2026.</p>
-              <span class="ea-post-more" aria-hidden="true">Read More</span>
-            </span>
-          </a>
-          <a class="ea-post reveal" style="--rd:.2s" href="./blog-story.html">
-            <span class="ea-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---from-the-ground-up-%28website%29.jpg/9249e3359249f995b88e8f19dcf0cb8b.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <span class="ea-post-body">
-              <span class="ea-post-meta"><span class="ea-chip">Land Management</span><span class="ea-chip">Industry Insights</span><span>April 13, 2026</span></span>
-              <h3>From the Ground Up: How Strategic Land Management Unlocks Long-Term Appreciation</h3>
-              <p>Discover how Peoples Company uses targeted improvements and strategic management to drive long-term farmland appreciation. Real-world examples highlight how the right investments and partnerships can unlock a farm&rsquo;s full potential.</p>
-              <span class="ea-post-more" aria-hidden="true">Read More</span>
-            </span>
-          </a>
-          <a class="ea-post reveal" style="--rd:.3s" href="./blog-story.html">
-            <span class="ea-post-ph"><img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/blogs/blog---argentina-agriculture-%28website%29.jpg/45674c9c4503c7d5cdb640276f9147f2.webp" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" /></span>
-            <span class="ea-post-body">
-              <span class="ea-post-meta"><span class="ea-chip">Industry Insights</span><span>April 13, 2026</span></span>
-              <h3>Argentina: U.S. Partnership Opportunities in Agriculture, Energy &amp; Fertilizer</h3>
-              <p>Explore how the U.S. can partner with Argentina to develop world-class resources in agriculture, shale energy, and fertilizer production. A strategic look at the opportunities, risks, and integration advantages across the Pampas and Vaca Muerta.</p>
-              <span class="ea-post-more" aria-hidden="true">Read More</span>
-            </span>
-          </a>
+        <div class="io-scope">
+          <div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 id="hp-ins-h" class="io-h2">Land Intelligence, Made Readable</h2></div><a class="io-viewmore" href="./industry-research.html">View more &rarr;</a></div>
+          <div class="ioC-blog3">
+            <a class="io-card" href="./industry-research.html">
+              <span class="io-ph r169"><img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80" alt="Open farmland to the horizon" loading="lazy" onerror="this.style.display='none'" /></span>
+              <span class="io-body"><h4 class="io-title">Farmland Fundamentals: Understanding the Asset Class</h4><p class="io-teaser">A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.</p></span>
+            </a>
+            <a class="io-card" href="./industry-research.html">
+              <span class="io-ph r169"><img src="https://images.unsplash.com/photo-1757170889478-e6768a4e36c1?auto=format&fit=crop&w=1200&q=80" alt="Aerial field strips" loading="lazy" onerror="this.style.display='none'" /></span>
+              <span class="io-body"><h4 class="io-title">Shared DNA: Why Family Offices and Farmland Naturally Align</h4><p class="io-teaser">How multigenerational capital and multigenerational land share the same long horizon.</p></span>
+            </a>
+            <a class="io-card" href="./industry-research.html">
+              <span class="io-ph r169"><img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=1200&q=80" alt="Aerial crop rows at sunset" loading="lazy" onerror="this.style.display='none'" /></span>
+              <span class="io-body"><h4 class="io-title">Perspectives on the Impact of Global Conflict on Farmland Returns</h4><p class="io-teaser">What geopolitical shocks have, and have not, meant for U.S. cropland values.</p></span>
+            </a>
+          </div>
+          <p class="io-moretag">Additional White Papers</p>
+          <div class="io-hlist2">
+            <a class="io-hrow" href="./industry-research.html"><span class="t">The Inflation Hedge: Farmland vs. Traditional Assets</span></a>
+            <a class="io-hrow" href="./industry-research.html"><span class="t">Water Rights and the Value of Irrigated Ground</span></a>
+            <a class="io-hrow" href="./industry-research.html"><span class="t">Row Crop vs. Permanent Crop: A Risk Framework</span></a>
+            <a class="io-hrow" href="./industry-research.html"><span class="t">Carbon, Conservation, and Land Returns</span></a>
+            <a class="io-hrow" href="./industry-research.html"><span class="t">Timber &amp; Transition Land: An Allocation Primer</span></a>
+            <a class="io-hrow" href="./industry-research.html"><span class="t">The 2025 National Land Values Report</span></a>
+          </div>
         </div>
       </div>
     </section>
@@ -1065,7 +1077,7 @@
         <div class="ea-contact">
           <div>
             <p class="ea-eyebrow">Getting Started</p>
-            <h2 class="ea-h2" id="ea-go-h">Connect with a<br><em>Capital Markets expert</em></h2>
+            <h2 class="ea-h2" id="ea-go-h">Connect with a<br><em>Capital Markets Expert</em></h2>
             <p class="ea-p" style="margin-top:var(--space-5)">Complete the form to request a meeting with our team to learn about our platform and how we approach farmland investing.</p>
           </div>
           <form class="ea-form" action="#" onsubmit="return false;" aria-labelledby="ea-go-h">
@@ -1179,7 +1191,7 @@
 
       <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
 
-      <h2 class="ca-title" id="si-title">Sign in to your account</h2>
+      <h2 class="ca-title" id="si-title">Sign In to Your Account</h2>
 
       <form action="#" onsubmit="return false;" novalidate>
         <div class="ca-field">
@@ -1212,7 +1224,7 @@
 
       <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
 
-      <h2 class="ca-title" id="fp-title">Recover your account</h2>
+      <h2 class="ca-title" id="fp-title">Recover Your Account</h2>
       <p class="ca-intro">Enter the email address on your account and we&rsquo;ll send you a link to reset your password.</p>
 
       <form action="#" onsubmit="return false;" novalidate>
@@ -1792,7 +1804,7 @@
       var bc = BLOG.featured.map(blogCard).join("");
       var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
 
-      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
+      tabbedBlock('hpInsights', 'Land Intelligence, Made Readable',
         '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
         '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
     })();
