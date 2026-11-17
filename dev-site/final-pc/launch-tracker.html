@@ -168,7 +168,7 @@
     ]},
     { name: "Bio Page", url: "", tasks: [
       { id: "016", text: "Remove Instagram and LinkedIn icons. Add icon for downloading resume.", complete: true },
-      { id: "017", notes: "Completely remove BOARDS and REFERENCES as text field options ... Should end up being, in order: BIOGRAPHY, EDUCATION, MEMBERSHIPS & AFFILIATIONS, AWARDS & RECOGNITION", text: "There are random categories showing up (boards, publications, references, experience, etc.) that were not in the requirements. I would like to eliminate them.", status: "submitted" },
+      { id: "017", text: "There are random categories showing up (boards, publications, references, experience, etc.) that were not in the requirements. I would like to eliminate them.", complete: true },
       { id: "018", text: "Add a little cushion between the blue container and the Bio header", status: "submitted", complete: true },
       { id: "019", text: "Make the stat lines in the bio PC Medium Blue and get rid of the PC Blue bullets (only use PC Blue on dark backgrounds)", complete: true },
       { id: "112", text: "Build out \"Teams\" structure for the brokers", status: "phase-two" }
@@ -320,8 +320,8 @@
     { name: "CMS", url: "Navigation and Site Settings", tasks: [
       { id: "105", text: "Build", status: "on-staging" }
     ]},
-    { name: "CMS", url: "White Papers and Newsletters", tasks: [
-      { id: "106", text: "Build", status: "not-started" }
+    { name: "CMS", url: "White Papers", tasks: [
+      { id: "106", text: "Build", status: "submitted" }
     ]},
     { name: "CMS", url: "Redirects and Error Watch", tasks: [
       { id: "107", notes: "This is approved, but have NOT asked it to be sent to preview", text: "Build", status: "on-staging" }
@@ -425,10 +425,11 @@
     function visible(){
       var rows = ROWS.filter(passes);
       /* With no column chosen, fall back to Task # lowest to highest. */
-      if(!state.sortKey){ rows.sort(function(a, b){ return (parseInt(a.num, 10) || 0) - (parseInt(b.num, 10) || 0) || a.idx - b.idx; }); }
+      if(!state.sortKey){ rows.sort(function(a, b){ return ((a.noteStatus === "phase-two") - (b.noteStatus === "phase-two")) || (parseInt(a.num, 10) || 0) - (parseInt(b.num, 10) || 0) || a.idx - b.idx; }); }
       if(state.sortKey){
         var c = COLS.filter(function(x){ return x.key === state.sortKey; })[0];
         rows.sort(function(a, b){
+          if(state.sortKey === "num"){ var pa = a.noteStatus === "phase-two" ? 1 : 0, pb = b.noteStatus === "phase-two" ? 1 : 0; if(pa !== pb) return pa - pb; }   /* Task # sort keeps Phase Two at the bottom */
           var x = rank(c, a[c.key]), y = rank(c, b[c.key]);
           if(x < y) return -1 * state.sortDir;
           if(x > y) return 1 * state.sortDir;
