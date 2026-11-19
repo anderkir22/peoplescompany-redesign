@@ -274,12 +274,19 @@
           <a href="./internal.html" class="hp-btn hp-btn-solid-dark">Discover FarmWorth™</a>
         </div>
         <!-- horizontal media slot: video / map / demo placeholder -->
+        <!-- FarmWorth media slot: a silent looping animation (an MP4/WebM, not a player). Drop the files in
+             dev-site/assets/: farmworth-loop.webm, farmworth-loop.mp4. The poster (a frame from the video) shows until the video loads, and stays
+             for visitors who cannot autoplay. Spec: 1280 x 720 (16:9), 10 to 20 seconds, 24 to 30 fps, no audio, under 3 MB. -->
         <div class="hp-tech-media">
-          <div class="hp-imgwrap" aria-hidden="true">
-            <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1600&q=80"
-                 alt="" onerror="this.style.display='none'" />
-          </div>
-          <span class="cap">video / map / demo</span>
+          <video class="hp-tech-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true"
+                 poster="../assets/farmworth-loop-poster.jpg">
+            <source src="../assets/farmworth-loop.webm" type="video/webm" />
+            <source src="../assets/farmworth-loop.mp4" type="video/mp4" />
+          </video>
+          <button class="hp-tech-pause" type="button" aria-label="Pause animation" aria-pressed="false">
+            <svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+            <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </button>
         </div>
       </div>
     </section>
@@ -936,6 +943,27 @@
         clearTimeout(idleTimer); idleTimer = setTimeout(function(){ s.classList.add("is-idle"); }, 250);
         if(!t){ t = true; requestAnimationFrame(upd); } }
       window.addEventListener("scroll", onScroll, {passive:true}); window.addEventListener("resize", upd); upd();
+    })();
+  </script>
+  <script>
+    /* FarmWorth media slot: silent looping video with a pause control (WCAG 2.2.2), paused when off-screen, not autoplayed with reduced motion. */
+    (function(){
+      var v = document.querySelector(".hp-tech-video"), b = document.querySelector(".hp-tech-pause");
+      if(!v || !b) return;
+      var box = v.parentNode, userPaused = false;
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function label(paused){ b.setAttribute("aria-pressed", paused ? "true" : "false"); b.setAttribute("aria-label", paused ? "Play animation" : "Pause animation"); }
+      function play(){ var p = v.play(); if(p && p.catch) p.catch(function(){ label(true); }); }
+      /* the control only appears once there is a video to control */
+      function ready(){ box.classList.add("has-video"); }
+      if(v.readyState >= 1) ready(); else v.addEventListener("loadedmetadata", ready);
+      if(reduce){ v.removeAttribute("autoplay"); v.pause(); userPaused = true; label(true); }
+      b.addEventListener("click", function(){
+        if(v.paused){ userPaused = false; play(); label(false); } else { userPaused = true; v.pause(); label(true); } });
+      if("IntersectionObserver" in window){
+        new IntersectionObserver(function(es){ es.forEach(function(e){
+          if(userPaused) return; if(e.isIntersecting) play(); else v.pause(); }); }, {threshold: .15}).observe(v);
+      }
     })();
   </script>
 </body>
