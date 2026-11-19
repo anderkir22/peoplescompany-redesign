@@ -1,6 +1,6 @@
 /* =============================================================================
    Peoples Company — FINAL PC Design System  (pc.css)
-   Last edit: 2026-11-09 15:58 UTC
+   Last edit: 2026-11-19 20:03 UTC
    -----------------------------------------------------------------------------
    Single source of truth for every page in final-pc/. Self-contained and
    dependency-free: these pages link ONLY this file. Do not fork it, and do not
@@ -835,6 +835,32 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
 .hp-hstat .n{ font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1; color:#fff; }
 .hp-hstat .l{ font-size: 12.5px; color:var(--text-on-dark-muted); margin-top: 7px; letter-spacing: .02em; max-width: 15ch; }
 
+/* HERO + FOOT variant (index.html): laid out like the service pages' hero. Fixed 620px, a left
+   wash plus a bottom fade to solid PC Black, no 4px bottom rule, and the four stats in a PC Black
+   band underneath (value on top, italic light-blue line below, not links). The base .hp-hero rules
+   above are left alone because hero.html still renders its ten heroes from them. */
+.hp-hero--foot{ height: 620px; min-height: 0; }
+.hp-hero--foot .hp-hero-bg::after{
+  background: linear-gradient(90deg, rgba(7,22,44,.92) 0%, rgba(7,22,44,.72) 42%, rgba(7,22,44,.12) 78%),
+              linear-gradient(0deg, rgba(7,22,44,1) 0%, rgba(7,22,44,0) 45%); }
+.hp-hero--foot .hp-hero-inner{ padding: var(--space-8) 0; }
+.hp-hero--foot::after{ content: none; }
+/* Three lines reserved whether the lead wraps to two or three, same as the service pages. */
+.hp-hero--foot > .hp-hero-inner p.hp-lead{ min-height: 3lh; }
+.hp-foot{ background: var(--pc-black); padding: 0 0 var(--space-9); }
+.hp-foot-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
+.hp-foot-item{ padding-left: var(--space-5); border-left: 2px solid var(--pc-blue); }
+.hp-foot-n{ display: block; margin: 0 0 var(--space-2, 8px); font-family: var(--font-serif); font-weight: 500;
+  font-size: 34px; line-height: 1; color: var(--pc-white); }
+/* the "+" is 30% smaller than the number beside it, set off by a space-width gap (margin, not a
+   typed space, so screen readers still read "$1B+") */
+.hp-foot-n .hp-plus{ font-size: .7em; margin-left: .3em; }
+.hp-foot-l{ display: block; margin: 0; font-family: var(--font-sans); font-style: italic; font-size: 16px;
+  line-height: 1.35; color: var(--pc-light-blue); }
+@media (max-width: 899px){ .hp-foot-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); } }
+@media (max-width: 767px){ .hp-foot{ padding-bottom: var(--space-7); } }
+@media (max-width: 399px){ .hp-foot-grid{ grid-template-columns: minmax(0, 1fr); } }
+
 /* ── 2 · SERVICES (small left line icons, no top band) ── */
 .hp-svc{ background:var(--pc-white); }
 .hp-svc-head{ margin-bottom: var(--space-6); }
@@ -880,16 +906,23 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .hp-serve-head h2{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; line-height: 1.12; color:#fff; margin: var(--space-2) 0; }
 .hp-serve-head p:not(.hp-eyebrow){ font-size: 15px; color:#fff; margin: 0; max-width: 54ch; }
 .hp-serve-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
-.hp-serve-card{ display: flex; flex-direction: column; gap: 6px; padding: var(--space-6) var(--space-5);
-  border: 1px solid rgba(18,64,106,.22); border-radius: var(--radius-md);
-  text-decoration: none; background: #fff; transition: box-shadow .18s, transform .18s; }
-.hp-serve-card:hover, .hp-serve-card:focus{ box-shadow: 0 8px 22px rgba(7,22,44,.09); transform: translateY(-2px); outline: none; }
-@media (prefers-reduced-motion: reduce){ .hp-serve-card:hover, .hp-serve-card:focus{ transform: none; } }
-.hp-serve-card:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
-.hp-serve-card .tag{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--pc-medium-blue); }
-.hp-serve-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; color: var(--pc-black); margin: 6px 0 0; line-height: 1.2; }
-.hp-serve-card p{ font-size: 13px; color: var(--pc-black); margin: 0; line-height: 1.5; }
-.hp-serve-card .arrow{ margin-top: auto; padding-top: var(--space-3); color: var(--pc-black); font-size: 18px; }
+/* Who We Serve cards: a photo across the top, a PC Black body. The whole card scales on hover (photo
+   included), so the photo has no zoom of its own and the card does not lift. */
+.hp-serve-card{ display: flex; flex-direction: column; overflow: hidden; text-decoration: none;
+  background: var(--pc-black); border: 1px solid rgba(255,255,255,.16); border-radius: var(--radius-md);
+  transition: transform .4s ease, box-shadow .4s ease; }
+.hp-serve-card:hover, .hp-serve-card:focus{ transform: scale(1.03); outline: none; }
+@media (prefers-reduced-motion: reduce){ .hp-serve-card{ transition: none; } .hp-serve-card:hover, .hp-serve-card:focus{ transform: none; } }
+.hp-serve-card:focus-visible{ outline: 2px solid var(--pc-blue); outline-offset: 2px; }
+.hp-serve-ph{ position: relative; display: block; height: 132px; overflow: hidden; background: var(--pc-navy); }
+.hp-serve-ph img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.hp-serve-body{ display: flex; flex-direction: column; gap: 6px; flex: 1; padding: var(--space-5); }
+.hp-serve-card .tag{ font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pc-blue); }
+.hp-serve-card h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px; color: var(--pc-white); margin: 6px 0 0; line-height: 1.2; }
+.hp-serve-card p{ font-size: 13px; color: var(--text-on-dark-muted); margin: 0; line-height: 1.5; }
+.hp-serve-card .arrow{ margin-top: auto; padding-top: var(--space-3); color: var(--pc-blue); font-size: 18px; font-weight: 700; }
+/* Family Offices photo: crop window set so the faces sit in frame */
+.hp-serve-card:nth-child(4) .hp-serve-ph img{ object-position: center 25%; }
 
 /* ── 4 · FARMWORTH — SOLID PC Black band, horizontal media slot ── */
 .hp-tech{ background: var(--pc-black); color:#fff; }
