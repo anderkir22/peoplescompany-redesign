@@ -51,9 +51,9 @@
     /* Horizon pinned 320px from the top of the hero at every width. The photo is 3:2 and its horizon is
        33.4% down the image (0.2227 x image width). Width = max(viewport, 1561px) so it always covers;
        top shifts the image up by however far the horizon falls past 320px. Centered horizontally. */
-    .ea-hero-img{ position: absolute; left: 50%; transform: translateX(-50%);
+    .ea-hero-img{ position: absolute; left: 50%; transform: translateX(-50%) scaleX(-1); /* flipped left to right: the tower sits left, the arm and sunset glow run right */
       width: max(100vw, 1561px); height: auto; max-width: none;
-      top: calc(320px - 0.2227 * max(100vw, 1561px)); }
+      top: calc(320px - 0.3311 * max(100vw, 1561px)); }
     .ea-hero::before{ content: ""; position: absolute; inset: 0; z-index: 1;
       background: linear-gradient(90deg, rgba(7,22,44,.92) 0%, rgba(7,22,44,.72) 42%, rgba(7,22,44,.12) 78%),
                   linear-gradient(0deg, rgba(7,22,44,1) 0%, rgba(7,22,44,0) 45%); }
@@ -94,7 +94,7 @@
       .cs-row .cs-ph{ aspect-ratio: 4 / 3; height: auto; min-height: 0; }
         .cs-client{ grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
     }
-    @media (max-width: 639px){ .cs-card{ padding: var(--space-5); } .cs-client dt{ font-size: 22px; } }
+    @media (max-width: 639px){ .cs-card-body{ padding: var(--space-5); } .cs-card .cs-card-ph h3{ left: var(--space-5); right: var(--space-5); } .cs-client dt{ font-size: 22px; } }
     /* FOR REVIEW: highlighted copy plus a note box under each section. Remove the .rv-* rules, the <mark> tags and the .rv-note blocks when the review is done. */
     .rv-wrap{ position: relative; }
     /* Review colors are deliberately OFF the PC palette so they cannot be mistaken for site design. Yellow and black stay readable for red-green color blindness. */
@@ -102,31 +102,29 @@
     .rv-note{ margin: var(--space-6) 0 0; max-width: 640px; padding: var(--space-4); box-sizing: border-box; border: 3px dashed #000; border-radius: var(--radius-md);
       background: #FFE600; color: #000; font-size: 14px; line-height: 1.5; }
     .rv-note b{ display: block; margin-bottom: 4px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #000; }
-    /* ELEGANCE PASS: numbered client rows, tabbed Primary Services, bento What Sets Apart, Industry Connections closing. */
-    .cm-tabs{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: var(--space-7); }
-    .cm-tab{ position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4);
-      padding: 0 var(--space-4) 0 0; border: 0; background: none; text-align: left; cursor: pointer;
-      font-family: var(--font-serif); font-weight: 500; font-size: 20px; line-height: 1.2; color: var(--pc-navy); }
-    .cm-tab::before{ content: ""; position: absolute; top: 18px; left: 0; right: 0; height: 2px; background: rgba(18,64,106,.3); }
-    .cm-tab:last-child::before{ display: none; }
-    .cm-tab .cm-step-n{ position: relative; z-index: 1; display: grid; place-items: center; width: 38px; height: 38px; box-sizing: border-box;
-      border-radius: 50%; border: 2px solid var(--pc-medium-blue); background: var(--pc-white);
-      font: 600 13px/1 var(--font-sans); letter-spacing: .04em; color: var(--pc-medium-blue); transition: background .2s ease, color .2s ease; }
-    .cm-tab:hover .cm-step-n{ border-color: var(--pc-navy); color: var(--pc-navy); }
-    .cm-tab[aria-selected="true"]{ color: var(--pc-black); }
-    .cm-tab[aria-selected="true"] .cm-step-n{ background: var(--pc-medium-blue); border-color: var(--pc-medium-blue); color: var(--pc-white); }
-    .cm-tab:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 4px; border-radius: 4px; }
+    /* ELEGANCE PASS: numbered client rows, stacked Primary Services, bento What Sets Apart, Industry Connections closing. */
     /* Stepper on the navy Process band: light-blue rings and line, the active step filled white. */
-    .cm-pans{ display: grid; margin-top: var(--space-6); }
-    .cm-pan{ grid-area: 1 / 1; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); overflow: hidden;
+    /* Primary Services: the three services stacked, each one a full-width card (no tabs to click through). */
+    .cm-pans{ display: grid; gap: var(--space-5); margin-top: var(--space-7); }
+    .cm-pan[id]{ scroll-margin-top: calc(var(--navH) + var(--ea-cta-h) + var(--space-4)); }
+    .cm-pan{ display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); overflow: hidden;
       border: 0; border-radius: var(--radius-lg); background: var(--pc-white); box-shadow: 0 18px 48px rgba(7,22,44,.06); }
-    .cm-pan[hidden]{ display: grid; visibility: hidden; }
     .cm-pan-ph{ position: relative; min-height: 240px; background: var(--pc-navy); }
     .cm-pan-ph img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .cm-pan-ph-tag{ position: absolute; top: var(--space-4); left: var(--space-4); z-index: 1; padding: 6px 10px; box-sizing: border-box;
       border: 1px dashed rgba(255,255,255,.55); border-radius: var(--radius-sm); font: 600 10px/1 var(--font-sans);
       letter-spacing: .08em; text-transform: uppercase; color: var(--pc-white); }
     .cm-pan-ph::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,22,44,.88) 0%, rgba(7,22,44,.35) 45%, rgba(7,22,44,0) 75%); }
+    /* Image placeholders: amber, deliberately NOT a brand color, so unfilled slots stand out. Amber sits on the blue-yellow
+       axis (safe for red-green color blindness); PC Navy text on it is about 9:1. Same amber as capital-markets.html.
+       Delete this block when the photos and logos land. */
+    .cm-pan-ph, .cs-ph, .cs-logos .cs-logo-box{ background: #FFB000; }
+    .cm-pan-ph::after{ display: none; }
+    .cm-pan-ph-tag{ border: 1px dashed var(--pc-navy); color: var(--pc-navy); }
+    .cm-pan-ph .cm-pan-cap{ color: var(--pc-navy); }
+    .cs-ph{ border-color: var(--pc-navy); color: var(--pc-navy); }
+    .cs-logos .cs-logo-box{ color: var(--pc-navy); }
+    .cs-logos a:hover .cs-logo-box, .cs-logos a:focus-visible .cs-logo-box{ background: #FFB000; border-color: var(--pc-medium-blue); }
     .cm-pan-cap{ position: absolute; left: var(--space-6); right: var(--space-6); bottom: var(--space-5); z-index: 1; margin: 0;
       font-family: var(--font-serif); font-weight: 500; font-size: 28px; line-height: 1.15; color: var(--pc-white); }
     .cm-items{ display: grid; align-content: center; padding: var(--space-4) var(--space-7); }
@@ -134,8 +132,6 @@
     .cm-items > div + div{ border-top: 1px solid var(--color-border); }
     .cm-items h4{ margin: 0 0 var(--space-2); font: 600 16px/1.35 var(--font-sans); color: var(--pc-medium-blue); }
     .cm-items p{ margin: 0; font-size: 15px; line-height: 1.6; color: var(--pc-black); }
-    .cs-tabs3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .cs-tabs3 .cm-tab{ font-size: 22px; }
     .cm-pan{ border: 1px solid var(--color-border); }
     .cs-pan-body{ display: grid; align-content: center; gap: var(--space-3); padding: var(--space-7); }
     .cs-pan-body .ea-eyebrow{ margin: 0; }
@@ -153,18 +149,18 @@
     .cs-client::after{ content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--pc-blue); transform: scaleY(0); transform-origin: top; transition: transform .3s ease; }
     .cs-client:hover, .cs-client:focus-within{ background: var(--pc-white); }
     .cs-client:hover::after, .cs-client:focus-within::after{ transform: scaleY(1); }
-    /* What Sets Apart: a four-column bento with two wide tiles; the 30+ is the hero figure. */
-    .cs-apart{ grid-template-columns: repeat(4, minmax(0, 1fr)); counter-reset: csa; }
-    .cs-card{ position: relative; counter-increment: csa; overflow: hidden; display: flex; flex-direction: column; gap: var(--space-2);
-      padding: var(--space-6); background: linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.22);
-      transition: transform .3s ease, border-color .3s ease; }
-    .cs-card::before{ content: ""; width: 36px; height: 2px; margin-bottom: var(--space-4); background: var(--pc-blue); }
-    .cs-card::after{ content: counter(csa, decimal-leading-zero); position: absolute; top: var(--space-5); right: var(--space-5); font-family: var(--font-serif); font-size: 18px; letter-spacing: .06em; color: var(--pc-light-blue); opacity: .75; }
-    .cs-card:hover{ transform: translateY(-3px); border-color: rgba(255,255,255,.55); }
-    .cs-card--wide{ grid-column: span 2; }
-    .cs-big{ display: block; font-family: var(--font-serif); font-weight: 500; font-size: 96px; line-height: .95; letter-spacing: -.02em; color: var(--pc-white); margin-bottom: var(--space-2); }
-    .cs-big .cs-plus{ font-size: .6em; vertical-align: .22em; }
-    .cs-big small{ font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--pc-blue); margin-left: var(--space-3); }
+    /* What Sets Apart: six equal photo cards, two across, three rows. Image placeholder on top (amber, same as the rest of the page), copy below. */
+    .cs-apart{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cs-card{ display: flex; flex-direction: column; padding: 0; overflow: hidden;
+      background: linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.22); }
+    .cs-card-ph{ position: relative; aspect-ratio: 7 / 2; background: #FFB000; }
+    .cs-card-ph img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cs-card-ph .cm-pan-ph-tag{ border: 1px dashed var(--pc-navy); color: var(--pc-navy); }
+    /* The card title sits over the bottom of the photo on a PC Black fade, so it stays legible on any image. */
+    .cs-card-ph::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,22,44,.94) 0%, rgba(7,22,44,.7) 35%, rgba(7,22,44,0) 75%); }
+    .cs-card .cs-card-ph h3{ position: absolute; z-index: 1; left: var(--space-6); right: var(--space-6); bottom: var(--space-5); margin: 0; }
+    .cs-card-ph .cm-pan-ph-tag{ z-index: 1; }
+    .cs-card-body{ flex: 1; padding: var(--space-5) var(--space-6) var(--space-6); }
     /* Industry Connections: the paragraphs, then the affiliations, then one closing line. */
     .cs-affil{ margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid rgba(18,64,106,.25); }
     .cs-affil .ea-eyebrow{ margin-bottom: var(--space-4); }
@@ -175,11 +171,9 @@
     .cs-logos strong{ font-size: 15px; font-weight: 600; line-height: 1.3; margin-top: var(--space-1); }
     @media (max-width: 1279px){ .cs-logos{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     @media (max-width: 639px){ .cs-logos{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); } }
-    @media (max-width: 1279px){ .cs-apart{ grid-template-columns: repeat(2, minmax(0, 1fr)); } .cs-card--wide{ grid-column: span 2; } }
-    @media (max-width: 1023px){ .cs-tabs3{ grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(170px, 1fr); overflow-x: auto; padding-bottom: var(--space-2); } }
     @media (max-width: 899px){ .cm-pan{ grid-template-columns: minmax(0, 1fr); } .cm-pan-ph{ min-height: 0; height: 170px; } .cs-pan-body{ padding: var(--space-5); }
       .cs-client{ grid-template-columns: 56px minmax(0, 1fr); } .cs-client dd{ grid-column: 2; } .cs-client::before{ font-size: 28px; grid-row: span 2; } }
-    @media (max-width: 639px){ .cs-apart{ grid-template-columns: minmax(0, 1fr); } .cs-card--wide{ grid-column: auto; } .cs-big{ font-size: 72px; } .cs-tabs3 .cm-tab{ font-size: 18px; } }
+    @media (max-width: 639px){ .cs-apart{ grid-template-columns: minmax(0, 1fr); } }
     @media (prefers-reduced-motion: reduce){ .cs-card, .cs-client, .cs-client::after{ transition: none; } .cs-card:hover{ transform: none; } }
     .ea-actions{ display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-8); }
     .ea-btn-line{ background: transparent; color: var(--pc-white); border-color: rgba(255,255,255,.6); }
@@ -189,7 +183,9 @@
     .ea-hold{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
     .ea-hold .hp-card{ padding: 0 0 0 var(--space-5);
       background: transparent; border: 0; border-left: 2px solid var(--pc-blue); border-radius: 0; }
-    .ea-hold .hp-card:hover{ box-shadow: none; transform: none; }
+    .ea-hold .hp-card:hover{ box-shadow: 0 8px 22px rgba(7,22,44,.35); transform: none; }
+    .ea-hold a.hp-card{ text-decoration: none; }
+    .ea-hold a.hp-card:focus-visible{ outline-color: var(--pc-blue); outline-offset: 6px; }
     /* The columns read as the hero's foot: no top padding, and the hero's bottom wash fades to
        solid PC Black so there is no seam. */
     #audience{ padding-top: 0; }
@@ -715,7 +711,7 @@
       /* Clients row: three stacked, each its own line under the PC Blue rule. */
       .ea-hold{ grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
       .ea-hold .hp-card p{ min-height: 0; }
-      /* Sticky CTA bar: Connect with an Expert on top at full width, Watch the Video centered
+      /* Sticky CTA bar: Connect with the Team on top at full width, Watch the Video centered
          beneath. The script reads the bar's height, so the page clearance follows. */
       .ea-cta-in{ padding: var(--space-3) var(--space-4); }
       .ea-cta-go{ width: 100%; flex-direction: column-reverse; align-items: stretch; gap: var(--space-1); }
@@ -799,7 +795,7 @@
       <p class="hp-eyebrow on-dark ea-cta-name">Corporate Services</p>
       <div class="ea-cta-go">
         <button class="ea-cta-watch" type="button" data-theater-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="ea-len">3:35</span></button>
-        <a class="btn btn-primary" href="#connect">Connect with an Expert</a>
+        <a class="btn btn-primary" href="#connect">Connect with the Team</a>
       </div>
     </div>
   </div>
@@ -809,7 +805,7 @@
 
     <!-- HERO -->
     <section class="ea-hero" id="overview" aria-labelledby="ea-h1">
-      <img class="ea-hero-img" src="https://peoples-listings.nyc3.digitaloceanspaces.com/listings/photos/19643_8-04.jpg" alt="Rows of tall corn stretching to the horizon under a clear sky" decoding="async" onerror="this.style.display='none'" />
+      <img class="ea-hero-img" src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_91886132.jpeg/9b3b68925b460417a55e542eb3a0252b.webp" alt="Center-pivot irrigation watering a young corn field at sunset" decoding="async" onerror="this.style.display='none'" />
       <div class="ea-hero-in">
         <div class="ea-wrap">
           <p class="hp-eyebrow on-dark">Corporate Services</p>
@@ -817,7 +813,7 @@
           <p class="ea-lead ea-lead--wide">Comprehensive services to optimize diverse and complex agriculture portfolios by identifying portfolio valuation, untapped value, disposition timing, acquisition opportunities, and asset management strategies.</p>
           <div class="ea-actions">
             <button class="btn ea-btn-line ea-btn-ic" type="button" id="ea-theater-src" data-theater-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="ea-len">3:35</span></button>
-            <a class="btn btn-primary" href="#connect">Connect with an Expert</a>
+            <a class="btn btn-primary" href="#connect">Connect with the Team</a>
           </div>
         </div>
       </div>
@@ -828,23 +824,23 @@
       <div class="ea-wrap rv-wrap reveal">
         <h2 class="sr-only" id="ea-aud-h">Our Services</h2>
         <div class="ea-hold">
-          <div class="hp-card">
+          <a class="hp-card" href="#cs-pan-1">
             <h3>Dispositions</h3>
             <p>Sale strategy, marketing, and closing.</p>
-          </div>
-          <div class="hp-card">
+          </a>
+          <a class="hp-card" href="#cs-pan-2">
             <h3>Acquisitions</h3>
             <p>Sourcing, diligence, and closing.</p>
-          </div>
-          <div class="hp-card">
+          </a>
+          <a class="hp-card" href="#cs-pan-3">
             <h3>Portfolio Advisory</h3>
             <p>Valuation and strategy for complex portfolios.</p>
-          </div>
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- OUR APPROACH: the lead on the left, two paragraphs on the right; then Beyond Standard Brokerage Services under a rule. -->
+    <!-- OUR APPROACH: the lead on the left, two paragraphs on the right; then Beyond Standard Services under a rule. -->
     <section class="ea-sec" id="approach" aria-labelledby="ea-app-h">
       <div class="ea-wrap reveal">
         <div class="cs-split cs-split--stack">
@@ -858,10 +854,10 @@
           </div>
         </div>
         <div class="cs-split cs-split--stack">
-          <h3 class="ea-h3">Beyond Standard Brokerage Services</h3>
+          <h3 class="ea-h3">Beyond Standard Services</h3>
           <div class="cs-row">
             <div>
-            <p class="ea-p">A regional brokerage relationship works well for a single-state portfolio or a straightforward transaction. It was not designed for a client managing dozens of land assets across numerous locations or states, working through a disposition strategy that spans multiple asset types and requires coordinated communication with multiple internal stakeholders.</p>
+            <p class="ea-p">A regional relationship works well for a single-state portfolio or a straightforward transaction. It was not designed for a client managing dozens of land assets across numerous locations or states, working through disposition, management, and acquisition strategies that span multiple asset types and require coordinated communication with multiple internal stakeholders.</p>
             <p class="ea-p">Peoples Company Corporate Services was built specifically for the institutional, corporate, or large-scale family operation client. Our team serves as a single point of contact for all portfolio activity, coordinating across Peoples Company&rsquo;s broad local broker network and the full suite of our service divisions to deliver seamless execution regardless of where the assets are located or how complex the engagement. Clients receive consistent, proactive communication, formal reporting, and strategic counsel at the portfolio level, not just a series of disconnected regional relationships.</p>
             <p class="ea-p">The division has executed transactions across the full range of agricultural assets, including traditional row crop farmland, properties with development potential, specialty crop assets, and highly improved or distressed properties. This breadth allows Corporate Services to serve as a true one-stop partner for clients whose portfolios extend beyond conventional farmland into the broader agricultural real estate landscape.</p>
             </div>
@@ -902,13 +898,8 @@
           <p class="ea-eyebrow">What We Do</p>
           <h2 class="ea-h2" id="ea-ps-h">Primary Services</h2>
         </div>
-        <div class="cm-tabs cs-tabs3" role="tablist" aria-label="Primary services">
-          <button class="cm-tab" type="button" role="tab" id="cs-tab-1" aria-controls="cs-pan-1" aria-selected="true"><span class="cm-step-n" aria-hidden="true">01</span>Dispositions</button>
-          <button class="cm-tab" type="button" role="tab" id="cs-tab-2" aria-controls="cs-pan-2" aria-selected="false" tabindex="-1"><span class="cm-step-n" aria-hidden="true">02</span>Acquisitions</button>
-          <button class="cm-tab" type="button" role="tab" id="cs-tab-3" aria-controls="cs-pan-3" aria-selected="false" tabindex="-1"><span class="cm-step-n" aria-hidden="true">03</span>Portfolio Advisory</button>
-        </div>
         <div class="cm-pans">
-          <div class="cm-pan" role="tabpanel" id="cs-pan-1" aria-labelledby="cs-tab-1">
+          <div class="cm-pan" id="cs-pan-1">
             <div class="cm-pan-ph" aria-hidden="true"><span class="cm-pan-ph-tag">Image placeholder 458 &times; 309 px</span><p class="cm-pan-cap">Dispositions</p></div>
             <div class="cs-pan-body">
               <p class="ea-eyebrow">Sale strategy, marketing, and closing</p>
@@ -916,7 +907,7 @@
               <p class="ea-p">We recommend the sale method that fits each asset and client objective, whether a traditional listing, a public auction, or a sealed bid auction. After a consultation, we provide a proposal with sale method and pricing recommendations, then market the property through custom materials, direct mail, email, social media, targeted advertising, and land listing sites. Once a buyer is secured, we coordinate with the client&rsquo;s attorneys, lenders, and advisors through closing, and we report on listing activity each quarter.</p>
             </div>
           </div>
-          <div class="cm-pan" role="tabpanel" id="cs-pan-2" aria-labelledby="cs-tab-2" hidden>
+          <div class="cm-pan" id="cs-pan-2">
             <div class="cm-pan-ph" aria-hidden="true"><span class="cm-pan-ph-tag">Image placeholder 458 &times; 309 px</span><p class="cm-pan-cap">Acquisitions</p></div>
             <div class="cs-pan-body">
               <p class="ea-eyebrow">Sourcing, diligence, and closing</p>
@@ -924,7 +915,7 @@
               <p class="ea-p">We identify and evaluate farmland opportunities aligned with client mandates, presenting assets that meet acquisition guidelines. Once client interest is confirmed, we manage the acquisition process from letter of intent and purchase negotiations to closing, while conducting rigorous due diligence, including historical performance review, comparable sales analysis, third-party reports, and financial modeling.</p>
             </div>
           </div>
-          <div class="cm-pan" role="tabpanel" id="cs-pan-3" aria-labelledby="cs-tab-3" hidden>
+          <div class="cm-pan" id="cs-pan-3">
             <div class="cm-pan-ph" aria-hidden="true"><span class="cm-pan-ph-tag">Image placeholder 458 &times; 309 px</span><p class="cm-pan-cap">Portfolio Advisory</p></div>
             <div class="cs-pan-body">
               <p class="ea-eyebrow">Valuation and strategy for complex portfolios</p>
@@ -936,7 +927,7 @@
       </div>
     </section>
 
-    <!-- WHAT SETS CORPORATE SERVICES APART: a bento of six tiles, two of them wide. -->
+    <!-- WHAT SETS CORPORATE SERVICES APART: six equal photo cards, two across, three rows. -->
     <section class="ea-sec ea-sec--navy" id="apart" aria-labelledby="ea-apart-h">
       <div class="ea-wrap rv-wrap reveal">
         <div class="cs-head" style="margin-bottom: 0">
@@ -944,12 +935,12 @@
           <h2 class="ea-h2" id="ea-apart-h">What Sets Corporate Services Apart</h2>
         </div>
         <div class="cs-apart">
-          <div class="cs-card cs-card--wide"><span class="cs-big" aria-hidden="true">30<span class="cs-plus">+</span><small>States</small></span><h3>National Licensing &amp; Reach</h3><p>Peoples Company holds active brokerage licenses in over 30 states, enabling Corporate Services to execute transactions across the broadest agricultural footprint of any farmland services firm in the country.</p></div>
-          <div class="cs-card"><h3>Single Point of Contact</h3><p>One dedicated team manages all communication, coordination, and execution across a client&rsquo;s entire portfolio, regardless of how many states, parcels, or asset types are involved.</p></div>
-          <div class="cs-card"><h3>Cross-Divisional Integration</h3><p>Corporate Services clients have direct access to the full depth of Peoples Company&rsquo;s platform (land management, appraisal, capital markets, energy management, and crop insurance), coordinated by a single team that understands the whole portfolio.</p></div>
-          <div class="cs-card"><h3>Institutional-Caliber Service &amp; Relationships</h3><p>Our team is structured to meet the expectations of sophisticated clients with formal reporting requirements, multi-stakeholder communication needs, and complex transaction structures.</p></div>
-          <div class="cs-card"><h3>Specialty Asset Expertise</h3><p>Beyond traditional row crop farmland, our team includes specialists in development properties, highly improved assets, specialty crops, and distressed land, extending our capabilities into the full range of agricultural real estate.</p></div>
-          <div class="cs-card cs-card--wide"><h3>Market Intelligence</h3><p>Backed by FarmWorth&trade;, our proprietary data platform, and Peoples Company&rsquo;s national research program, Corporate Services clients benefit from the most comprehensive farmland market intelligence available.</p></div>
+          <div class="cs-card"><div class="cs-card-ph"><span class="cm-pan-ph-tag" aria-hidden="true">Image placeholder 1400 &times; 400 px</span><h3>National Licensing &amp; Reach</h3></div><div class="cs-card-body"><p>Peoples Company holds active brokerage licenses in over 30 states, enabling Corporate Services to execute transactions across the broadest agricultural footprint of any farmland services firm in the country.</p></div></div>
+          <div class="cs-card"><div class="cs-card-ph"><span class="cm-pan-ph-tag" aria-hidden="true">Image placeholder 1400 &times; 400 px</span><h3>Single Point of Contact</h3></div><div class="cs-card-body"><p>One dedicated team manages all communication, coordination, and execution across a client&rsquo;s entire portfolio, regardless of how many states, parcels, or asset types are involved.</p></div></div>
+          <div class="cs-card"><div class="cs-card-ph"><span class="cm-pan-ph-tag" aria-hidden="true">Image placeholder 1400 &times; 400 px</span><h3>Cross-Divisional Integration</h3></div><div class="cs-card-body"><p>Corporate Services clients have direct access to the full depth of Peoples Company&rsquo;s platform (land management, appraisal, capital markets, energy management, and crop insurance), coordinated by a single team that understands the whole portfolio.</p></div></div>
+          <div class="cs-card"><div class="cs-card-ph"><span class="cm-pan-ph-tag" aria-hidden="true">Image placeholder 1400 &times; 400 px</span><h3>Institutional-Caliber Service &amp; Relationships</h3></div><div class="cs-card-body"><p>Our team is structured to meet the expectations of sophisticated clients with formal reporting requirements, multi-stakeholder communication needs, and complex transaction structures.</p></div></div>
+          <div class="cs-card"><div class="cs-card-ph"><span class="cm-pan-ph-tag" aria-hidden="true">Image placeholder 1400 &times; 400 px</span><h3>Specialty Asset Expertise</h3></div><div class="cs-card-body"><p>Beyond traditional row crop farmland, our team includes specialists in development properties, highly improved assets, specialty crops, and distressed land, extending our capabilities into the full range of agricultural real estate.</p></div></div>
+          <div class="cs-card"><div class="cs-card-ph"><span class="cm-pan-ph-tag" aria-hidden="true">Image placeholder 1400 &times; 400 px</span><h3>Market Intelligence</h3></div><div class="cs-card-body"><p>Backed by FarmWorth&trade;, our proprietary data platform, and Peoples Company&rsquo;s national research program, Corporate Services clients benefit from the most comprehensive farmland market intelligence available.</p></div></div>
         </div>
       </div>
     </section>
@@ -972,8 +963,8 @@
           <ul class="cs-logos">
             <li><a href="#"><span class="cs-logo-box" aria-hidden="true">Logo</span><strong>Land Investment Expo</strong></a></li>
             <li><a href="#"><span class="cs-logo-box" aria-hidden="true">Logo</span><strong>Global Ag Investing</strong></a></li>
-            <li><a href="#"><span class="cs-logo-box" aria-hidden="true">Logo</span><strong>National Land Conference</strong></a></li>
-            <li><a href="#"><span class="cs-logo-box" aria-hidden="true">Logo</span><strong>NCREIF</strong></a></li>
+            <li><a href="#"><span class="cs-logo-box" aria-hidden="true">Logo</span><strong>AIM</strong></a></li>
+            <li><a href="#"><span class="cs-logo-box" aria-hidden="true">Logo</span><strong>International Ag Alliance</strong></a></li>
             <li><a href="#"><span class="cs-logo-box" aria-hidden="true">Logo</span><strong>Farmland Capital Alliance</strong></a></li>
             <li><a href="#"><span class="cs-logo-box" aria-hidden="true">Logo</span><strong>Leading Harvest</strong></a></li>
           </ul>
@@ -1089,7 +1080,7 @@
         <div class="ea-contact">
           <div>
             <p class="ea-eyebrow">Getting Started</p>
-            <h2 class="ea-h2" id="ea-go-h">Connect with a<br><em>Corporate Services expert</em></h2>
+            <h2 class="ea-h2" id="ea-go-h">Connect with the<br><em>Corporate Services Team</em></h2>
             <p class="ea-p" style="margin-top:var(--space-5)">Fill out the form to communicate with a Peoples Company Corporate Services team member.</p>
           </div>
           <form class="ea-form" action="#" onsubmit="return false;" aria-labelledby="ea-go-h">
@@ -1113,7 +1104,7 @@
               <label for="cs-comments">Comments or Questions</label>
               <textarea id="cs-comments" name="cs-comments" rows="3"></textarea>
             </div>
-            <button class="btn btn-primary" type="submit">Connect with an Expert</button>
+            <button class="btn btn-primary" type="submit">Connect with the Team</button>
           </form>
         </div>
       </div>
@@ -2061,32 +2052,6 @@
       narrowCheck();
       window.addEventListener("resize", narrowCheck);
     })();
-  </script>
-  <script>
-  /* Primary Services tabs: one service at a time; arrow keys, Home and End move between tabs. */
-  (function(){
-    var list = document.querySelector(".cs-tabs3");
-    if(!list) return;
-    var tabs = Array.prototype.slice.call(list.querySelectorAll("[role=tab]"));
-    function show(t, focus){
-      tabs.forEach(function(x){
-        var on = x === t;
-        x.setAttribute("aria-selected", on);
-        x.tabIndex = on ? 0 : -1;
-        document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
-      });
-      if(focus) t.focus();
-    }
-    tabs.forEach(function(t, i){
-      t.addEventListener("click", function(){ show(t); });
-      t.addEventListener("keydown", function(e){
-        var k = e.key, n = k === "ArrowRight" ? i + 1 : k === "ArrowLeft" ? i - 1 : k === "Home" ? 0 : k === "End" ? tabs.length - 1 : null;
-        if(n === null) return;
-        e.preventDefault();
-        show(tabs[(n + tabs.length) % tabs.length], true);
-      });
-    });
-  })();
   </script>
 </body>
 </html>
