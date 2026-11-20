@@ -75,14 +75,17 @@
     .ea-btn-line{ background: transparent; color: var(--pc-white); border-color: rgba(255,255,255,.6); }
     .ea-btn-line:hover{ border-color: var(--pc-white); }
     /* WHAT YOU HOLD: three columns, a 2px PC Blue rule down the left of each, a heading and one
-       line. Not links, so the pc.css .hp-card hover is off. */
+       line. Each links to its structure card and keeps the pc.css .hp-card hover lift. */
     .ea-hold{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
     .ea-hold .hp-card{ padding: 0 0 0 var(--space-5);
       background: transparent; border: 0; border-left: 2px solid var(--pc-blue); border-radius: 0; }
-    .ea-hold .hp-card:hover{ box-shadow: none; transform: none; }
+    .ea-hold .hp-card:hover{ box-shadow: 0 8px 22px rgba(7,22,44,.35); }
+    .ea-hold a.hp-card:focus-visible{ outline-color: var(--pc-blue); outline-offset: 6px; }
     /* The columns read as the hero's foot: no top padding, and the hero's bottom wash fades to
        solid PC Black so there is no seam. */
     #audience{ padding-top: 0; }
+    /* The hero's wash and copy sit at z-index 1 and 2, so the section stacks above them and the hover lift clears the hero's edge. */
+    #audience{ position: relative; z-index: 3; }
     .ea-hold .hp-card h3{ margin: 0; font-family: var(--font-serif); font-weight: 500; font-size: 28px; line-height: 1.15; color: var(--pc-white); }
     .ea-hold .hp-card p{ font-family: var(--font-sans); font-style: italic; font-size: 16px; line-height: 1.35; color: var(--pc-light-blue); }
     /* Two lines reserved whether the line wraps or not, so the PC Black band is the same height on
@@ -536,6 +539,8 @@
     /* Four cards, two across. Each intro is cut to three lines at a whole word with an ellipsis, so every card is
        the same height at rest and the parts line up. Read More opens that one paragraph in place and
        grows only its own card (align-items: start keeps the neighbour as it was). */
+    /* The links in the band above land on each card, side by side or stacked, clear of the header and CTA bar. */
+    .cm-struct[id]{ scroll-margin-top: calc(var(--navH) + var(--ea-cta-h) + var(--space-4)); }
     .cm-structs{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); margin-top: var(--space-7); align-items: stretch; }
     .cm-chart{ margin: var(--space-4) 0; padding: var(--space-3); background: var(--pc-white); border: 1px solid var(--color-border); }
     .cm-chart svg, .cm-chart img{ display: block; width: 100%; height: auto; }
@@ -544,38 +549,58 @@
     .cm-struct-ph{ position: relative; height: 150px; background: var(--pc-navy); }
     .cm-struct-ph img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .cm-struct-ph::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,22,44,.9) 0%, rgba(7,22,44,.4) 50%, rgba(7,22,44,0) 80%); }
-    .cm-struct-body{ padding: var(--space-5) var(--space-7) var(--space-6); }
+    .cm-struct.ea-duo-card{ display: flex; flex-direction: column; }
+    .cm-struct-body{ flex: 1; display: flex; flex-direction: column; padding: var(--space-5) var(--space-5) var(--space-6); }
     .cm-struct .ea-h3{ margin-bottom: var(--space-3); }
-    .cm-min{ position: absolute; left: var(--space-7); bottom: var(--space-5); z-index: 1; display: flex; align-items: baseline; gap: var(--space-3); margin: 0; }
+    .cm-min{ position: absolute; left: var(--space-5); bottom: var(--space-5); z-index: 1; display: flex; align-items: baseline; gap: var(--space-3); margin: 0; }
     .cm-min-fig{ font-family: var(--font-serif); font-weight: 500; font-size: 44px; line-height: 1; color: var(--pc-white); }
     .cm-min-l{ font: 600 12px/1.2 var(--font-sans); letter-spacing: .12em; text-transform: uppercase; color: var(--pc-light-blue); }
+    /* Image placeholders: amber, deliberately NOT a brand color, so unfilled slots stand out. Amber sits on the blue-yellow
+       axis (safe for red-green color blindness); PC Navy text on it is about 9:1. Delete this block when the photos land. */
+    .cm-pan-ph, .cm-struct-ph{ background: #FFB000; }
+    .cm-pan-ph::after, .cm-struct-ph::after{ display: none; }
+    .cm-pan-ph-tag{ border: 1px dashed var(--pc-navy); color: var(--pc-navy); }
+    .cm-pan-ph .cm-pan-cap, .cm-struct-ph .cm-min-fig{ color: var(--pc-navy); }
+    .cm-struct-ph .cm-min-l{ color: var(--pc-navy); }
     .cm-struct .ea-p{ margin-bottom: 0; }
-    /* Three lines at rest; the script cuts the text at a whole word and adds an ellipsis. Open shows all of it. */
-    .cm-more{ margin-top: var(--space-4); display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer;
-      padding: 0; border: 0; background: none; font: 600 15px/1.2 var(--font-sans); color: var(--pc-medium-blue); }
-    .cm-more::after{ content: ""; width: 8px; height: 8px; margin-top: -3px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
-      transform: rotate(45deg); transition: transform .2s ease; }
-    .cm-more[aria-expanded="true"]::after{ transform: rotate(-135deg); margin-top: 3px; }
-    .cm-more:hover{ color: var(--pc-navy); }
-    .cm-more:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 4px; border-radius: 2px; }
-    .cm-src{ padding-top: var(--space-5); }
+    /* Full paragraphs, no Read More: the cards share one height and the Capital Sources row sits at the foot of each. */
+    .cm-src{ margin-top: auto; padding-top: var(--space-5); }
     .cm-src .ea-eyebrow{ margin-bottom: var(--space-3); }
-    .cm-chips{ display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
-    .cm-chips li{ padding: 5px 12px; border-radius: var(--radius-pill); background: var(--pc-light-blue);
-      font-size: 13px; font-weight: 600; color: var(--pc-navy); }
-    @media (prefers-reduced-motion: reduce){ .cm-more::after, .cm-tab .cm-step-n{ transition: none; } }
+    /* Capital Sources: plain text, a line separated by bars. Not pills, since nothing here is clickable. */
+    .cm-chips{ margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1.55; color: var(--pc-black); }
+    /* Reserve two lines so the Capital Sources label sits at the same height on all three cards, whether the list wraps or not. */
+    @media (min-width: 900px){ .cm-chips{ min-height: calc(2 * 1.55em); } }
+    .cm-chips li{ display: inline; white-space: nowrap; }
+    /* Each name stays whole; a line can only break after a bar, so the bar never starts a line. */
+    .cm-chips li:not(:last-child)::after{ content: "\a0| "; white-space: normal; }
+    @media (prefers-reduced-motion: reduce){ .cm-tab .cm-step-n{ transition: none; } }
     /* Farmland Investing checklist: its own full-width row, four across. */
-    .ea-duo-list--4col{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--space-6); }
+    .ea-duo-list--4col{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-7); }
     .ea-duo-list--4col strong{ display: block; font-weight: 600; }
-    @media (max-width: 1279px){ .ea-duo-list--4col{ grid-template-columns: repeat(2, minmax(0, 1fr)); } .cm-struct-body{ padding: var(--space-5) var(--space-5) var(--space-6); } .cm-min{ left: var(--space-5); } }
+    /* The data card stretches to the height of the text column; the chart takes the spare height and centers in it. */
+    @media (min-width: 900px){
+      .cm-datacard{ align-self: stretch; display: flex; flex-direction: column; }
+      .cm-datacard .cm-chart{ flex: 1; display: flex; align-items: center; }
+    }
+    @media (max-width: 1279px){ .cm-struct-body{ padding: var(--space-5) var(--space-5) var(--space-6); } .cm-min{ left: var(--space-5); } }
     @media (max-width: 639px){ .ea-duo-list--4col{ grid-template-columns: minmax(0, 1fr); } }
     /* Farm Operators: the copy left, a photo right. */
     .cm-ops{ display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-8); align-items: center; }
     .cm-ops-fig{ margin: 0; aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--radius-lg); background: var(--pc-navy); }
-    .cm-ops-fig img{ display: block; width: 100%; height: 100%; object-fit: cover; }
+    .cm-ops-fig img{ display: block; width: 100%; height: 100%; object-fit: cover; object-position: 30% 60%; }
     @media (max-width: 899px){ .cm-ops{ grid-template-columns: minmax(0, 1fr); gap: var(--space-6); } .cm-ops-fig{ aspect-ratio: 16 / 9; } }
     /* Process, Structures and Platform headers: the H2 full width, the paragraph full width beneath it. */
     .ea-head--stack{ grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+    /* 1280 and up: five equal columns so the circles are evenly spaced, and every label holds one line.
+       The longest label ("Asset Management & Portfolio Reporting") has to fit in one column, so the label size
+       steps down with the content width: 15px at 1216, 17px at 1376. */
+    @media (min-width: 1280px){
+      .cm-tabs{ grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .cm-tab{ white-space: nowrap; font-size: 15px; }
+    }
+    @media (min-width: 1536px){
+      .cm-tab{ font-size: 17px; }
+    }
     /* Below 1024 the stepper scrolls sideways rather than squeezing five labels, and the card's photo drops to a band on top. */
     @media (max-width: 1023px){
       .cm-tabs{ grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(170px, 1fr); overflow-x: auto; padding-bottom: var(--space-2); }
@@ -687,7 +712,7 @@
       /* Clients row: three stacked, each its own line under the PC Blue rule. */
       .ea-hold{ grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
       .ea-hold .hp-card p{ min-height: 0; }
-      /* Sticky CTA bar: Connect with an Expert on top at full width, Watch the Video centered
+      /* Sticky CTA bar: Connect with the Team on top at full width, Watch the Video centered
          beneath. The script reads the bar's height, so the page clearance follows. */
       .ea-cta-in{ padding: var(--space-3) var(--space-4); }
       .ea-cta-go{ width: 100%; flex-direction: column-reverse; align-items: stretch; gap: var(--space-1); }
@@ -772,7 +797,7 @@
       <p class="hp-eyebrow on-dark ea-cta-name">Capital Markets</p>
       <div class="ea-cta-go">
         <button class="ea-cta-watch" type="button" data-theater-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="ea-len">3:15</span></button>
-        <a class="btn btn-primary" href="#connect">Connect with an Expert</a>
+        <a class="btn btn-primary" href="#connect">Connect with the Team</a>
       </div>
     </div>
   </div>
@@ -790,7 +815,7 @@
           <p class="ea-lead">Separately managed farmland portfolios for institutional investors, family offices, and high-net-worth individuals, backed by a comprehensive farmland services platform.</p>
           <div class="ea-actions">
             <button class="btn ea-btn-line ea-btn-ic" type="button" id="ea-theater-src" data-theater-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Watch the Video <span class="ea-len">3:15</span></button>
-            <a class="btn btn-primary" href="#connect">Connect with an Expert</a>
+            <a class="btn btn-primary" href="#connect">Connect with the Team</a>
           </div>
         </div>
       </div>
@@ -801,18 +826,18 @@
       <div class="ea-wrap reveal">
         <h2 class="sr-only" id="ea-aud-h">Who We Serve</h2>
         <div class="ea-hold">
-          <div class="hp-card">
+          <a class="hp-card" href="#cm-sma">
             <h3>Separately Managed Accounts</h3>
             <p>Direct ownership from $20 million.</p>
-          </div>
-          <div class="hp-card">
+          </a>
+          <a class="hp-card" href="#cm-sub">
             <h3>Sub Advisor Relationships</h3>
             <p>Syndicated offerings from $10 million.</p>
-          </div>
-          <div class="hp-card">
+          </a>
+          <a class="hp-card" href="#cm-adv">
             <h3>Portfolio Advisory</h3>
             <p>Portfolio evaluation and recommendations.</p>
-          </div>
+          </a>
         </div>
       </div>
     </section>
@@ -826,21 +851,19 @@
             <h2 class="ea-h2" id="ea-app-h">Farmland as an Asset Class, Built to Last</h2>
             <p class="ea-p">Farmland is among the most stable and resilient asset classes available to investors, offering consistent income, long-term appreciation, and a hedge against inflation that acts independently of traditional markets. With rising global food demand and a fundamentally constrained land supply, the structural case for farmland as a long-term investment has never been stronger. Peoples Company Capital Markets connects capital with distinctive farmland opportunities across the country&rsquo;s most productive agricultural regions, delivering outcomes built around capital preservation, portfolio diversification, and sustainable long-term value creation.</p>
             <p class="ea-p">Our approach to farmland investment is grounded in acquiring high-quality assets in strong agricultural production regions where professional operators, productive soils, and long-term appreciation create distinct opportunities. By adhering to disciplined acquisition criteria and a focus on long-term performance, our team builds portfolios designed to deliver consistent income and durable appreciation across market cycles.</p>
-          </div>
-          <div class="ea-duo-card reveal" style="--rd:.15s">
-            <p class="ea-eyebrow">Farmland Data</p>
-            <p class="ea-p">Explore farmland values, cash rent, and returns by state with the FarmWorth&trade; data toolkit.</p>
-            <figure class="cm-chart"><img src="./farmland-data-chart.png" width="556" height="351" alt="Line chart of farmland values, 1997 to 2026, showing three trend lines: a dashed line rising to about $18,000, a solid line rising to about $10,000, and a dotted line rising to about $3,500." loading="lazy" decoding="async" /></figure>
-            <p class="ea-p" style="text-align:center"><a class="btn btn-primary" href="./farmland-data.html">Explore Farmland Data</a></p>
-          </div>
-        </div>
-        <div class="ea-duo-more">
           <ul class="ea-duo-list ea-duo-list--4col">
               <li><strong>Portfolio Creation</strong>High-quality row crop assets in thriving markets with professional operators, expanding into value-add and permanent crops.</li>
               <li><strong>Deal Sourcing &amp; Due Diligence</strong>Opportunities matched to your mandate, managed from letter of intent through closing.</li>
               <li><strong>Asset Management</strong>A focus on sustainability and value-add to optimize annual cash yield and long-term appreciation.</li>
               <li><strong>Portfolio Reporting</strong>Quarterly financials, mid-year reviews, annual portfolio reports and a quarterly newsletter.</li>
           </ul>
+          </div>
+          <div class="ea-duo-card cm-datacard reveal" style="--rd:.15s">
+            <p class="ea-eyebrow">Farmland Data</p>
+            <p class="ea-p">Explore farmland values, cash rent, and returns by state with the FarmWorth&trade; data toolkit.</p>
+            <figure class="cm-chart"><img src="./farmland-data-chart.png" width="556" height="351" alt="Line chart of farmland values, 1997 to 2026, showing three trend lines: a dashed line rising to about $18,000, a solid line rising to about $10,000, and a dotted line rising to about $3,500." loading="lazy" decoding="async" /></figure>
+            <p class="ea-p" style="text-align:center"><a class="btn btn-primary" href="./farmland-data.html">Explore Farmland Data</a></p>
+          </div>
         </div>
       </div>
     </section>
@@ -915,41 +938,38 @@
         <div class="ea-head ea-head--stack">
           <div>
             <p class="ea-eyebrow">Capital Management Structures</p>
-            <h2 class="ea-h2" id="ea-struct-h">Structures That Align with Your Objectives</h2>
+            <h2 class="ea-h2" id="ea-struct-h">Structures That Align With Your Objectives</h2>
           </div>
           <p class="ea-p">Peoples Company Capital Markets provides tailored management structures that align with your objectives.</p>
         </div>
         <div class="cm-structs">
-          <div class="ea-duo-card cm-struct reveal" style="--rd:.1s">
+          <div class="ea-duo-card cm-struct reveal" id="cm-sma" style="--rd:.1s">
             <div class="cm-struct-ph"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-min"><span class="cm-min-fig">$20M+</span><span class="cm-min-l">Capital to deploy</span></p></div>
             <div class="cm-struct-body">
               <h3 class="ea-h3">Separately Managed Account</h3>
-              <p class="ea-p cm-clamp" id="cm-s1">Peoples Company Capital Markets provides separate account asset acquisition and management for investors seeking to deploy capital of $20 million or more into U.S. farmland. Our team implements investment strategies by sourcing, acquiring, and managing investable farmland assets on behalf of the client. The separate account structure provides investors with direct ownership, where they control which assets to acquire, how they are managed, and when to divest them with the expert advice and assistance of the Capital Markets team throughout the life of the investment.</p>
-              <button type="button" class="cm-more" aria-expanded="false" aria-controls="cm-s1">Read More</button>
+              <p class="ea-p" id="cm-s1">Peoples Company Capital Markets provides separate account asset acquisition and management for investors seeking to deploy capital of $20 million or more into U.S. farmland. Our team implements investment strategies by sourcing, acquiring, and managing investable farmland assets on behalf of the client. The separate account structure provides investors with direct ownership, where they control which assets to acquire, how they are managed, and when to divest them with the expert advice and assistance of the Capital Markets team throughout the life of the investment.</p>
               <div class="cm-src">
                 <p class="ea-eyebrow">Capital Sources</p>
                 <ul class="cm-chips"><li>Family Offices</li><li>High-Net-Worth Individuals</li></ul>
               </div>
             </div>
           </div>
-          <div class="ea-duo-card cm-struct reveal" style="--rd:.1s">
+          <div class="ea-duo-card cm-struct reveal" id="cm-sub" style="--rd:.1s">
             <div class="cm-struct-ph"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-min"><span class="cm-min-fig">$10M</span><span class="cm-min-l">Of client capital</span></p></div>
             <div class="cm-struct-body">
               <h3 class="ea-h3">Sub Advisor Relationships</h3>
-              <p class="ea-p cm-clamp" id="cm-s3">Capital Markets creates and manages private structured offerings for wealth managers, trust departments, RIAs, and other asset aggregators with $10 million of client capital to deploy. Traditional wealth managers can leverage the benefits of farmland investing on behalf of their clients by partnering with Capital Markets to structure, diligence, acquire, and manage farmland assets on their behalf.</p>
-              <button type="button" class="cm-more" aria-expanded="false" aria-controls="cm-s3">Read More</button>
+              <p class="ea-p" id="cm-s3">Capital Markets creates and manages private structured offerings for wealth managers, trust departments, RIAs, and other asset aggregators with $10 million of client capital to deploy. Traditional wealth managers can leverage the benefits of farmland investing on behalf of their clients by partnering with Capital Markets to structure, diligence, acquire, and manage farmland assets on their behalf.</p>
               <div class="cm-src">
                 <p class="ea-eyebrow">Capital Sources</p>
                 <ul class="cm-chips"><li>Wealth Managers</li><li>Trust Departments</li><li>RIAs</li><li>Asset Managers</li></ul>
               </div>
             </div>
           </div>
-          <div class="ea-duo-card cm-struct reveal" style="--rd:.2s">
+          <div class="ea-duo-card cm-struct reveal" id="cm-adv" style="--rd:.2s">
             <div class="cm-struct-ph"><span class="cm-pan-ph-tag">Image placeholder</span><p class="cm-min"><span class="cm-min-fig">Advisory</span><span class="cm-min-l">Transaction services</span></p></div>
             <div class="cm-struct-body">
               <h3 class="ea-h3">Portfolio Advisory</h3>
-              <p class="ea-p cm-clamp" id="cm-s4">Capital Markets provides advisory-based transaction services on behalf of institutions. These services include evaluating a portfolio as well as creating and implementing a disposition plan while marketing the property to a vast buyer pool consisting of large farm operators, individuals utilizing 1031 exchanges, institutional investors, family offices, and high-net-worth individuals.</p>
-              <button type="button" class="cm-more" aria-expanded="false" aria-controls="cm-s4">Read More</button>
+              <p class="ea-p" id="cm-s4">Capital Markets provides advisory-based transaction services on behalf of institutions. These services include evaluating a portfolio as well as creating and implementing a disposition plan while marketing the property to a vast buyer pool consisting of large farm operators, individuals utilizing 1031 exchanges, institutional investors, family offices, and high-net-worth individuals.</p>
               <div class="cm-src">
                 <p class="ea-eyebrow">Capital Sources</p>
                 <ul class="cm-chips"><li>Institutional Investors</li><li>Asset Managers</li></ul>
@@ -974,7 +994,7 @@
             </div>
           </div>
           <figure class="cm-ops-fig">
-            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_306513763-2.jpg/ba992799db7e399362b99feae280181b.webp" alt="Harvested corn pouring from a combine auger into a grain cart" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+            <img src="./farm-operator.jpg" width="2560" height="1707" alt="A farm operator at the controls of a tractor cab at sunset, seen from behind, with a field of dry grass beside it" loading="lazy" decoding="async" />
           </figure>
         </div>
       </div>
@@ -1065,7 +1085,7 @@
         <div class="ea-contact">
           <div>
             <p class="ea-eyebrow">Getting Started</p>
-            <h2 class="ea-h2" id="ea-go-h">Connect with a<br><em>Capital Markets Expert</em></h2>
+            <h2 class="ea-h2" id="ea-go-h">Connect with the<br><em>Capital Markets Team</em></h2>
             <p class="ea-p" style="margin-top:var(--space-5)">Complete the form to request a meeting with our team to learn about our platform and how we approach farmland investing.</p>
           </div>
           <form class="ea-form" action="#" onsubmit="return false;" aria-labelledby="ea-go-h">
@@ -1097,7 +1117,7 @@
               <label for="cm-comments">Comments or Questions</label>
               <textarea id="cm-comments" name="cm-comments" rows="3"></textarea>
             </div>
-            <button class="btn btn-primary" type="submit">Connect with an Expert</button>
+            <button class="btn btn-primary" type="submit">Connect with the Team</button>
           </form>
         </div>
       </div>
@@ -2071,41 +2091,6 @@
         });
       });
     })();
-  </script>
-  <script>
-  /* STRUCTURES: each paragraph shows three lines, cut at a whole word with an ellipsis. Read More
-     opens that one paragraph in full, in place, and grows only its own card. */
-  (function(){
-    var btns = Array.prototype.slice.call(document.querySelectorAll(".cm-struct .cm-more"));
-    function para(b){ return document.getElementById(b.getAttribute("aria-controls")); }
-    function cut(p){
-      var full = p.getAttribute("data-full") || p.textContent.trim();
-      p.setAttribute("data-full", full);
-      p.textContent = full;
-      var lh = parseFloat(getComputedStyle(p).lineHeight) || 26, max = lh * 3 + 2;
-      if (p.offsetHeight <= max) return;
-      var w = full.split(" "), lo = 1, hi = w.length - 1;
-      function text(n){ return w.slice(0, n).join(" ").replace(/[\s,;:.\-]+$/, "") + " …"; }
-      while (lo < hi){
-        var mid = Math.ceil((lo + hi) / 2);
-        p.textContent = text(mid);
-        if (p.offsetHeight <= max) lo = mid; else hi = mid - 1;
-      }
-      p.textContent = text(lo);
-    }
-    function fit(){ btns.forEach(function(b){ if (b.getAttribute("aria-expanded") !== "true") cut(para(b)); }); }
-    btns.forEach(function(b){
-      b.addEventListener("click", function(){
-        var p = para(b), open = b.getAttribute("aria-expanded") !== "true";
-        b.setAttribute("aria-expanded", open ? "true" : "false");
-        if (open){ p.textContent = p.getAttribute("data-full"); } else { cut(p); }
-      });
-    });
-    var t; window.addEventListener("resize", function(){ clearTimeout(t); t = setTimeout(fit, 120); });
-    window.addEventListener("load", fit);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-    fit();
-  })();
   </script>
 </body>
 </html>
