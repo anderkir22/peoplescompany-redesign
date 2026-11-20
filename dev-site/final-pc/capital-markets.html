@@ -541,7 +541,7 @@
        grows only its own card (align-items: start keeps the neighbour as it was). */
     /* The links in the band above land on each card, side by side or stacked, clear of the header and CTA bar. */
     .cm-struct[id]{ scroll-margin-top: calc(var(--navH) + var(--ea-cta-h) + var(--space-4)); }
-    .cm-structs{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); margin-top: var(--space-7); align-items: stretch; }
+    .cm-structs{ display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); margin-top: var(--space-7); align-items: stretch; }
     .cm-chart{ margin: var(--space-4) 0; padding: var(--space-3); background: var(--pc-white); border: 1px solid var(--color-border); }
     .cm-chart svg, .cm-chart img{ display: block; width: 100%; height: auto; }
     .cm-chart figcaption{ margin-top: var(--space-2); font-size: 12px; color: var(--pc-black); }
@@ -567,9 +567,14 @@
     .cm-src{ margin-top: auto; padding-top: var(--space-5); }
     .cm-src .ea-eyebrow{ margin-bottom: var(--space-3); }
     /* Capital Sources: plain text, a line separated by bars. Not pills, since nothing here is clickable. */
-    .cm-chips{ margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1.55; color: var(--pc-black); }
+    .cm-chips{ margin: 0; padding: 0; list-style: none; font-size: var(--body); line-height: 1.7; color: var(--pc-black); }
     /* Reserve two lines so the Capital Sources label sits at the same height on all three cards, whether the list wraps or not. */
-    @media (min-width: 900px){ .cm-chips{ min-height: calc(2 * 1.55em); } }
+    /* Cards are stacked full width: amber figure panel left, copy and Capital Sources right. */
+    @media (min-width: 900px){
+      .cm-struct.ea-duo-card{ display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
+      .cm-struct-ph{ height: auto; min-height: 220px; }
+      .cm-struct-body{ padding: var(--space-6) var(--space-7); }
+    }
     .cm-chips li{ display: inline; white-space: nowrap; }
     /* Each name stays whole; a line can only break after a bar, so the bar never starts a line. */
     .cm-chips li:not(:last-child)::after{ content: "\a0| "; white-space: normal; }
@@ -606,7 +611,6 @@
       .cm-tabs{ grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(170px, 1fr); overflow-x: auto; padding-bottom: var(--space-2); }
     }
     @media (max-width: 899px){
-      .cm-structs{ grid-template-columns: minmax(0, 1fr); }
       .cm-pan{ grid-template-columns: minmax(0, 1fr); }
       .cm-pan-ph{ min-height: 0; height: 170px; }
       .cm-items{ padding: var(--space-5); }
