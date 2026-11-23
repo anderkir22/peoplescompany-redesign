@@ -1,6 +1,6 @@
 /* =============================================================================
    Peoples Company — FINAL PC Design System  (pc.css)
-   Last edit: 2026-11-23 15:22 UTC
+   Last edit: 2026-11-23 19:29 UTC
    -----------------------------------------------------------------------------
    Single source of truth for every page in final-pc/. Self-contained and
    dependency-free: these pages link ONLY this file. Do not fork it, and do not
@@ -860,6 +860,16 @@ nav.pff-col, nav.pff-col h3{ text-align: right; }
 @media (max-width: 899px){ .hp-foot-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); } }
 @media (max-width: 767px){ .hp-foot{ padding-bottom: var(--space-7); } }
 @media (max-width: 399px){ .hp-foot-grid{ grid-template-columns: minmax(0, 1fr); } }
+/* 1040 and below (where the white paper list goes from two columns to one): the Insights tab that is not showing takes no room, so the section is only as tall as the tab that is open (the two tabs used to share one cell, and the shorter one left blank space under it). */
+@media (max-width: 1040px){ .hp-ins-sec .io-scope .ioF-panel[hidden]{ display: none; } }
+/* 374 and below: the section eyebrows shrink so none wraps ("Proprietary Technology" and "Land Investment Expo" were wrapping to two lines). */
+@media (max-width: 374px){ .hp .hp-eyebrow{ font-size: 15px; } }
+@media (max-width: 359px){ .hp .hp-eyebrow{ font-size: 13px; } }
+/* 639 and below: the FarmWorth button, now under the bulleted list, runs the full width. */
+@media (max-width: 639px){ .hp-tech .hp-btn{ width: 100%; justify-content: center; text-align: center; } }
+/* 639 and below: the stats step down (the numbers 28px, the labels 14px); at 399 and below, where they stack one per row, the numbers are 26px and the rows sit closer together. */
+@media (max-width: 639px){ .hp-foot-n{ font-size: 28px; } .hp-foot-l{ font-size: 14px; } }
+@media (max-width: 399px){ .hp-foot-grid{ gap: var(--space-3); } .hp-foot-n{ font-size: 26px; margin-bottom: 4px; } .hp-foot-item{ padding-left: var(--space-4); } .hp-foot{ padding-bottom: var(--space-6); } }
 
 /* ── 2 · SERVICES (small left line icons, no top band) ── */
 .hp-svc{ background:var(--pc-white); }
@@ -897,6 +907,9 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .hp-card-img img{ width: 100%; height: 100%; object-fit: cover; display: block; }
 /* index.html: the photo is real, so no dashed placeholder outline. about.html keeps its own. */
 .hp-svc:not(.hp) .hp-card-img{ border: 0; }
+/* index.html: the photo fills its cell without setting the row height, so the last row matches the rows above it. */
+.hp-svc:not(.hp) .hp-card-img{ position: relative; }
+.hp-svc:not(.hp) .hp-card-img img{ position: absolute; inset: 0; }
 
 /* ── 3 · WHO WE SERVE — PC Navy band, white audience cards ── */
 .hp-serve{ background: var(--pc-navy); }
@@ -990,8 +1003,8 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
 .hp-expo-foot{ display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-5); margin-top: var(--space-4); }
 .hp-expo-foot .hp-btn{ min-width: 273px; justify-content: center; }   /* about 50% wider than its natural 182px */
 .hp-expo-meta{ display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 0; font-size: 13.5px; font-weight: 600; color: var(--pc-black); }
-.hp-expo-meta span{ display: inline-flex; align-items: center; gap: 8px; }
-.hp-expo-meta span::before{ content:"\25C6"; font-size: 8px; color: var(--pc-medium-blue); }
+.hp-expo-meta span{ display: inline-flex; align-items: flex-start; gap: 8px; }   /* the bullet stays level with the first line when a fact wraps */
+.hp-expo-meta span::before{ content:"\25C6"; font-size: 8px; color: var(--pc-medium-blue); margin-top: 4.4px; }
 /* CTA reads on the light band: solid PC Medium Blue fill, white label → PC Navy on hover (site light-bg pill convention) */
 .hp-expo .hp-btn-primary{ background: var(--pc-medium-blue); color: #fff; border-color: var(--pc-medium-blue); }
 .hp-expo .hp-btn-primary:hover, .hp-expo .hp-btn-primary:focus{ background: var(--pc-navy); border-color: var(--pc-navy); color: #fff; }
@@ -1203,8 +1216,33 @@ a.hp-card-all .go{ margin-top: auto; padding-top: var(--space-3); font-size: 14p
   .hp-sec h2, .hp-tech h2, .hp-expo h2, .hp-serve-head h2, .io-scope .io-h2{ font-size: 36px; }
   .hp-serve-grid{ grid-template-columns: repeat(2,1fr); }
   .hp-svc-grid{ grid-template-columns: repeat(2,1fr); }
-  .hp-tech .hp-wrap{ grid-template-columns: 1fr; }
-  .hp-expo .hp-wrap{ grid-template-columns: 1fr; }
+}
+/* FarmWorth and Expo stay two across (video right, photo left) down to 900; they stack at 899 and below. */
+/* In the two-across layout the nowrap H2 would hold its column at 759px and push the photo into the copy, so these two H2s wrap, and the photo may be shorter than 300px. */
+@media (min-width: 900px) and (max-width: 1279px){
+  .hp-tech h2, .hp-expo h2{ white-space: normal; }
+  .hp-expo-media{ min-height: 0; }
+}
+@media (max-width: 899px){
+  .hp-tech .hp-wrap, .hp-expo .hp-wrap{ grid-template-columns: 1fr; }
+  /* stacked, the FarmWorth copy runs the full width of the section instead of stopping at 46 characters */
+  .hp-tech p:not(.hp-eyebrow){ max-width: none; }
+}
+/* 899 and below: the stacked Expo photo is 15% shorter at the top and 15% shorter at the bottom. The frame is 70% of the old 4:3 height; the photo keeps its size and is centered in it. */
+@media (max-width: 899px){
+  .hp-expo-media{ aspect-ratio: 40 / 21; min-height: 0; }
+  .hp-expo-media .hp-imgwrap{ inset: -21.43% 0; }
+  .hp-expo-media{ order: 2; }   /* stacked: the copy first, the photo under it */
+}
+/* 640 to 767: the FarmWorth button reads just "Discover"; the name stays in the page for screen readers. */
+@media (min-width: 640px) and (max-width: 767px){
+  .hp-fw-name{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+}
+/* 640 to 899: the FarmWorth button sits to the right of the bulleted list instead of under it. */
+@media (min-width: 640px) and (max-width: 899px){
+  .hp-tech .hp-wrap > div:first-child{ display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-6); align-items: center; }
+  .hp-tech .hp-wrap > div:first-child > :not(.hp-tech-feat):not(.hp-btn){ grid-column: 1 / -1; }
+  .hp-tech .hp-tech-feat{ margin-bottom: 0; }
 }
 /* ============================================================================
    HOMEPAGE BODY — 639 AND DOWN
@@ -2641,4 +2679,25 @@ body:has(dialog.rg-dialog[open]){ overflow: hidden; }
 @media (max-width: 639px){
   .pcf-drawer-cols .pcf-latestcol{ display: none; }
   .sec-data-insights .pcf-drawer-cols{ grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---- index.html: the site small-width type scale, the same as the service pages (kept last so it wins) ---- */
+/* 640 to 767: the hero H1 stays 48px (it steps to 34px at 639 and below). */
+@media (min-width: 640px) and (max-width: 767px){
+  .hp-hero--foot h1{ font-size: 48px; }
+}
+@media (max-width: 639px){
+  .hp-hero--foot h1{ font-size: 34px; line-height: 1.12; }
+}
+@media (max-width: 767px){
+  .hp-hero--foot > .hp-hero-inner p.hp-lead{ font-size: 15px; line-height: 1.6; }
+  .hp h2, .hp .hp-reach .hp-duo-card h2, .hp .io-scope .io-h2{ font-size: 26px; line-height: 1.18; }
+  .hp .hp-svc-head p:not(.hp-eyebrow), .hp .hp-serve-head p:not(.hp-eyebrow), .hp .hp-tech p:not(.hp-eyebrow), .hp .hp-expo p:not(.hp-eyebrow), .hp .hp-reach p:not(.hp-eyebrow){ font-size: 15px; line-height: 1.6; }
+  .hp .hp-serve-card h3{ font-size: 20px; }
+}
+@media (max-width: 359px){
+  .hp-hero--foot h1{ font-size: 30px; }
+  .hp-hero--foot > .hp-hero-inner p.hp-lead{ font-size: 14px; }
+  .hp h2, .hp .hp-reach .hp-duo-card h2, .hp .io-scope .io-h2{ font-size: 24px; }
+  .hp .hp-svc-head p:not(.hp-eyebrow), .hp .hp-serve-head p:not(.hp-eyebrow), .hp .hp-tech p:not(.hp-eyebrow), .hp .hp-expo p:not(.hp-eyebrow), .hp .hp-reach p:not(.hp-eyebrow){ font-size: 14px; }
 }
