@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peoples Company · Final (PC) · Landowners</title>
+  <meta name="description" content="Landowners: what Peoples Company can do for you. Brokerage and auctions, appraisal, land management, energy management, and crop insurance from one integrated team." />
+
+  <!-- Fonts: EB Garamond (display serif) + Inter (UI / body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Single source of truth for the final PC direction -->
+  <link href="pc.css?v=20261106a" rel="stylesheet" />
+
+  <!-- Page-local styles. Shared --site / --rail tokens keep content on the header and footer lines. -->
+  <style>
+    /* -- SIGN-IN MODALS (Create Account, Sign In, Recover) ---------------------
+       Native <dialog> opened with showModal(): the browser supplies the focus trap,
+       Esc-to-close and the inert page behind it. Visual mockup only, no submit. */
+    .ca-dialog{ width: min(640px, calc(100% - 32px)); max-height: calc(100dvh - 32px);
+      padding: 0; border: 0; border-radius: var(--radius-lg); background: #fff;
+      color: var(--color-text); box-shadow: 0 24px 64px rgba(7,22,44,.28); overflow: hidden; }
+    /* .ca-inner scrolls, not the card, so the close X stays pinned when a form is
+       taller than the screen */
+    .ca-dialog[open]{ display: flex; flex-direction: column; }
+    .ca-dialog::backdrop{ background: rgba(7,22,44,.62); backdrop-filter: blur(3px); }
+    /* Sign In and Recover: 480 wide; Create Account: 640 */
+    #signIn, #forgotPass{ width: min(480px, calc(100% - 32px)); }
+    /* Recover: intro sits under the heading */
+    .ca-title + .ca-intro{ margin: 0 0 var(--space-5); }
+    .ca-inner{ min-height: 0; overflow-y: auto; padding: var(--space-7) 56px var(--space-6); }
+    .ca-close{ position: absolute; z-index: 1; top: 16px; right: 16px; width: 40px; height: 40px;
+      display: grid; place-items: center; border: 0; border-radius: 50%; background: #fff;
+      color: var(--pc-black); cursor: pointer; }
+    .ca-close:hover{ background: var(--pc-light-blue); }
+    .ca-close:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+
+    .ca-logo{ display: block; margin: 0 auto; height: 62px; width: auto; }
+    .ca-intro{ margin: var(--space-5) auto 0; text-align: center;
+      font-size: 15px; line-height: 1.55; color: var(--color-text-muted); }
+    .ca-title{ margin: var(--space-5) 0; text-align: center;
+      font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1.15; }
+
+    .ca-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+    .ca-field{ display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .ca-grid + .ca-field{ margin-top: var(--space-4); }
+    .ca-label{ font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--color-text-subtle); }
+    .ca-label .req{ color: var(--pc-black); margin-left: 2px; }
+    .ca-input{ position: relative; }
+    .ca-input input{ width: 100%; height: 48px; padding: 0 14px; font: 400 16px/1 var(--font-sans);
+      color: var(--pc-black); background: #fff; border: 1px solid rgba(18,64,106,.45);
+      border-radius: var(--radius-sm); transition: border-color .15s ease, box-shadow .15s ease; }
+    .ca-input input::placeholder{ color: rgba(7,22,44,.45); }
+    .ca-input input:hover{ border-color: var(--pc-navy); }
+    .ca-input input:focus{ outline: none; border-color: var(--pc-navy);
+      box-shadow: 0 0 0 3px var(--pc-light-blue); }
+    .ca-input.has-eye input{ padding-right: 48px; }
+    .ca-eye{ position: absolute; top: 4px; right: 4px; width: 40px; height: 40px;
+      display: grid; place-items: center; border: 0; border-radius: 6px; background: transparent;
+      color: var(--pc-navy); cursor: pointer; }
+    .ca-eye:hover{ background: var(--pc-light-blue); }
+    .ca-eye:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 0; }
+    .ca-eye .eye-open{ display: none; }
+    .ca-eye[aria-pressed="true"] .eye-open{ display: block; }
+    .ca-eye[aria-pressed="true"] .eye-shut{ display: none; }
+
+    .ca-rule{ height: 1px; border: 0; background: var(--color-border); margin: var(--space-5) 0; }
+    .ca-hint{ margin: var(--space-3) 0 0; font-size: 13px; line-height: 1.5; color: var(--color-text-muted); }
+    .ca-forgot{ margin: var(--space-3) 0 0; text-align: right; font-size: 13px; }
+    .ca-forgot a{ color: var(--pc-medium-blue); font-weight: 600; text-decoration: underline;
+      text-underline-offset: 3px; }
+    .ca-forgot a:hover{ color: var(--pc-navy); }
+    .ca-submit{ display: flex; width: 100%; margin-top: var(--space-5); }
+    .ca-or{ display: flex; align-items: center; gap: var(--space-4); margin: var(--space-5) 0 var(--space-4);
+      font-size: 12px; font-weight: 600; letter-spacing: .12em; color: var(--color-text-subtle); }
+    .ca-or::before, .ca-or::after{ content: ""; flex: 1; height: 1px; background: var(--color-border); }
+    .ca-switch{ margin: 0; text-align: center; font-size: 15px; color: var(--color-text-muted); }
+    .ca-switch a{ color: var(--pc-medium-blue); font-weight: 600; text-decoration: underline;
+      text-underline-offset: 3px; }
+    .ca-switch a:hover{ color: var(--pc-navy); }
+
+    /* Screens 800 tall or less: tighter vertical rhythm so Create Account fits a
+       720-tall laptop without scrolling */
+    @media (max-height: 800px){
+      .ca-inner{ padding-top: var(--space-6); padding-bottom: var(--space-5); }
+      .ca-logo{ height: 52.8px; }
+      .ca-intro{ margin-top: var(--space-4); }
+      .ca-title{ margin: var(--space-4) 0; }
+      .ca-title + .ca-intro{ margin: 0 0 var(--space-4); }
+      .ca-rule{ margin: var(--space-4) 0; }
+      .ca-submit{ margin-top: var(--space-4); }
+      .ca-or{ margin: var(--space-4) 0 var(--space-3); }
+    }
+    @media (max-width: 639px){
+      .ca-inner{ padding: 56px var(--space-5) var(--space-5); }
+      .ca-grid{ grid-template-columns: 1fr; }
+      /* Logo visually hidden (kept for screen readers) to save height; the 56 top
+         padding clears the close X */
+      .ca-logo{ position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+        overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+      .ca-logo + .ca-intro, .ca-logo + .ca-title{ margin-top: 0; }
+    }
+    /* Site-wide small-width type scale; kept last so it wins */
+    @media (max-width: 767px){
+      .ca-title{ font-size: 26px; line-height: 1.18; }
+    }
+    @media (max-width: 359px){
+      .ca-inner{ padding-left: var(--space-4); padding-right: var(--space-4); }
+      .ca-title{ font-size: 24px; }
+      .ca-intro, .ca-switch{ font-size: 14px; }
+    }
+      .ab-band{ padding: var(--space-8) 0; }
+    .ab-wrap{ max-width: var(--site); margin: 0 auto; padding: 0 var(--rail); }
+    .ab-band--soft{ background: var(--pc-soft-white); border-top: 1px solid var(--color-border); }
+    .ab-band--navy{ background: var(--pc-navy); }
+    .ab-band--medium{ background: var(--pc-medium-blue); }
+    .ab-h2{ font-family: var(--font-serif); font-weight: 500; font-size: 36px;
+      line-height: 1.14; color: var(--pc-black); margin: 0; }
+    .ab-band--navy .ab-h2, .ab-band--medium .ab-h2{ color: var(--pc-white); }
+    .ab-prose p{ margin: 0 0 var(--space-5); font-size: 16px; line-height: 1.75;
+      color: var(--color-text-muted); }
+    .ab-prose p:last-child{ margin-bottom: 0; }
+    .ab-prose a{ color: var(--pc-navy); text-decoration: underline;
+      text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .ab-prose a:hover{ color: var(--color-accent); text-decoration-thickness: 2px; }
+    .ab-band--navy .ab-prose p, .ab-band--medium .ab-prose p{ color: var(--text-on-dark); }
+    .ab-band--navy .ab-prose a, .ab-band--medium .ab-prose a{ color: var(--accent-on-dark); }
+    .ab-intro{ padding-top: var(--space-8); }
+    .ab-intro h1{ font-size: 52px; line-height: 1.08; margin: 0 0 var(--space-7); }
+    .ab-headsplit{ display: grid; grid-template-columns: 850px minmax(0, 1fr);
+      gap: var(--space-8); align-items: stretch; }
+    .ab-figcol{ display: block; }
+    .ab-fig{ margin: 0; height: 100%; }
+    .ab-fig img{ display: block; width: 100%; height: 100%; object-fit: cover;
+      border-radius: var(--radius-md); }
+    @media (min-width: 1280px) and (max-width: 1535px){
+      .ab-headsplit{ grid-template-columns: minmax(0, 1fr) 400px; }
+    }
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .ab-headsplit{ grid-template-columns: minmax(0, 1fr) 320px; gap: var(--space-6); }
+    }
+    @media (min-width: 900px) and (max-width: 1023px){
+      .ab-headsplit{ grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+        gap: var(--space-4); }
+    }
+    @media (max-width: 899px){
+      .ab-headsplit{ grid-template-columns: minmax(0, 1fr); }
+      .ab-headsplit .ab-figcol{ display: none; }
+    }
+    @media (max-width: 767px){
+      .ab-intro h1{ font-size: 34px; line-height: 1.12; }
+      .ab-h2{ font-size: 26px; line-height: 1.18; }
+      .ab-prose p{ font-size: 15px; line-height: 1.6; margin-bottom: var(--space-4); }
+      .ab-culture .ab-prose p{ font-size: 15px; }
+    }
+    .ab-points-title{ margin-bottom: var(--space-6); }
+    .ab-points{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-5); list-style: none; margin: 0; padding: 0; }
+    .ab-point{ position: relative; display: flex; flex-direction: column;
+      justify-content: flex-end; min-height: 420px; overflow: hidden;
+      border-radius: var(--radius-md); background: var(--pc-navy); }
+    .ab-point img{ position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; z-index: 0; }
+    .ab-point::after{ content: ""; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to top, rgba(7,22,44,.94) 0%, rgba(7,22,44,.88) 30%,
+        rgba(7,22,44,.62) 56%, rgba(7,22,44,0) 78%); }
+    .ab-pointtext{ position: relative; z-index: 2; padding: var(--space-5); }
+    .ab-point h3{ font-family: var(--font-serif); font-weight: 500; font-size: 22px;
+      line-height: 1.2; color: var(--pc-white); margin: 0 0 var(--space-2); }
+    .ab-point p{ margin: 0; font-size: 15px; line-height: 1.7;
+      color: rgba(255,255,255,.86); }
+    @media (min-width: 1024px) and (max-width: 1279px){
+      .ab-pointtext{ padding: var(--space-4); }
+      .ab-point h3{ font-size: 20px; }
+      .ab-point p{ font-size: 14px; line-height: 1.6; }
+    }
+    @media (min-width: 900px) and (max-width: 1023px){
+      .ab-points{ gap: var(--space-3); }
+      .ab-pointtext{ padding: var(--space-3); }
+      .ab-point{ min-height: 360px; }
+      .ab-point h3{ font-size: 18px; }
+      .ab-point p{ font-size: 13px; line-height: 1.55; }
+    }
+    @media (min-width: 640px) and (max-width: 899px){
+      .ab-points{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+      .ab-pointtext{ padding: var(--space-4); }
+      .ab-point h3{ font-size: 20px; }
+      .ab-point p{ font-size: 14px; line-height: 1.6; }
+    }
+    @media (max-width: 767px){
+      .ab-pointtext{ padding: var(--space-4); }
+      .ab-point h3{ font-size: 18px; }
+      .ab-point p{ font-size: 14px; line-height: 1.6; }
+    }
+    @media (max-width: 639px){
+      .ab-points{ grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+      .ab-point{ min-height: 320px; }
+    }
+    .ab-video{ display: grid; grid-template-columns: 420px minmax(0, 1fr);
+      gap: var(--space-8); align-items: center; }
+    .ab-video .ab-h2{ margin-bottom: var(--space-4); }
+    .ab-embed{ position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-md);
+      overflow: hidden; background: var(--pc-black); }
+    .ab-embed iframe{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    @media (max-width: 1023px){
+      .ab-video{ grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+    }
+    .ab-culture{ display: grid; grid-template-columns: 520px minmax(0, 1fr);
+      gap: var(--space-8); align-items: stretch; }
+    .ab-culture .ab-fig{ height: 100%; }
+    .ab-culture .ab-fig img{ height: 100%; object-fit: cover; object-position: 58% center; }
+    .ab-culture .ab-h2{ margin-bottom: var(--space-5); }
+    .ab-culture .ab-prose p{ font-size: 15px; }
+    @media (max-width: 1023px){
+      .ab-culture{ grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+      .ab-culture .ab-fig{ order: 2; height: auto; }
+      .ab-culture .ab-fig img{ height: auto; }
+    }
+    .ab-cta{ margin: var(--space-6) 0 0; }
+    .ab-cta .btn{ background: transparent; color: var(--pc-white);
+      border-color: var(--pc-white); }
+    .ab-cta .btn:hover{ background: var(--pc-white); color: var(--pc-black); }
+    .ab-cta .btn:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 3px; }
+
+    /* Buttons inside prose keep the site's button style: no underline, no link recolor. */
+    .ab-prose a.btn, .ab-prose a.btn:hover{ text-decoration: none; }
+    .ab-prose a.btn.btn-ghost, .ab-prose a.btn.btn-ghost:hover{ color: var(--pc-navy); }
+    .ab-prose a.btn.btn-primary, .ab-prose a.btn.btn-primary:hover{ color: var(--pc-white); }
+    .ab-more{ display: inline-block; margin-top: var(--space-3); font-size: 14px; font-weight: 600;
+      color: var(--pc-white); text-decoration: underline; text-underline-offset: 3px; }
+    .ab-more:hover{ color: var(--pc-light-blue); }
+    .ab-more:focus-visible{ outline: 2px solid var(--pc-white); outline-offset: 3px; border-radius: 2px; }
+    .ab-cta--light{ margin-top: var(--space-6); display: flex; flex-wrap: wrap; gap: var(--space-3); }
+    .ab-cta--light .btn.btn-primary{ background: var(--pc-medium-blue); color: var(--pc-white); border-color: var(--pc-medium-blue); }
+    .ab-cta--light .btn.btn-primary:hover{ background: var(--pc-navy); border-color: var(--pc-navy); color: var(--pc-white); }
+    .ab-cta--light .btn.btn-ghost{ background: transparent; color: var(--pc-navy); border-color: rgba(18,64,106,.45); }
+    .ab-cta--light .btn.btn-ghost:hover{ background: var(--pc-light-blue); }
+    .ab-eyebrow{ margin: 0 0 var(--space-4); font-size: var(--label); font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--pc-navy); }
+    .ab-callout{ padding: var(--space-6); border: 1px solid var(--pc-medium-blue); border-radius: var(--radius-lg);
+      background: var(--pc-soft-white); }
+    .ab-diamonds{ margin: 0; padding: 0; list-style: none; columns: 2; column-gap: var(--space-6); }
+    .ab-diamonds li{ position: relative; break-inside: avoid; padding: 6px 0 6px 22px; font-size: 15px;
+      line-height: 1.45; color: var(--pc-black); }
+    .ab-diamonds li::before{ content: ""; position: absolute; left: 2px; top: 14px; width: 8px; height: 8px;
+      background: var(--pc-medium-blue); transform: rotate(45deg); }
+    .ab-connect{ display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-8); align-items: end; }
+    .ab-contact{ margin: 0; font-size: 15px; line-height: 1.8; color: var(--pc-black); }
+    .ab-contact a{ color: var(--pc-navy); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+    .ab-contact a:hover{ color: var(--pc-medium-blue); }
+    .ab-body{ background: #fff; }
+  </style>
+</head>
+
+<body>
+  <!-- ================= HEADER ================= -->
+  <header class="pcf">
+    <div class="pcf-inner">
+      <div class="pcf-brandrow">
+        <!-- Hamburger: left edge, shown only <=899 where the inline menus don't fit.
+             Opens #navDrawer, which is built from the same NAV array as the mega panels. -->
+        <button class="pcf-burger" id="navBurger" type="button"
+                aria-label="Menu" aria-expanded="false" aria-controls="navDrawer">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="pcf-brandcell">
+          <a href="./index.html" aria-label="Peoples Company home">
+            <img class="pcf-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+          </a>
+        </div>
+        <div class="pcf-stack">
+          <div class="pcf-util">
+            <span class="sp"></span>
+            <a href="#create-account" data-open-dialog="createAccount" aria-haspopup="dialog">Create An Account</a>
+            <span class="sep">|</span>
+            <a href="#sign-in" data-open-dialog="signIn" aria-haspopup="dialog">Login</a>
+          </div>
+          <nav class="pcf-row" aria-label="Primary">
+            <ul class="pcf-menus" id="pcfMenus"></ul>
+            <div class="pcf-searchwrap">
+              <button class="pcf-search" id="searchToggle" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+              </button>
+              <div class="pcf-searchpanel" id="searchPanel">
+                <form class="pcf-searchform" role="search" action="#" onsubmit="return false;">
+                  <input type="search" id="searchInput" placeholder="Search Peoples Company…" aria-label="Search the site" />
+                  <button type="submit" class="pcf-searchgo" aria-label="Submit search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hamburger drawer (<=899). Sits under the sticky header; content injected from NAV. -->
+  <div class="pcf-drawer-backdrop" hidden></div>
+  <div class="pcf-drawer" id="navDrawer" role="region" aria-label="Menu" hidden>
+    <div class="pcf-drawer-in"></div>
+  </div>
+
+  <!-- ================= PAGE CONTENT ================= -->
+  <main class="ab-body" aria-label="Page content">
+
+    <!-- 1 - INTRO -->
+    <section class="ab-band ab-intro">
+      <div class="ab-wrap">
+        <h1>Landowners</h1>
+        <div class="ab-headsplit">
+          <div class="ab-prose reveal">
+            <p class="ab-lede">Peoples Company helps landowners make better decisions about farmland: when to sell, how to manage, and what it is worth. Our brokerage, appraisal, land management, energy management, and crop insurance teams work together, so you receive advice built around your goals rather than a single transaction.</p>
+            <p>Our roots are in landowner service. Peoples Company began in 1972 as a central Iowa land brokerage and management firm, and more than 50 years later that commitment has not changed. Today more than 175 team members in 24 offices serve landowners across the country, and our real estate brokerage is licensed in 37 states.</p>
+            <p>Because the disciplines sit under one roof, you receive the right expertise for the decision in front of you, without the conflicts that arise when an advisor profits from only one outcome. Every recommendation is informed by FarmWorth, our proprietary platform, which pairs soil capability analysis, automated valuation modeling, and a comparable-sales database.</p>
+            <p>An assumption that an acre is an acre will be wrong, and the error compounds with the size of the holding. We start with the land, the family that owns it, and the goals they are working toward.</p>
+          </div>
+          <div class="ab-figcol reveal">
+            <figure class="ab-fig">
+              <img src="../assets/pc-hero6.jpg" width="2400" height="1000" loading="lazy" decoding="async" alt="Row-crop farmland under an open sky" />
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 - WHAT WE DO FOR YOU -->
+    <section class="ab-band ab-band--soft" aria-labelledby="lo-do-h">
+      <div class="ab-wrap">
+        <h2 class="ab-h2 ab-points-title" id="lo-do-h">What Peoples Company Can Do for You</h2>
+        <ul class="ab-points">
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/auction26.jpg/f733fb2fe0b9015ea27ca1e8191eefe7.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Bidders seated at a Peoples Company farmland auction" />
+            <div class="ab-pointtext">
+              <h3>Land Brokerage &amp; Auctions</h3>
+              <p>Sell through a listing or an auction, matched to the property and your goals. Custom marketing, a 50,000+ buyer database, and regular listing activity reports keep you informed until closing.</p>
+              <a class="ab-more" href="./land-brokerage-and-auctions.html">Explore Brokerage &amp; Auctions →</a>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/appraisal26.jpg/6a3bff544b4d428c10f180cebddadf3a.webp" width="1200" height="675" loading="lazy" decoding="async" alt="An appraiser documenting a tract of farmland" />
+            <div class="ab-pointtext">
+              <h3>Agricultural Appraisal</h3>
+              <p>Independent valuations of agricultural and recreational land, including single asset and portfolio appraisals, partial interest valuations, and conservation easements.</p>
+              <a class="ab-more" href="./agricultural-appraisal.html">Explore Appraisal →</a>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/management26.jpg/6115f754ad4c501d00c605b11eb316f9.webp" width="1200" height="675" loading="lazy" decoding="async" alt="A farm manager and landowner walking a field of row crop" />
+            <div class="ab-pointtext">
+              <h3>Land Management</h3>
+              <p>Professional management and consulting for owners who expect strong income, appreciation, and responsible stewardship, with timely communication on operations and asset value.</p>
+              <a class="ab-more" href="./land-management.html">Explore Land Management →</a>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/pages/energy26.jpg/22406f6c49150d555c6307075194c726.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Wind turbines standing in cultivated farmland" />
+            <div class="ab-pointtext">
+              <h3>Energy Management</h3>
+              <p>Mineral and royalty management, energy asset valuation and disposition, and renewable energy assets, backed by more than 30 years of experience.</p>
+              <a class="ab-more" href="./energy-management.html">Explore Energy Management →</a>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="https://peoples-cache.nyc3.digitaloceanspaces.com/containers/digitalocean/adobestock_418012143.jpeg/2cbc796052f849c8a97f03f56296ef2f.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Crops growing in a field" />
+            <div class="ab-pointtext">
+              <h3>Crop Insurance</h3>
+              <p>Coverage that guarantees minimum revenue, protects asset value, and stabilizes cash flow for owners who partner with tenants.</p>
+              <a class="ab-more" href="./crop-insurance.html">Explore Crop Insurance →</a>
+            </div>
+          </li>
+          <li class="ab-point reveal">
+            <img src="../assets/pc-hero8.jpg" width="2400" height="1000" loading="lazy" decoding="async" alt="Corn rows extending to the horizon" />
+            <div class="ab-pointtext">
+              <h3>Planning for the Next Generation</h3>
+              <p>An independent, market-based appraisal helps families evaluate buyouts, trusts, and gifting, so transition decisions rest on a defensible value.</p>
+              <a class="ab-more" href="./agricultural-appraisal.html">Learn About Appraisal →</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3 - ONE TEAM -->
+    <section class="ab-band ab-band--navy on-dark" aria-labelledby="lo-team-h">
+      <div class="ab-wrap">
+        <div class="ab-culture">
+          <figure class="ab-fig reveal">
+            <img src="../assets/pc-hero3.jpg" width="2400" height="1000" loading="lazy" decoding="async" alt="Rolling farmland with a farmstead and pond under a wide sky" />
+          </figure>
+          <div class="reveal">
+            <h2 class="ab-h2" id="lo-team-h">One Team Behind Every Decision</h2>
+            <div class="ab-prose">
+              <p>Peoples Company is the only land services firm offering fully integrated brokerage, land management, appraisal, and capital markets, along with crop insurance and energy management support.</p>
+              <p>Whether you are deciding to hold, sell, lease, or restructure, the people advising you work from the same data and the same understanding of your land. With regional offices spanning the agricultural heartland, a Peoples Company advisor is never far from your land.</p>
+            </div>
+            <p class="ab-cta"><a class="btn" href="./team.html">Meet Our Team</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 - FREE ASSESSMENT -->
+    <section class="ab-band" aria-labelledby="lo-assess-h">
+      <div class="ab-wrap">
+        <div class="ab-video">
+          <div class="ab-prose reveal">
+            <h2 class="ab-h2" id="lo-assess-h">Start with a Free Farmland Assessment</h2>
+            <p>Peoples Company offers landowners a free farmland assessment of the factors that shape what your land can earn and what it is worth.</p>
+            <p class="ab-cta ab-cta--light"><a class="btn btn-primary" href="./assessment.html">Request an Assessment</a></p>
+          </div>
+          <div class="ab-callout reveal">
+            <p class="ab-eyebrow">The Assessment Reviews</p>
+            <ul class="ab-diamonds">
+              <li>Soil productivity</li>
+              <li>Farm topography</li>
+              <li>In-season weather</li>
+              <li>Minimum revenue guarantees</li>
+              <li>Regional return expectations</li>
+              <li>Current market values</li>
+              <li>Potential improvement projects</li>
+              <li>Conservation recommendations</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 - CONNECT -->
+    <section class="ab-band ab-band--soft" aria-labelledby="lo-go-h">
+      <div class="ab-wrap">
+        <div class="ab-connect reveal">
+          <div class="ab-prose">
+            <h2 class="ab-h2" id="lo-go-h">Talk with a Land Professional</h2>
+            <p>Tell us what you are deciding, and we will connect you with the specialist who handles it every day.</p>
+            <p class="ab-cta ab-cta--light"><a class="btn btn-primary" href="./team.html">Find a Land Professional</a> <a class="btn btn-ghost" href="./contact.html">Find an Office</a></p>
+          </div>
+          <p class="ab-contact"><a href="tel:+18558005263">855.800.LAND</a><br /><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= CREATE ACCOUNT MODAL ================= -->
+  <dialog class="ca-dialog" id="createAccount" aria-labelledby="ca-title">
+    <div class="ca-inner">
+      <button class="ca-close" type="button" aria-label="Close" data-close-dialog>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+
+      <p class="ca-intro">Get access to valuable farmland insights and a personalized experience.</p>
+      <h2 class="ca-title" id="ca-title">Create Your Account</h2>
+
+      <form action="#" onsubmit="return false;" novalidate>
+        <div class="ca-grid">
+          <div class="ca-field">
+            <label class="ca-label" for="ca-first">First name</label>
+            <div class="ca-input"><input id="ca-first" type="text" autocomplete="given-name" placeholder="First name" /></div>
+          </div>
+          <div class="ca-field">
+            <label class="ca-label" for="ca-last">Last name</label>
+            <div class="ca-input"><input id="ca-last" type="text" autocomplete="family-name" placeholder="Last name" /></div>
+          </div>
+        </div>
+        <div class="ca-field" style="margin-top: var(--space-4);">
+          <label class="ca-label" for="ca-email">Email<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input"><input id="ca-email" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
+        </div>
+
+        <hr class="ca-rule" />
+
+        <div class="ca-grid">
+          <div class="ca-field">
+            <label class="ca-label" for="ca-pass">Create Password<span class="req" aria-hidden="true">*</span></label>
+            <div class="ca-input has-eye">
+              <input id="ca-pass" type="password" autocomplete="new-password" aria-describedby="ca-hint" required />
+              <button class="ca-eye" type="button" aria-label="Show password" aria-pressed="false" aria-controls="ca-pass"><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.6 3.4M6.6 6.6A17 17 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+          </div>
+          <div class="ca-field">
+            <label class="ca-label" for="ca-pass2">Confirm Password<span class="req" aria-hidden="true">*</span></label>
+            <div class="ca-input has-eye">
+              <input id="ca-pass2" type="password" autocomplete="new-password" required />
+              <button class="ca-eye" type="button" aria-label="Show password" aria-pressed="false" aria-controls="ca-pass2"><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.6 3.4M6.6 6.6A17 17 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <p class="ca-hint" id="ca-hint">At least 8 characters, with letters and numbers.</p>
+
+        <button class="btn btn-primary ca-submit" type="submit">Create Account</button>
+      </form>
+
+      <p class="ca-or" aria-hidden="true">OR</p>
+      <p class="ca-switch">Already have an account? <a href="#sign-in" data-open-dialog="signIn">Sign In</a></p>
+    </div>
+  </dialog>
+
+  <!-- ================= SIGN IN MODAL ================= -->
+  <dialog class="ca-dialog" id="signIn" aria-labelledby="si-title">
+    <div class="ca-inner">
+      <button class="ca-close" type="button" aria-label="Close" data-close-dialog>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+
+      <h2 class="ca-title" id="si-title">Sign in to your account</h2>
+
+      <form action="#" onsubmit="return false;" novalidate>
+        <div class="ca-field">
+          <label class="ca-label" for="si-email">Email<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input"><input id="si-email" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
+        </div>
+        <div class="ca-field" style="margin-top: var(--space-4);">
+          <label class="ca-label" for="si-pass">Password<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input has-eye">
+            <input id="si-pass" type="password" autocomplete="current-password" required />
+            <button class="ca-eye" type="button" aria-label="Show password" aria-pressed="false" aria-controls="si-pass"><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.6 3.4M6.6 6.6A17 17 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+        </div>
+        <p class="ca-forgot"><a href="#forgot-password" data-open-dialog="forgotPass">Forgot Password?</a></p>
+
+        <button class="btn btn-primary ca-submit" type="submit">Sign In</button>
+      </form>
+
+      <p class="ca-or" aria-hidden="true">OR</p>
+      <p class="ca-switch">Don&rsquo;t have an account? <a href="#create-account" data-open-dialog="createAccount">Sign Up</a></p>
+    </div>
+  </dialog>
+
+  <!-- ================= RECOVER ACCOUNT MODAL ================= -->
+  <dialog class="ca-dialog" id="forgotPass" aria-labelledby="fp-title">
+    <div class="ca-inner">
+      <button class="ca-close" type="button" aria-label="Close" data-close-dialog>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <img class="ca-logo" src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company: Integrated Land Solutions" />
+
+      <h2 class="ca-title" id="fp-title">Recover your account</h2>
+      <p class="ca-intro">Enter the email address on your account and we&rsquo;ll send you a link to reset your password.</p>
+
+      <form action="#" onsubmit="return false;" novalidate>
+        <div class="ca-field">
+          <label class="ca-label" for="fp-email">Email<span class="req" aria-hidden="true">*</span></label>
+          <div class="ca-input"><input id="fp-email" type="email" autocomplete="email" placeholder="name@example.com" required /></div>
+        </div>
+
+        <button class="btn btn-primary ca-submit" type="submit">Send Recovery Email</button>
+      </form>
+
+      <p class="ca-or" aria-hidden="true">OR</p>
+      <p class="ca-switch">Remembered it? <a href="#sign-in" data-open-dialog="signIn">Back to Sign In</a></p>
+    </div>
+  </dialog>
+  <script>
+    (function(){
+      var dlgs = document.querySelectorAll(".ca-dialog");
+      if(!dlgs.length || !dlgs[0].showModal) return;
+      function open(id){
+        dlgs.forEach(function(d){ if(d.open) d.close(); });
+        document.getElementById(id).showModal();
+      }
+      document.querySelectorAll("[data-open-dialog]").forEach(function(a){
+        a.addEventListener("click", function(e){ e.preventDefault(); open(a.getAttribute("data-open-dialog")); });
+      });
+      dlgs.forEach(function(dlg){
+        dlg.querySelector("[data-close-dialog]").addEventListener("click", function(){ dlg.close(); });
+        /* a click on the backdrop (outside the card) closes */
+        dlg.addEventListener("click", function(e){ if(e.target === dlg) dlg.close(); });
+      });
+      document.querySelectorAll(".ca-eye").forEach(function(b){
+        b.addEventListener("click", function(){
+          var inp = document.getElementById(b.getAttribute("aria-controls")),
+              show = inp.type === "password";
+          inp.type = show ? "text" : "password";
+          b.setAttribute("aria-pressed", show);
+          b.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        });
+      });
+      if(location.hash === "#create-account") open("createAccount");
+      if(location.hash === "#sign-in") open("signIn");
+      if(location.hash === "#forgot-password") open("forgotPass");
+    })();
+  </script>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="pff">
+    <div class="pff-main">
+      <!-- connect band on top: logo · newsletter line · subscribe pill -->
+      <div class="pff-inner pff-connect">
+        <a class="pff-connect-logo" href="./index.html" aria-label="Peoples Company home">
+          <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+        </a>
+        <!-- nbsp binds the tail so the ONLY place this can break is after "Subscribe".
+             Keeps one line where it fits (>=1536) instead of a hard <br> everywhere. -->
+        <p class="pff-connect-line">Stay Connected and Subscribe to&nbsp;Our&nbsp;Newsletter.</p>
+        <form class="pff-subform" action="#" onsubmit="return false;" aria-label="Newsletter signup">
+          <input type="email" placeholder="Email Address" aria-label="Email address" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+
+      <div class="pff-inner pff-grid">
+        <div class="pff-brand pff-col">
+          <!-- Second lockup, shown only at 640-767 (see .pff-brand-logo in pc.css), where the
+               design puts it between the rule and "Corporate Office". Exactly one footer
+               lockup is visible at any width. -->
+          <a class="pff-brand-logo" href="./index.html" aria-label="Peoples Company home">
+            <img src="../shared/logos/pc_logo_07162c.png" alt="Peoples Company" />
+          </a>
+          <h3>Corporate Office</h3>
+          <!-- Each part is wrapped in a <span> so the 900-1023 layout can run them along one
+               row separated by "|" (CSS can't attach a separator to a bare text node). The
+               <br>s are kept for every other width, where the block still stacks. -->
+          <p class="pff-contact">
+            <span>1108 S 44th St, Ste 102</span><br />
+            <span>Cumming, IA 50061</span><br />
+            <span><b><a href="tel:+18558005263">855.800.LAND</a></b></span><br />
+            <span><a href="mailto:Info@PeoplesCompany.com">Info@PeoplesCompany.com</a></span>
+          </p>
+          <div class="pff-cta">
+            <a class="btn btn-subscribe" href="./contact.html">Connect with our Team</a>
+          </div>
+        </div>
+
+        <nav class="pff-col" aria-label="Real Estate">
+          <h3>Real Estate</h3>
+          <ul>
+            <li><a href="./listings.html">Traditional Search</a></li>
+            <li><a href="./internal.html">AI Search</a></li>
+            <li><a href="./internal.html">Interactive Map</a></li>
+            <li><a href="./internal.html">Auctions</a></li>
+            <li><a href="./auction-results.html">Auction Results</a></li>
+            <li><a href="./team.html">Find An Agent</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="The Company">
+          <h3>The Company</h3>
+          <ul>
+            <li><a href="./about.html">Overview</a></li>
+            <li><a href="./industry-collaboration.html">Industry Collaboration</a></li>
+            <li><a href="./team.html">Our Team</a></li>
+            <li><a href="./contact.html">Offices</a></li>
+            <li><a href="./culture.html">Culture</a></li>
+            <li><a href="./careers.html">Careers</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="What We Do">
+          <h3>What We Do</h3>
+          <ul>
+            <li><a href="./land-brokerage-and-auctions.html">Land Brokerage &amp; Auctions</a></li>
+            <li><a href="./agricultural-appraisal.html">Agricultural Appraisal</a></li>
+            <li><a href="./land-management.html">Land Management</a></li>
+            <li><a href="./energy-management.html">Energy Management</a></li>
+            <li><a href="./crop-insurance.html">Crop Insurance</a></li>
+            <li><a href="./capital-markets.html">Capital Markets</a></li>
+            <li><a href="./corporate-services.html">Corporate Services</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pff-col" aria-label="Data &amp; Insights">
+          <h3>Data &amp; Insights</h3>
+          <ul>
+            <li><a href="./farmland-data.html">Farmland Data</a></li>
+            <li><a href="./industry-research.html">Industry Research</a></li>
+            <li><a href="./nlv.html">National Land Values</a></li>
+            <li><a href="./blog.html">Blog</a></li>
+            <li><a href="./internal.html">Case Studies</a></li>
+            <li><a href="./industry-recognition.html">Industry Recognition</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="pff-bottom">
+      <div class="pff-bottom-inner">
+        <span class="copy">© 2026 Peoples Company</span>
+
+        <span class="legal-links">
+          <a href="./legal.html#privacy-notice">Privacy Notice</a>
+          <a href="./legal.html#disclaimer">Disclaimer</a>
+          <a href="./legal.html#equal-opportunity">Equal Opportunity</a>
+        </span>
+
+        <span class="pff-social">
+          <a href="https://www.facebook.com/peoplescompany/" target="_blank" rel="noopener noreferrer" aria-label="Facebook (opens in a new tab)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.46-.13-2.44 0-4.1 1.49-4.1 4.22v2.35H7.7V13h2.74v8h3.06z"/></svg></a>
+          <a href="https://x.com/PeoplesCompany" target="_blank" rel="noopener noreferrer" aria-label="X (opens in a new tab)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3l-6.55 7.48L21.6 21h-5.9l-4.62-6.04L5.8 21H2.8l7-8L2.6 3h6.05l4.18 5.52L17.5 3zm-1.05 16.2h1.66L7.6 4.7H5.82l10.63 14.5z"/></svg></a>
+          <a href="https://www.instagram.com/peoplescompany/" target="_blank" rel="noopener noreferrer" aria-label="Instagram (opens in a new tab)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://www.linkedin.com/company/peoples-company" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn (opens in a new tab)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5A1.94 1.94 0 113 5a1.94 1.94 0 013.94 0zM3.4 8.5h3.1V21H3.4V8.5zM9.1 8.5h2.97v1.7h.04c.41-.78 1.42-1.6 2.93-1.6 3.13 0 3.71 2.06 3.71 4.74V21h-3.1v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9.1V8.5z"/></svg></a>
+          <a href="https://www.youtube.com/@PeoplesCo" target="_blank" rel="noopener noreferrer" aria-label="YouTube (opens in a new tab)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7c-.23-.83-.9-1.5-1.73-1.72C19.36 5.2 12 5.2 12 5.2s-7.36 0-8.87.38c-.83.22-1.5.9-1.73 1.72C1 8.8 1 12 1 12s0 3.2.4 4.7c.23.83.9 1.5 1.73 1.72C4.64 18.8 12 18.8 12 18.8s7.36 0 8.87-.38c.83-.22 1.5-.9 1.73-1.72C23 15.2 23 12 23 12zM9.75 15.02V8.98L15 12l-5.25 3.02z"/></svg></a>
+        </span>
+
+      </div>
+
+      <!-- State licensure disclosure. Legal requirement, so it is always rendered; it is
+           set small and subtle because it is reference text, not reading matter. Kept
+           OUTSIDE .pff-bottom-inner so the stacked grid-template-areas below 640 need no
+           new area. -->
+      <p class="pff-license">Peoples Company or one of our affiliates is a licensed real estate broker in Alabama, Alaska, Arkansas, California, Colorado, Delaware, Florida, Georgia, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana, Maryland, Michigan, Minnesota, Mississippi, Missouri, Montana, Nebraska, New Mexico, New York, North Carolina, North Dakota, Ohio, Oklahoma, Oregon, South Carolina, South Dakota, Tennessee, Texas, Virginia, Washington, Wisconsin, and Wyoming.</p>
+    </div>
+  </footer>
+
+  <!-- Announcement toast (floating, bottom-right; minimizes to a reopenable "Auction Alerts" handle).
+       DEFAULT OPEN on load — the card shows on load; the handle stays hidden until minimized.
+       The open card carries the same alert icon as the handle. -->
+  <aside class="pc-toast" id="pcToast" role="region" aria-label="Site announcement">
+    <svg class="pc-toast-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <div class="pc-toast-body">
+      <p><strong>AUCTIONS TODAY AT 10&nbsp;AM (CT)</strong><br>
+        <a href="./internal.html">136.57 Acres M/L in Wayne County IA</a><br>
+        <a href="./internal.html"><em>WATCH</em></a><br>
+        <a href="./internal.html">804 Acres M/L in Juneau County WI</a><br>
+        <a href="./internal.html"><em>WATCH</em></a>
+      </p>
+    </div>
+    <button class="pc-toast-x" type="button" aria-label="Minimize announcement">&times;</button>
+  </aside>
+
+  <!-- Reopen handle: hovers on the right edge. Hidden above 1279px, where the card starts
+       open; at <=1279px the JS starts minimized and this handle shows instead. -->
+  <button class="pc-toast-reopen" id="pcToastReopen" type="button" aria-label="Show announcement" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l4 3V7L7 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6.5a8 8 0 0 1 0 11"/></svg>
+    <span>Auction Alerts</span>
+  </button>
+
+  <script>
+    // Mega-menu nav built from the real IA. "The Company" panel carries three
+    // affiliation badges on the right (this tab only).
+    (function(){
+      var IAA_SVG = '<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><circle cx="32" cy="26" r="14" fill="none" stroke="currentColor" stroke-width="1.6"/><ellipse cx="32" cy="26" rx="6" ry="14" fill="none" stroke="currentColor" stroke-width="1.1"/><line x1="18" y1="26" x2="46" y2="26" stroke="currentColor" stroke-width="1.1"/><path d="M20 19 Q32 23 44 19" fill="none" stroke="currentColor" stroke-width="1"/><path d="M20 33 Q32 29 44 33" fill="none" stroke="currentColor" stroke-width="1"/><path d="M32 45 C24 43 18 47 15 55 C24 55 30 52 32 45Z" fill="currentColor"/><path d="M32 45 C40 43 46 47 49 55 C40 55 34 52 32 45Z" fill="currentColor"/><line x1="32" y1="43" x2="32" y2="55" stroke="currentColor" stroke-width="1.3"/></svg>';
+      var EXPO_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5"/><circle cx="12" cy="10" r="2.6"/><path d="M7.5 19c0-2.5 2-4.4 4.5-4.4s4.5 1.9 4.5 4.4"/><path d="M4.5 8l2 1M19.5 8l-2 1"/></svg>';
+
+      var NAV = [
+        { label: "Real Estate", cols: [
+          { h: "For Sale", items: [{ t: "Traditional Search", href: "./listings.html" },"AI Search","Interactive Map"] },
+          { h: "Auctions", items: ["Upcoming Auctions",{ t: "Auction Results", href: "./auction-results.html" }] },
+          { h: "Available Now", kpis: [
+            { v: "161", l: "For Sale" },
+            { v: "48", l: "Upcoming Auctions" },
+            { v: "42,783±", l: "Total Acres" },
+            { v: "15", l: "States" }
+          ]}
+        ]},
+        { label: "The Company", cols: [
+          { h: "The Company", items: [
+            { t: "Overview", href: "./about.html" },
+            { t: "Industry Collaboration", href: "./industry-collaboration.html" },
+            { t: "Our Team", href: "./team.html" },
+            { t: "Offices", href: "./contact.html" },
+            { t: "Culture", href: "./culture.html" },
+            { t: "Careers", href: "./careers.html" }
+          ] },
+          { h: "Our Clients", items: ["Operators","Landowners","Professional Advisors","Financial Advisors","High-Net-Worth Investors","Institutional Investors"] },
+          { affil: true }
+        ]},
+        { label: "What We Do", cols: [
+          { svc: [ { name: "Land Brokerage & Auctions", href: "./land-brokerage-and-auctions.html", items: ["Buy","Sell",{ t: "Find An Agent", href: "./team.html" }] } ]},
+          { svc: [ { name: "Land Management", href: "./land-management.html", items: ["Management Approach","Consulting","Request An Assessment"] } ]},
+          { svc: [ { name: "Agricultural Appraisal", href: "./agricultural-appraisal.html", items: [{ t: "Order An Appraisal", href: "./agricultural-appraisal.html" }] } ]},
+          { svc: [ { name: "Energy Management", href: "./energy-management.html" }, { name: "Crop Insurance", href: "./crop-insurance.html" }, { name: "Capital Markets", href: "./capital-markets.html" }, { name: "Corporate Services", href: "./corporate-services.html" } ]}
+        ]},
+        { label: "Data & Insights", cols: [
+          { h: "Data & Insights", items: [{ t: "Farmland Data", href: "./farmland-data.html" },{ t: "Industry Research", href: "./industry-research.html" },{ t: "National Land Values", href: "./nlv.html" },{ t: "Blog", href: "./blog.html" },"Case Studies",{ t: "Industry Recognition", href: "./industry-recognition.html" }] },
+          { h: "Latest Blogs", latest: [
+            { t: "Harvest Season on Leased Ground: A Checklist for Landowners", href: "./blog-story.html" },
+            { t: "Online, Live, or Hybrid: Choosing the Right Auction Format for Your Farm", href: "./blog-story.html" },
+            { t: "Pasture and Grazing Land: What Drives Value Outside the Row-Crop Belt", href: "./blog-story.html" },
+            { t: "Recreational Land Buyers Are Back: What They Want and What They Pay", href: "./blog-story.html" },
+            { t: "Better Records, Better Decisions", href: "./blog-story.html" }
+          ]},
+          { h: "Latest Insights", latest: [
+            { t: "Farmland Fundamentals: Understanding the Asset Class", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/farmland-fundamantals-06092026.pdf", ext: true },
+            { t: "Shared DNA: Why Family Offices and Farmland Naturally Align", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/shared-dna-brochure-04232026.pdf", ext: true },
+            { t: "Perspectives on the Impact of Global Conflict on Farmland Returns", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/white-paper-global-conflict-04232026.pdf", ext: true },
+            { t: "International Farmland Markets", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/iaa-white-paper-(pages).pdf", ext: true },
+            { t: "A New Era of Capital in Farmland: From Opportunistic to Long-Duration Investors", href: "https://peoples-assets.nyc3.cdn.digitaloceanspaces.com/papers/a-new-era-of-capital-in-farmland-pages.pdf", ext: true }
+          ]}
+        ]}
+      ];
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+      function badgeHTML(b){
+        var emb;
+        if(b.type === "iaa"){ return '<a class="pcf-badge pcf-badge-logo iaa" href="./international-ag-alliance.html" aria-label="International Ag Alliance"><img src="../assets/iaa.png" alt="International Ag Alliance" onerror="this.parentElement.style.display=\'none\'" /></a>'; }
+        if(b.type === "expo"){ return '<a class="pcf-badge pcf-badge-logo expo" href="./land-investment-expo.html" aria-label="Land Investment Expo"><span class="emb">'+EXPO_SVG+'</span><span class="blabel">'+esc(b.label)+'</span></a>'; }
+        // american farmland owner — real horizontal logo (assets/afo.png)
+        return '<a class="pcf-badge pcf-badge-logo afo" href="./american-farmland-owner.html" aria-label="American Farmland Owner"><img src="../assets/afo.png" alt="American Farmland Owner" onerror="this.parentElement.style.display=\'none\'" /></a>';
+      }
+      function colHTML(c){
+        if(c.latest){
+          var li = c.latest.map(function(r){
+            return '<li><a href="'+r.href+'"'+(r.ext ? ' target="_blank" rel="noopener noreferrer"' : '')+'>'+esc(r.t)+'</a></li>';
+          }).join("");
+          return '<div class="pcf-col pcf-latestcol"><h4>'+esc(c.h)+'</h4><ul class="pcf-latest">'+li+'</ul></div>';
+        }
+        if(c.kpis){
+          var k = c.kpis.map(function(r){ return '<div><dt>'+esc(r.l)+'</dt><dd>'+esc(r.v).replace("±", '<span class="pcf-pm">±</span>')+'</dd></div>'; }).join("");
+          return '<div class="pcf-col pcf-kpicol"><h4>'+esc(c.h)+'</h4><dl class="pcf-kpis">'+k+'</dl></div>';
+        }
+        if(c.affil){
+          return '<div class="pcf-col pcf-notecol pcf-affil"><div class="af-opt af-b af-bv"><div class="af-frame"><h4>Our Affiliations</h4>'
+            + '<div class="af-rowb"><img class="af-logo" src="../assets/expo.png" alt="" /><span class="af-t">Annual farmland investment conference.</span><a class="af-go" href="./land-investment-expo.html">Visit &rsaquo;</a></div>'
+            + '<div class="af-rowb"><img class="af-logo" src="../assets/afo.png" alt="" /><span class="af-t">Weekly landowner news and analysis.</span><a class="af-go" href="./american-farmland-owner.html">Visit &rsaquo;</a></div>'
+            + '<div class="af-rowb"><img class="af-logo af-vert" src="../assets/iaa-vertical.png" alt="" /><span class="af-t">Global coalition of ag land firms.</span><a class="af-go" href="./international-ag-alliance.html">Visit &rsaquo;</a></div>'
+            + '</div></div></div>';
+        }
+        if(c.note){
+          return '<div class="pcf-col pcf-notecol"><p>'+esc(c.note)+'</p></div>';
+        }
+        if(c.badges){
+          return '<div class="pcf-col pcf-badgecol"><div class="pcf-badges">'+ c.badges.map(badgeHTML).join("") +'</div></div>';
+        }
+        if(c.svc){
+          var blocks = c.svc.map(function(s){
+            var sub = (s.items || []).map(function(i){
+              var t = typeof i === "string" ? i : i.t, h = typeof i === "string" ? "./internal.html" : i.href;
+              return '<li><a href="'+h+'">'+esc(t)+'</a></li>'; }).join("");
+            return '<div class="pcf-svcblock">'+
+              '<div class="pcf-svc"><a href="'+(s.href || "./internal.html")+'">'+esc(s.name)+'</a></div>'+
+              (sub ? '<ul class="pcf-sublist">'+sub+'</ul>' : '')+
+            '</div>';
+          }).join("");
+          return '<div class="pcf-col">'+blocks+'</div>';
+        }
+        if(c.h && (!c.items || !c.items.length) && !c.note){
+          return '<div class="pcf-col"><h4 style="border:0;margin-bottom:0;"><a href="./internal.html" style="color:inherit;text-decoration:none;">'+esc(c.h)+'</a></h4></div>';
+        }
+        var links = (c.items || []).map(function(i){
+          var t = typeof i === "string" ? i : i.t, h = typeof i === "string" ? "./internal.html" : i.href;
+          return '<li><a href="'+h+'">'+esc(t)+'</a></li>'; }).join("");
+        var head = c.h ? '<h4>'+esc(c.h)+'</h4>'
+                       : (c.spacer ? '<h4 class="pcf-h4-ghost" aria-hidden="true">&nbsp;</h4>' : '');
+        var note = c.note ? '<p class="soft">'+esc(c.note)+'</p>' : '';
+        return '<div class="pcf-col">'+head+(links ? '<ul>'+links+'</ul>' : '')+note+'</div>';
+      }
+      // Top level is a TRIGGER, not a destination: a <button>, so clicking opens the panel
+      // instead of navigating. It must not be an <a href>, which would reload the page on
+      // click and leave the panel reachable only by hovering.
+      function itemHTML(n){
+        return '<li><button class="pcf-menu-btn" type="button" aria-haspopup="true" aria-expanded="false">'+
+            esc(n.label)+
+          '</button>'+
+          '<div class="pcf-mega" role="menu" aria-label="'+esc(n.label)+'">'+
+            '<div class="pcf-mega-in">'+n.cols.map(colHTML).join("")+'</div>'+
+          '</div></li>';
+      }
+      var mount = document.getElementById("pcfMenus");
+      if(mount) mount.innerHTML = NAV.map(itemHTML).join("");
+
+      // Hamburger drawer content — SAME colHTML() as the mega panels, so the two can never
+      // drift apart. Each top-level section becomes a heading with its columns beneath.
+      var drawer = document.querySelector("#navDrawer .pcf-drawer-in");
+      if(drawer){
+        // Each section carries a slug class ("sec-the-company") so per-section drawer
+        // layout can be targeted BY NAME rather than by nth-of-type — reordering NAV must
+        // not silently move a layout override onto a different section.
+        function slug(s){
+          return s.toLowerCase().replace(/&/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+        }
+        drawer.innerHTML = NAV.map(function(n){
+          return '<section class="pcf-drawer-sec sec-'+slug(n.label)+'">'+
+                   '<h3>'+esc(n.label)+'</h3>'+
+                   '<div class="pcf-drawer-cols">'+n.cols.map(colHTML).join("")+'</div>'+
+                 '</section>';
+        }).join("");
+      }
+    })();
+
+    // SHARED PAGE SCROLL LOCK for the overlays (map layer, hamburger drawer).
+    // `overscroll-behavior: contain` only stops a scroll gesture INSIDE an overlay from
+    // chaining to the page; a wheel over the backdrop still scrolled the document. This
+    // locks the document itself.
+    //
+    // Reference-counted on purpose: the map layer and the drawer can be open at the same
+    // time, and closing one must not unlock the page while the other is still open.
+    //
+    // Uses overflow:hidden on <html> (which preserves scroll position, so nothing needs
+    // restoring) and pads the right by the scrollbar's width, otherwise removing the
+    // scrollbar shifts the whole page sideways as the overlay opens.
+    var pcScrollLock = (function(){
+      var count = 0;
+      var root = document.documentElement;
+      return {
+        on: function(){
+          if(count++ > 0) return;
+          var sbw = window.innerWidth - root.clientWidth;
+          root.style.overflow = "hidden";
+          if(sbw > 0) root.style.paddingRight = sbw + "px";
+        },
+        off: function(){
+          if(count === 0 || --count > 0) return;   // never go negative
+          root.style.overflow = "";
+          root.style.paddingRight = "";
+        }
+      };
+    })();
+
+    // Hamburger open/close — same contract as the search popover and the map layer:
+    // click toggles, Esc closes and returns focus, backdrop/outside click closes.
+    (function(){
+      var btn = document.getElementById("navBurger"),
+          drawer = document.getElementById("navDrawer"),
+          backdrop = document.querySelector(".pcf-drawer-backdrop");
+      if(!btn || !drawer) return;
+
+      function open(){
+        drawer.hidden = false;
+        if(backdrop) backdrop.hidden = false;
+        pcScrollLock.on();
+        btn.setAttribute("aria-expanded", "true");
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        drawer.hidden = true;
+        if(backdrop) backdrop.hidden = true;
+        pcScrollLock.off();
+        btn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus) btn.focus();
+      }
+      function onKey(e){ if(e.key === "Escape" || e.key === "Esc") close(true); }
+
+      btn.addEventListener("click", function(){
+        if(btn.getAttribute("aria-expanded") === "true") close(false); else open();
+      });
+      if(backdrop) backdrop.addEventListener("click", function(){ close(false); });
+      // Close on resize past the collapse point, so the drawer can't be left open and
+      // unreachable once the burger is hidden and the inline menus return.
+      // MUST MATCH the hamburger's media query in pc.css — it is 899px. A lower value
+      // makes the drawer close itself on any resize event between that value and 899,
+      // which reads as the drawer never opening at all.
+      var COLLAPSE_AT = 899;
+      window.addEventListener("resize", function(){
+        if(window.innerWidth > COLLAPSE_AT && btn.getAttribute("aria-expanded") === "true") close(false);
+      });
+    })();
+
+    // Mega-menu open/close — same interaction contract as the search popover:
+    // click toggles, Esc closes and returns focus, clicking outside closes.
+    // Hover is re-implemented here (not left to CSS) because the CSS :focus-within rule
+    // would otherwise pin the panel open after a click and defeat click-to-close.
+    (function(){
+      var ul = document.getElementById("pcfMenus");
+      if(!ul) return;
+      var items = [].slice.call(ul.children);
+      if(!items.length) return;
+      ul.classList.add("nav-js");        // hands control to JS — see .nav-js rules in pc.css
+      var locked = null;                 // opened by CLICK: stays open when the pointer leaves
+
+      function btnOf(li){ return li.querySelector(".pcf-menu-btn"); }
+      function setOpen(li){
+        items.forEach(function(x){
+          var on = (x === li);
+          x.classList.toggle("is-open", on);
+          var b = btnOf(x);
+          if(b) b.setAttribute("aria-expanded", on ? "true" : "false");
+        });
+      }
+      function closeAll(returnFocus){
+        var was = locked;
+        locked = null; setOpen(null);
+        if(returnFocus && was){ var b = btnOf(was); if(b) b.focus(); }
+      }
+
+      items.forEach(function(li){
+        var btn = btnOf(li);
+        if(!btn) return;
+        // A click LOCKS this panel open; clicking the same trigger again closes it.
+        // `locked` must only ever be set by a click — if hover also moved it, then moving
+        // the pointer from one title to another would pre-lock the second one, and the
+        // click that followed would read as a second click and close it instead of opening.
+        btn.addEventListener("click", function(){
+          if(locked === li){ locked = null; setOpen(null); }
+          else { locked = li; setOpen(li); }
+        });
+        // Hover previews any panel without taking the lock. On leave, fall back to whatever
+        // is locked (setOpen(null) closes everything when nothing is).
+        li.addEventListener("mouseenter", function(){ setOpen(li); });
+        li.addEventListener("mouseleave", function(){ setOpen(locked); });
+      });
+
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" || e.key === "Esc"){
+          if(locked) closeAll(true); else setOpen(null);
+        }
+      });
+      document.addEventListener("click", function(e){
+        if(!ul.contains(e.target)) closeAll(false);
+      });
+    })();
+
+    // Header height -> --navH (the mobile menu drawer and the sticky offsets read it)
+    (function(){
+      var header = document.querySelector("header.pcf");
+      if(!header) return;
+      function syncNavH(){ document.documentElement.style.setProperty("--navH", header.offsetHeight + "px"); }
+      syncNavH(); window.addEventListener("resize", syncNavH); window.addEventListener("load", syncNavH);
+      var logoImg = header.querySelector("img");
+      if(logoImg && !logoImg.complete) logoImg.addEventListener("load", syncNavH);
+    })();
+
+    // Search: magnifier toggles a text field + submit icon below it
+    (function(){
+      var toggle = document.getElementById("searchToggle");
+      var panel  = document.getElementById("searchPanel");
+      var input  = document.getElementById("searchInput");
+      if(!toggle || !panel) return;
+      function open(){
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        if(input){ input.focus(); }
+        document.addEventListener("mousedown", onOutside);
+        document.addEventListener("keydown", onKey);
+      }
+      function close(returnFocus){
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutside);
+        document.removeEventListener("keydown", onKey);
+        if(returnFocus){ toggle.focus(); }
+      }
+      function onOutside(e){
+        if(!panel.contains(e.target) && !toggle.contains(e.target)){ close(false); }
+      }
+      function onKey(e){
+        if(e.key === "Escape" || e.key === "Esc"){ close(true); }
+      }
+      toggle.addEventListener("click", function(){
+        if(panel.classList.contains("open")){ close(true); } else { open(); }
+      });
+    })();
+
+    // Insights & Research — tabbed, varied-tile grid. Content model: Blog = 16:9
+    // photo + headline + teaser + date; Insights = digital documents, cover
+    // art 850x1100 portrait, often no date. Themed via the .io-scope vars.
+    (function(){
+      function hrow(title, date){
+        return '<a class="io-hrow" href="./internal.html"><span class="t">'+title+'</span>'+(date?'<span class="d">'+date+'</span>':'')+'</a>';
+      }
+
+      var INSIGHTS = {
+        featured: [
+          { title:"Farmland Fundamentals: Understanding the Asset Class", teaser:"A primer on why farmland behaves differently from stocks, bonds, and commercial real estate.", cover:"../assets/farmland_fundamentals.png", id:"1500382017468-9049fed747ef", alt:"Open farmland to the horizon" },
+          { title:"Shared DNA: Why Family Offices and Farmland Naturally Align", teaser:"How multigenerational capital and multigenerational land share the same long horizon.", cover:"../assets/shared_dna.png", id:"1757170889478-e6768a4e36c1", alt:"Aerial field strips" },
+          { title:"Perspectives on the Impact of Global Conflict on Farmland Returns", teaser:"What geopolitical shocks have — and have not — meant for U.S. cropland values.", id:"1560493676-04071c5f467b", alt:"Aerial crop rows at sunset" }
+        ],
+        more: [
+          "The Inflation Hedge: Farmland vs. Traditional Assets",
+          "Water Rights and the Value of Irrigated Ground",
+          "Row Crop vs. Permanent Crop: A Risk Framework",
+          "Carbon, Conservation, and Land Returns",
+          "Timber & Transition Land: An Allocation Primer",
+          "The 2025 National Land Values Report"
+        ]
+      };
+      var BLOG = {
+        featured: [
+          { title:"Iowa Land Values Update | 2026 Q2", cat:"Land Values", date:"Jun 30, 2026", teaser:"Where values held, where they softened, and what buyers are signaling this quarter.", id:"1759174469221-71382a2b5bce", alt:"Golden wheat field at sunset" },
+          { title:"Land Auction Results | June 2026", cat:"Agriculture", date:"Jun 18, 2026", teaser:"A recap of the month's competitive auctions and clearing prices across the Midwest.", id:"1574323347407-f5e1ad6d020b", alt:"Green farmland field" },
+          { title:"Global Agriculture Lessons from a 2026 Nuffield Scholar", cat:"Agriculture", date:"May 22, 2026", teaser:"Field notes on productivity, policy, and resilience from farms around the world.", id:"1625246333195-78d9c38ad449", alt:"Rural farm landscape" }
+        ],
+        more: [
+          { t:"Central Nebraska Irrigation District: Water, Power, and Agriculture", d:"May 8, 2026" },
+          { t:"What Rising Cash Rents Mean for Landowners", d:"Apr 24, 2026" },
+          { t:"Spring Planting Outlook Across the Corn Belt", d:"Apr 10, 2026" },
+          { t:"Meet the Team: New Land Professionals in Q1", d:"Mar 27, 2026" },
+          { t:"1031 Exchanges: Timing Your Farmland Sale", d:"Mar 12, 2026" },
+          { t:"Recreational Land Demand Heading into 2026", d:"Feb 20, 2026" },
+          { t:"Farm Succession: Starting the Conversation", d:"Feb 6, 2026" },
+          { t:"Auction vs. Listing: Which Fits Your Farm?", d:"Jan 15, 2026" }
+        ]
+      };
+
+      // Tabbed block: Industry Research (default open) + Peoples Perspective Blog.
+      function tabbedBlock(rootId, h2, researchInner, blogInner){
+        var root = document.getElementById(rootId);
+        if(!root) return;
+        root.innerHTML =
+          '<div class="io-head" style="margin-bottom:14px"><div><p class="io-eyebrow">Insights &amp; Research</p><h2 id="hp-ins-h" class="io-h2">'+h2+'</h2></div><a class="io-viewmore" href="./internal.html">View more &rarr;</a></div>'+
+          '<div class="ioF-tabs" role="tablist">'+
+            '<button class="ioF-tab" role="tab" aria-selected="true" data-p="0">Industry Research</button>'+
+            '<button class="ioF-tab" role="tab" aria-selected="false" data-p="1">Peoples Perspective Blog</button>'+
+          '</div>'+
+          '<div class="ioF-panels">'+
+            '<div class="ioF-panel" data-panel="0">'+researchInner+'</div>'+
+            '<div class="ioF-panel" data-panel="1" hidden>'+blogInner+'</div>'+
+          '</div>';
+        root.querySelectorAll('.ioF-tab').forEach(function(t){
+          t.addEventListener('click', function(){
+            root.querySelectorAll('.ioF-tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
+            root.querySelectorAll('.ioF-panel').forEach(function(p){ p.hidden = (p.getAttribute('data-panel') !== t.getAttribute('data-p')); });
+          });
+        });
+      }
+
+      // Industry Research — horizontal 16:9 cards (no portrait cover, no
+      // "Report · PDF" tag), then a "More research" headline stack.
+      function researchCard(x){
+        return '<a class="io-card" href="./internal.html">'+
+          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
+          '<span class="io-body"><h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
+      }
+      // Peoples Perspective Blog — 16:9 photo + category chip + date + title +
+      // teaser + "Read more", then a "More from the blog" stack.
+      function blogCard(x){
+        return '<a class="io-card" href="./internal.html">'+
+          '<span class="io-ph r169"><img src="'+('https://images.unsplash.com/photo-'+x.id+'?auto=format&fit=crop&w=1200&q=80')+'" alt="'+x.alt+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>'+
+          '<span class="io-body"><span class="io-metarow"><span class="io-chip">'+x.cat+'</span><span class="io-date">'+x.date+'</span></span>'+
+          '<h4 class="io-title">'+x.title+'</h4><p class="io-teaser">'+x.teaser+'</p></span></a>';
+      }
+
+      var rc = INSIGHTS.featured.map(researchCard).join("");
+      var rmore = INSIGHTS.more.map(function(t){ return hrow(t,''); }).join("");
+      var bc = BLOG.featured.map(blogCard).join("");
+      var bmore = BLOG.more.map(function(x){ return hrow(x.t,x.d); }).join("");
+
+      tabbedBlock('hpInsights', 'Land intelligence, made readable.',
+        '<div class="ioC-blog3">'+rc+'</div><p class="io-moretag">Additional White Papers</p><div class="io-hlist2">'+rmore+'</div>',
+        '<div class="ioC-blog3">'+bc+'</div><p class="io-moretag">More from the blog</p><div class="io-hlist2">'+bmore+'</div>');
+    })();
+
+    // Scroll-reveal (must-have) — reduced-motion safe
+    (function(){
+      var els = document.querySelectorAll(".reveal");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduce || !("IntersectionObserver" in window)){
+        els.forEach(function(el){ el.classList.add("in"); });
+        return;
+      }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    })();
+
+    // Announcement toast: bottom-right floating card that MINIMIZES to a
+    // right-edge handle (instead of vanishing) so it can be reopened.
+    (function(){
+      var t = document.getElementById("pcToast");
+      if(!t) return;
+      var reopen = document.getElementById("pcToastReopen");
+      var x = t.querySelector(".pc-toast-x");
+      // moveFocus is false for the automatic narrow-viewport minimize below — focusing
+      // the handle on page load would steal focus and jump the page to the right edge.
+      function setMinimized(min, moveFocus){
+        t.hidden = min;
+        if(reopen){ reopen.hidden = !min; }
+        if(moveFocus){
+          var target = min ? reopen : x;
+          if(target){ target.focus(); }
+        }
+      }
+      function minimize(){ setMinimized(true, true); }
+      function restore(){ userChose = true; setMinimized(false, true); }
+      if(x){ x.addEventListener("click", minimize); }
+      if(reopen){ reopen.addEventListener("click", restore); }
+
+      /* Start minimized at <=1279px. The card is viewport-fixed bottom-right, and from
+         1279 down it lands on top of the footer's right-hand nav columns (it was hiding
+         National Land Values / Case Studies / Newsletters / Blog). Auto-minimize only —
+         never auto-restores, so once the visitor opens the handle it stays open, and a
+         toast never pops itself back open mid-resize. */
+      var TOAST_NARROW = 1279, userChose = false;
+      function narrowCheck(){
+        if(window.innerWidth <= TOAST_NARROW && !userChose){ setMinimized(true, false); }
+      }
+      narrowCheck();
+      window.addEventListener("resize", narrowCheck);
+    })();
+  </script>
+</body>
+</html>
