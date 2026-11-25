@@ -179,6 +179,24 @@
     .ea-field input:focus, .ea-field select:focus, .ea-field textarea:focus{
       outline: none; border-color: var(--pc-navy); box-shadow: 0 0 0 3px var(--pc-light-blue); }
     .ea-form .btn{ grid-column: 1 / -1; justify-self: start; }
+    .ea-form .ord-full{ grid-column: 1 / -1; }
+    .ord-set{ grid-column: 1 / -1; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-4);
+      margin: 0; padding: var(--space-4) 0 0; border: 0; border-top: 1px solid rgba(18,64,106,.35); min-width: 0; }
+    .ord-set > legend{ float: left; width: 100%; padding: 0; margin: 0 0 var(--space-4); font-size: var(--label); font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--pc-navy); }
+    .ord-set > legend + *{ clear: both; }
+    .ord-set > *{ grid-column: 1 / -1; }
+    .ord-set > .ea-c3{ grid-column: span 3; }
+    .ord-sub{ margin: 0; font-style: italic; font-size: 15px; color: var(--pc-black); }
+    .ord-note{ margin: 0; font-size: 14px; line-height: 1.45; color: var(--pc-black); }
+    .ea-field label .ord-note{ text-transform: none; letter-spacing: 0; font-weight: 400; }
+    .ord-opts{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-5); }
+    .ord-opts--one{ grid-template-columns: 1fr; }
+    .ord-opt{ display: flex; gap: 12px; align-items: flex-start; }
+    .ord-opt input{ flex: none; width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--pc-navy); }
+    .ord-opt label{ font-size: 15px; line-height: 1.45; color: var(--pc-black); }
+    .ord-opt input:focus-visible{ outline: 2px solid var(--pc-navy); outline-offset: 2px; }
+    @media (max-width: 399px){ .ord-set > .ea-c3{ grid-column: 1 / -1; } .ord-opts{ grid-template-columns: 1fr; } }
 
 
     /* VIDEO: no section of its own. The hero's Watch the Video button opens theater mode: the
@@ -686,6 +704,14 @@
       background: #fff; color: var(--color-text); padding: var(--space-7) var(--space-7) var(--space-6);
       box-shadow: 0 40px 120px rgba(7,22,44,.6); }
     .ord-title{ margin: 0 0 var(--space-5); font-family: var(--font-serif); font-weight: 500; font-size: 34px; line-height: 1.15; }
+    /* NOT-APPROVED WATERMARK: tells developers this form is a draft and not ready to build. Sticky zero-height
+       anchor so the mark stays centered in the visible panel while the form scrolls; clicks pass through. */
+    .ord-wm{ position: sticky; top: 0; height: 0; z-index: 3; pointer-events: none; user-select: none; }
+    .ord-wm span{ position: absolute; left: 50%; top: calc((100vh - 200px) / 2); transform: translate(-50%, -50%) rotate(-28deg);
+      display: block; text-align: center; white-space: nowrap; font-family: var(--font-sans); font-weight: 800;
+      font-size: 64px; line-height: 1; letter-spacing: .04em; text-transform: uppercase; color: var(--pc-white);
+      background: rgba(7,22,44,.9); padding: 22px 48px; border-radius: var(--radius-sm); box-shadow: 0 8px 32px rgba(7,22,44,.35); }
+    .ord-wm small{ display: block; margin-top: 10px; font-size: 24px; letter-spacing: .12em; color: var(--pc-blue); }
     .ord-cap{ display: flex; justify-content: flex-end; margin-top: var(--space-5); opacity: 0; transition: opacity .3s ease .35s; }
     .ord-theater.is-on .ord-cap{ opacity: 1; }
     .ord-cap span{ font-size: 14px; color: var(--pc-blue); }
@@ -699,6 +725,8 @@
       .ord-stage{ width: 100%; min-height: 100%; }
       .ord-panel{ max-height: none; min-height: 100dvh; border-radius: 0; box-shadow: none; padding: 72px var(--space-5) var(--space-5); }
       .ord-title{ font-size: 26px; line-height: 1.18; }
+      .ord-wm span{ top: 50dvh; font-size: 34px; padding: 14px 28px; }
+      .ord-wm small{ font-size: 15px; }
       .ord-cap{ display: none; }
       .ord-x{ top: var(--space-3); right: var(--space-3); width: 44px; height: 44px; background: rgba(7,22,44,.72);
         border-color: rgba(255,255,255,.5); z-index: 1; }
@@ -1198,18 +1226,87 @@
     <button class="ord-x" type="button" data-ord-close aria-label="Close order form">&times;</button>
     <div class="ord-stage">
       <div class="ord-panel">
+        <div class="ord-wm" aria-hidden="true"><span>Not Approved<small>Do Not Build</small></span></div>
         <h2 class="ord-title" id="ord-title">Get a Restricted Appraisal Report</h2>
         <form class="ea-form" action="#" onsubmit="return false;" aria-labelledby="ord-title">
-          <div class="ea-field ea-c3">
-            <label for="ord-first">First Name<span class="ea-req" aria-hidden="true">*</span></label>
-            <input type="text" id="ord-first" name="ord-first" required autocomplete="given-name" />
+          <fieldset class="ord-set">
+            <legend>Client Information</legend>
+            <div class="ea-field ea-c3"><label for="ord-cl-first">First Name<span class="ea-req" aria-hidden="true">*</span></label><input type="text" id="ord-cl-first" name="ord-cl-first" required autocomplete="given-name" /></div>
+            <div class="ea-field ea-c3"><label for="ord-cl-last">Last Name<span class="ea-req" aria-hidden="true">*</span></label><input type="text" id="ord-cl-last" name="ord-cl-last" required autocomplete="family-name" /></div>
+            <div class="ea-field ea-c3"><label for="ord-cl-phone">Phone</label><input type="tel" id="ord-cl-phone" name="ord-cl-phone" autocomplete="tel" /></div>
+            <div class="ea-field ea-c3"><label for="ord-cl-email">Email<span class="ea-req" aria-hidden="true">*</span></label><input type="email" id="ord-cl-email" name="ord-cl-email" required autocomplete="email" /></div>
+            <div class="ea-field"><label for="ord-cl-addr">Address</label><input type="text" id="ord-cl-addr" name="ord-cl-addr" autocomplete="street-address" /></div>
+          </fieldset>
+
+          <fieldset class="ord-set">
+            <legend>Contact Information</legend>
+            <p class="ord-sub">Requesting Officer</p>
+            <div class="ea-field ea-c3"><label for="ord-ro-first">First Name</label><input type="text" id="ord-ro-first" name="ord-ro-first" /></div>
+            <div class="ea-field ea-c3"><label for="ord-ro-last">Last Name</label><input type="text" id="ord-ro-last" name="ord-ro-last" /></div>
+            <div class="ea-field ea-c3"><label for="ord-ro-phone">Phone</label><input type="tel" id="ord-ro-phone" name="ord-ro-phone" /></div>
+            <div class="ea-field ea-c3"><label for="ord-ro-email">Email</label><input type="email" id="ord-ro-email" name="ord-ro-email" /></div>
+            <div class="ea-field"><label for="ord-ro-addr">Address</label><input type="text" id="ord-ro-addr" name="ord-ro-addr" /></div>
+            <p class="ord-sub">Borrower</p>
+            <div class="ea-field ea-c3"><label for="ord-bo-first">First Name</label><input type="text" id="ord-bo-first" name="ord-bo-first" /></div>
+            <div class="ea-field ea-c3"><label for="ord-bo-last">Last Name</label><input type="text" id="ord-bo-last" name="ord-bo-last" /></div>
+            <div class="ea-field ea-c3"><label for="ord-bo-phone">Phone</label><input type="tel" id="ord-bo-phone" name="ord-bo-phone" /></div>
+            <div class="ea-field ea-c3"><label for="ord-bo-email">Email</label><input type="email" id="ord-bo-email" name="ord-bo-email" /></div>
+            <div class="ea-field"><label for="ord-bo-addr">Address</label><input type="text" id="ord-bo-addr" name="ord-bo-addr" /></div>
+          </fieldset>
+
+          <div class="ea-field ord-full">
+            <label for="ord-users">Intended Users <span class="ord-note">(who else needs to have access to the report?)</span></label>
+            <textarea id="ord-users" name="ord-users"></textarea>
           </div>
-          <div class="ea-field ea-c3">
-            <label for="ord-last">Last Name<span class="ea-req" aria-hidden="true">*</span></label>
-            <input type="text" id="ord-last" name="ord-last" required autocomplete="family-name" />
-          </div>
-          <p class="ea-p" style="grid-column: 1 / -1; margin: 0;">What fields are needed on this form?</p>
-          <button class="btn btn-primary" type="submit">Submit</button>
+
+          <fieldset class="ord-set">
+            <legend>Identification of Property</legend>
+            <div class="ord-opts">
+              <div class="ord-opt"><input type="checkbox" id="ord-p-crop" name="ord-property" value="Cropland" aria-describedby="ord-crop-note" /><label for="ord-p-crop">Cropland*</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-p-pasture" name="ord-property" value="Pasture" /><label for="ord-p-pasture">Pasture</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-p-rec" name="ord-property" value="Recreational" /><label for="ord-p-rec">Recreational</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-p-vacant" name="ord-property" value="Vacant" /><label for="ord-p-vacant">Vacant</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-p-leased" name="ord-property" value="Currently Leased/Rented" /><label for="ord-p-leased">Currently Leased/Rented</label></div>
+            </div>
+            <p class="ord-note" id="ord-crop-note">*Subject property requires a minimum of 90% cropland with no improvements or solar/wind easements. Multiple parcels to be included in one fee need to be contiguous.</p>
+          </fieldset>
+
+          <fieldset class="ord-set">
+            <legend>Purpose of Appraisal</legend>
+            <div class="ord-opts">
+              <div class="ord-opt"><input type="checkbox" id="ord-u-loan" name="ord-purpose" value="New Loan" /><label for="ord-u-loan">New Loan</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-u-refi" name="ord-purpose" value="Refinance" /><label for="ord-u-refi">Refinance</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-u-other" name="ord-purpose" value="Other" /><label for="ord-u-other">Other</label></div>
+            </div>
+            <div class="ea-field"><label for="ord-u-text">If Other, Please Describe</label><input type="text" id="ord-u-text" name="ord-u-text" /></div>
+          </fieldset>
+
+          <fieldset class="ord-set">
+            <legend>Fee and Turn-Time<span class="ea-req" aria-hidden="true">*</span></legend>
+            <div class="ord-opts ord-opts--one">
+              <div class="ord-opt"><input type="radio" id="ord-f15" name="ord-fee" value="15" required /><label for="ord-f15">15-business-day turn-time: $1,200*</label></div>
+              <div class="ord-opt"><input type="radio" id="ord-f10" name="ord-fee" value="10" /><label for="ord-f10">10-business-day turn-time: $1,500*</label></div>
+              <div class="ord-opt"><input type="radio" id="ord-f5" name="ord-fee" value="5" /><label for="ord-f5">5-business-day turn-time: $1,800*</label></div>
+            </div>
+            <p class="ord-note">Add $400 to base fee if property is encumbered with Conservation Easements.</p>
+          </fieldset>
+
+          <fieldset class="ord-set">
+            <legend>Requested Information</legend>
+            <p class="ord-note"><strong>All requested info below needs to be delivered to the appraiser before business day counts begin.</strong> In addition to this form, please provide the following. Check each item you are providing.</p>
+            <div class="ord-opts ord-opts--one">
+              <div class="ord-opt"><input type="checkbox" id="ord-d1" name="ord-docs" value="Sale Documentation" /><label for="ord-d1">Sale Documentation (including, but not limited to: purchase agreement, real estate listing, and/or current deed)</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-d2" name="ord-docs" value="Current Ownership Documentation" /><label for="ord-d2">Current Ownership Documentation</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-d3" name="ord-docs" value="Legal Limitations" /><label for="ord-d3">Legal Limitations (including, but not limited to: access, conservation easements, if applicable)</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-d4" name="ord-docs" value="Correct Legal Description" /><label for="ord-d4">Correct Legal Description</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-d5" name="ord-docs" value="Form 1037B" /><label for="ord-d5">Form 1037B signed by Lending Representative</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-d6" name="ord-docs" value="FSA Documents" /><label for="ord-d6">FSA Documents (including, but not limited to: 156EZ, 578, aerial map, and CRP contracts, if applicable)</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-d7" name="ord-docs" value="Drainage and Tile Information" /><label for="ord-d7">Drainage and Tile Information (if applicable)</label></div>
+              <div class="ord-opt"><input type="checkbox" id="ord-d8" name="ord-docs" value="Form 1010A" /><label for="ord-d8">Borrower: Completed and Signed Form 1010A, Environmental Questionnaire</label></div>
+            </div>
+          </fieldset>
+
+          <button class="btn btn-primary" type="submit">Submit Order</button>
         </form>
       </div>
       <div class="ord-cap"><span>Press Esc to close</span></div>
